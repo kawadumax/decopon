@@ -1,66 +1,109 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Decopon - The Task Manager for ADHD
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+**Naming**
 
-## About Laravel
+*Deco*mpose Task and *Po*modoro and get it do*n*e.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+**Overview**
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+This software is self-hostable task manager. Originally conceived as a countermeasure against procrastination for individuals with ADHD. Currently in a pre-alpha stage and not yet ready for public use. If you're interested, please star this repository.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+**Tech Stack**
 
-## Learning Laravel
+*This system is currently composed of Laravel Breeze and React.*
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Features
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+- **Focus Sessions with Pomodoro Technique**: A timer that breaks your work into 25-minute intervals followed by a 5-minute break.
+- **Organize Tasks with Nested Lists**: Organize your tasks in a list format for easy management.
+- **Easy Logging**: Add tags to each task to categorize them easily.
+- **Search Functionality**: Quickly find tasks using keywords or tags.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## 🎯 Theoretical Background: Challenges Decopon Aims to Solve
 
-## Laravel Sponsors
+People with ADHD often struggle with **procrastination and difficulty completing tasks**. Research suggests that these difficulties can be attributed to three major factors:
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+1. **Challenges with self-monitoring**
+2. **Limited working memory**
+3. **Dopamine deficiency, leading to a lack of motivation ("task inertia")**
 
-### Premium Partners
+Decopon is designed to address these issues through targeted features.
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+---
 
-## Contributing
+### **1. Helping with Self-Monitoring**
+One of the core challenges for people with ADHD is keeping track of **progress and performance**. To address this, Decopon provides **automatic behavior tracking**.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+- **Records when you start and stop a focus session**
+- **Logs completed tasks automatically**
+- **Tracks the number of focus sessions per week**
 
-## Code of Conduct
+With this data, you can analyze your performance patterns:  
+*"When am I most productive?"* / *"What situations lead to procrastination?"*  
+Over time, this self-awareness can help you understand when and why you tend to procrastinate.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+**→ Gain insights into your work habits and procrastination triggers.**
 
-## Security Vulnerabilities
+---
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### **2. Managing Limited Working Memory**
+People with ADHD often struggle with **holding multiple pieces of information in their minds at once**. Decopon provides a structured way to break down tasks.
 
-## License
+- **Subtasks can be broken down into infinite layers** (technically limited by system performance, but practically sufficient)
+- **Chat-style notes allow you to offload temporary information**
+- **Break big tasks into smaller, manageable steps**
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Instead of trying to juggle everything at once, Decopon encourages you to:
+1. **Forget large tasks and focus only on the next step.**
+2. **Write down extra details and let go of unnecessary mental clutter.**
+
+**→ Reduce cognitive overload and stay focused on the task at hand.**
+
+---
+
+### **3. Overcoming Dopamine Deficiency ("Task Inertia")**
+A lack of dopamine makes it difficult for people with ADHD to **initiate and sustain effort on tasks**.  
+To counter this, Decopon integrates **Pomodoro-style focus sessions** to create a **game-like challenge**.
+
+- **Time constraints create a sense of urgency, helping boost motivation**
+- **Tracking how many sessions you complete turns productivity into a "hunting game"**
+- **Tedious obligations start to feel more like a "work game"**
+
+Dopamine is known to be released when pursuing a goal.  
+By structuring work as **a sequence of small "hunts" (short focus sessions)**, Decopon leverages this **natural drive** to improve engagement.
+
+**→ Convert boring tasks into a structured game-like challenge.**
+
+---
+
+## **Summary**
+Decopon addresses common ADHD productivity struggles through three core mechanisms:
+
+| Challenge | How Decopon Helps |
+|-----------|------------------|
+| **Difficulty with self-monitoring** | Tracks behavior and progress automatically |
+| **Limited working memory** | Infinite subtask nesting & chat-style notes |
+| **Lack of motivation (dopamine deficit)** | Pomodoro sessions turn tasks into a "hunting game" |
+
+I hope this tool helps make task management easier and more engaging for you. 🚀
+
+## Roadmap
+
+- Endless Dog-fooding and bugfix (Current)
+- Mobile
+- Darktheme
+- Native Notification
+- Selfhost Guide
+...and so on
+
+## ☕ Support the Project
+
+Living with ADHD makes it challenging for me to see things through to the end.  
+That's why I started Decopon—not only as a tool to help myself stay organized, but also in the hope that it might support others facing similar struggles.
+
+If you find Decopon helpful and want to support its development, you can do so here:
+
+[☕ Buy me a coffee!](https://buymeacoffee.com/kawadumax)
+
+Your support helps keep this project alive and allows me to continue improving it.  
+Every little bit makes a difference—thank you! 💖

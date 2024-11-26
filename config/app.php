@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Laravel'),
+    'name' => env('APP_NAME', 'Decopon'),
 
     /*
     |--------------------------------------------------------------------------
@@ -122,5 +122,29 @@ return [
         'driver' => env('APP_MAINTENANCE_DRIVER', 'file'),
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
+
+    /**
+     * i18n Configure
+     */
+
+    'i18n' => [
+        'locale' => env('APP_LOCALE', 'en'),
+        'fallback_locale' => 'en',
+        'available_locales' => ['en', 'ja'],
+    ],
+
+    /**
+     * Guest User Configure
+     */
+
+    'guest_email' => env('GUEST_EMAIL', 'guest@example.com'),
+    'guest_password' => env('GUEST_PASSWORD', 'password'),
+
+    /**
+     * Admin User Configure
+     */
+
+    'admin_email' => env('ADMIN_EMAIL', 'admin@example.com'),
+    'admin_password' => env('ADMIN_PASSWORD', 'password'),
 
 ];
