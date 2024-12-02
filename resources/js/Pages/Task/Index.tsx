@@ -1,6 +1,7 @@
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { PageProps } from "@/types";
 import { Head } from "@inertiajs/react";
+import TaskTree from "./Partials/TaskTree";
 
 export default function Index({
     tasks,
@@ -25,24 +26,7 @@ export default function Index({
             <div className="py-12">
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
                     <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800">
-                        <ul>
-                            {tasks.map((task) => (
-                                <li
-                                    key={task.id}
-                                    className="flex justify-between mb-2 dark:text-gray-200"
-                                >
-                                    <ul>
-                                        <li>{task.title}</li>
-                                        <li>{task.description}</li>
-                                        <li>
-                                            {task.completed
-                                                ? "Completed"
-                                                : "Not Completed"}
-                                        </li>
-                                    </ul>
-                                </li>
-                            ))}
-                        </ul>
+                        <TaskTree></TaskTree>
                     </div>
                 </div>
             </div>
