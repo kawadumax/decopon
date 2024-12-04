@@ -3,13 +3,17 @@ import { PageProps, Task } from "@/types";
 import { Head } from "@inertiajs/react";
 import { TaskTree } from "./Partials/TaskTree";
 import { TaskTools } from "./Partials/TaskTools";
+import { useAtom } from "jotai";
+import { tasksAtom } from "@/Lib/atoms";
 
-export default function Index({
-    tasks,
-}: PageProps<{
-    tasks: Task[];
-}>) {
-    console.log("tasks:", tasks);
+export default function Index(
+    props: PageProps<{
+        tasks: Task[];
+    }>
+) {
+    console.log("tasks:", props.tasks);
+    const [tasks, setTasks] = useAtom(tasksAtom);
+    setTasks(props.tasks);
     return (
         <AuthenticatedLayout
             header={
