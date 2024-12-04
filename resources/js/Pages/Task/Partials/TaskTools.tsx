@@ -1,24 +1,38 @@
-import { Link } from "@inertiajs/react";
+import { Button } from "@/Components/ui/button";
+import { Link, router } from "@inertiajs/react";
+import axios from "axios";
 
 export const TaskTools = () => {
-    // const [tasks, setTasks] = useState([]);
-    // const [newTask, setNewTask] = useState('');
-    // const addTask = () => {
-    //     if (newTask.trim() !== '') {
-    //         setTasks([...tasks, { text: newTask, completed: false }]);
-    //         setNewTask('');
-    //     }
-    // };
+    const handleAddNewTask = () => {
+        console.log("Add New Task");
+        const data = {
+            title: "New Task",
+            description: "New Task Description",
+            completed: false,
+        };
+        // Make a request for a user with a given ID
+        axios
+            .post(route("api.tasks.store"), data)
+            .then(function (response) {
+                // handle success
+                console.log(response);
+            })
+            .catch(function (error) {
+                // handle error
+                console.log(error);
+            })
+            .finally(function () {
+                // always executed
+            });
+    };
 
     return (
-        <Link
-            href=""
-            method="post"
-            as="button"
-            type="button"
-            className="btn m-5 dark:text-gray-200 dark:bg-cyan-500"
-        >
-            Add Task
-        </Link>
+        <div className="flex justify-start">
+            <Button onClick={handleAddNewTask} className="m-2">
+                +
+            </Button>
+            <Button className="m-2">Disable</Button>
+            <Button className="m-2">-</Button>
+        </div>
     );
 };
