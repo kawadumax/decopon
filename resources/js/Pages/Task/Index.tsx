@@ -1,17 +1,13 @@
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
-import { PageProps } from "@/types";
+import { PageProps, Task } from "@/types";
 import { Head } from "@inertiajs/react";
-import TaskTree from "./Partials/TaskTree";
+import { TaskTree } from "./Partials/TaskTree";
+import { TaskTools } from "./Partials/TaskTools";
 
 export default function Index({
     tasks,
 }: PageProps<{
-    tasks: {
-        id: number;
-        title: string;
-        completed: boolean;
-        description: string;
-    }[];
+    tasks: Task[];
 }>) {
     console.log("tasks:", tasks);
     return (
@@ -26,7 +22,8 @@ export default function Index({
             <div className="py-12">
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
                     <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800">
-                        <TaskTree></TaskTree>
+                        <TaskTools></TaskTools>
+                        <TaskTree tasks={tasks}></TaskTree>
                     </div>
                 </div>
             </div>
