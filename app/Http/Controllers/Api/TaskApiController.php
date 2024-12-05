@@ -32,4 +32,31 @@ class TaskApiController extends ApiController
       'task' => $task
     ], 201);
   }
+
+  /**
+   * Remove the specified resource from storage.
+   */
+  public function destroy(Task $task): JsonResponse
+  {
+    if ($task->user_id !== Auth::id()) {
+      return response()->json([
+        'success' => false,
+        'message' => 'このタスクを削除する権限がありません。',
+      ], 403);
+    }
+
+    if (!$task) {
+      return response()->json([
+        'success' => false,
+        'message' => 'タスクが見つかりません。',
+      ], 404);
+    }
+
+    $task->delete();
+
+    return response()->json([
+      'success' => true,
+      'message' => 'タスクが正常に削除されました。',
+    ], 204);
+  }
 }
