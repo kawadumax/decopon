@@ -1,10 +1,12 @@
 import { Button } from "@/Components/ui/button";
-import { Link, router } from "@inertiajs/react";
+import { tasksAtom } from "@/Lib/atoms";
 import axios from "axios";
+import { useAtom } from "jotai";
 
 export const TaskTools = () => {
+    const [tasks, setTasks] = useAtom(tasksAtom);
+
     const handleAddNewTask = () => {
-        console.log("Add New Task");
         const data = {
             title: "New Task",
             description: "New Task Description",
@@ -16,6 +18,7 @@ export const TaskTools = () => {
             .then(function (response) {
                 // handle success
                 console.log(response);
+                setTasks([...tasks, response.data.task]);
             })
             .catch(function (error) {
                 // handle error
