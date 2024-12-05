@@ -19,5 +19,5 @@ import { Task } from "../types";
 //     },
 // ]);
 
-const tasksAtom = atom([]: Task[]);
+const tasksAtom = atom<Task[]>([]);
 export { tasksAtom };
