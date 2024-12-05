@@ -59,4 +59,31 @@ class TaskApiController extends ApiController
       'message' => 'タスクが正常に削除されました。',
     ], 204);
   }
+
+  /**
+   * Update the specified resource in storage.
+   */
+  public function update(Request $request, Task $task): JsonResponse
+  {
+    if ($task->user_id !== Auth::id()) {
+      return response()->json([
+        'success' => false,
+        'message' => 'このタスクを更新する権限がありません。',
+      ], 403);
+    }
+
+    $validated = $request->validate([
+      'title' => 'sometimes|required|string|max:255',
+      'description' => 'nullable|string',
+      'completed' => 'sometimes|boolean',
+    ]);
+
+    $task->update($validated);
+
+    return response()->json([
+      'success' => true,
+      'message' => 'タスクが正常に更新されました。',
+      'task' => $task
+    ], 200);
+  }
 }
