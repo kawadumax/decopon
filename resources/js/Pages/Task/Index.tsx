@@ -5,15 +5,23 @@ import { TaskTree } from "./Partials/TaskTree";
 import { TaskTools } from "./Partials/TaskTools";
 import { useAtom } from "jotai";
 import { tasksAtom } from "@/Lib/atoms";
+import { useEffect } from "react";
 
 export default function Index(
     props: PageProps<{
         tasks: Task[];
     }>
 ) {
-    console.log("tasks:", props.tasks);
     const [tasks, setTasks] = useAtom(tasksAtom);
-    setTasks(props.tasks);
+
+    useEffect(() => {
+        setTasks(props.tasks);
+    }, [props.tasks]);
+
+    useEffect(() => {
+        console.log("tasks:", tasks);
+    }, [tasks]);
+
     return (
         <AuthenticatedLayout
             header={
