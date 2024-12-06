@@ -1,37 +1,29 @@
 import { Button } from "@/Components/ui/button";
 import { tasksAtom } from "@/Lib/atoms";
-import axios from "axios";
 import { useAtom } from "jotai";
 import { Plus } from "@mynaui/icons-react";
+import { toast } from "sonner";
+import { useApi } from "@/Hooks/useApi";
 
 export const TaskTools = () => {
     const [tasks, setTasks] = useAtom(tasksAtom);
+    const api = useApi();
 
     const handleAddNewTask = () => {
-        const data = {
+        const taskTemplate = {
             title: "New Task",
             description: "New Task Description",
             completed: false,
         };
-        // Make a request for a user with a given ID
-        axios
-            .post(route("api.tasks.store"), data)
-            .then(function (response) {
-                // handle success
-                setTasks([...tasks, response.data.task]);
-            })
-            .catch(function (error) {
-                // handle error
-                console.log(error);
-            })
-            .finally(function () {
-                // always executed
-            });
+
+        api.post(route("api.tasks.store"), taskTemplate, (response) => {
+            setTasks((prev) => [...prev, response.data.task]);
+        });
     };
 
     return (
-        <div className="flex justify-start">
-            <Button onClick={handleAddNewTask} className="m-2">
+        <div className="flex justify-start m-4 mb-0">
+            <Button onClick={handleAddNewTask}>
                 <Plus /> Add New Task
             </Button>
         </div>

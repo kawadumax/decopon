@@ -18,9 +18,7 @@ export default function Index(
         setTasks(props.tasks);
     }, [props.tasks]);
 
-    useEffect(() => {
-        console.log("tasks:", tasks);
-    }, [tasks]);
+    useEffect(() => {}, [tasks]);
 
     return (
         <AuthenticatedLayout
