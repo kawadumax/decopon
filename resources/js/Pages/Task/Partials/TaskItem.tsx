@@ -9,10 +9,11 @@ import { useEffect, useState } from "react";
 import { useAtom } from "jotai";
 import { tasksAtom } from "@/Lib/atoms";
 
-export const TaskItem = ({ task }: { task: Task }) => {
+export const TaskItem = (props: { task: Task }) => {
     const [, setTasks] = useAtom(tasksAtom);
     const [editable, setEditable] = useState<boolean>(false);
-    const [title, setTitle] = useState<string>(task.title);
+    const [inputChanged, setInputChanged] = useState<boolean>(false);
+    const [task, setTask] = useState<Task>(props.task);
 
     const handleCheckboxChange = (
         event: React.ChangeEvent<HTMLInputElement>
@@ -36,20 +37,32 @@ export const TaskItem = ({ task }: { task: Task }) => {
         setEditable((prev) => !prev);
     };
 
+    const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        console.log("Input Event");
+        setInputChanged(true);
+        setTask((prev) => ({ ...prev, title: event.target.value }));
+    };
+
     useEffect(() => {
-        if (!editable) {
+        if (inputChanged && !editable) {
+            // フィールドが変化している時
             // editableがfalseになったときにupdateを呼び出す
             axios
-                .put(route("api.tasks.update", task.id), { title })
+                .put(route("api.tasks.update", task.id), { title: task.title })
                 .then((response) => {
-                    // 必要に応じて処理を追加
-                    setTitle(response.data.title);
+                    console.log(response.data);
+                    setTask(response.data.task);
                 })
                 .catch((error) => {
                     console.error(error);
+                })
+                .finally(() => {
+                    setInputChanged(false);
                 });
         }
-    }, [editable, title, task.id]);
+    }, [editable]);
+
+    useEffect(() => {}, [task]);
 
     return (
         <li className="px-4 list-none hover:bg-stone-50">
@@ -57,7 +70,10 @@ export const TaskItem = ({ task }: { task: Task }) => {
                 <span className="my-1 flex flex-row items-center gap-2">
                     <Checkbox></Checkbox>
                     {editable ? (
-                        <Input defaultValue={task.title} />
+                        <Input
+                            defaultValue={task.title}
+                            onInput={handleInputChange}
+                        />
                     ) : (
                         task.title
                     )}
