@@ -15,10 +15,17 @@ export const TaskItem = (props: { task: Task }) => {
     const [inputChanged, setInputChanged] = useState<boolean>(false);
     const [task, setTask] = useState<Task>(props.task);
 
-    const handleCheckboxChange = (
-        event: React.ChangeEvent<HTMLInputElement>
-    ) => {
-        //TODO
+    const handleCheckboxChange = (checked: boolean) => {
+        axios
+            .put(route("api.tasks.update", task.id), { completed: checked })
+            .then((response) => {
+                console.log(response.data);
+                setTask(response.data.task);
+            })
+            .catch((error) => {
+                console.error(error);
+            })
+            .finally(() => {});
     };
 
     const handleDelete = () => {
@@ -38,7 +45,6 @@ export const TaskItem = (props: { task: Task }) => {
     };
 
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        console.log("Input Event");
         setInputChanged(true);
         setTask((prev) => ({ ...prev, title: event.target.value }));
     };
@@ -68,7 +74,10 @@ export const TaskItem = (props: { task: Task }) => {
         <li className="px-4 list-none hover:bg-stone-50">
             <div className="flex flex-row flex-nowrap justify-between">
                 <span className="my-1 flex flex-row items-center gap-2">
-                    <Checkbox></Checkbox>
+                    <Checkbox
+                        onCheckedChange={handleCheckboxChange}
+                        checked={task.completed}
+                    ></Checkbox>
                     {editable ? (
                         <Input
                             defaultValue={task.title}

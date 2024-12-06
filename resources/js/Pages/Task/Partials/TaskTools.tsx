@@ -2,6 +2,7 @@ import { Button } from "@/Components/ui/button";
 import { tasksAtom } from "@/Lib/atoms";
 import axios from "axios";
 import { useAtom } from "jotai";
+import { Plus } from "@mynaui/icons-react";
 
 export const TaskTools = () => {
     const [tasks, setTasks] = useAtom(tasksAtom);
@@ -17,7 +18,6 @@ export const TaskTools = () => {
             .post(route("api.tasks.store"), data)
             .then(function (response) {
                 // handle success
-                console.log(response);
                 setTasks([...tasks, response.data.task]);
             })
             .catch(function (error) {
@@ -32,10 +32,8 @@ export const TaskTools = () => {
     return (
         <div className="flex justify-start">
             <Button onClick={handleAddNewTask} className="m-2">
-                +
+                <Plus /> Add New Task
             </Button>
-            <Button className="m-2">Disable</Button>
-            <Button className="m-2">-</Button>
         </div>
     );
 };
