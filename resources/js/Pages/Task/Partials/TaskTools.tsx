@@ -2,11 +2,10 @@ import { Button } from "@/Components/ui/button";
 import { tasksAtom } from "@/Lib/atoms";
 import { useAtom } from "jotai";
 import { Plus } from "@mynaui/icons-react";
-import { toast } from "sonner";
 import { useApi } from "@/Hooks/useApi";
 
 export const TaskTools = () => {
-    const [tasks, setTasks] = useAtom(tasksAtom);
+    const [, setTasks] = useAtom(tasksAtom);
     const api = useApi();
 
     const handleAddNewTask = () => {
@@ -17,6 +16,7 @@ export const TaskTools = () => {
         };
 
         api.post(route("api.tasks.store"), taskTemplate, (response) => {
+            console.log(response.data.task);
             setTasks((prev) => [...prev, response.data.task]);
         });
     };
