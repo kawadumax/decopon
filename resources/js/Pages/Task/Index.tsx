@@ -3,6 +3,7 @@ import { PageProps, Task } from "@/types";
 import { Head } from "@inertiajs/react";
 import { TaskTree } from "./Partials/TaskTree";
 import { TaskTools } from "./Partials/TaskTools";
+import { TaskSideView } from "./Partials/TaskSideView";
 import { useAtom } from "jotai";
 import { tasksAtom } from "@/Lib/atoms";
 import { useEffect } from "react";
@@ -12,13 +13,11 @@ export default function Index(
         tasks: Task[];
     }>
 ) {
-    const [tasks, setTasks] = useAtom(tasksAtom);
+    const [, setTasks] = useAtom(tasksAtom);
 
     useEffect(() => {
         setTasks(props.tasks);
     }, [props.tasks]);
-
-    useEffect(() => {}, [tasks]);
 
     return (
         <AuthenticatedLayout
@@ -30,10 +29,13 @@ export default function Index(
         >
             <Head title="Task List" />
             <div className="py-12">
-                <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
-                    <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800">
+                <div className="mx-auto max-w-7xl sm:px-6 lg:px-8 flex flex-row gap-4">
+                    <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800 basis-1/2">
                         <TaskTools></TaskTools>
-                        <TaskTree tasks={tasks}></TaskTree>
+                        <TaskTree></TaskTree>
+                    </div>
+                    <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800 basis-1/2 h-fit">
+                        <TaskSideView></TaskSideView>
                     </div>
                 </div>
             </div>
