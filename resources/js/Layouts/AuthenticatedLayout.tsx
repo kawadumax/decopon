@@ -182,7 +182,7 @@ export default function Authenticated({
             )}
 
             <main>{children}</main>
-            <Toaster />
+            <Toaster richColors />
         </div>
     );
 }

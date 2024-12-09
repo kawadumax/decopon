@@ -57,7 +57,7 @@ class TaskApiController extends ApiController
     return response()->json([
       'success' => true,
       'message' => 'タスクが正常に削除されました。',
-    ], 204);
+    ], 200);
   }
 
   /**
