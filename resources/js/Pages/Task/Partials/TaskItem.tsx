@@ -4,15 +4,16 @@ import { Checkbox } from "@/Components/ui/checkbox";
 import { Toggle } from "@/Components/ui/toggle";
 import { Input } from "@/Components/ui/input";
 import { Trash, Edit, PlusSquare } from "@mynaui/icons-react";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAtom } from "jotai";
-import { tasksAtom } from "@/Lib/atoms";
+import { selectedTaskIdAtom, tasksAtom } from "@/Lib/atoms";
 import { useApi } from "@/Hooks/useApi";
 
 export const TaskItem = (props: { task: Task }) => {
     const api = useApi();
     const [, setTasks] = useAtom(tasksAtom);
     const [editable, setEditable] = useState<boolean>(false);
+    const [selecteId, setSelectedId] = useAtom(selectedTaskIdAtom);
     const [inputChanged, setInputChanged] = useState<boolean>(false);
     const [task, setTask] = useState<Task>(props.task);
 
@@ -42,6 +43,10 @@ export const TaskItem = (props: { task: Task }) => {
         setTask((prev) => ({ ...prev, title: event.target.value }));
     };
 
+    const handleItemClicked = (event: React.MouseEvent) => {
+        setSelectedId(task.id);
+    };
+
     useEffect(() => {
         if (inputChanged && !editable) {
             // フィールドが変化している時
@@ -63,7 +68,10 @@ export const TaskItem = (props: { task: Task }) => {
     useEffect(() => {}, [task]);
 
     return (
-        <li className="px-4 list-none hover:bg-stone-50">
+        <li
+            className="px-4 list-none hover:bg-stone-50"
+            onClick={handleItemClicked}
+        >
             <div className="flex flex-row flex-nowrap justify-between">
                 <span className="my-1 flex flex-row items-center gap-2">
                     <Checkbox
