@@ -4,40 +4,33 @@ import { Checkbox } from "@/Components/ui/checkbox";
 import { Toggle } from "@/Components/ui/toggle";
 import { Input } from "@/Components/ui/input";
 import { Trash, Edit, PlusSquare } from "@mynaui/icons-react";
-import axios from "axios";
 import { useEffect, useState } from "react";
 import { useAtom } from "jotai";
 import { tasksAtom } from "@/Lib/atoms";
+import { useApi } from "@/Hooks/useApi";
 
 export const TaskItem = (props: { task: Task }) => {
+    const api = useApi();
     const [, setTasks] = useAtom(tasksAtom);
     const [editable, setEditable] = useState<boolean>(false);
     const [inputChanged, setInputChanged] = useState<boolean>(false);
     const [task, setTask] = useState<Task>(props.task);
 
     const handleCheckboxChange = (checked: boolean) => {
-        axios
-            .put(route("api.tasks.update", task.id), { completed: checked })
-            .then((response) => {
-                console.log(response.data);
+        api.put(
+            route("api.tasks.update", task.id),
+            { completed: checked },
+            (response) => {
                 setTask(response.data.task);
-            })
-            .catch((error) => {
-                console.error(error);
-            })
-            .finally(() => {});
+            }
+        );
     };
 
     const handleDelete = () => {
-        axios
-            .delete(route("api.tasks.destroy", task.id))
-            .then((response) => {
-                setTasks((prev) => prev.filter((t) => t.id !== task.id));
-            })
-            .catch((error) => {
-                console.error(error);
-            })
-            .finally(() => {});
+        api.delete(route("api.tasks.destroy", task.id), (response) => {
+            console.log(response.data);
+            setTasks((prev) => prev.filter((t) => t.id !== task.id));
+        });
     };
 
     const handleEditToggle = () => {
@@ -53,18 +46,17 @@ export const TaskItem = (props: { task: Task }) => {
         if (inputChanged && !editable) {
             // フィールドが変化している時
             // editableがfalseになったときにupdateを呼び出す
-            axios
-                .put(route("api.tasks.update", task.id), { title: task.title })
-                .then((response) => {
-                    console.log(response.data);
+            api.put(
+                route("api.tasks.update", task.id),
+                { title: task.title },
+                (response) => {
                     setTask(response.data.task);
-                })
-                .catch((error) => {
-                    console.error(error);
-                })
-                .finally(() => {
+                },
+                undefined,
+                () => {
                     setInputChanged(false);
-                });
+                }
+            );
         }
     }, [editable]);
 

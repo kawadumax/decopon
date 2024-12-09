@@ -22,6 +22,7 @@ export function useApi() {
         setLoading(true);
         try {
             const response = await axiosInstance({ method, url, data });
+
             toast.success(response.data.message);
             onSuccess && onSuccess(response);
             return response.data;
@@ -45,7 +46,7 @@ export function useApi() {
             onSuccess?: FnOnSucsess,
             onError?: FnOnError,
             onFinaly?: FnOnFinaly
-        ) => request("get", url, onSuccess, onError, onFinaly),
+        ) => request("get", url, undefined, onSuccess, onError, onFinaly),
         post: (
             url: string,
             data: any,
@@ -65,6 +66,6 @@ export function useApi() {
             onSuccess?: FnOnSucsess,
             onError?: FnOnError,
             onFinaly?: FnOnFinaly
-        ) => request("delete", url, onSuccess, onError, onFinaly),
+        ) => request("delete", url, undefined, onSuccess, onError, onFinaly),
     };
 }
