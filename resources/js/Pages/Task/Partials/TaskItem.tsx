@@ -1,10 +1,9 @@
 import { Task } from "@/types";
 import { Button } from "@/Components/ui/button";
-
 import { Trash, PlusSquare } from "@mynaui/icons-react";
-import React, { useEffect, useState, useRef } from "react";
-import { useAtom, PrimitiveAtom } from "jotai";
-import { selectedTaskAtomAtom } from "@/Lib/atoms";
+import React from "react";
+import { PrimitiveAtom, useSetAtom, useAtomValue, atom } from "jotai";
+import { taskSelectorAtom } from "@/Lib/atoms";
 import { useApi } from "@/Hooks/useApi";
 import { TaskEditableTitle } from "./TaskEditableTitle";
 
@@ -16,21 +15,20 @@ export const TaskItem = ({
     remove: () => void;
 }) => {
     const api = useApi();
-    const [task, setTask] = useAtom(taskAtom);
-    const [, setSelectedTaskAtom] = useAtom(selectedTaskAtomAtom);
+    const task = useAtomValue(taskAtom);
+    const setCurrentTaskAtom = useSetAtom(taskSelectorAtom);
 
     const handleDelete = () => {
         api.delete(route("api.tasks.destroy", task.id), (response) => {
             console.log(response.data);
             remove();
+            setCurrentTaskAtom(atom(null))
         });
     };
 
     const handleItemClicked = (event: React.MouseEvent) => {
-        setSelectedTaskAtom(taskAtom);
+        setCurrentTaskAtom(taskAtom);
     };
-
-    useEffect(() => {}, [task]);
 
     return (
         <li
