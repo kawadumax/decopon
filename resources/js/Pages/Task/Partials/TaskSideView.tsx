@@ -13,12 +13,12 @@ export const TaskSideView = () => {
 
     const renderTaskContent = () => {
         if (!selectedId) {
-            return <div className="p-4">選択されていません</div>;
+            return "選択されていません";
         } else {
             const selectedTask = tasks.find((task) => task.id === selectedId);
             if (selectedTask) {
                 return (
-                    <div className="p-4">
+                    <>
                         <h2 className="text-xl font-bold mb-2">
                             <span className="mr-2">
                                 <Checkbox checked={selectedTask.completed} />
@@ -26,13 +26,13 @@ export const TaskSideView = () => {
                             <span>{selectedTask.title}</span>
                         </h2>
                         <p>{selectedTask.description}</p>
-                    </div>
+                    </>
                 );
             } else {
-                return <div className="p-4">タスクが見つかりません</div>;
+                return "タスクが見つかりません";
             }
         }
     };
 
-    return <>{renderTaskContent()}</>;
+    return <div className="p-4">{renderTaskContent()}</div>;
 };

@@ -1,13 +1,17 @@
 import { TaskItem } from "./TaskItem";
 import { useAtom } from "jotai";
-import { tasksAtom } from "@/Lib/atoms";
+import { taskAtomsAtom } from "@/Lib/atoms";
 
 export const TaskTree = () => {
-    const [tasks] = useAtom(tasksAtom);
+    const [taskAtoms, dispatch] = useAtom(taskAtomsAtom);
     return (
         <ul className="flex flex-col list-inside list-disc dark:text-gray-200">
-            {tasks.map((task) => (
-                <TaskItem task={task} key={task.id}></TaskItem>
+            {taskAtoms.map((taskAtom) => (
+                <TaskItem
+                    taskAtom={taskAtom}
+                    remove={() => dispatch({ type: "remove", atom: taskAtom })}
+                    key={`${taskAtom}`}
+                ></TaskItem>
             ))}
         </ul>
     );

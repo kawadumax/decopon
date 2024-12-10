@@ -1,5 +1,6 @@
 import { atom } from "jotai";
 import { Task } from "../types";
+import { splitAtom } from "jotai/utils";
 // const countAtom = atom(0);
 
 // const countryAtom = atom("Japan");
@@ -20,4 +21,5 @@ import { Task } from "../types";
 // ]);
 
 export const tasksAtom = atom<Task[]>([]);
+export const taskAtomsAtom = splitAtom(tasksAtom);
 export const selectedTaskIdAtom = atom<number | null>(null);
