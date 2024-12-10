@@ -1,4 +1,4 @@
-import { atom } from "jotai";
+import { atom, PrimitiveAtom } from "jotai";
 import { Task } from "../types";
 import { splitAtom } from "jotai/utils";
 // const countAtom = atom(0);
@@ -22,4 +22,10 @@ import { splitAtom } from "jotai/utils";
 
 export const tasksAtom = atom<Task[]>([]);
 export const taskAtomsAtom = splitAtom(tasksAtom);
-export const selectedTaskIdAtom = atom<number | null>(null);
+const selectedTaskAtomBaseAtom = atom<PrimitiveAtom<Task>>();
+export const selectedTaskAtomAtom = atom(
+    (get) => get(selectedTaskAtomBaseAtom),
+    (_get, set, newSelectedTaskAtom: PrimitiveAtom<Task>) => {
+        set(selectedTaskAtomBaseAtom, newSelectedTaskAtom);
+    }
+);

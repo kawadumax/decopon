@@ -1,30 +1,29 @@
 import { useAtom, useAtomValue } from "jotai";
-import { tasksAtom } from "@/Lib/atoms";
-import { selectedTaskIdAtom } from "@/Lib/atoms";
-import { Checkbox } from "@/Components/ui/checkbox";
+import { taskAtomsAtom, tasksAtom } from "@/Lib/atoms";
+import { selectedTaskAtomAtom } from "@/Lib/atoms";
 import { useEffect } from "react";
+import { TaskEditableTitle } from "./TaskEditableTitle";
+import { Task } from "@/types";
 export const TaskSideView = () => {
-    const [tasks] = useAtom(tasksAtom);
-    const selectedId = useAtomValue(selectedTaskIdAtom);
+    // const [tasks] = useAtom(tasksAtom);
+    // const selectedId = useAtomValue(selectedTaskIdAtom);
+    const selectedTaskAtom = useAtomValue(selectedTaskAtomAtom);
+    const selectedTask: Task | undefined = useAtomValue(selectedTaskAtom);
 
     useEffect(() => {
-        console.log(tasks);
-    }, [selectedId, tasks]);
+        console.log(selectedTaskAtom);
+    }, [selectedTaskAtom]);
 
     const renderTaskContent = () => {
-        if (!selectedId) {
+        if (!selectedTaskAtom) {
             return "選択されていません";
         } else {
-            const selectedTask = tasks.find((task) => task.id === selectedId);
-            if (selectedTask) {
+            if (selectedTaskAtom && selectedTask) {
                 return (
                     <>
-                        <h2 className="text-xl font-bold mb-2">
-                            <span className="mr-2">
-                                <Checkbox checked={selectedTask.completed} />
-                            </span>
-                            <span>{selectedTask.title}</span>
-                        </h2>
+                        <TaskEditableTitle
+                            taskAtom={selectedTaskAtom}
+                        ></TaskEditableTitle>
                         <p>{selectedTask.description}</p>
                     </>
                 );
