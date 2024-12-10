@@ -1,30 +1,23 @@
 import { useAtom, useAtomValue } from "jotai";
-import { taskAtomsAtom, tasksAtom } from "@/Lib/atoms";
-import { selectedTaskAtomAtom } from "@/Lib/atoms";
-import { useEffect } from "react";
+import { taskSelectorAtom } from "@/Lib/atoms";
 import { TaskEditableTitle } from "./TaskEditableTitle";
 import { Task } from "@/types";
+import { PrimitiveAtom } from "jotai";
 export const TaskSideView = () => {
-    // const [tasks] = useAtom(tasksAtom);
-    // const selectedId = useAtomValue(selectedTaskIdAtom);
-    const selectedTaskAtom = useAtomValue(selectedTaskAtomAtom);
-    const selectedTask: Task | undefined = useAtomValue(selectedTaskAtom);
-
-    useEffect(() => {
-        console.log(selectedTaskAtom);
-    }, [selectedTaskAtom]);
+    const currentTaskAtom = useAtomValue(taskSelectorAtom);
+    const [currentTask, setCurrentTask] = useAtom(currentTaskAtom)
 
     const renderTaskContent = () => {
-        if (!selectedTaskAtom) {
+        if (!currentTask) {
             return "選択されていません";
         } else {
-            if (selectedTaskAtom && selectedTask) {
+            if (currentTask) {
                 return (
                     <>
                         <TaskEditableTitle
-                            taskAtom={selectedTaskAtom}
+                            taskAtom={currentTaskAtom as PrimitiveAtom<Task>}
                         ></TaskEditableTitle>
-                        <p>{selectedTask.description}</p>
+                        <p>{currentTask.description}</p>
                     </>
                 );
             } else {

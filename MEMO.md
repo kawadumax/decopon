@@ -1,3 +1,25 @@
+## プロジェクト初期化
+
+gitから落としてきた後、.envをコピーする。
+
+```
+git clone git@github.com:kawadumax/decopon.git
+cp .env.example .env
+```
+
+DBの初期化
+```
+php artisan migrate
+```
+
+暗号化キーの生成がいるかも
+
+```
+php artisan key:generate
+```
+
+## コマンドのメモ書き
+
 開発サーバ実行
 
 ```
