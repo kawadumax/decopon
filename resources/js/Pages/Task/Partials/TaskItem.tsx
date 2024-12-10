@@ -4,18 +4,25 @@ import { Checkbox } from "@/Components/ui/checkbox";
 import { Toggle } from "@/Components/ui/toggle";
 import { Input } from "@/Components/ui/input";
 import { Trash, Edit, PlusSquare } from "@mynaui/icons-react";
-import React, { useEffect, useState } from "react";
-import { useAtom } from "jotai";
-import { selectedTaskIdAtom, tasksAtom } from "@/Lib/atoms";
+import React, { useEffect, useState, useRef } from "react";
+import { useAtom, PrimitiveAtom } from "jotai";
+import { selectedTaskIdAtom } from "@/Lib/atoms";
 import { useApi } from "@/Hooks/useApi";
 
-export const TaskItem = (props: { task: Task }) => {
+export const TaskItem = ({
+    taskAtom,
+    remove,
+}: {
+    taskAtom: PrimitiveAtom<Task>;
+    remove: () => void;
+}) => {
     const api = useApi();
-    const [, setTasks] = useAtom(tasksAtom);
+    const [task, setTask] = useAtom(taskAtom);
     const [editable, setEditable] = useState<boolean>(false);
-    const [selecteId, setSelectedId] = useAtom(selectedTaskIdAtom);
+    const [, setSelectedId] = useAtom(selectedTaskIdAtom);
     const [inputChanged, setInputChanged] = useState<boolean>(false);
-    const [task, setTask] = useState<Task>(props.task);
+
+    const inputRef = useRef<HTMLInputElement>(null);
 
     const handleCheckboxChange = (checked: boolean) => {
         api.put(
@@ -30,7 +37,7 @@ export const TaskItem = (props: { task: Task }) => {
     const handleDelete = () => {
         api.delete(route("api.tasks.destroy", task.id), (response) => {
             console.log(response.data);
-            setTasks((prev) => prev.filter((t) => t.id !== task.id));
+            remove();
         });
     };
 
@@ -48,6 +55,10 @@ export const TaskItem = (props: { task: Task }) => {
     };
 
     useEffect(() => {
+        if (editable) {
+            inputRef.current?.focus();
+        }
+
         if (inputChanged && !editable) {
             // フィールドが変化している時
             // editableがfalseになったときにupdateを呼び出す
@@ -80,6 +91,7 @@ export const TaskItem = (props: { task: Task }) => {
                     ></Checkbox>
                     {editable ? (
                         <Input
+                            ref={inputRef}
                             defaultValue={task.title}
                             onInput={handleInputChange}
                         />
