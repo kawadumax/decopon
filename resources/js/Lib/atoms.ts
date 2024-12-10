@@ -22,10 +22,10 @@ import { splitAtom } from "jotai/utils";
 
 export const tasksAtom = atom<Task[]>([]);
 export const taskAtomsAtom = splitAtom(tasksAtom);
-const selectedTaskAtomBaseAtom = atom<PrimitiveAtom<Task>>();
-export const selectedTaskAtomAtom = atom(
-    (get) => get(selectedTaskAtomBaseAtom),
-    (_get, set, newSelectedTaskAtom: PrimitiveAtom<Task>) => {
-        set(selectedTaskAtomBaseAtom, newSelectedTaskAtom);
+const selectedTaskBaseAtom = atom<PrimitiveAtom<Task> | PrimitiveAtom<null>>(atom(null));
+export const taskSelectorAtom = atom(
+    (get) => get(selectedTaskBaseAtom),
+    (_get, set, newSelectedTaskAtom: PrimitiveAtom<Task> | PrimitiveAtom<null>) => {
+        set(selectedTaskBaseAtom, newSelectedTaskAtom);
     }
 );
