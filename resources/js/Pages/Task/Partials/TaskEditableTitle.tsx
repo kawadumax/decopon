@@ -9,8 +9,10 @@ import { useApi } from "@/Hooks/useApi";
 
 export const TaskEditableTitle = ({
     taskAtom,
+    variant = "default",
 }: {
     taskAtom: PrimitiveAtom<Task>;
+    variant?: "default" | "lg";
 }) => {
     const api = useApi();
     const [task, setTask] = useAtom(taskAtom);
@@ -59,6 +61,14 @@ export const TaskEditableTitle = ({
         }
     }, [editable]);
 
+    const renderTitle = () => {
+        if (variant === "lg") {
+            return <h2 className="text-lg font-bold">{task.title}</h2>;
+        } else {
+            return <span>{task.title}</span>;
+        }
+    };
+
     return (
         <span className="my-1 flex flex-row items-center gap-2">
             <Checkbox
@@ -72,7 +82,7 @@ export const TaskEditableTitle = ({
                     onInput={handleInputChange}
                 />
             ) : (
-                task.title
+                renderTitle()
             )}
             <Toggle variant={"default"} size={"sm"} onClick={handleEditToggle}>
                 <Edit />
