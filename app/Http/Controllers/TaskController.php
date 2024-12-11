@@ -6,6 +6,7 @@ use App\Models\Task;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use Illuminate\Support\Facades\Auth;
 
 class TaskController extends Controller
 {
@@ -14,8 +15,14 @@ class TaskController extends Controller
      */
     public function index()
     {
+        if (!Auth::check()) {
+            return redirect()->route('welcome');
+        }
+
+        $user = Auth::user();
+
         return Inertia::render('Task/Index', [
-            'tasks' => Task::all()
+            'tasks' => Task::where('user_id', $user->id)->get()
         ]);
     }
 
