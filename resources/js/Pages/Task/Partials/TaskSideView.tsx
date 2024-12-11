@@ -3,9 +3,10 @@ import { taskSelectorAtom } from "@/Lib/atoms";
 import { TaskEditableTitle } from "./TaskEditableTitle";
 import { Task } from "@/types";
 import { PrimitiveAtom } from "jotai";
+import { TaskEditableDescription } from "./TaskEditableDescription";
 export const TaskSideView = () => {
     const currentTaskAtom = useAtomValue(taskSelectorAtom);
-    const [currentTask, setCurrentTask] = useAtom(currentTaskAtom)
+    const currentTask = useAtomValue(currentTaskAtom);
 
     const renderTaskContent = () => {
         if (!currentTask) {
@@ -17,7 +18,9 @@ export const TaskSideView = () => {
                         <TaskEditableTitle
                             taskAtom={currentTaskAtom as PrimitiveAtom<Task>}
                         ></TaskEditableTitle>
-                        <p>{currentTask.description}</p>
+                        <TaskEditableDescription
+                            taskAtom={currentTaskAtom as PrimitiveAtom<Task>}
+                        ></TaskEditableDescription>
                     </>
                 );
             } else {
