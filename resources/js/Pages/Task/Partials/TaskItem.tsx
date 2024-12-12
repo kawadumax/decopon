@@ -10,9 +10,11 @@ import { TaskEditableTitle } from "./TaskEditableTitle";
 export const TaskItem = ({
     taskAtom,
     remove,
+    children
 }: {
     taskAtom: PrimitiveAtom<Task>;
     remove: () => void;
+    children?: React.ReactNode
 }) => {
     const api = useApi();
     const task = useAtomValue(taskAtom);
@@ -62,6 +64,7 @@ export const TaskItem = ({
                     </Button>
                 </span>
             </div>
+            {children}
         </li>
     );
 };
