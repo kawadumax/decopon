@@ -7,6 +7,8 @@ export interface User {
 
 export interface Task {
     id: number;
+    user_id: number;
+    parent_task_id?: number;
     title: string;
     completed: boolean;
     description: string;

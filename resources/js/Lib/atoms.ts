@@ -1,6 +1,6 @@
 import { atom, PrimitiveAtom } from "jotai";
 import { Task } from "../types";
-import { splitAtom } from "jotai/utils";
+import { atomFamily, splitAtom } from "jotai/utils";
 // const countAtom = atom(0);
 
 // const countryAtom = atom("Japan");

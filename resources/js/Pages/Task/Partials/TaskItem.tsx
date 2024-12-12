@@ -22,12 +22,23 @@ export const TaskItem = ({
         api.delete(route("api.tasks.destroy", task.id), (response) => {
             console.log(response.data);
             remove();
-            setCurrentTaskAtom(atom(null))
+            setCurrentTaskAtom(atom(null));
         });
     };
 
     const handleItemClicked = (event: React.MouseEvent) => {
         setCurrentTaskAtom(taskAtom);
+    };
+
+    const renderIdInLocal = () => {
+        if (import.meta.env.VITE_APP_ENV == "local") {
+            return (
+                <span className="my-1 flex flex-row items-center gap-1">
+                    <span>Id: {task.id}</span>
+                    <span>ParentId: {task.parent_task_id || "Undefined"}</span>
+                </span>
+            );
+        }
     };
 
     return (
@@ -37,6 +48,7 @@ export const TaskItem = ({
         >
             <div className="flex flex-row flex-nowrap justify-between">
                 <TaskEditableTitle taskAtom={taskAtom}></TaskEditableTitle>
+                {renderIdInLocal()}
                 <span className="my-1 flex flex-row gap-1">
                     <Button variant={"ghost"} size={"icon"}>
                         <PlusSquare />
