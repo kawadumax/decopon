@@ -86,4 +86,30 @@ class TaskApiController extends ApiController
       'task' => $task
     ], 200);
   }
+
+
+  /**
+   * Update the completion status of a task and its subtasks.
+   */
+  public function updateCompletion(Request $request, Task $task): JsonResponse
+  {
+    if ($task->user_id !== Auth::id()) {
+      return response()->json([
+        'success' => false,
+        'message' => 'このタスクを更新する権限がありません。',
+      ], 403);
+    }
+
+    $validated = $request->validate([
+      'completed' => 'required|boolean',
+    ]);
+
+    $updatedTasks = $task->updateStatusRecursive($validated['completed']);
+
+    return response()->json([
+      'success' => true,
+      'message' => 'タスクの完了状態が正常に更新されました。',
+      'tasks' => $updatedTasks
+    ], 200);
+  }
 }

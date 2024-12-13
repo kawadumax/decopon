@@ -10,4 +10,7 @@ use App\Http\Controllers\Api\TaskApiController;
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('tasks', TaskApiController::class, ['as' => 'api']);
+    // updateCompleteへのルートを追加
+    Route::put('tasks/{task}/complete', [TaskApiController::class, 'updateCompletion'])
+        ->name('api.tasks.update.complete');
 });

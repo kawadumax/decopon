@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Task extends Model
 {
@@ -46,8 +47,24 @@ class Task extends Model
     /**
      * サブタスクを取得
      */
-    public function subTasks()
+    public function subTasks(): HasMany
     {
         return $this->hasMany(Task::class, 'parent_task_id');
+    }
+
+
+    public function updateStatusRecursive($status): array
+    {
+        $updatedTasks = [];
+
+        $this->completed = $status;
+        $this->save();
+        $updatedTasks[] = $this;
+
+        foreach ($this->subTasks as $subTask) {
+            $updatedTasks = array_merge($updatedTasks, $subTask->updateStatusRecursive($status));
+        }
+
+        return $updatedTasks;
     }
 }
