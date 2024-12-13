@@ -3,9 +3,10 @@ import { Toggle } from "@/Components/ui/toggle";
 import { Input } from "@/Components/ui/input";
 import { Edit } from "@mynaui/icons-react";
 import { Task } from "@/types";
-import { PrimitiveAtom, useAtom } from "jotai";
+import { PrimitiveAtom, useAtom, useSetAtom } from "jotai";
 import { useEffect, useRef, useState } from "react";
 import { useApi } from "@/Hooks/useApi";
+import { tasksBatchAtom } from "@/Lib/atoms";
 
 export const TaskEditableTitle = ({
     taskAtom,
@@ -16,6 +17,7 @@ export const TaskEditableTitle = ({
 }) => {
     const api = useApi();
     const [task, setTask] = useAtom(taskAtom);
+    const batchTasks = useSetAtom(tasksBatchAtom);
     const [editable, setEditable] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
     const [inputChanged, setInputChanged] = useState<boolean>(false);
@@ -31,10 +33,10 @@ export const TaskEditableTitle = ({
 
     const handleCheckboxChange = (checked: boolean) => {
         api.put(
-            route("api.tasks.update", task.id),
+            route("api.tasks.update.complete", task.id),
             { completed: checked },
             (response) => {
-                setTask(response.data.task);
+                batchTasks(response.data.tasks);
             }
         );
     };
