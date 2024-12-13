@@ -14,6 +14,7 @@ export const TaskItem = ({
 }: {
     taskAtom: PrimitiveAtom<Task>;
     remove: () => void;
+
     children?: React.ReactNode;
 }) => {
     const api = useApi();
@@ -44,14 +45,10 @@ export const TaskItem = ({
         }
     };
 
-    const subtaskStyle = () =>
-        children ? "hover:bg-stone-50" : "hover:bg-stone-100";
-
     return (
         <li
             className={"pl-4 list-none hover:bg-stone-400 hover:bg-opacity-5"}
             onClick={handleItemClicked}
-            onMouseOver={(e) => e.stopPropagation()}
         >
             <div className="flex flex-row flex-nowrap justify-between">
                 <TaskEditableTitle taskAtom={taskAtom}></TaskEditableTitle>
