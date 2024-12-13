@@ -22,6 +22,31 @@ import { atomFamily, splitAtom } from "jotai/utils";
 
 export const tasksAtom = atom<Task[]>([]);
 
+// あるタスクを根とするタスクツリーを取得するためのAtom
+export const taskTreeAtomFamily = atomFamily((rootTaskId: number) =>
+    atom((get) => {
+        const tasks = get(tasksAtom);
+        const rootTask = tasks.find((task) => task.id === rootTaskId);
+
+        if (!rootTask) return [];
+
+        const collectLeaves = (root: Task): Task[] => {
+            const children = tasks.filter(
+                (task) => task.parent_task_id === root.id
+            );
+            if (children.length > 0) {
+                return [root].concat(
+                    children.flatMap((child) => collectLeaves(child))
+                );
+            } else {
+                return [root];
+            }
+        };
+
+        return collectLeaves(rootTask);
+    })
+);
+
 // いくつかのTaskをまとめて更新するためのAtom
 export const tasksBatchAtom = atom(null, (get, set, newTasks: Task[]) => {
     // 現在のタスクの状態を取得
