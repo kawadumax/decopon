@@ -10,11 +10,11 @@ import { TaskEditableTitle } from "./TaskEditableTitle";
 export const TaskItem = ({
     taskAtom,
     remove,
-    children
+    children,
 }: {
     taskAtom: PrimitiveAtom<Task>;
     remove: () => void;
-    children?: React.ReactNode
+    children?: React.ReactNode;
 }) => {
     const api = useApi();
     const task = useAtomValue(taskAtom);
@@ -29,6 +29,7 @@ export const TaskItem = ({
     };
 
     const handleItemClicked = (event: React.MouseEvent) => {
+        event.stopPropagation();
         setCurrentTaskAtom(taskAtom);
     };
 
@@ -43,15 +44,19 @@ export const TaskItem = ({
         }
     };
 
+    const subtaskStyle = () =>
+        children ? "hover:bg-stone-50" : "hover:bg-stone-100";
+
     return (
         <li
-            className="px-4 list-none hover:bg-stone-50"
+            className={"pl-4 list-none hover:bg-stone-400 hover:bg-opacity-5"}
             onClick={handleItemClicked}
+            onMouseOver={(e) => e.stopPropagation()}
         >
             <div className="flex flex-row flex-nowrap justify-between">
                 <TaskEditableTitle taskAtom={taskAtom}></TaskEditableTitle>
                 {renderIdInLocal()}
-                <span className="my-1 flex flex-row gap-1">
+                <span className="my-1 flex flex-row gap-1 mr-2">
                     <Button variant={"ghost"} size={"icon"}>
                         <PlusSquare />
                     </Button>
