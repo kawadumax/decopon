@@ -60,7 +60,7 @@ export const TaskTree = () => {
     };
 
     return (
-        <ul className="flex flex-col list-inside list-disc dark:text-gray-200">
+        <ul className="flex flex-col list-inside dark:text-gray-200">
             {createTaskList()}
         </ul>
     );
