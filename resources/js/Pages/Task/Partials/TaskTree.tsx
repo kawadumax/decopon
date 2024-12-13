@@ -13,20 +13,6 @@ export const TaskTree = () => {
         [tasks]
     );
 
-    // あるタスクとそのタスクを祖先に持つタスクを全て取得する
-    const collectLeaves = (root: Task): Task[] => {
-        const children = tasks.filter(
-            (task) => task.parent_task_id === root.id
-        );
-        if (children.length > 0) {
-            return [root].concat(
-                children.flatMap((child) => collectLeaves(child))
-            );
-        } else {
-            return [root];
-        }
-    };
-
     const createTaskList = () => {
         // ルート要素を取得し、HTML文字列を生成する関数
         const createRecursiveTask = (task_id: number) => {
