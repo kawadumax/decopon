@@ -48,7 +48,7 @@ export const TaskTree = () => {
                         }
                         key={`${taskAtom}`}
                     >
-                        <ul className="flex flex-col list-inside dark:text-gray-200">
+                        <ul className="ml-[6px] flex flex-col list-inside dark:text-gray-200 border-l-2 border-stone-400 border-collapse border-dashed">
                             {items}
                         </ul>
                     </TaskItem>
