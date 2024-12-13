@@ -7,64 +7,61 @@ export const TaskTree = () => {
     const [taskAtoms, dispatch] = useAtom(taskAtomsAtom);
     const [tasks] = useAtom(tasksAtom);
 
-    const taskMap = useMemo(() => (
-        new Map(tasks.map((item, index) => [item.id, taskAtoms[index]])))
-    ,[tasks])
+    const taskMap = useMemo(
+        () => new Map(tasks.map((item, index) => [item.id, taskAtoms[index]])),
+        [tasks]
+    );
 
     const createTaskList = () => {
-
         // // ルート要素を取得し、HTML文字列を生成する関数
-        const createElement = (id: number) => {
-            const taskAtom = taskMap.get(id)!;
+        const createRecursiveTask = (task_id: number) => {
+            const taskAtom = taskMap.get(task_id)!;
             const children = tasks.filter(
-                (child) => child.parent_task_id === id
-            );
-
-            const taskItem = (
-                <TaskItem
-                    taskAtom={taskAtom}
-                    remove={() => dispatch({ type: "remove", atom: taskAtom })}
-                    key={`${taskAtom}`}
-                ></TaskItem>
+                (child) => child.parent_task_id === task_id
             );
 
             if (children.length > 0) {
-
-                const items = children.map((child) => (
-                    createElement(child.id)
-                ));
-                return (<>
-                    {taskItem}
-                    <ul className="flex flex-col list-inside list-disc dark:text-gray-200">
-                        {items}
-                    </ul>
-                </>)
-
+                // サブタスクを持つタスクの生成
+                const items = children.map((child) =>
+                    createRecursiveTask(child.id)
+                );
+                return (
+                    <TaskItem
+                        taskAtom={taskAtom}
+                        remove={() =>
+                            dispatch({ type: "remove", atom: taskAtom })
+                        }
+                        key={`${taskAtom}`}
+                    >
+                        <ul className="flex flex-col list-inside dark:text-gray-200">
+                            {items}
+                        </ul>
+                    </TaskItem>
+                );
+            } else {
+                //サブタスクを持たないタスクの生成
+                return (
+                    <TaskItem
+                        taskAtom={taskAtom}
+                        remove={() =>
+                            dispatch({ type: "remove", atom: taskAtom })
+                        }
+                        key={`${taskAtom}`}
+                    ></TaskItem>
+                );
             }
-
-            return taskItem;
-        }
+        };
 
         // ルート要素から開始
-        // const rootElements = data.filter((item) => item.parent_id === null);
-        // const ul = document.createElement("ul");
-        // rootElements.forEach((root) => {
-        //     ul.appendChild(createElement(root.id));
-        // });
+        const rootTasks = tasks.filter((item) => item.parent_task_id === null);
+        const taskItems = rootTasks.map((root) => createRecursiveTask(root.id));
 
-        return <></>;
+        return <>{taskItems}</>;
     };
 
     return (
         <ul className="flex flex-col list-inside list-disc dark:text-gray-200">
             {createTaskList()}
-            {/* {taskAtoms.map((taskAtom) => (
-                <TaskItem
-                    taskAtom={taskAtom}
-                    remove={() => dispatch({ type: "remove", atom: taskAtom })}
-                    key={`${taskAtom}`}
-                ></TaskItem>
-            ))} */}
         </ul>
     );
 };
