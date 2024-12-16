@@ -1,7 +1,7 @@
 import { Task } from "@/types";
 import { Button } from "@/Components/ui/button";
-import { Trash, PlusSquare } from "@mynaui/icons-react";
-import React from "react";
+import { Trash, PlusSquare, ChevronRight } from "@mynaui/icons-react";
+import React, { useState } from "react";
 import { PrimitiveAtom, useSetAtom, useAtomValue, atom } from "jotai";
 import { taskSelectorAtom } from "@/Lib/atoms";
 import { useApi } from "@/Hooks/useApi";
@@ -19,6 +19,7 @@ export const TaskItem = ({
 }) => {
     const api = useApi();
     const task = useAtomValue(taskAtom);
+    const [isExpanded, setIsExpanded] = useState(true);
     const setCurrentTaskAtom = useSetAtom(taskSelectorAtom);
 
     const handleDelete = () => {
@@ -32,6 +33,24 @@ export const TaskItem = ({
     const handleItemClicked = (event: React.MouseEvent) => {
         event.stopPropagation();
         setCurrentTaskAtom(taskAtom);
+    };
+
+    const handleFold = (event: React.MouseEvent) => {
+        event.stopPropagation();
+        setIsExpanded(!isExpanded);
+    };
+
+    const handleAddChild = (event: React.MouseEvent) => {
+        event.stopPropagation();
+        api.post(
+            route("api.tasks.store"),
+            {
+                parent_task_id: task.id,
+            },
+            (response) => {
+                console.log(response.data);
+            }
+        );
     };
 
     const renderIdInLocal = () => {
@@ -51,7 +70,17 @@ export const TaskItem = ({
             onClick={handleItemClicked}
         >
             <div className="flex flex-row flex-nowrap justify-between">
-                <TaskEditableTitle taskAtom={taskAtom}></TaskEditableTitle>
+                <span className="flex flex-row justify-start items-center">
+                    {children && (
+                        <ChevronRight
+                            onClick={handleFold}
+                            className={`-ml-1 mr-1 transition-transform ${
+                                isExpanded ? "rotate-90" : ""
+                            }`}
+                        />
+                    )}
+                    <TaskEditableTitle taskAtom={taskAtom}></TaskEditableTitle>
+                </span>
                 {renderIdInLocal()}
                 <span className="my-1 flex flex-row gap-1 mr-2">
                     <Button variant={"ghost"} size={"icon"}>
@@ -66,7 +95,7 @@ export const TaskItem = ({
                     </Button>
                 </span>
             </div>
-            {children}
+            {isExpanded && children}
         </li>
     );
 };
