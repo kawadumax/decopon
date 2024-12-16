@@ -20,6 +20,8 @@ import { atomFamily, splitAtom } from "jotai/utils";
 //     },
 // ]);
 
+// TaskAtom
+
 export const tasksAtom = atom<Task[]>([]);
 
 // あるタスクを根とするタスクツリーを取得するためのAtom
