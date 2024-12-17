@@ -53,6 +53,9 @@ class Task extends Model
     }
 
 
+    /**
+     * あるタスクを根とする木全体のCompletedを一括で変更する関数
+     */
     public function updateStatusRecursive($status): array
     {
         $updatedTasks = [];
@@ -66,5 +69,16 @@ class Task extends Model
         }
 
         return $updatedTasks;
+    }
+
+    public function isOwnedByUser($userId)
+    {
+        return $this->user_id === $userId;
+    }
+
+    public static function isValidParentTask($taskId, $userId)
+    {
+        $task = self::find($taskId);
+        return $task && $task->isOwnedByUser($userId);
     }
 }
