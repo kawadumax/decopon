@@ -7,6 +7,7 @@ use App\Models\Task;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class TaskApiController extends ApiController
 {
@@ -20,6 +21,16 @@ class TaskApiController extends ApiController
       'title' => 'required|string|max:255',
       'description' => 'nullable|string',
       'completed' => 'boolean',
+      'parent_task_id' => [
+        'nullable',
+        'integer',
+        Rule::exists('tasks', 'id'),
+        function ($attribute, $value, $fail) {
+          if (!Task::isValidParentTask($value, Auth::id())) {
+            $fail('指定された親タスクが無効です。');
+          }
+        },
+      ],
     ]);
 
     $task = new Task($validated);
