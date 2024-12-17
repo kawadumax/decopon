@@ -81,7 +81,7 @@ export const TaskItem = ({
                     )}
                     <TaskEditableTitle taskAtom={taskAtom}></TaskEditableTitle>
                 </span>
-                {renderIdInLocal()}
+                {false && renderIdInLocal()}
                 <span className="my-1 flex flex-row gap-1 mr-2">
                     <Button variant={"ghost"} size={"icon"}>
                         <PlusSquare />

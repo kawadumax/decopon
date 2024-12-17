@@ -67,7 +67,7 @@ export const TaskEditableTitle = ({
         if (variant === "lg") {
             return <h2 className="text-lg font-bold">{task.title}</h2>;
         } else {
-            return <span>{task.title}</span>;
+            return <span className="break-keep">{task.title}</span>;
         }
     };
 
