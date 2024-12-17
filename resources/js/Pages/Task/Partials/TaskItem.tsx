@@ -41,11 +41,20 @@ export const TaskItem = ({
     };
 
     const handleAddChild = (event: React.MouseEvent) => {
-        event.stopPropagation();
+        console.log("addchild");
+        // event.stopPropagation();
+
+        const taskTemplate = {
+            title: "New Task",
+            description: "New Task Description",
+            completed: false,
+        };
+
         api.post(
             route("api.tasks.store"),
             {
                 parent_task_id: task.id,
+                ...taskTemplate,
             },
             (response) => {
                 console.log(response.data);
@@ -83,7 +92,11 @@ export const TaskItem = ({
                 </span>
                 {false && renderIdInLocal()}
                 <span className="my-1 flex flex-row gap-1 mr-2">
-                    <Button variant={"ghost"} size={"icon"}>
+                    <Button
+                        variant={"ghost"}
+                        size={"icon"}
+                        onClick={handleAddChild}
+                    >
                         <PlusSquare />
                     </Button>
                     <Button
