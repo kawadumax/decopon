@@ -29,12 +29,12 @@ export default function Index(
         >
             <Head title="Task List" />
             <div className="py-12">
-                <div className="mx-auto max-w-7xl sm:px-6 lg:px-8 flex flex-row gap-4">
-                    <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800 basis-1/2">
+                <div className="mx-auto max-w-7xl sm:px-6 lg:px-8 flex flex-row">
+                    <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800 w-1/2">
                         <TaskTools></TaskTools>
                         <TaskTree></TaskTree>
                     </div>
-                    <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800 basis-1/2 h-fit">
+                    <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800 w-[640px] h-fit fixed bottom-0 right-28">
                         <TaskSideView></TaskSideView>
                     </div>
                 </div>
