@@ -10,11 +10,12 @@ import { TaskEditableTitle } from "./TaskEditableTitle";
 export const TaskItem = ({
     taskAtom,
     remove,
+    insert,
     children,
 }: {
     taskAtom: PrimitiveAtom<Task>;
     remove: () => void;
-
+    insert: (newTask: Task) => void;
     children?: React.ReactNode;
 }) => {
     const api = useApi();
@@ -41,9 +42,6 @@ export const TaskItem = ({
     };
 
     const handleAddChild = (event: React.MouseEvent) => {
-        console.log("addchild");
-        // event.stopPropagation();
-
         const taskTemplate = {
             title: "New Task",
             description: "New Task Description",
@@ -57,7 +55,7 @@ export const TaskItem = ({
                 ...taskTemplate,
             },
             (response) => {
-                console.log(response.data);
+                insert(response.data.task);
             }
         );
     };
@@ -90,7 +88,10 @@ export const TaskItem = ({
                     )}
                     <TaskEditableTitle taskAtom={taskAtom}></TaskEditableTitle>
                 </span>
-                {false && renderIdInLocal()}
+                {
+                    // task_idをデバッグ時に表示させたいとき使う
+                    renderIdInLocal()
+                }
                 <span className="my-1 flex flex-row gap-1 mr-2">
                     <Button
                         variant={"ghost"}
