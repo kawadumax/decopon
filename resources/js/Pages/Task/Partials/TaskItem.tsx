@@ -73,7 +73,7 @@ export const TaskItem = ({
 
     return (
         <li
-            className={"pl-4 list-none hover:bg-stone-400 hover:bg-opacity-5"}
+            className={"pl-4 list-none hover:bg-stone-400 hover:bg-opacity-10"}
             onClick={handleItemClicked}
         >
             <div className="flex flex-row flex-nowrap justify-between">
@@ -90,7 +90,7 @@ export const TaskItem = ({
                 </span>
                 {
                     // task_idをデバッグ時に表示させたいとき使う
-                    renderIdInLocal()
+                    false && renderIdInLocal()
                 }
                 <span className="my-1 flex flex-row gap-1 mr-2">
                     <Button
