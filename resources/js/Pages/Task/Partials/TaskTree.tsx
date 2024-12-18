@@ -1,17 +1,41 @@
 import { TaskItem } from "./TaskItem";
-import { useAtom, useAtomValue } from "jotai";
+import { PrimitiveAtom, useAtom, useAtomValue } from "jotai";
 import { taskAtomsAtom, tasksAtom } from "@/Lib/atoms";
-import { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import { Task } from "@/types";
+import { useAtomDevtools } from "jotai-devtools";
 
 export const TaskTree = () => {
     const [taskAtoms, dispatch] = useAtom(taskAtomsAtom);
     const [tasks] = useAtom(tasksAtom);
 
+    useAtomDevtools(tasksAtom);
+
     const taskMap = useMemo(
         () => new Map(tasks.map((item, index) => [item.id, taskAtoms[index]])),
         [tasks]
     );
+
+    const createTaskItem = (
+        taskAtom: PrimitiveAtom<Task>,
+        children?: React.ReactNode
+    ) => {
+        return (
+            <TaskItem
+                taskAtom={taskAtom}
+                remove={() => dispatch({ type: "remove", atom: taskAtom })}
+                insert={(newTask: Task) =>
+                    dispatch({
+                        type: "insert",
+                        value: newTask,
+                    })
+                }
+                key={`${taskAtom}`}
+            >
+                {children}
+            </TaskItem>
+        );
+    };
 
     const createTaskList = () => {
         // ルート要素を取得し、HTML文字列を生成する関数
@@ -23,33 +47,18 @@ export const TaskTree = () => {
 
             if (children.length > 0) {
                 // サブタスクを持つタスクの生成
-                const items = children.map((child) =>
-                    createRecursiveTask(child.id)
-                );
-                return (
-                    <TaskItem
-                        taskAtom={taskAtom}
-                        remove={() =>
-                            dispatch({ type: "remove", atom: taskAtom })
-                        }
-                        key={`${taskAtom}`}
-                    >
-                        <ul className="ml-[6px] flex flex-col list-inside dark:text-gray-200 border-l-2 border-stone-400 border-collapse border-dashed">
-                            {items}
-                        </ul>
-                    </TaskItem>
+                const items = children
+                    .map((child) => createRecursiveTask(child.id))
+                    .reverse(); // idの数値の大きいもの（より直近に作られたものを上に配置する）
+                return createTaskItem(
+                    taskAtom,
+                    <ul className="ml-[6px] flex flex-col list-inside dark:text-gray-200 border-l-2 border-stone-400 border-collapse border-dashed">
+                        {items}
+                    </ul>
                 );
             } else {
                 //サブタスクを持たないタスクの生成
-                return (
-                    <TaskItem
-                        taskAtom={taskAtom}
-                        remove={() =>
-                            dispatch({ type: "remove", atom: taskAtom })
-                        }
-                        key={`${taskAtom}`}
-                    ></TaskItem>
-                );
+                return createTaskItem(taskAtom);
             }
         };
 

@@ -23,7 +23,7 @@ import { atomFamily, splitAtom } from "jotai/utils";
 // TaskAtom
 
 export const tasksAtom = atom<Task[]>([]);
-
+tasksAtom.debugLabel = "tasksAtom";
 // あるタスクを根とするタスクツリーを取得するためのAtom
 export const taskTreeAtomFamily = atomFamily((rootTaskId: number) =>
     atom((get) => {
@@ -63,6 +63,7 @@ export const tasksBatchAtom = atom(null, (get, set, newTasks: Task[]) => {
 });
 
 export const taskAtomsAtom = splitAtom(tasksAtom);
+taskAtomsAtom.debugLabel = "splitedTasks";
 
 const currentTaskBaseAtom = atom<PrimitiveAtom<Task> | PrimitiveAtom<null>>(
     atom(null)
