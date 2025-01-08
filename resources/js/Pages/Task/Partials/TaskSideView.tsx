@@ -4,6 +4,7 @@ import { TaskEditableTitle } from "./TaskEditableTitle";
 import { Task } from "@/types";
 import { PrimitiveAtom } from "jotai";
 import { TaskEditableDescription } from "./TaskEditableDescription";
+import { TaskLogger } from "./TaskLogger";
 export const TaskSideView = () => {
     const currentTaskAtom = useAtomValue(taskSelectorAtom);
     const currentTask = useAtomValue(currentTaskAtom);
@@ -12,21 +13,20 @@ export const TaskSideView = () => {
         if (!currentTask) {
             return "選択されていません";
         } else {
-            if (currentTask) {
-                return (
-                    <>
-                        <TaskEditableTitle
-                            taskAtom={currentTaskAtom as PrimitiveAtom<Task>}
-                            variant="lg"
-                        ></TaskEditableTitle>
-                        <TaskEditableDescription
-                            taskAtom={currentTaskAtom as PrimitiveAtom<Task>}
-                        ></TaskEditableDescription>
-                    </>
-                );
-            } else {
-                return "タスクが見つかりません";
-            }
+            return (
+                <>
+                    <TaskEditableTitle
+                        taskAtom={currentTaskAtom as PrimitiveAtom<Task>}
+                        variant="lg"
+                    ></TaskEditableTitle>
+                    <TaskEditableDescription
+                        taskAtom={currentTaskAtom as PrimitiveAtom<Task>}
+                    ></TaskEditableDescription>
+                    <TaskLogger
+                        taskAtom={currentTaskAtom as PrimitiveAtom<Task>}
+                    ></TaskLogger>
+                </>
+            );
         }
     };
 
