@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Api\ApiController;
 use App\Models\Log;
 use Illuminate\Http\Request;
 
-class LogController extends Controller
+class LogApiController extends ApiController
 {
     /**
      * Display a listing of the resource.
@@ -13,6 +14,26 @@ class LogController extends Controller
     public function index()
     {
         //
+    }
+
+    /**
+     * ユーザーIDに基づいてログ一覧を取得
+     */
+    public function getLogsByUserId($userId)
+    {
+        $logs = Log::where('user_id', $userId)->get();
+        return response()->json($logs);
+    }
+
+    /**
+     * ユーザーIDとタスクIDに基づいてログ一覧を取得
+     */
+    public function getLogsByUserAndTaskId($userId, $taskId)
+    {
+        $logs = Log::where('user_id', $userId)
+            ->where('task_id', $taskId)
+            ->get();
+        return response()->json($logs);
     }
 
     /**

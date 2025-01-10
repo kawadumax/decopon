@@ -1,13 +1,14 @@
 ## プロジェクト初期化
 
-gitから落としてきた後、.envをコピーする。
+git から落としてきた後、.env をコピーする。
 
 ```
 git clone git@github.com:kawadumax/decopon.git
 cp .env.example .env
 ```
 
-DBの初期化
+DB の初期化
+
 ```
 php artisan migrate
 ```
@@ -30,6 +31,12 @@ php artisan serve
 
 ```
 npm run dev
+```
+
+上記を同時にできるかも
+
+```
+composer run dev
 ```
 
 DB リセットして Seeder 実行
