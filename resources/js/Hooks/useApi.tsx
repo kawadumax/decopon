@@ -23,7 +23,7 @@ export function useApi() {
         try {
             const response = await axiosInstance({ method, url, data });
 
-            toast.success(response.data.message);
+            response.data.message && toast.success(response.data.message);
             onSuccess && onSuccess(response);
             return response.data;
         } catch (error) {

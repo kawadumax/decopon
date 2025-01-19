@@ -16,7 +16,7 @@ class TaskController extends Controller
     public function index()
     {
         if (!Auth::check()) {
-            return redirect()->route('welcome');
+            return redirect()->route('/');
         }
 
         $user = Auth::user();

@@ -12,15 +12,10 @@ class LogApiController extends ApiController
      * Display a listing of the resource.
      */
     public function index()
-    {
-        //
-    }
-
-    /**
-     * ユーザーIDに基づいてログ一覧を取得
-     */
-    public function getLogsByUserId($userId)
-    {
+    {   
+        // ログ一覧を取得
+        // ログイン中のユーザの内容のみ見れる。
+        $userId = auth()->id();
         $logs = Log::where('user_id', $userId)->get();
         return response()->json($logs);
     }
@@ -28,8 +23,9 @@ class LogApiController extends ApiController
     /**
      * ユーザーIDとタスクIDに基づいてログ一覧を取得
      */
-    public function getLogsByUserAndTaskId($userId, $taskId)
+    public function getLogsTaskId($taskId)
     {
+        $userId = auth()->id();
         $logs = Log::where('user_id', $userId)
             ->where('task_id', $taskId)
             ->get();
