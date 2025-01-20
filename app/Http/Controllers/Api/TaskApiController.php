@@ -24,7 +24,7 @@ class TaskApiController extends ApiController
       'parent_task_id' => [
         'nullable',
         'integer',
-        Rule::exists('tasks', 'id'),
+        Rule::exists('tasks', 'id')->whereNotNull('id'),
         function ($attribute, $value, $fail) {
           if (!Task::isValidParentTask($value, Auth::id())) {
             $fail('指定された親タスクが無効です。');

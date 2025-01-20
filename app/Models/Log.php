@@ -9,6 +9,16 @@ class Log extends Model
 {
     use HasFactory;
 
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = [
+        'content',
+        'task_id',
+    ];
+
     public function tags()
     {
         return $this->belongsToMany(Tag::class);

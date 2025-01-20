@@ -1,10 +1,10 @@
 ## プロジェクト初期化
 
-git から落としてきた後、.env をコピーする。
-
 ```
 git clone git@github.com:kawadumax/decopon.git
-cp .env.example .env
+cp .env.example .env # git から落としてきた後、.env をコピーする。
+composer install # phpの依存ファイルを入れる
+npm install # jsの依存ファイルを入れる
 ```
 
 DB の初期化
