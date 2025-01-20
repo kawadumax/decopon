@@ -4,7 +4,10 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Api\ApiController;
 use App\Models\Log;
+use App\Models\Task;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class LogApiController extends ApiController
 {
@@ -12,10 +15,10 @@ class LogApiController extends ApiController
      * Display a listing of the resource.
      */
     public function index()
-    {   
+    {
         // ログ一覧を取得
         // ログイン中のユーザの内容のみ見れる。
-        $userId = auth()->id();
+        $userId = Auth::id();
         $logs = Log::where('user_id', $userId)->get();
         return response()->json($logs);
     }
@@ -25,7 +28,7 @@ class LogApiController extends ApiController
      */
     public function getLogsTaskId($taskId)
     {
-        $userId = auth()->id();
+        $userId = Auth::id();
         $logs = Log::where('user_id', $userId)
             ->where('task_id', $taskId)
             ->get();
@@ -45,7 +48,23 @@ class LogApiController extends ApiController
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'content' => 'required|string|max:255',
+            'task_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('tasks', 'id')->whereNotNull('id'),
+            ],
+        ]);
+
+        $log = new Log($validated);
+        $log->user_id = \Auth::id();
+        $log->save();
+
+        return response()->json([
+            'success' => true,
+            'log' => $log
+        ], 201);
     }
 
     /**
