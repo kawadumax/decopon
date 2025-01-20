@@ -5,17 +5,35 @@ import { useAtom, useAtomValue } from "jotai";
 import { PrimitiveAtom } from "jotai";
 import React, { useEffect, useRef, useState } from "react";
 
+const LogItem = ({ key, log }: { key: React.Key; log: Log }) => {
+    return (
+        <li key={key} className="flex flex-row">
+            <p>{log.content}</p>
+            <p>{log.created_at}</p>
+        </li>
+    );
+};
+
 export const TaskLogger = ({ taskAtom }: { taskAtom: PrimitiveAtom<Task> }) => {
     const api = useApi();
     const task = useAtomValue(taskAtom);
-    const [logs, setLogs] = useState<string[]>([]);
+    const [logs, setLogs] = useState<Log[]>([]);
     const [content, setContent] = useState("");
 
     const logContainerRef = useRef<HTMLUListElement>(null);
 
     const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key !== "Enter") return;
-        setLogs((prev) => [...prev, content]);
+        const tempId = Date.now().toString();
+        const newLog = {
+            id: tempId,
+            content,
+            created_at: new Date().toISOString(),
+            user_id: null,
+            task_id: null,
+            updated_at: null,
+        } as unknown as Log;
+        setLogs((prev) => [...prev, newLog]);
         api.post(
             route("api.logs.store"),
             {
@@ -23,6 +41,12 @@ export const TaskLogger = ({ taskAtom }: { taskAtom: PrimitiveAtom<Task> }) => {
                 task_id: task.id,
             } as Partial<Log>,
             (response) => {
+                const storedLog = response.data;
+                setLogs((prev) =>
+                    prev.map((log) =>
+                        log.id === tempId ? { ...log, ...storedLog } : log
+                    )
+                );
                 console.log("success log storing", response);
             }
         );
@@ -46,7 +70,7 @@ export const TaskLogger = ({ taskAtom }: { taskAtom: PrimitiveAtom<Task> }) => {
             api.get(
                 route("api.logs.task", task.id),
                 (response) => {
-                    const logs = response.data.map((log: Log) => log.content);
+                    const logs = response.data;
                     setLogs(logs);
                 },
                 (error) => {
@@ -59,7 +83,8 @@ export const TaskLogger = ({ taskAtom }: { taskAtom: PrimitiveAtom<Task> }) => {
     return (
         <>
             <ul ref={logContainerRef} className="max-h-80 overflow-y-auto">
-                {logs && logs.map((log, index) => <li key={index}>{log}</li>)}
+                {logs &&
+                    logs.map((log, index) => <LogItem key={index} log={log} />)}
             </ul>
             <div className="border-t-2 pt-4">
                 <Input
