@@ -23,16 +23,27 @@ export default function Index(
     return (
         <AuthenticatedLayout>
             <Head title="Task List" />
-            {/* 白銀比を元にした数値 */}
-            <Split className="flex flex-row" sizes={[17.2, 41.4, 41.4]}>
-                <div className="overflow-hidden bg-white shadow-sm dark:bg-gray-800">
+
+            <Split
+                className="flex flex-row max-h-full"
+                sizes={[17.2, 41.4, 41.4]} // 白銀比を元にした比率
+                gutterSize={4}
+                gutter={() => {
+                    const gutterElement = document.createElement("div");
+                    gutterElement.className = `w-1 bg-amber-400 hover:cursor-col-resize hover:w-2 hover:bg-amber-500 transition-all delay-300 duration-300 ease-in-out`;
+                    return gutterElement;
+                }}
+                // 元のgutterのスタイルを削除
+                gutterStyle={() => ({})}
+            >
+                <div className="overflow-auto bg-white shadow-sm dark:bg-gray-800 max-h-full">
                     タグなど？
                 </div>
-                <div className="overflow-hidden bg-white shadow-sm dark:bg-gray-800">
+                <div className="overflow-auto hidden-scrollbar bg-white shadow-sm dark:bg-gray-800 max-h-full">
                     <TaskTools></TaskTools>
                     <TaskTree></TaskTree>
                 </div>
-                <div className="overflow-hidden bg-white shadow-sm dark:bg-gray-800">
+                <div className="overflow-hidden bg-white shadow-sm dark:bg-gray-800 max-h-full">
                     <TaskSideView></TaskSideView>
                 </div>
             </Split>

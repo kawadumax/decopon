@@ -30,5 +30,7 @@ export const TaskSideView = () => {
         }
     };
 
-    return <div className="p-4">{renderTaskContent()}</div>;
+    return (
+        <div className="p-4 flex flex-col h-full">{renderTaskContent()}</div>
+    );
 };

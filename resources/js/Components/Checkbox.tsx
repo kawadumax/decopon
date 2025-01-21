@@ -1,7 +1,7 @@
-import { InputHTMLAttributes } from 'react';
+import { InputHTMLAttributes } from "react";
 
 export default function Checkbox({
-    className = '',
+    className = "",
     ...props
 }: InputHTMLAttributes<HTMLInputElement>) {
     return (
@@ -9,7 +9,7 @@ export default function Checkbox({
             {...props}
             type="checkbox"
             className={
-                'rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500 dark:border-gray-700 dark:bg-gray-900 dark:focus:ring-indigo-600 dark:focus:ring-offset-gray-800 ' +
+                "rounded border-gray-300 text-amber-600 shadow-sm focus:ring-amber-500 dark:border-gray-700 dark:bg-gray-900 dark:focus:ring-amber-600 dark:focus:ring-offset-gray-800 " +
                 className
             }
         />

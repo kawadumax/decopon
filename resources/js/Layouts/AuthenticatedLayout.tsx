@@ -16,9 +16,9 @@ export default function Authenticated({
         useState(false);
 
     return (
-        <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
-            <nav className="border-b border-gray-100 bg-white dark:border-gray-700 dark:bg-gray-800">
-                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="h-screen bg-gray-100 dark:bg-gray-900 flex flex-col">
+            <nav className="border-b border-gray-100 bg-white dark:border-gray-700 dark:bg-gray-800 h-16">
+                <div className="mx-auto max-w-screen px-4 sm:px-6 lg:px-8">
                     <div className="flex h-16 justify-between">
                         <div className="flex">
                             <div className="flex shrink-0 items-center">
@@ -181,7 +181,7 @@ export default function Authenticated({
                 </header>
             )}
 
-            <main>{children}</main>
+            <main className="flex-grow h-[calc(100vh-8rem)]">{children}</main>
             <Toaster richColors />
         </div>
     );
