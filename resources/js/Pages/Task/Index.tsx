@@ -7,6 +7,7 @@ import { TaskSideView } from "./Partials/TaskSideView";
 import { useAtom } from "jotai";
 import { tasksAtom } from "@/Lib/atoms";
 import { useEffect } from "react";
+import Split from "react-split";
 
 export default function Index(
     props: PageProps<{
@@ -20,25 +21,21 @@ export default function Index(
     }, [props.tasks]);
 
     return (
-        <AuthenticatedLayout
-            header={
-                <h2 className="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
-                    Tasks
-                </h2>
-            }
-        >
+        <AuthenticatedLayout>
             <Head title="Task List" />
-            <div className="py-12">
-                <div className="mx-auto max-w-7xl sm:px-6 lg:px-8 flex flex-row">
-                    <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800 w-1/2">
-                        <TaskTools></TaskTools>
-                        <TaskTree></TaskTree>
-                    </div>
-                    <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800 w-[640px] h-fit fixed bottom-0 right-28">
-                        <TaskSideView></TaskSideView>
-                    </div>
+            {/* 白銀比を元にした数値 */}
+            <Split className="flex flex-row" sizes={[17.2, 41.4, 41.4]}>
+                <div className="overflow-hidden bg-white shadow-sm dark:bg-gray-800">
+                    タグなど？
                 </div>
-            </div>
+                <div className="overflow-hidden bg-white shadow-sm dark:bg-gray-800">
+                    <TaskTools></TaskTools>
+                    <TaskTree></TaskTree>
+                </div>
+                <div className="overflow-hidden bg-white shadow-sm dark:bg-gray-800">
+                    <TaskSideView></TaskSideView>
+                </div>
+            </Split>
         </AuthenticatedLayout>
     );
 }
