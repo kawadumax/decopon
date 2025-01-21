@@ -21,7 +21,7 @@ const formatDate = (isoString: string): string => {
 
 const LogItem = ({ log }: { log: Log }) => {
     return (
-        <li className="flex flex-row justify-between hover:ring-1 m-1 p-1">
+        <li className="rounded flex flex-row justify-between hover:ring-1 hover:ring-amber-400 m-1 p-1">
             <p className="text-base">{log.content}</p>
             <p className="font-mono text-xs text-black text-opacity-50">
                 {formatDate(log.created_at)}
@@ -99,18 +99,18 @@ export const TaskLogger = ({ taskAtom }: { taskAtom: PrimitiveAtom<Task> }) => {
     }, [task]);
 
     return (
-        <>
-            <ul ref={logContainerRef} className="max-h-80 overflow-y-auto">
+        <div className="flex flex-col flex-1">
+            <ul ref={logContainerRef} className="flex-1 overflow-y-auto">
                 {logs &&
                     logs.map((log, index) => <LogItem key={index} log={log} />)}
             </ul>
-            <div className="border-t-2 pt-4">
+            <div className="pt-4">
                 <Input
                     onKeyDown={handleKeyDown}
                     onInput={handleInput}
                     defaultValue={content}
                 />
             </div>
-        </>
+        </div>
     );
 };
