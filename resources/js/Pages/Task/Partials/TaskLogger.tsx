@@ -5,11 +5,27 @@ import { useAtom, useAtomValue } from "jotai";
 import { PrimitiveAtom } from "jotai";
 import React, { useEffect, useRef, useState } from "react";
 
-const LogItem = ({ key, log }: { key: React.Key; log: Log }) => {
+const formatDate = (isoString: string): string => {
+    const date = new Date(isoString);
+    return new Intl.DateTimeFormat("ja-JP", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+    })
+        .format(date)
+        .replace(/\//g, "/");
+};
+
+const LogItem = ({ log }: { log: Log }) => {
     return (
-        <li key={key} className="flex flex-row">
-            <p>{log.content}</p>
-            <p>{log.created_at}</p>
+        <li className="flex flex-row justify-between hover:ring-1 m-1 p-1">
+            <p className="text-base">{log.content}</p>
+            <p className="font-mono text-xs text-black text-opacity-50">
+                {formatDate(log.created_at)}
+            </p>
         </li>
     );
 };
@@ -19,18 +35,20 @@ export const TaskLogger = ({ taskAtom }: { taskAtom: PrimitiveAtom<Task> }) => {
     const task = useAtomValue(taskAtom);
     const [logs, setLogs] = useState<Log[]>([]);
     const [content, setContent] = useState("");
+    const [tempIdCounter, setTempIdCounter] = useState(0);
 
     const logContainerRef = useRef<HTMLUListElement>(null);
 
     const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key !== "Enter") return;
-        const tempId = Date.now().toString();
+        const tempId = -1 - tempIdCounter; // 負の値を使用して一時的なIDを生成
+        setTempIdCounter((prev) => prev + 1);
         const newLog = {
             id: tempId,
             content,
             created_at: new Date().toISOString(),
             user_id: null,
-            task_id: null,
+            task_id: task.id,
             updated_at: null,
         } as unknown as Log;
         setLogs((prev) => [...prev, newLog]);
