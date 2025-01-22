@@ -5,7 +5,7 @@ RUN apk update && \
     apk add --no-cache curl
 # nghttp2を明示的にインストール
 RUN apk update && \
-    apk add --no-cache nghttp2-libs && \
+    apk add --no-cache nghttp2-dev && \
     apk add --no-cache --repository=https://dl-cdn.alpinelinux.org/alpine/edge/main nodejs npm
 RUN npm install -g npm@latest
 COPY . .
