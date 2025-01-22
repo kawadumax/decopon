@@ -2,8 +2,10 @@ FROM richarvey/nginx-php-fpm:latest
 # Certifique-se de que o sistema está pronto para instalar pacotes
 USER root
 RUN apk update && \
-    apk add --no-cache curl nodejs npm && \
-    npm install -g npm@latest
+    apk add --no-cache curl
+RUN apk update && \
+    apk add --no-cache --repository=https://dl-cdn.alpinelinux.org/alpine/edge/main nodejs npm
+RUN npm install -g npm@latest
 COPY . .
 # Image config
 ENV SKIP_COMPOSER 1
