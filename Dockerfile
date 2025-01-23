@@ -3,15 +3,16 @@ FROM richarvey/nginx-php-fpm:latest
 USER root
 RUN apk update && \
     apk add --no-cache curl icu-dev
-RUN docker-php-ext-configure intl
-RUN docker-php-ext-install intl
-RUN docker-php-ext-enable intl
+
 # nghttp2を明示的にインストール
 RUN apk update && \
     apk add --no-cache nghttp2-dev && \
     apk add --no-cache --repository=https://dl-cdn.alpinelinux.org/alpine/edge/main nodejs npm
 RUN npm install -g npm@latest
-COPY . .
+COPY . /var/www/html
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html/storage
+
 # Image config
 ENV SKIP_COMPOSER 1
 ENV WEBROOT /var/www/html/public
