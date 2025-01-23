@@ -2,7 +2,10 @@ FROM richarvey/nginx-php-fpm:latest
 # Certifique-se de que o sistema está pronto para instalar pacotes
 USER root
 RUN apk update && \
-    apk add --no-cache curl
+    apk add --no-cache curl icu-dev
+RUN docker-php-ext-configure intl
+RUN docker-php-ext-install intl
+RUN docker-php-ext-enable intl
 # nghttp2を明示的にインストール
 RUN apk update && \
     apk add --no-cache nghttp2-dev && \
