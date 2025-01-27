@@ -1,12 +1,11 @@
-import axios from "axios";
+import SecuredAxios from "@/bootstrap";
 
-const instance = axios.create({
+const instance = SecuredAxios.create({
     baseURL: "",
     headers: {
         "X-Requested-With": "XMLHttpRequest",
         Accept: "application/json",
     },
-    withCredentials: true,
 });
 
 export default instance;
