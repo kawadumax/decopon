@@ -41,20 +41,20 @@ jobs:
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
-          # ssh-keyscanの詳細な出力を確認
-          ssh-keyscan -H $DEPLOY_SERVER || echo "ssh-keyscan failed with exit code $?"
-          ssh-keyscan -H $DEPLOY_SERVER >> ~/.ssh/known_hosts || echo "Failed to add server to known hosts"
-
-          # SSH接続のデバッグ
-          ssh -v $DEPLOY_USER@$DEPLOY_SERVER exit
-
           # ビルド済みのアプリケーションを転送
           rsync -avz --delete \
             --exclude=".env" \
+            --exclude="node_modules" \
+            --exclude=".git" \
             ./ $DEPLOY_USER@$DEPLOY_SERVER:/var/www/html/decopon
 
           # サーバー上での設定とデプロイ
           ssh $DEPLOY_USER@$DEPLOY_SERVER << EOF
+            sudo chown -R ec2-user:ec2-user /var/www/html/decopon
+            sudo chown -R nginx:nginx /var/www/html/decopon/bootstrap/cache
+            sudo chown -R nginx:nginx /var/www/html/decopon/storage
+            sudo chmod -R 775 /var/www/html/decopon/bootstrap/cache
+            sudo chmod -R 775 /var/www/html/decopon/storage
             cd /var/www/html/decopon
             php artisan migrate:fresh --seed # DBを初期化
             php artisan config:cache
