@@ -36,12 +36,16 @@ jobs:
           DEPLOY_SERVER: ${{ secrets.DEPLOY_SERVER }}
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
         run: |
-          set -x #デバッグモードを有効化
           # SSH設定を準備
           mkdir -p ~/.ssh
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H $DEPLOY_SERVER >> ~/.ssh/known_hosts
+
+          set -x #デバッグモードを有効化
+          # ssh-keyscanの詳細な出力を確認
+          ssh-keyscan -H $DEPLOY_SERVER || echo "ssh-keyscan failed with exit code $?"
+          ssh-keyscan -H $DEPLOY_SERVER >> ~/.ssh/known_hosts || echo "Failed to add server to known hosts"
+
 
           # SSH接続のデバッグ
           ssh -v $DEPLOY_USER@$DEPLOY_SERVER exit
