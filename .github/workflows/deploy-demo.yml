@@ -27,7 +27,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: "8.3" # プロジェクトに合わせたPHPバージョンを指定
-      - run: composer install --no-dev --optimize-autoloader
+      - run: composer install --optimize-autoloader
 
       # サーバーにビルド済みアプリケーションを転送
       - name: Deploy to Lightsail
@@ -54,25 +54,15 @@ jobs:
 
           # サーバー上での設定とデプロイ
           ssh $DEPLOY_USER@$DEPLOY_SERVER << EOF
+            sudo chown -R ec2-user:ec2-user /var/www/html/decopon
+            sudo chown -R ec2-user:ec2-user /var/www/html/decopon/bootstrap/cache
+            sudo chown -R ec2-user:ec2-user /var/www/html/decopon/storage
+            sudo chmod -R 775 /var/www/html/decopon/bootstrap/cache
+            sudo chmod -R 775 /var/www/html/decopon/storage
             cd /var/www/html/decopon
             php artisan migrate:fresh --seed # DBを初期化
             php artisan config:cache
             php artisan route:cache
             php artisan view:cache
             sudo systemctl restart nginx # 必要に応じてサーバー再起動
-          EOF
-
-      # サーバー上で所有者と権限を再設定
-      - name: Fix permissions on server
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          DEPLOY_SERVER: ${{ secrets.DEPLOY_SERVER }}
-          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
-        run: |
-          ssh $DEPLOY_USER@$DEPLOY_SERVER << 'EOF'
-            sudo chown -R ec2-user:ec2-user /var/www/html/decopon
-            sudo chown -R nginx:nginx /var/www/html/decopon/bootstrap/cache
-            sudo chown -R nginx:nginx /var/www/html/decopon/storage
-            sudo chmod -R 775 /var/www/html/decopon/bootstrap/cache
-            sudo chmod -R 775 /var/www/html/decopon/storage
           EOF
