@@ -1,0 +1,58 @@
+name: Deploy Laravel to Lightsail
+
+on:
+  push:
+    branches:
+      - deploy-demo
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # リポジトリをチェックアウト
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Node.js環境のセットアップとnpmビルド
+      - name: Set up Node.js and install dependencies
+        uses: actions/setup-node@v3
+        with:
+          node-version: "" # プロジェクトに合わせたNode.jsバージョンを指定
+      - run: npm ci
+      - run: npm run build
+
+      # PHP依存関係のインストール（Composer）
+      - name: Set up PHP and install dependencies
+        uses: shivammathur/setup-php@v3
+        with:
+          php-version: "8.1" # プロジェクトに合わせたPHPバージョンを指定
+      - run: composer install --no-dev --optimize-autoloader
+
+      # サーバーにビルド済みアプリケーションを転送
+      - name: Deploy to Lightsail
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          DEPLOY_SERVER: ${{ secrets.DEPLOY_SERVER }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+        run: |
+          # SSH設定を準備
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H $DEPLOY_SERVER >> ~/.ssh/known_hosts
+
+          # ビルド済みのアプリケーションを転送
+          rsync -avz --delete \
+            --exclude=".env" \
+            ./ $DEPLOY_USER@$DEPLOY_SERVER:/var/www/decopon
+
+          # サーバー上での設定とデプロイ
+          ssh $DEPLOY_USER@$DEPLOY_SERVER << EOF
+            cd /var/www/decopon
+            php artisan migrate:fresh --seed # DBを初期化
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+            sudo systemctl restart nginx # 必要に応じてサーバー再起動
+          EOF
