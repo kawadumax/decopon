@@ -42,13 +42,17 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H $DEPLOY_SERVER >> ~/.ssh/known_hosts
 
+          # SSH接続のデバッグ
+          ssh -v $DEPLOY_USER@$DEPLOY_SERVER exit
+
           # ビルド済みのアプリケーションを転送
-          rsync -avz --delete \
+          rsync -avvz --delete \
             --exclude=".env" \
             ./ $DEPLOY_USER@$DEPLOY_SERVER:/var/www/html/decopon
 
           # サーバー上での設定とデプロイ
           ssh $DEPLOY_USER@$DEPLOY_SERVER << EOF
+          set -x # デバッグモードを有効化
             cd /var/www/html/decopon
             php artisan migrate:fresh --seed # DBを初期化
             php artisan config:cache
