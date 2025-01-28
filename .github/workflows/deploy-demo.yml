@@ -49,7 +49,7 @@ jobs:
           ssh -v $DEPLOY_USER@$DEPLOY_SERVER exit
 
           # ビルド済みのアプリケーションを転送
-          rsync -avvz --delete \
+          rsync -avz --delete \
             --exclude=".env" \
             ./ $DEPLOY_USER@$DEPLOY_SERVER:/var/www/html/decopon
 
