@@ -41,8 +41,11 @@ jobs:
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
+          # ホストキー検証をスキップ
+          echo "StrictHostKeyChecking no" >> ~/.ssh/config
+
           # ビルド済みのアプリケーションを転送
-          rsync -avz --delete \
+          rsync -e "ssh -o StrictHostKeyChecking=no" -avz --delete \
             --exclude=".env" \
             --exclude="node_modules" \
             --exclude=".git" \
