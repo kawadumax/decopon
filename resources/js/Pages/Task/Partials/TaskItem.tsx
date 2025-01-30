@@ -25,7 +25,6 @@ export const TaskItem = ({
 
     const handleDelete = () => {
         api.delete(route("api.tasks.destroy", task.id), (response) => {
-            console.log(response.data);
             remove();
             setCurrentTaskAtom(atom(null));
         });
@@ -46,18 +45,12 @@ export const TaskItem = ({
             title: "New Task",
             description: "New Task Description",
             completed: false,
+            parent_task_id: task.id,
         };
 
-        api.post(
-            route("api.tasks.store"),
-            {
-                parent_task_id: task.id,
-                ...taskTemplate,
-            },
-            (response) => {
-                insert(response.data.task);
-            }
-        );
+        api.post(route("api.tasks.store"), taskTemplate, (response) => {
+            insert(response.data.task);
+        });
     };
 
     const renderIdInLocal = () => {

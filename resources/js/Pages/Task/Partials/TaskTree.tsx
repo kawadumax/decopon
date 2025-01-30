@@ -1,19 +1,19 @@
 import { TaskItem } from "./TaskItem";
 import { PrimitiveAtom, useAtom, useAtomValue } from "jotai";
-import { taskAtomsAtom, tasksAtom } from "@/Lib/atoms";
+import { splitedTasksAtom, tasksAtom } from "@/Lib/atoms";
 import React, { useEffect, useMemo } from "react";
 import { Task } from "@/types";
 import { useAtomDevtools } from "jotai-devtools";
 
 export const TaskTree = () => {
-    const [taskAtoms, dispatch] = useAtom(taskAtomsAtom);
-    const [tasks] = useAtom(tasksAtom);
+    const [taskAtoms, dispatch] = useAtom(splitedTasksAtom);
+    const tasks = useAtomValue(tasksAtom);
 
     useAtomDevtools(tasksAtom);
 
     const taskMap = useMemo(
         () => new Map(tasks.map((item, index) => [item.id, taskAtoms[index]])),
-        [tasks]
+        [tasks, taskAtoms]
     );
 
     const createTaskItem = (
@@ -30,7 +30,7 @@ export const TaskTree = () => {
                         value: newTask,
                     })
                 }
-                key={`${taskAtom}`}
+                key={taskAtom.toString()}
             >
                 {children}
             </TaskItem>
@@ -65,7 +65,6 @@ export const TaskTree = () => {
         // ルート要素から開始
         const rootTasks = tasks.filter((item) => item.parent_task_id === null);
         const taskItems = rootTasks.map((root) => createRecursiveTask(root.id));
-
         return <>{taskItems}</>;
     };
 
