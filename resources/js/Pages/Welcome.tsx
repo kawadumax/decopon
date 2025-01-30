@@ -19,12 +19,7 @@ export default function Welcome({
 
     return (
         <>
-            <Head title="Welcome">
-                <link
-                    href="https://fonts.googleapis.com/css2?family=Caveat&display=swap"
-                    rel="stylesheet"
-                />
-            </Head>
+            <Head title="Welcome"></Head>
             <div className="bg-gray-50 text-black/50 dark:bg-black dark:text-white/50">
                 <div className="relative flex min-h-screen flex-col items-center justify-center selection:bg-[#FF2D20] selection:text-white">
                     <div className="relative w-full max-w-2xl px-6 lg:max-w-7xl">
@@ -60,7 +55,7 @@ export default function Welcome({
                             <div className="flex flex-col items-center justify-center">
                                 <div className="relative">
                                     <ApplicationLogo className="w-64 h-64 mb-4" />
-                                    <h1 className="text-9xl font-bold text-amber-400 mb-4 font-caveat absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/3">
+                                    <h1 className="text-9xl font-bold text-amber-400 mb-4 font-cursive absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/3">
                                         Decopon
                                     </h1>
                                 </div>

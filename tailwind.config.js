@@ -15,7 +15,7 @@ export default {
     	extend: {
     		fontFamily: {
     			sans: ['Figtree', ...defaultTheme.fontFamily.sans],
-				'caveat': ['"Caveat"', 'cursive'],
+				cursive: ['"Caveat"', 'cursive'],
 
     		},
     		borderRadius: {
