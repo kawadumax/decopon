@@ -25,7 +25,7 @@ export default function Index(
             <Head title="Task List" />
 
             <Split
-                className="flex flex-row max-h-full"
+                className="flex flex-row min-h-full max-h-full"
                 sizes={[17.2, 41.4, 41.4]} // 白銀比を元にした比率
                 gutterSize={4}
                 gutter={() => {
