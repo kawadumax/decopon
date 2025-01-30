@@ -13,6 +13,7 @@ export const TaskTools = () => {
             title: "New Task",
             description: "New Task Description",
             completed: false,
+            parent_task_id: null,
         };
 
         api.post(route("api.tasks.store"), taskTemplate, (response) => {

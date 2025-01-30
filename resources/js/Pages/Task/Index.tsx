@@ -37,7 +37,12 @@ export default function Index(
                 gutterStyle={() => ({})}
             >
                 <div className="overflow-auto bg-white shadow-sm dark:bg-gray-800 max-h-full">
-                    タグなど？
+                    <ul>
+                        <li>#daily</li>
+                        <li>#hoge</li>
+                        <li>#foo</li>
+                        <li>#bar</li>
+                    </ul>
                 </div>
                 <div className="overflow-auto hidden-scrollbar bg-white shadow-sm dark:bg-gray-800 max-h-full">
                     <TaskTools></TaskTools>
