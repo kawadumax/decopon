@@ -44,8 +44,8 @@ export const tasksBatchAtom = atom(null, (get, set, newTasks: Task[]) => {
     set(tasksAtom, updatedTasks);
 });
 
-export const taskAtomsAtom = splitAtom(tasksAtom);
-taskAtomsAtom.debugLabel = "splitedTasks";
+export const splitedTasksAtom = splitAtom(tasksAtom);
+splitedTasksAtom.debugLabel = "splitedTasks";
 
 const currentTaskBaseAtom = atom<PrimitiveAtom<Task> | PrimitiveAtom<null>>(
     atom(null)
