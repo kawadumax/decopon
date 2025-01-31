@@ -5,7 +5,6 @@ import ResponsiveNavLink from "@/Components/ResponsiveNavLink";
 import { Link, usePage } from "@inertiajs/react";
 import { PropsWithChildren, ReactNode, useState } from "react";
 import { Toaster } from "@/Components/ui/sonner";
-import { Timer } from "@/Components/Timer";
 export default function Authenticated({
     header,
     children,
@@ -44,7 +43,6 @@ export default function Authenticated({
                         </div>
 
                         <div className="hidden sm:ms-6 sm:flex sm:items-center">
-                            <Timer />
                             <div className="relative ms-3">
                                 <Dropdown>
                                     <Dropdown.Trigger>
