@@ -1,6 +1,13 @@
-import { SVGAttributes } from "react";
-import { ReactComponent as Logo } from "/public/images/logo.svg?react";
+import { ImgHTMLAttributes } from "react";
 
-export default function ApplicationLogo(props: SVGAttributes<SVGElement>) {
-    return <Logo {...props} />;
+export default function ApplicationLogo(
+    props: ImgHTMLAttributes<HTMLImageElement>
+) {
+    return (
+        <img
+            src="/images/decopon-icon-300x300.png"
+            alt="Application Logo"
+            {...props}
+        />
+    );
 }
