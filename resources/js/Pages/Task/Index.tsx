@@ -48,12 +48,27 @@ export default function Index(
                     }}
                     direction="vertical"
                 >
-                    <div className="bg-stone-50/50 shadow-sm dark:bg-gray-800">
-                        <ul>
-                            <li>#daily</li>
-                            <li>#hoge</li>
-                            <li>#foo</li>
-                            <li>#bar</li>
+                    <div className="bg-stone-50/50 shadow-sm dark:bg-gray-800 overflow-scroll hidden-scrollbar">
+                        <h3 className="font-bold text-base sticky border-primary border-b-2 p-2 top-0">
+                            Tags
+                        </h3>
+                        <ul className="text-primary font-bold  p-2">
+                            <li className="my-2 cursor-pointer">#daily</li>
+                            <li className="my-2 cursor-pointer">#hoge</li>
+                            <li className="my-2 cursor-pointer">#foo</li>
+                            <li className="my-2 cursor-pointer">#bar</li>
+                            <li className="my-2 cursor-pointer">#daily</li>
+                            <li className="my-2 cursor-pointer">#hoge</li>
+                            <li className="my-2 cursor-pointer">#foo</li>
+                            <li className="my-2 cursor-pointer">#bar</li>
+                            <li className="my-2 cursor-pointer">#daily</li>
+                            <li className="my-2 cursor-pointer">#hoge</li>
+                            <li className="my-2 cursor-pointer">#foo</li>
+                            <li className="my-2 cursor-pointer">#bar</li>
+                            <li className="my-2 cursor-pointer">#daily</li>
+                            <li className="my-2 cursor-pointer">#hoge</li>
+                            <li className="my-2 cursor-pointer">#foo</li>
+                            <li className="my-2 cursor-pointer">#bar</li>
                         </ul>
                     </div>
                     <div className="bg-stone-50/50 shadow-sm dark:bg-gray-800 max-h-full">
