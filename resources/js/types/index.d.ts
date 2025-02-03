@@ -23,6 +23,16 @@ export interface Log {
     updated_at: string;
 }
 
+export interface TimeEntry {
+    id: number;
+    user_id: number;
+    started_at: string;
+    ended_at: string;
+    status: 'In_Progress' | 'Completed' | 'Interrupted' | 'Abandoned' | 'Extended';
+    created_at: string,
+    updated_at: string;
+}
+
 
 export type PageProps<
     T extends Record<string, unknown> = Record<string, unknown>

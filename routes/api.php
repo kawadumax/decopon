@@ -1,9 +1,9 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\TaskApiController;
 use App\Http\Controllers\Api\LogApiController;
+use App\Http\Controllers\Api\TimeEntryApiController;
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('tasks', TaskApiController::class, ['as' => 'api']);
@@ -13,5 +13,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // LogsのAPI
     Route::apiResource('logs', LogApiController::class, ['as' => 'api']);
-    Route::get('logs/task/{taskId}', [LogApiController::class, 'getLogsTaskId'])->name('api.logs.task');;
+    Route::get('logs/task/{taskId}', [LogApiController::class, 'getLogsTaskId'])->name('api.logs.task');
+
+    //TimeEntryのAPI
+    Route::apiResource('time-entries', TimeEntryApiController::class, ['as' => 'api']);
 });

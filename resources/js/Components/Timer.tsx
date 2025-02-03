@@ -1,15 +1,27 @@
 import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
+import { useAtom } from "jotai";
+import {
+    isTimerRunningAtom,
+    isWorkTimeAtom,
+    currentTimeEntryIdAtom,
+} from "@/Lib/atoms";
+import { useApi } from "@/Hooks/useApi";
+import { TimeEntry } from "@/types";
 
 const WORK_TIME = 25 * 60 * 1000; // 25分
 const BREAK_TIME = 5 * 60 * 1000; // 5分
 
 export const Timer = () => {
-    const [isRunning, setIsRunning] = useState(false);
+    const [currentTimeEntryId, setTimeEntryId] = useAtom(
+        currentTimeEntryIdAtom
+    );
+    const [isRunning, setIsRunning] = useAtom(isTimerRunningAtom);
+    const [isWorkTime, setIsWorkTime] = useAtom(isWorkTimeAtom);
     const [startTime, setStartTime] = useState<number | null>(null);
     const [elapsedTime, setElapsedTime] = useState(0);
-    const [isWorkTime, setIsWorkTime] = useState(true);
+    const api = useApi();
     const [cycles, setCycles] = useState(0);
 
     useEffect(() => {
@@ -40,7 +52,23 @@ export const Timer = () => {
 
     const startTimer = () => {
         setIsRunning(true);
-        setStartTime(Date.now() - elapsedTime);
+        const date = new Date();
+        const started_at = Date.now() - elapsedTime;
+        // TimeEntryレコード作成
+        api.post(
+            route("api.time-entries.store"),
+            {
+                started_at: date.toISOString(),
+                ended_at: null,
+                status: "In_Progress",
+            },
+            (response) => {
+                // TimeEntryIdが返ってくるのでatomに保持する
+                console.log(response);
+                setTimeEntryId(response.data.id);
+            }
+        );
+        setStartTime(started_at);
     };
 
     const stopTimer = () => {
