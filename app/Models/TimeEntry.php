@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\TimeEntryStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -19,6 +20,12 @@ class TimeEntry extends Model
     protected $fillable = [
         'started_at',
         'ended_at',
+        'user_id',
+        'status',
+    ];
+
+    protected $casts = [
+        'status' => TimeEntryStatus::class,
     ];
 
     /**

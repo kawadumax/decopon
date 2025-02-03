@@ -18,6 +18,7 @@ return new class extends Migration
             $table->timestamp('ended_at');
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->enum('status', ['In_Progress', 'Completed', 'Interrupted', 'Abandoned', 'Extended']);
         });
     }
 
