@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\TimeEntryStatus;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Models\User;
 use Carbon\Carbon;
@@ -22,6 +23,7 @@ class TimeEntryFactory extends Factory
             'started_at' => now(),
             'ended_at' => null,
             'user_id' => User::factory(),
+            'status' => TimeEntryStatus::InProgress
         ];
     }
 
@@ -32,6 +34,7 @@ class TimeEntryFactory extends Factory
             return [
                 'started_at' => $start,
                 'ended_at' => $start->copy()->addMinutes(30),
+                'status' => TimeEntryStatus::Completed
             ];
         });
     }

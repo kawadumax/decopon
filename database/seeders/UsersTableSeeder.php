@@ -14,10 +14,10 @@ class UsersTableSeeder extends Seeder
     public function run(): void
     {
         // Adminは他のシーダで行う。
-        // User::factory()->create([
-        //     'name' => 'admin',
-        //     'email' => 'admin@example.com',
-        //     'password' => bcrypt('p@$$w0rd'),
-        // ]);
+        User::factory()->create([
+            'name' => 'guest',
+            'email' => 'guest@example.com',
+            'password' => bcrypt('p@$$w0rd'),
+        ]);
     }
 }
