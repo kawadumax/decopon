@@ -60,3 +60,10 @@ export const taskSelectorAtom = atom(
         set(currentTaskBaseAtom, newCurrentTaskAtom);
     }
 );
+
+// TimerAtom
+
+export const currentTimeEntryIdAtom = atom<number | null>(null);
+currentTimeEntryIdAtom.debugLabel = "currentTimeEntryId";
+export const isTimerRunningAtom = atom<boolean>(false);
+export const isWorkTimeAtom = atom<boolean>(true);
