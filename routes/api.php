@@ -17,4 +17,5 @@ Route::middleware('auth:sanctum')->group(function () {
 
     //TimeEntryのAPI
     Route::apiResource('time-entries', TimeEntryApiController::class, ['as' => 'api']);
+    Route::put('/time-entries/{id}', [TimeEntryApiController::class, 'update'])->name('api.time-entries-id.update');
 });
