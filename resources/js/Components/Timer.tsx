@@ -70,6 +70,16 @@ export const Timer = () => {
         };
     }, [isRunning, startTime, isWorkTime, cycles, completeTimeEntry]);
 
+    useEffect(() => {
+        // 最初の初期化時
+        //
+        // 最新のTimeEntryを見つけてきて、jotaiに保存する
+        // Start時にそれがCompletedかAbandonedだった場合は、通常通り新しいものを作る
+        // Null値Or In_Progress or Interrusptedだった場合、「未完了のセッションがあります、このセッションを破棄してあたらしく始めますか？」
+        // はい ⇒ 通常
+        // いいえ ⇒
+    }, []);
+
     const startTimer = () => {
         setIsRunning(true);
         const date = new Date();
