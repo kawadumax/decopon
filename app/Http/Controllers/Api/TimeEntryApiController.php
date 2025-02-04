@@ -37,7 +37,7 @@ class TimeEntryApiController extends ApiController
         return response()->json([
             'success' => true,
             'message' => "フォーカスタイムを記録開始しました",
-            'data' => $timeEntry
+            'time_entry_id' => $timeEntry->id,
         ], 201);
     }
 
@@ -52,8 +52,18 @@ class TimeEntryApiController extends ApiController
     /**
      * 指定されたタイムエントリーを更新
      */
-    public function update(Request $request, TimeEntry $timeEntry): JsonResponse
+    public function update(Request $request, $id): JsonResponse
     {
+
+        $timeEntry = TimeEntry::find($id);
+
+        if (!$timeEntry) {
+            return response()->json([
+                'success' => false,
+                'message' => 'タイムエントリーが見つかりません。',
+            ], 404);
+        }
+
         if ($timeEntry->user_id != Auth::id()) {
             return response()->json([
                 'success' => false,
@@ -62,9 +72,8 @@ class TimeEntryApiController extends ApiController
         }
 
         $validatedData = $request->validate([
-            'started_at' => 'sometimes|required|date',
-            'ended_at' => 'sometimes|required|date|after:started_at',
-            'status' => 'sometimes|required|in:In_Progress,Completed,Interrupted,Abandoned,Extended',
+            'ended_at' => 'sometimes|date',
+            'status' => 'sometimes|in:In_Progress,Completed,Interrupted,Abandoned,Extended',
         ]);
         $timeEntry->update($validatedData);
         return response()->json($timeEntry);

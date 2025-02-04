@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { useAtom } from "jotai";
@@ -10,8 +10,8 @@ import {
 import { useApi } from "@/Hooks/useApi";
 import { TimeEntry } from "@/types";
 
-const WORK_TIME = 25 * 60 * 1000; // 25分
-const BREAK_TIME = 5 * 60 * 1000; // 5分
+const WORK_TIME = 1 * 10 * 1000; // 25分
+const BREAK_TIME = 1 * 10 * 1000; // 5分
 
 export const Timer = () => {
     const [currentTimeEntryId, setTimeEntryId] = useAtom(
@@ -24,6 +24,23 @@ export const Timer = () => {
     const api = useApi();
     const [cycles, setCycles] = useState(0);
 
+    const completeTimeEntry = useCallback(() => {
+        if (currentTimeEntryId) {
+            const date = new Date();
+            api.put(
+                route("api.time-entries-id.update", currentTimeEntryId),
+                {
+                    ended_at: date.toISOString(),
+                    status: "Completed",
+                } as Partial<TimeEntry>,
+                (response) => {
+                    console.log("Time entry completed:", response);
+                    setTimeEntryId(null);
+                }
+            );
+        }
+    }, [currentTimeEntryId, api, setTimeEntryId]);
+
     useEffect(() => {
         let intervalId: NodeJS.Timeout | null = null;
 
@@ -33,10 +50,13 @@ export const Timer = () => {
                 setElapsedTime(newElapsedTime);
 
                 if (isWorkTime && newElapsedTime >= WORK_TIME) {
+                    // フォーカスタイムの終了時
                     setIsWorkTime(false);
                     setStartTime(Date.now());
                     setElapsedTime(0);
+                    completeTimeEntry();
                 } else if (!isWorkTime && newElapsedTime >= BREAK_TIME) {
+                    // 休憩時間の終了時
                     setIsWorkTime(true);
                     setStartTime(Date.now());
                     setElapsedTime(0);
@@ -48,7 +68,7 @@ export const Timer = () => {
         return () => {
             if (intervalId) clearInterval(intervalId);
         };
-    }, [isRunning, startTime, isWorkTime, cycles]);
+    }, [isRunning, startTime, isWorkTime, cycles, completeTimeEntry]);
 
     const startTimer = () => {
         setIsRunning(true);
@@ -64,8 +84,8 @@ export const Timer = () => {
             },
             (response) => {
                 // TimeEntryIdが返ってくるのでatomに保持する
-                console.log(response);
-                setTimeEntryId(response.data.id);
+                console.log(response, response.data.time_entry_id);
+                setTimeEntryId(response.data.time_entry_id);
             }
         );
         setStartTime(started_at);
