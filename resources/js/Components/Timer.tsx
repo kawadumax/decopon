@@ -7,14 +7,25 @@ import {
     isWorkTimeAtom,
     currentTimeEntryIdAtom,
     currentTimeEntryAtom,
+    workTimeAtom,
+    breakTimeAtom,
 } from "@/Lib/atoms";
 import { useApi } from "@/Hooks/useApi";
 import { TimeEntry } from "@/types";
+import { usePage } from "@inertiajs/react";
 
-const WORK_TIME = 1 * 10 * 1000; // 25分
-const BREAK_TIME = 1 * 10 * 1000; // 5分
+// const WORK_TIME = 1 * 10 * 1000; // 25分
+// const BREAK_TIME = 1 * 10 * 1000; // 5分
 
 export const Timer = () => {
+    const preference = usePage().props.auth.user.preference;
+
+    const [workTime, setWorkTime] = useAtom(workTimeAtom);
+    const [breakTime, setBreakTime] = useAtom(breakTimeAtom);
+
+    setWorkTime(preference.work_time);
+    setBreakTime(preference.break_time);
+
     const [currentTimeEntryId, setTimeEntryId] = useAtom(
         currentTimeEntryIdAtom
     );
