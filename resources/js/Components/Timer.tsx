@@ -6,6 +6,7 @@ import {
     isTimerRunningAtom,
     isWorkTimeAtom,
     currentTimeEntryIdAtom,
+    currentTimeEntryAtom,
 } from "@/Lib/atoms";
 import { useApi } from "@/Hooks/useApi";
 import { TimeEntry } from "@/types";
@@ -17,12 +18,64 @@ export const Timer = () => {
     const [currentTimeEntryId, setTimeEntryId] = useAtom(
         currentTimeEntryIdAtom
     );
+    const [currentTimeEntry, setCurrentTimeEntry] =
+        useAtom(currentTimeEntryAtom);
     const [isRunning, setIsRunning] = useAtom(isTimerRunningAtom);
     const [isWorkTime, setIsWorkTime] = useAtom(isWorkTimeAtom);
     const [startTime, setStartTime] = useState<number | null>(null);
     const [elapsedTime, setElapsedTime] = useState(0);
     const api = useApi();
     const [cycles, setCycles] = useState(0);
+
+    const progressTimeEntry = useCallback(() => {
+        if (!isWorkTime) return;
+
+        const date = new Date();
+
+        if (currentTimeEntry) {
+            api.put(
+                route("api.time-entries-id.update", currentTimeEntryId),
+                {
+                    ended_at: date.toISOString(),
+                    status: "In_Progress",
+                } as Partial<TimeEntry>,
+                (response) => {
+                    console.log("Time entry progressed:", response);
+                    setCurrentTimeEntry(response.data.time_entry);
+                }
+            );
+        } else {
+            // TimeEntryレコード作成
+            api.post(
+                route("api.time-entries.store"),
+                {
+                    started_at: date.toISOString(),
+                    ended_at: null,
+                    status: "In_Progress",
+                },
+                (response) => {
+                    // TimeEntryIdが返ってくるのでatomに保持する
+                    setCurrentTimeEntry(response.data.time_entry);
+                }
+            );
+        }
+    }, [isWorkTime, api, setCurrentTimeEntry]);
+
+    const interruptTimeEntry = useCallback(() => {
+        if (!currentTimeEntryId) return;
+        const date = new Date();
+        api.put(
+            route("api.time-entries-id.update", currentTimeEntryId),
+            {
+                ended_at: date.toISOString(),
+                status: "Interrupted",
+            } as Partial<TimeEntry>,
+            (response) => {
+                console.log("Time entry interrupted:", response);
+                setCurrentTimeEntry(response.data.time_entry);
+            }
+        );
+    }, [currentTimeEntryId, api, setCurrentTimeEntry]);
 
     const completeTimeEntry = useCallback(() => {
         if (!currentTimeEntryId) return;
@@ -35,7 +88,7 @@ export const Timer = () => {
             } as Partial<TimeEntry>,
             (response) => {
                 console.log("Time entry completed:", response);
-                setTimeEntryId(null);
+                setCurrentTimeEntry(null);
             }
         );
     }, [currentTimeEntryId, api, setTimeEntryId]);
@@ -51,7 +104,7 @@ export const Timer = () => {
             } as Partial<TimeEntry>,
             (response) => {
                 console.log("Time entry abandoned:", response);
-                setTimeEntryId(null);
+                setCurrentTimeEntry(null);
             }
         );
     }, [currentTimeEntryId, api, setTimeEntryId]);
@@ -90,26 +143,14 @@ export const Timer = () => {
 
     const startTimer = () => {
         setIsRunning(true);
-        const date = new Date();
         const started_at = Date.now() - elapsedTime;
-        // TimeEntryレコード作成
-        api.post(
-            route("api.time-entries.store"),
-            {
-                started_at: date.toISOString(),
-                ended_at: null,
-                status: "In_Progress",
-            },
-            (response) => {
-                // TimeEntryIdが返ってくるのでatomに保持する
-                setTimeEntryId(response.data.time_entry_id);
-            }
-        );
+        progressTimeEntry();
         setStartTime(started_at);
     };
 
     const stopTimer = () => {
         setIsRunning(false);
+        interruptTimeEntry();
     };
 
     const resetTimer = () => {
