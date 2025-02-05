@@ -47,11 +47,20 @@ class User extends Authenticatable
         ];
     }
 
+    protected $casts = [
+        'preference' => 'array',
+    ];
+
     /**
      * Get the user's preference.
      */
     public function preference(): HasOne
     {
         return $this->hasOne(Preference::class);
+    }
+
+    public function getPreferenceAttribute($value)
+    {
+        return $value ?? (new Preference())->getAttributes();
     }
 }
