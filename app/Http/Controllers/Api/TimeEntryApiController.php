@@ -76,7 +76,12 @@ class TimeEntryApiController extends ApiController
             'status' => 'sometimes|in:In_Progress,Completed,Interrupted,Abandoned,Extended',
         ]);
         $timeEntry->update($validatedData);
-        return response()->json($timeEntry);
+
+        return response()->json([
+            'success' => true,
+            'message' => $timeEntry->get_status_message(),
+            'time_entry' => $timeEntry,
+        ]);
     }
 
     /**
