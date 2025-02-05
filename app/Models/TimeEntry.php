@@ -28,6 +28,21 @@ class TimeEntry extends Model
         'status' => TimeEntryStatus::class,
     ];
 
+
+    public function get_status_message(): string
+    {
+        $messages = [
+            TimeEntryStatus::InProgress->value => 'フォーカスタイムは進行中です。',
+            TimeEntryStatus::Completed->value => 'フォーカスタイムを完了しました。',
+            TimeEntryStatus::Interrupted->value => 'フォーカスタイムを中断しました。',
+            TimeEntryStatus::Abandoned->value => 'フォーカスタイムを放棄しました。',
+            TimeEntryStatus::Extended->value => 'フォーカスタイムを延長しました。',
+        ];
+
+        return $messages[$this->status->value] ?? '不明なステータスに更新されました。';
+    }
+
+
     /**
      * TimeEntryを所有するユーザーを取得
      */
