@@ -1,15 +1,12 @@
 import { TaskItem } from "./TaskItem";
 import { PrimitiveAtom, useAtom, useAtomValue } from "jotai";
 import { splitedTasksAtom, tasksAtom } from "@/Lib/atoms";
-import React, { useEffect, useMemo } from "react";
+import React, { useMemo } from "react";
 import { Task } from "@/types";
-import { useAtomDevtools } from "jotai-devtools";
 
 export const TaskTree = () => {
     const [taskAtoms, dispatch] = useAtom(splitedTasksAtom);
     const tasks = useAtomValue(tasksAtom);
-
-    useAtomDevtools(tasksAtom);
 
     const taskMap = useMemo(
         () => new Map(tasks.map((item, index) => [item.id, taskAtoms[index]])),
