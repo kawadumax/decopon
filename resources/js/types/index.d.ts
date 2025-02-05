@@ -1,8 +1,16 @@
 export interface User {
     id: number;
+    preference: Preference;
     name: string;
     email: string;
     email_verified_at?: string;
+}
+
+export interface Preference {
+    id: number;
+    user_id: number;
+    work_time: number;
+    break_time: number;
 }
 
 export interface Task {
@@ -19,7 +27,7 @@ export interface Log {
     user_id: number;
     task_id: number;
     content: string;
-    created_at: string,
+    created_at: string;
     updated_at: string;
 }
 
@@ -28,11 +36,15 @@ export interface TimeEntry {
     user_id: number;
     started_at: string;
     ended_at: string;
-    status: 'In_Progress' | 'Completed' | 'Interrupted' | 'Abandoned' | 'Extended';
-    created_at: string,
+    status:
+        | "In_Progress"
+        | "Completed"
+        | "Interrupted"
+        | "Abandoned"
+        | "Extended";
+    created_at: string;
     updated_at: string;
 }
-
 
 export type PageProps<
     T extends Record<string, unknown> = Record<string, unknown>
