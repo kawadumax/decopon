@@ -74,5 +74,17 @@ export const currentTimeEntryIdAtom = atom(
 currentTimeEntryAtom.debugLabel = "currentTimeEntry";
 export const isTimerRunningAtom = atom<boolean>(false);
 export const isWorkTimeAtom = atom<boolean>(true);
-export const workTimeAtom = atom<number>(25);
-export const breakTimeAtom = atom<number>(5);
+
+const _workTimeAtom = atom<number>(25*60*1000);
+const _breakTimeAtom = atom<number>(10*60*1000);
+export const workTimeAtom = atom(
+    (get) => get(_workTimeAtom),
+    (_get, set, newValue: number) =>
+        set(_workTimeAtom, newValue * 60 * 1000)
+);
+
+export const breakTimeAtom = atom(
+    (get) => get(_breakTimeAtom),
+    (_get, set, newValue: number) =>
+        set(_breakTimeAtom, newValue * 60 * 1000)
+);
