@@ -74,3 +74,5 @@ export const currentTimeEntryIdAtom = atom(
 currentTimeEntryAtom.debugLabel = "currentTimeEntry";
 export const isTimerRunningAtom = atom<boolean>(false);
 export const isWorkTimeAtom = atom<boolean>(true);
+export const workTimeAtom = atom<number>(25);
+export const breakTimeAtom = atom<number>(5);
