@@ -128,7 +128,7 @@ export const Timer = () => {
                 const newElapsedTime = Date.now() - (startTime || 0);
                 setElapsedTime(newElapsedTime);
 
-                if (isWorkTime && newElapsedTime >= WORK_TIME) {
+                if (isWorkTime && newElapsedTime >= workTime) {
                     // フォーカスタイムの終了時
                     setIsWorkTime(false);
                     setStartTime(Date.now());
@@ -136,7 +136,7 @@ export const Timer = () => {
                     completeTimeEntry();
                     // 時間が来たらタイマーを止める
                     setIsRunning(false);
-                } else if (!isWorkTime && newElapsedTime >= BREAK_TIME) {
+                } else if (!isWorkTime && newElapsedTime >= breakTime) {
                     // 休憩時間の終了時
                     setIsWorkTime(true);
                     setStartTime(Date.now());
@@ -182,8 +182,8 @@ export const Timer = () => {
     };
 
     const remainingTime = isWorkTime
-        ? WORK_TIME - elapsedTime
-        : BREAK_TIME - elapsedTime;
+        ? workTime - elapsedTime
+        : breakTime - elapsedTime;
 
     return (
         <div className="flex flex-col h-full justify-center gap-2 bg-[url(/images/decopon-icon-300x300.png)] bg-blend-lighten bg-white/50 bg-center bg-no-repeat">
