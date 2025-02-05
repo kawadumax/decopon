@@ -37,7 +37,7 @@ class TimeEntryApiController extends ApiController
         return response()->json([
             'success' => true,
             'message' => "フォーカスタイムを記録開始しました",
-            'time_entry_id' => $timeEntry->id,
+            'time_entry' => $timeEntry,
         ], 201);
     }
 

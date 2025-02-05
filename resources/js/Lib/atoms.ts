@@ -1,5 +1,5 @@
 import { atom, PrimitiveAtom } from "jotai";
-import { Task } from "../types";
+import { Task, TimeEntry } from "../types";
 import { atomFamily, splitAtom } from "jotai/utils";
 
 // TaskAtom
@@ -62,8 +62,15 @@ export const taskSelectorAtom = atom(
 );
 
 // TimerAtom
-
-export const currentTimeEntryIdAtom = atom<number | null>(null);
-currentTimeEntryIdAtom.debugLabel = "currentTimeEntryId";
+export const currentTimeEntryAtom = atom<Partial<TimeEntry> | null>(null);
+export const currentTimeEntryIdAtom = atom(
+    (get) => get(currentTimeEntryAtom)?.id,
+    (get, set, newValue: number) =>
+        set(currentTimeEntryAtom, {
+            ...get(currentTimeEntryAtom),
+            id: newValue,
+        })
+);
+currentTimeEntryAtom.debugLabel = "currentTimeEntry";
 export const isTimerRunningAtom = atom<boolean>(false);
 export const isWorkTimeAtom = atom<boolean>(true);
