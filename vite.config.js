@@ -1,8 +1,7 @@
 import { defineConfig } from "vite";
 import laravel from "laravel-vite-plugin";
 import react from "@vitejs/plugin-react";
-import svgr from 'vite-plugin-svgr'
-
+import svgr from "vite-plugin-svgr";
 
 export default defineConfig({
     plugins: [
@@ -10,10 +9,14 @@ export default defineConfig({
             input: "resources/js/app.tsx",
             refresh: true,
         }),
-        react(),
+        react({
+            babel: {
+                presets: ["jotai/babel/preset"],
+            },
+        }),
         svgr({
             svgrOptions: {
-                exportType: 'named',
+                exportType: "named",
                 ref: true,
             },
         }),
