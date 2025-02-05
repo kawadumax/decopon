@@ -25,20 +25,35 @@ export const Timer = () => {
     const [cycles, setCycles] = useState(0);
 
     const completeTimeEntry = useCallback(() => {
-        if (currentTimeEntryId) {
-            const date = new Date();
-            api.put(
-                route("api.time-entries-id.update", currentTimeEntryId),
-                {
-                    ended_at: date.toISOString(),
-                    status: "Completed",
-                } as Partial<TimeEntry>,
-                (response) => {
-                    console.log("Time entry completed:", response);
-                    setTimeEntryId(null);
-                }
-            );
-        }
+        if (!currentTimeEntryId) return;
+        const date = new Date();
+        api.put(
+            route("api.time-entries-id.update", currentTimeEntryId),
+            {
+                ended_at: date.toISOString(),
+                status: "Completed",
+            } as Partial<TimeEntry>,
+            (response) => {
+                console.log("Time entry completed:", response);
+                setTimeEntryId(null);
+            }
+        );
+    }, [currentTimeEntryId, api, setTimeEntryId]);
+
+    const abandoneTimeEntry = useCallback(() => {
+        if (!currentTimeEntryId) return;
+        const date = new Date();
+        api.put(
+            route("api.time-entries-id.update", currentTimeEntryId),
+            {
+                ended_at: date.toISOString(),
+                status: "Abandoned",
+            } as Partial<TimeEntry>,
+            (response) => {
+                console.log("Time entry abandoned:", response);
+                setTimeEntryId(null);
+            }
+        );
     }, [currentTimeEntryId, api, setTimeEntryId]);
 
     useEffect(() => {
@@ -55,12 +70,15 @@ export const Timer = () => {
                     setStartTime(Date.now());
                     setElapsedTime(0);
                     completeTimeEntry();
+                    // 時間が来たらタイマーを止める
+                    setIsRunning(false);
                 } else if (!isWorkTime && newElapsedTime >= BREAK_TIME) {
                     // 休憩時間の終了時
                     setIsWorkTime(true);
                     setStartTime(Date.now());
                     setElapsedTime(0);
                     setCycles(cycles + 1);
+                    setIsRunning(false);
                 }
             }, 1000);
         }
@@ -69,16 +87,6 @@ export const Timer = () => {
             if (intervalId) clearInterval(intervalId);
         };
     }, [isRunning, startTime, isWorkTime, cycles, completeTimeEntry]);
-
-    useEffect(() => {
-        // 最初の初期化時
-        //
-        // 最新のTimeEntryを見つけてきて、jotaiに保存する
-        // Start時にそれがCompletedかAbandonedだった場合は、通常通り新しいものを作る
-        // Null値Or In_Progress or Interrusptedだった場合、「未完了のセッションがあります、このセッションを破棄してあたらしく始めますか？」
-        // はい ⇒ 通常
-        // いいえ ⇒
-    }, []);
 
     const startTimer = () => {
         setIsRunning(true);
@@ -94,7 +102,6 @@ export const Timer = () => {
             },
             (response) => {
                 // TimeEntryIdが返ってくるのでatomに保持する
-                console.log(response, response.data.time_entry_id);
                 setTimeEntryId(response.data.time_entry_id);
             }
         );
@@ -110,6 +117,7 @@ export const Timer = () => {
         setElapsedTime(0);
         setIsWorkTime(true);
         setCycles(0);
+        abandoneTimeEntry();
     };
 
     const formatTime = (time: number) => {
