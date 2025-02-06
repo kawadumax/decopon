@@ -17,7 +17,6 @@ export const TaskTools = () => {
         };
 
         api.post(route("api.tasks.store"), taskTemplate, (response) => {
-            console.log(response.data.task);
             setTasks((prev) => [...prev, response.data.task]);
         });
     };
