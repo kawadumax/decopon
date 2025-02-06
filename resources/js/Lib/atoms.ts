@@ -62,8 +62,27 @@ export const taskSelectorAtom = atom(
 );
 
 // TimerAtom
-// export const currentTimeEntryAtom = atom<Partial<TimeEntry> | null>(null);
-export const currentTimeEntryAtom = atomWithStorage<Partial<TimeEntry> | null>('currentTimeEntry', null, undefined, { getOnInit: true })
+
+interface TimerState {
+    elapsedTime: number;
+    currentTimeEntry?: Partial<TimeEntry>;
+}
+
+const timeStateAtom = atomWithStorage<TimerState>(
+    "timerState",
+    { elapsedTime: 0, currentTimeEntry: undefined },
+    undefined,
+    { getOnInit: true }
+);
+export const currentTimeEntryAtom = atom(
+    (get) => get(timeStateAtom)?.currentTimeEntry,
+    (get, set, newValue: Partial<TimeEntry> | undefined) => {
+        set(timeStateAtom, {
+            ...get(timeStateAtom),
+            currentTimeEntry: newValue,
+        });
+    }
+);
 export const currentTimeEntryIdAtom = atom(
     (get) => get(currentTimeEntryAtom)?.id,
     (get, set, newValue: number) =>
@@ -72,19 +91,26 @@ export const currentTimeEntryIdAtom = atom(
             id: newValue,
         })
 );
+export const elapsedTimeAtom = atom(
+    (get) => get(timeStateAtom)?.elapsedTime,
+    (get, set, newValue: number) => {
+        set(timeStateAtom, {
+            ...get(timeStateAtom),
+            elapsedTime: newValue,
+        });
+    }
+);
 
 export const isTimerRunningAtom = atom<boolean>(false);
 export const isWorkTimeAtom = atom<boolean>(true);
 
-const _workTimeAtom = atom<number>(25*60*1000);
-const _breakTimeAtom = atom<number>(10*60*1000);
+const _workTimeAtom = atom<number>(25 * 60 * 1000);
+const _breakTimeAtom = atom<number>(10 * 60 * 1000);
 export const workTimeAtom = atom(
     (get) => get(_workTimeAtom),
-    (_get, set, newValue: number) =>
-        set(_workTimeAtom, newValue * 60 * 1000)
+    (_get, set, newValue: number) => set(_workTimeAtom, newValue * 60 * 1000)
 );
 export const breakTimeAtom = atom(
     (get) => get(_breakTimeAtom),
-    (_get, set, newValue: number) =>
-        set(_breakTimeAtom, newValue * 60 * 1000)
+    (_get, set, newValue: number) => set(_breakTimeAtom, newValue * 60 * 1000)
 );

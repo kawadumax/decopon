@@ -9,6 +9,7 @@ import {
     currentTimeEntryAtom,
     workTimeAtom,
     breakTimeAtom,
+    elapsedTimeAtom,
 } from "@/Lib/atoms";
 import { useApi } from "@/Hooks/useApi";
 import { TimeEntry } from "@/types";
@@ -31,7 +32,7 @@ export const Timer = () => {
     const [isRunning, setIsRunning] = useAtom(isTimerRunningAtom);
     const [isWorkTime, setIsWorkTime] = useAtom(isWorkTimeAtom);
     const [startTime, setStartTime] = useState<number | null>(null);
-    const [elapsedTime, setElapsedTime] = useState(0);
+    const [elapsedTime, setElapsedTime] = useAtom(elapsedTimeAtom);
     const api = useApi();
     const [cycles, setCycles] = useState(0);
 
@@ -98,7 +99,7 @@ export const Timer = () => {
             } as Partial<TimeEntry>,
             (response) => {
                 console.log("Time entry completed:", response);
-                setCurrentTimeEntry(null);
+                setCurrentTimeEntry(undefined);
             }
         );
     }, [currentTimeEntryId, api, setTimeEntryId]);
@@ -114,7 +115,7 @@ export const Timer = () => {
             } as Partial<TimeEntry>,
             (response) => {
                 console.log("Time entry abandoned:", response);
-                setCurrentTimeEntry(null);
+                setCurrentTimeEntry(undefined);
             }
         );
     }, [currentTimeEntryId, api, setTimeEntryId]);
@@ -127,11 +128,9 @@ export const Timer = () => {
             if (currentTimeEntry && currentTimeEntry.status == "In_Progress") {
                 event.preventDefault(); // 離脱時に進行中のタイマーがある場合、アラートが表示される
                 interruptTimeEntry();
-                setCurrentTimeEntry((prev) => {
-                    return {
-                        ...prev,
-                        status: "Interrupted",
-                    };
+                setCurrentTimeEntry({
+                    ...currentTimeEntry,
+                    status: "Interrupted",
                 });
             }
         },
@@ -235,7 +234,10 @@ export const Timer = () => {
                 <Button onClick={stopTimer} disabled={!isRunning}>
                     Stop
                 </Button>
-                <Button className="bg-lime-400 text-white" onClick={resetTimer}>
+                <Button
+                    className="bg-lime-400 text-white focus:bg-lime-300 focus:outline-2 focus:outline-offset-2 focus:outline-lime-400"
+                    onClick={resetTimer}
+                >
                     Reset
                 </Button>
             </div>
