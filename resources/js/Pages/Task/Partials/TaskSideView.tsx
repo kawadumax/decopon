@@ -5,6 +5,7 @@ import { Task } from "@/types";
 import { PrimitiveAtom } from "jotai";
 import { TaskEditableDescription } from "./TaskEditableDescription";
 import { TaskLogger } from "./TaskLogger";
+import { TaskEditableTagList } from "./TaskEditableTagList";
 export const TaskSideView = () => {
     const currentTaskAtom = useAtomValue(taskSelectorAtom);
     const currentTask = useAtomValue(currentTaskAtom);
@@ -22,6 +23,7 @@ export const TaskSideView = () => {
                     <TaskEditableDescription
                         taskAtom={currentTaskAtom as PrimitiveAtom<Task>}
                     ></TaskEditableDescription>
+                    <TaskEditableTagList></TaskEditableTagList>
                     <TaskLogger
                         taskAtom={currentTaskAtom as PrimitiveAtom<Task>}
                     ></TaskLogger>
