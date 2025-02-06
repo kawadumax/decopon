@@ -36,7 +36,7 @@ class HandleInertiaRequests extends Middleware
                     'id' => $request->user()->id,
                     'name' => $request->user()->name,
                     'email' => $request->user()->email,
-                    'preference' => $request->user()->preference,  // ここでpreferenceを追加
+                    'preference' => $request->user()->preference,
                 ] : null,
             ],
         ];

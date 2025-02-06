@@ -47,10 +47,6 @@ class User extends Authenticatable
         ];
     }
 
-    protected $casts = [
-        'preference' => 'array',
-    ];
-
     /**
      * Get the user's preference.
      */
@@ -59,8 +55,12 @@ class User extends Authenticatable
         return $this->hasOne(Preference::class);
     }
 
-    public function getPreferenceAttribute($value)
+
+    /**
+     * Get the user's preference or default values.
+     */
+    public function getPreferenceAttribute()
     {
-        return $value ?? (new Preference())->getAttributes();
+        return $this->preference()->firstOrNew();
     }
 }
