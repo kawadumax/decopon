@@ -1,5 +1,5 @@
 import { atom, PrimitiveAtom } from "jotai";
-import { Task, TimeEntry } from "../types";
+import { Log, Task, TimeEntry } from "../types";
 import { atomFamily, atomWithStorage, splitAtom } from "jotai/utils";
 
 // TaskAtom
@@ -114,3 +114,7 @@ export const breakTimeAtom = atom(
     (get) => get(_breakTimeAtom),
     (_get, set, newValue: number) => set(_breakTimeAtom, newValue * 60 * 1000)
 );
+
+// Logs atom
+
+export const logsAtom = atom<Log[]>([]);

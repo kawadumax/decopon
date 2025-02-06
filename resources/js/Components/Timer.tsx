@@ -14,10 +14,10 @@ import {
 import { useApi } from "@/Hooks/useApi";
 import { TimeEntry } from "@/types";
 import { usePage } from "@inertiajs/react";
+import { logger } from "@/Lib/logger";
 
 export const Timer = () => {
     const preference = usePage().props.auth.user.preference;
-    console.log(preference);
     const [workTime, setWorkTime] = useAtom(workTimeAtom);
     const [breakTime, setBreakTime] = useAtom(breakTimeAtom);
 
@@ -51,7 +51,7 @@ export const Timer = () => {
                     status: "In_Progress",
                 } as Partial<TimeEntry>,
                 (response) => {
-                    console.log("Time entry progressed:", response);
+                    logger("Time entry progressed:", response);
                     setCurrentTimeEntry(response.data.time_entry);
                 }
             );
@@ -82,7 +82,7 @@ export const Timer = () => {
                 status: "Interrupted",
             } as Partial<TimeEntry>,
             (response) => {
-                console.log("Time entry interrupted:", response);
+                logger("Time entry interrupted:", response);
                 setCurrentTimeEntry(response.data.time_entry);
             }
         );
@@ -98,7 +98,7 @@ export const Timer = () => {
                 status: "Completed",
             } as Partial<TimeEntry>,
             (response) => {
-                console.log("Time entry completed:", response);
+                logger("Time entry completed:", response);
                 setCurrentTimeEntry(undefined);
             }
         );
@@ -114,7 +114,7 @@ export const Timer = () => {
                 status: "Abandoned",
             } as Partial<TimeEntry>,
             (response) => {
-                console.log("Time entry abandoned:", response);
+                logger("Time entry abandoned:", response);
                 setCurrentTimeEntry(undefined);
             }
         );
