@@ -14,12 +14,9 @@ import { useApi } from "@/Hooks/useApi";
 import { TimeEntry } from "@/types";
 import { usePage } from "@inertiajs/react";
 
-// const WORK_TIME = 1 * 10 * 1000; // 25分
-// const BREAK_TIME = 1 * 10 * 1000; // 5分
-
 export const Timer = () => {
     const preference = usePage().props.auth.user.preference;
-
+    console.log(preference);
     const [workTime, setWorkTime] = useAtom(workTimeAtom);
     const [breakTime, setBreakTime] = useAtom(breakTimeAtom);
 
@@ -122,9 +119,24 @@ export const Timer = () => {
         );
     }, [currentTimeEntryId, api, setTimeEntryId]);
 
-    // const handleBeforeUnload = () => {
-    //     //
-    // };
+    /**
+     * タイマー状態: In-Progress時にページが閉じられた場合、タイマー状態をInterruptedにして、サーバーにリクエストを送る
+     *  */
+    const handleBeforeUnload = useCallback(
+        (event: BeforeUnloadEvent) => {
+            if (currentTimeEntry && currentTimeEntry.status == "In_Progress") {
+                event.preventDefault(); // 離脱時に進行中のタイマーがある場合、アラートが表示される
+                interruptTimeEntry();
+                setCurrentTimeEntry((prev) => {
+                    return {
+                        ...prev,
+                        status: "Interrupted",
+                    };
+                });
+            }
+        },
+        [currentTimeEntry, interruptTimeEntry, setCurrentTimeEntry]
+    );
 
     useEffect(() => {
         let intervalId: NodeJS.Timeout | null = null;
@@ -159,25 +171,11 @@ export const Timer = () => {
     }, [isRunning, startTime, isWorkTime, cycles, completeTimeEntry]);
 
     useEffect(() => {
-        // タイマー状態: In-Progress時にページが閉じられた場合、タイマー状態をInterruptedにして、サーバーにリクエストを送る
-        const handleBeforeUnload = (event: BeforeUnloadEvent) => {
-            if (currentTimeEntry && currentTimeEntry.status == "In_Progress") {
-                event.preventDefault(); // 離脱時に進行中のタイマーがある場合、アラートが表示される
-                interruptTimeEntry();
-                setCurrentTimeEntry((prev) => {
-                    return {
-                        ...prev,
-                        status: "Interrupted",
-                    };
-                });
-            }
-        };
-
         window.addEventListener("beforeunload", handleBeforeUnload);
         return () => {
             window.removeEventListener("beforeunload", handleBeforeUnload);
         };
-    }, [currentTimeEntry, setCurrentTimeEntry]);
+    }, [handleBeforeUnload]);
 
     const startTimer = () => {
         setIsRunning(true);
