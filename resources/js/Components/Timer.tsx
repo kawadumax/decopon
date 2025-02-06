@@ -44,10 +44,12 @@ export const Timer = () => {
         const date = new Date();
 
         if (currentTimeEntry) {
+            // currentTimeEntryがあるがInterrupted
             api.put(
                 route("api.time-entries-id.update", currentTimeEntryId),
                 {
-                    ended_at: date.toISOString(),
+                    started_at: date.toISOString(),
+                    ended_at: undefined,
                     status: "In_Progress",
                 } as Partial<TimeEntry>,
                 (response) => {
@@ -61,7 +63,7 @@ export const Timer = () => {
                 route("api.time-entries.store"),
                 {
                     started_at: date.toISOString(),
-                    ended_at: null,
+                    ended_at: undefined,
                     status: "In_Progress",
                 },
                 (response) => {
@@ -120,6 +122,10 @@ export const Timer = () => {
         );
     }, [currentTimeEntryId, api, setTimeEntryId]);
 
+    // const handleBeforeUnload = () => {
+    //     //
+    // };
+
     useEffect(() => {
         let intervalId: NodeJS.Timeout | null = null;
 
@@ -151,6 +157,27 @@ export const Timer = () => {
             if (intervalId) clearInterval(intervalId);
         };
     }, [isRunning, startTime, isWorkTime, cycles, completeTimeEntry]);
+
+    useEffect(() => {
+        // タイマー状態: In-Progress時にページが閉じられた場合、タイマー状態をInterruptedにして、サーバーにリクエストを送る
+        const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+            if (currentTimeEntry && currentTimeEntry.status == "In_Progress") {
+                event.preventDefault(); // 離脱時に進行中のタイマーがある場合、アラートが表示される
+                interruptTimeEntry();
+                setCurrentTimeEntry((prev) => {
+                    return {
+                        ...prev,
+                        status: "Interrupted",
+                    };
+                });
+            }
+        };
+
+        window.addEventListener("beforeunload", handleBeforeUnload);
+        return () => {
+            window.removeEventListener("beforeunload", handleBeforeUnload);
+        };
+    }, [currentTimeEntry, setCurrentTimeEntry]);
 
     const startTimer = () => {
         setIsRunning(true);
