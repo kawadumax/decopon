@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\PreferenceController;
+use App\Http\Controllers\LogController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -27,8 +28,11 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // 新しいpreference用のルート
+    // Preference
     Route::patch('/preference', [PreferenceController::class, 'update'])->name('preference.update');
+
+    // Log
+    Route::get("/logs", [LogController::class, "index"])->name('logs.index');
 });
 
 require __DIR__ . '/auth.php';

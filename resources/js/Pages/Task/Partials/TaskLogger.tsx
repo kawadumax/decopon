@@ -1,5 +1,6 @@
 import { Input } from "@/Components/ui/input";
 import { useApi } from "@/Hooks/useApi";
+import { logger } from "@/Lib/logger";
 import { Task, Log } from "@/types";
 import { useAtom, useAtomValue } from "jotai";
 import { PrimitiveAtom } from "jotai";
@@ -65,7 +66,7 @@ export const TaskLogger = ({ taskAtom }: { taskAtom: PrimitiveAtom<Task> }) => {
                         log.id === tempId ? { ...log, ...storedLog } : log
                     )
                 );
-                console.log("success log storing", response);
+                logger("success log storing", response);
             }
         );
         event.currentTarget.value = "";
@@ -92,7 +93,7 @@ export const TaskLogger = ({ taskAtom }: { taskAtom: PrimitiveAtom<Task> }) => {
                     setLogs(logs);
                 },
                 (error) => {
-                    console.error("Error fetching logs:", error);
+                    logger("Error fetching logs:", error);
                 }
             );
         }
