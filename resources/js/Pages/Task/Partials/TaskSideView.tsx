@@ -20,10 +20,10 @@ export const TaskSideView = () => {
                         taskAtom={currentTaskAtom as PrimitiveAtom<Task>}
                         variant="lg"
                     ></TaskEditableTitle>
+                    <TaskEditableTagList />
                     <TaskEditableDescription
                         taskAtom={currentTaskAtom as PrimitiveAtom<Task>}
                     ></TaskEditableDescription>
-                    <TaskEditableTagList></TaskEditableTagList>
                     <TaskLogger
                         taskAtom={currentTaskAtom as PrimitiveAtom<Task>}
                     ></TaskLogger>
