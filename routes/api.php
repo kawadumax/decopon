@@ -4,9 +4,12 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\TaskApiController;
 use App\Http\Controllers\Api\LogApiController;
 use App\Http\Controllers\Api\TimeEntryApiController;
+use App\Http\Controllers\Api\TagApiController;
 
 Route::middleware('auth:sanctum')->group(function () {
+    //TasksのApi
     Route::apiResource('tasks', TaskApiController::class, ['as' => 'api']);
+
     // updateCompleteへのルートを追加
     Route::put('tasks/{task}/complete', [TaskApiController::class, 'updateCompletion'])
         ->name('api.tasks.update.complete');
@@ -18,4 +21,8 @@ Route::middleware('auth:sanctum')->group(function () {
     //TimeEntryのAPI
     Route::apiResource('time-entries', TimeEntryApiController::class, ['as' => 'api']);
     Route::put('/time-entries/{id}', [TimeEntryApiController::class, 'update'])->name('api.time-entries-id.update');
+
+    //TagsのApi
+    Route::apiResource('tags', TagApiController::class, ['as' => 'api']);
+    Route::post('/tags/multiple', [TagApiController::class, 'storeMultiple'])->name('api.tags.multiple');
 });
