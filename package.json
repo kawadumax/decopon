@@ -33,6 +33,7 @@
         "@radix-ui/react-toggle": "^1.1.0",
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
+        "emblor": "^1.4.7",
         "jotai": "^2.10.3",
         "jotai-devtools": "^0.10.1",
         "lucide-react": "^0.464.0",
