@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('log_tag', function (Blueprint $table) {
+        Schema::create('tag_log', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
             $table->foreignId('log_id')->constrained('logs')->onDelete('cascade');
@@ -24,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('log_tag');
+        Schema::dropIfExists('tag_log');
     }
 };
