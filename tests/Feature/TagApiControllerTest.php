@@ -47,7 +47,9 @@ it('allows a user to store multiple tags for a task', function () {
         ]);
 
         $tagModel = Tag::where('name', $tag['name'])->where('user_id', $user->id)->first();
+
         expect($tagModel)->not->toBeNull();
-        expect($task->tags)->toContain($tagModel);
+        // コレクションの中に、$tagModel と同じ id を持つタグが存在するかを検証する
+        expect($task->tags->pluck('id')->toArray())->toContain($tagModel->id);
     }
 });
