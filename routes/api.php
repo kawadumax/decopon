@@ -25,4 +25,5 @@ Route::middleware('auth:sanctum')->group(function () {
     //TagsのApi
     Route::apiResource('tags', TagApiController::class, ['as' => 'api']);
     Route::post('/tags/multiple', [TagApiController::class, 'storeMultiple'])->name('api.tags.multiple');
+    Route::post('/tags/singular', [TagApiController::class, 'storeSingular'])->name('api.tags.singular');
 });

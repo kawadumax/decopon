@@ -1,3 +1,5 @@
+import { Tag as EmblorTag } from "emblor";
+
 export interface User {
     id: number;
     preference: Preference;
@@ -20,6 +22,7 @@ export interface Task {
     title: string;
     completed: boolean;
     description: string;
+    tags: Tag[];
 }
 
 export interface Log {
@@ -50,6 +53,7 @@ export interface Tag {
     id: number;
     name: string;
     user_id: number;
+    toEmblorTag: (this) => EmblorTag;
 }
 
 export type PageProps<
