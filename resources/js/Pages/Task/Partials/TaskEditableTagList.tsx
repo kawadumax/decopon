@@ -4,34 +4,43 @@ import { Task } from "@/types";
 import { Tag as EmblorTag, TagInput } from "emblor";
 import { Tag } from "@/types";
 import { useAtom, useAtomValue } from "jotai";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { PrimitiveAtom } from "jotai";
 
-export const TaskEditableTagList = ({ currentTask }: { currentTask: Task }) => {
-    const [tags, setTags] = useState<EmblorTag[]>([]);
+export const TaskEditableTagList = ({ taskAtom }: { taskAtom: PrimitiveAtom<Task> }) => {
+
+    const toEmblorTag = (tag: Tag) => {
+        return { id: `${tag.id}`, text: tag.name }
+    };
     const [activeTagIndex, setActiveTagIndex] = useState<number | null>(null);
+    const [currentTask, setCurrentTask] = useAtom(taskAtom);
+    console.log("currentTask is", currentTask);
+    const [tags, setTags] = useState<EmblorTag[]>(currentTask.tags.map(toEmblorTag));
     const api = useApi();
 
-    useEffect(() => {
-        console.log("setTag called", tags);
-        if (!tags.length) return;
+    const handleTagAdded = useCallback((tagText: string) => {
+        console.log("tag added", tagText);
         api.post(
-            route("api.tags.multiple"),
+            route("api.tags.singular"),
             {
                 task_id: currentTask.id,
-                tags: tags.map((tag) => {
-                    return { name: tag.text } as Partial<Tag>;
-                }),
+                name: tagText
             },
             (response) => {
                 console.log(response);
+                setCurrentTask((prev) => {
+                    return {
+                        ...prev,
+                        tags: [...prev.tags, response.data.tag],
+                    }
+                })
             }
         );
-    }, [tags]);
+    }, [api, currentTask]);
 
     return (
         <TagInput
             placeholder="Add a tag"
-            tags={tags}
             styleClasses={{
                 input: "w-full shadow-none",
                 tag: {
@@ -40,9 +49,11 @@ export const TaskEditableTagList = ({ currentTask }: { currentTask: Task }) => {
                 },
                 inlineTagsContainer: "border-0 px-0",
             }}
+            tags={tags}
             setTags={setTags}
             activeTagIndex={activeTagIndex}
             setActiveTagIndex={setActiveTagIndex}
+            onTagAdd={handleTagAdded}
             size={"sm"}
             shape={"pill"}
             variant={"primary"}
