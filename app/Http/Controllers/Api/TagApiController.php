@@ -67,13 +67,13 @@ class TagApiController extends ApiController
 
         DB::transaction(function () use ($validated, $task, &$createdTags, $user_id) {
             foreach ($validated['tags'] as $tagData) {
-
                 $tag = Tag::firstOrCreate(
                     ['name' => $tagData['name'], 'user_id' => $user_id],
                 );
 
                 // タスクとタグを関連付ける（重複を避けるため）
                 $task->tags()->syncWithoutDetaching([$tag->id]);
+
                 $createdTags[] = $tag;
             }
         });
