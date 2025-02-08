@@ -46,6 +46,12 @@ export interface TimeEntry {
     updated_at: string;
 }
 
+export interface Tag {
+    id: number;
+    name: string;
+    user_id: number;
+}
+
 export type PageProps<
     T extends Record<string, unknown> = Record<string, unknown>
 > = T & {
