@@ -44,6 +44,44 @@ class TagApiController extends ApiController
     /**
      * 複数のタグを処理し、指定されたタスクに関連付ける
      */
+    public function storeSingular(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'task_id' => 'required|exists:tasks,id',
+            'name' => 'required|string|max:255',
+        ]);
+
+        $task = Task::findOrFail($validated['task_id']);
+
+        // ユーザーがこのタスクを編集する権限があるか確認
+        if ($task->user_id !== Auth::id()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'このタスクにタグを追加する権限がありません。',
+            ], 403);
+        }
+
+        $user_id = Auth::id();
+
+        $tag = Tag::firstOrCreate(
+            ['name' => $validated["name"], 'user_id' => $user_id],
+        );
+
+        // タスクとタグを関連付ける（重複を避けるため）
+        $task->tags()->syncWithoutDetaching([$tag->id]);
+
+        $createdTags[] = $tag;
+
+        return response()->json([
+            'success' => true,
+            'message' => 'タグが正常に作成され、タスクに関連付けられました。',
+            'tag' => $tag
+        ], 201);
+    }
+
+    /**
+     * 複数のタグを処理し、指定されたタスクに関連付ける
+     */
     public function storeMultiple(Request $request): JsonResponse
     {
         $validated = $request->validate([
