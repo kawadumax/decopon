@@ -63,9 +63,10 @@ export function useApi() {
         ) => request("put", url, data, onSuccess, onError, onFinaly),
         delete: (
             url: string,
+            data?: any,
             onSuccess?: FnOnSucsess,
             onError?: FnOnError,
             onFinaly?: FnOnFinaly
-        ) => request("delete", url, undefined, onSuccess, onError, onFinaly),
+        ) => request("delete", url, data, onSuccess, onError, onFinaly),
     };
 }
