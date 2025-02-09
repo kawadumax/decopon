@@ -24,7 +24,7 @@ export const TaskItem = ({
     const setCurrentTaskAtom = useSetAtom(taskSelectorAtom);
 
     const handleDelete = () => {
-        api.delete(route("api.tasks.destroy", task.id), (response) => {
+        api.delete(route("api.tasks.destroy", task.id), undefined, (response) => {
             remove();
             setCurrentTaskAtom(atom(null));
         });
@@ -74,9 +74,8 @@ export const TaskItem = ({
                     {children && (
                         <ChevronRight
                             onClick={handleFold}
-                            className={`-ml-1 mr-1 transition-transform ${
-                                isExpanded ? "rotate-90" : ""
-                            }`}
+                            className={`-ml-1 mr-1 transition-transform ${isExpanded ? "rotate-90" : ""
+                                }`}
                         />
                     )}
                     <TaskEditableTitle taskAtom={taskAtom}></TaskEditableTitle>
