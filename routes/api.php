@@ -23,7 +23,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/time-entries/{id}', [TimeEntryApiController::class, 'update'])->name('api.time-entries-id.update');
 
     //TagsのApi
+    Route::delete('tags/relation', [TagApiController::class, 'destroyRelation'])->name('api.tags.relation.destroy');
+    Route::post('/tags/relation', [TagApiController::class, 'storeRelation'])->name('api.tags.relation.post');
     Route::apiResource('tags', TagApiController::class, ['as' => 'api']);
-    Route::post('/tags/multiple', [TagApiController::class, 'storeMultiple'])->name('api.tags.multiple');
-    Route::post('/tags/singular', [TagApiController::class, 'storeSingular'])->name('api.tags.singular');
 });
