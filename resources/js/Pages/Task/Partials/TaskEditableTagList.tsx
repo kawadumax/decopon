@@ -1,12 +1,10 @@
 import { useApi } from "@/Hooks/useApi";
-import { taskSelectorAtom } from "@/Lib/atoms";
 import { Task } from "@/types";
 import { Tag as EmblorTag, TagInput } from "emblor";
 import { Tag } from "@/types";
 import { useAtom, useAtomValue } from "jotai";
 import { useCallback, useEffect, useState } from "react";
 import { PrimitiveAtom } from "jotai";
-import { log } from "console";
 
 export const TaskEditableTagList = ({
     taskAtom,
