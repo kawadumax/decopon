@@ -9,6 +9,7 @@ import { tasksAtom } from "@/Lib/atoms";
 import { useEffect } from "react";
 import Split from "react-split";
 import { Timer } from "@/Components/Timer";
+import { TaskTagList } from "./Partials/TaskTagList";
 
 export default function Index(
     props: PageProps<{
@@ -49,27 +50,7 @@ export default function Index(
                     direction="vertical"
                 >
                     <div className="bg-stone-50 shadow-sm dark:bg-gray-800 overflow-scroll hidden-scrollbar">
-                        <h3 className="font-bold text-base sticky border-primary border-b-2 p-2 top-0">
-                            Tags
-                        </h3>
-                        <ul className="text-primary font-bold  p-2">
-                            <li className="my-2 cursor-pointer">#daily</li>
-                            <li className="my-2 cursor-pointer">#hoge</li>
-                            <li className="my-2 cursor-pointer">#foo</li>
-                            <li className="my-2 cursor-pointer">#bar</li>
-                            <li className="my-2 cursor-pointer">#daily</li>
-                            <li className="my-2 cursor-pointer">#hoge</li>
-                            <li className="my-2 cursor-pointer">#foo</li>
-                            <li className="my-2 cursor-pointer">#bar</li>
-                            <li className="my-2 cursor-pointer">#daily</li>
-                            <li className="my-2 cursor-pointer">#hoge</li>
-                            <li className="my-2 cursor-pointer">#foo</li>
-                            <li className="my-2 cursor-pointer">#bar</li>
-                            <li className="my-2 cursor-pointer">#daily</li>
-                            <li className="my-2 cursor-pointer">#hoge</li>
-                            <li className="my-2 cursor-pointer">#foo</li>
-                            <li className="my-2 cursor-pointer">#bar</li>
-                        </ul>
+                        <TaskTagList></TaskTagList>
                     </div>
                     <div className="bg-stone-50 shadow-sm dark:bg-gray-800 max-h-full">
                         <Timer></Timer>
