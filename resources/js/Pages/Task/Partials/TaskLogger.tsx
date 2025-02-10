@@ -5,7 +5,10 @@ import { Task, Log } from "@/types";
 import { useAtom, useAtomValue } from "jotai";
 import { PrimitiveAtom } from "jotai";
 import React, { useEffect, useRef, useState } from "react";
-import { AutosizeTextarea } from "@/Components/ui/autosize-textarea";
+import {
+    AutosizeTextarea,
+    AutosizeTextAreaRef,
+} from "@/Components/ui/autosize-textarea";
 
 const formatDate = (isoString: string): string => {
     const date = new Date(isoString);
@@ -40,6 +43,7 @@ export const TaskLogger = ({ taskAtom }: { taskAtom: PrimitiveAtom<Task> }) => {
     const [tempIdCounter, setTempIdCounter] = useState(0);
 
     const logContainerRef = useRef<HTMLUListElement>(null);
+    const textareaRef = useRef<AutosizeTextAreaRef>(null);
 
     const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
         if (!content.trim()) return;
@@ -74,7 +78,11 @@ export const TaskLogger = ({ taskAtom }: { taskAtom: PrimitiveAtom<Task> }) => {
             );
             setContent("");
             event.currentTarget.value = "";
-            event.currentTarget.defaultValue = "";
+
+            // トリガーリサイズを呼び出す
+            if (textareaRef.current) {
+                textareaRef.current.triggerResize();
+            }
         }
     };
 
@@ -112,6 +120,7 @@ export const TaskLogger = ({ taskAtom }: { taskAtom: PrimitiveAtom<Task> }) => {
             </ul>
             <div className="pt-4">
                 <AutosizeTextarea
+                    ref={textareaRef}
                     onKeyDown={handleKeyDown}
                     onInput={handleInput}
                     defaultValue={content}
