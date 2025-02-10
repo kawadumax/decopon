@@ -31,11 +31,21 @@ class TaskApiController extends ApiController
           }
         },
       ],
+      'tags' => 'nullable|array',
     ]);
 
     $task = new Task($validated);
     $task->user_id = Auth::id();
     $task->save();
+
+
+    // タグがリクエストに含まれている場合、関連付けを行う
+    if (isset($validated['tags'])) {
+      $task->tags()->attach($validated['tags']);
+    }
+
+    // タグを含めてタスクを取得
+    $task = $task->load('tags');
 
     return response()->json([
       'success' => true,
