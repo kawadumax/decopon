@@ -8,60 +8,81 @@ import { useCallback, useEffect, useState } from "react";
 import { PrimitiveAtom } from "jotai";
 import { log } from "console";
 
-export const TaskEditableTagList = ({ taskAtom }: { taskAtom: PrimitiveAtom<Task> }) => {
-
+export const TaskEditableTagList = ({
+    taskAtom,
+}: {
+    taskAtom: PrimitiveAtom<Task>;
+}) => {
     const toEmblorTags = (tags: Tag[]) => {
-        if (tags?.length) return tags.map((tag) => { return { id: `${tag.id}`, text: tag.name } })
-        return []
+        if (tags?.length) {
+            return tags.map((tag) => {
+                return { id: `${tag.id}`, text: tag.name };
+            });
+        } else {
+            return [];
+        }
     };
     const [activeTagIndex, setActiveTagIndex] = useState<number | null>(null);
     const [currentTask, setCurrentTask] = useAtom(taskAtom);
-    console.log("currentTask is", currentTask);
-    const [tags, setTags] = useState<EmblorTag[]>(toEmblorTags(currentTask.tags));
+    const [tags, setTags] = useState<EmblorTag[]>(
+        toEmblorTags(currentTask.tags)
+    );
     const api = useApi();
 
-    const handleTagAdded = useCallback((tagText: string) => {
-        console.log("tag added", tagText);
-        api.post(
-            route("api.tags.relation.post"),
-            {
-                task_id: currentTask.id,
-                name: tagText
-            },
-            (response) => {
-                console.log(response);
-                setCurrentTask((prev) => {
-                    return {
-                        ...prev,
-                        tags: [...prev.tags, response.data.tag],
-                    }
-                })
-            }
-        );
-    }, [api, currentTask]);
+    const handleTagAdded = useCallback(
+        (tagText: string) => {
+            console.log("tag added", tagText);
+            api.post(
+                route("api.tags.relation.post"),
+                {
+                    task_id: currentTask.id,
+                    name: tagText,
+                },
+                (response) => {
+                    console.log(response);
+                    setCurrentTask((prev) => {
+                        return {
+                            ...prev,
+                            tags: [...prev.tags, response.data.tag],
+                        };
+                    });
+                }
+            );
+        },
+        [api, currentTask]
+    );
 
-    const handleTagRemoved = useCallback((tagText: string) => {
-        console.log("tag removed", tagText, currentTask);
-        api.delete(
-            route("api.tags.relation.destroy"),
-            {
-                task_id: currentTask.id,
-                name: tagText
-            },
-            (response) => {
-                console.log(response);
-                setCurrentTask((prev) => {
-                    const newTags = prev.tags.filter(
-                        (tag) => tag.name == response.data.tag.name
-                    );
-                    return {
-                        ...prev,
-                        tags: [...newTags],
-                    }
-                })
-            }
-        );
-    }, [currentTask, api])
+    const handleTagRemoved = useCallback(
+        (tagText: string) => {
+            console.log("tag removed", tagText, currentTask);
+            api.delete(
+                route("api.tags.relation.destroy"),
+                {
+                    task_id: currentTask.id,
+                    name: tagText,
+                },
+                (response) => {
+                    console.log(response);
+                    setCurrentTask((prev) => {
+                        const newTags = prev.tags
+                            ? prev.tags.filter(
+                                  (tag) => tag.name == response.data.tag.name
+                              )
+                            : [];
+                        return {
+                            ...prev,
+                            tags: [...newTags],
+                        };
+                    });
+                }
+            );
+        },
+        [currentTask, api]
+    );
+
+    useEffect(() => {
+        setTags(toEmblorTags(currentTask.tags));
+    }, [currentTask]);
 
     return (
         <TagInput
