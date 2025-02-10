@@ -42,7 +42,7 @@ class TagApiController extends ApiController
     }
 
     /**
-     * 複数のタグを処理し、指定されたタスクに関連付ける
+     * タグを処理し、指定されたタスクに関連付ける
      */
     public function storeRelation(Request $request): JsonResponse
     {
