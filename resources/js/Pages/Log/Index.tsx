@@ -3,8 +3,8 @@ import { logsAtom } from "@/Lib/atoms";
 import { PageProps, Log } from "@/types";
 import { Head } from "@inertiajs/react";
 import { useAtom } from "jotai";
-import { Logs } from "lucide-react";
-import { useEffect } from "react";
+import { LogItem } from "@/Components/LogItem";
+import { useEffect, useRef } from "react";
 import Split from "react-split";
 
 export default function Index(
@@ -12,6 +12,7 @@ export default function Index(
         logs: Log[];
     }>
 ) {
+    const logContainerRef = useRef<HTMLUListElement>(null);
     const [logs, setLogs] = useAtom(logsAtom);
     useEffect(() => {
         setLogs(props.logs);
@@ -35,10 +36,14 @@ export default function Index(
             >
                 <div>不必要エリア</div>
                 <div>
-                    <ul>
-                        {logs.map((log) => {
-                            return <li>{log.content}</li>;
-                        })}
+                    <ul
+                        ref={logContainerRef}
+                        className="flex-1 overflow-y-auto"
+                    >
+                        {logs &&
+                            logs.map((log, index) => (
+                                <LogItem key={index} log={log} />
+                            ))}
                     </ul>
                 </div>
             </Split>
