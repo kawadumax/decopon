@@ -5,6 +5,7 @@ import { Task, Log } from "@/types";
 import { useAtom, useAtomValue } from "jotai";
 import { PrimitiveAtom } from "jotai";
 import React, { useEffect, useRef, useState } from "react";
+import { AutosizeTextarea } from "@/Components/ui/autosize-textarea";
 
 const formatDate = (isoString: string): string => {
     const date = new Date(isoString);
@@ -40,40 +41,44 @@ export const TaskLogger = ({ taskAtom }: { taskAtom: PrimitiveAtom<Task> }) => {
 
     const logContainerRef = useRef<HTMLUListElement>(null);
 
-    const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-        if (event.key !== "Enter") return;
-        const tempId = -1 - tempIdCounter; // 負の値を使用して一時的なIDを生成
-        setTempIdCounter((prev) => prev + 1);
-        const newLog = {
-            id: tempId,
-            content,
-            created_at: new Date().toISOString(),
-            user_id: null,
-            task_id: task.id,
-            updated_at: null,
-        } as unknown as Log;
-        setLogs((prev) => [...prev, newLog]);
-        api.post(
-            route("api.logs.store"),
-            {
-                content: content,
+    const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+        if (!content.trim()) return;
+        if (event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault();
+            const tempId = -1 - tempIdCounter; // 負の値を使用して一時的なIDを生成
+            setTempIdCounter((prev) => prev + 1);
+            const newLog = {
+                id: tempId,
+                content,
+                created_at: new Date().toISOString(),
+                user_id: null,
                 task_id: task.id,
-            } as Partial<Log>,
-            (response) => {
-                const storedLog = response.data;
-                setLogs((prev) =>
-                    prev.map((log) =>
-                        log.id === tempId ? { ...log, ...storedLog } : log
-                    )
-                );
-                logger("success log storing", response);
-            }
-        );
-        event.currentTarget.value = "";
-        setContent("");
+                updated_at: null,
+            } as unknown as Log;
+            setLogs((prev) => [...prev, newLog]);
+            api.post(
+                route("api.logs.store"),
+                {
+                    content: content,
+                    task_id: task.id,
+                } as Partial<Log>,
+                (response) => {
+                    const storedLog = response.data;
+                    setLogs((prev) =>
+                        prev.map((log) =>
+                            log.id === tempId ? { ...log, ...storedLog } : log
+                        )
+                    );
+                    logger("success log storing", response);
+                }
+            );
+            setContent("");
+            event.currentTarget.value = "";
+            event.currentTarget.defaultValue = "";
+        }
     };
 
-    const handleInput = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    const handleInput = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
         setContent(event.currentTarget.value);
     };
 
@@ -106,11 +111,13 @@ export const TaskLogger = ({ taskAtom }: { taskAtom: PrimitiveAtom<Task> }) => {
                     logs.map((log, index) => <LogItem key={index} log={log} />)}
             </ul>
             <div className="pt-4">
-                <Input
+                <AutosizeTextarea
                     onKeyDown={handleKeyDown}
                     onInput={handleInput}
                     defaultValue={content}
-                />
+                    maxHeight={200}
+                    minHeight={0}
+                ></AutosizeTextarea>
             </div>
         </div>
     );
