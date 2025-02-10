@@ -50,6 +50,7 @@ export type AutosizeTextAreaRef = {
     textArea: HTMLTextAreaElement;
     maxHeight: number;
     minHeight: number;
+    triggerResize: () => void;
 };
 
 type AutosizeTextAreaProps = {
@@ -82,11 +83,16 @@ export const AutosizeTextarea = React.forwardRef<
             minHeight,
         });
 
+        const triggerResize = React.useCallback(() => {
+            setTriggerAutoSize(Date.now().toString());
+        }, []);
+
         useImperativeHandle(ref, () => ({
             textArea: textAreaRef.current as HTMLTextAreaElement,
             focus: () => textAreaRef?.current?.focus(),
             maxHeight,
             minHeight,
+            triggerResize,
         }));
 
         React.useEffect(() => {
