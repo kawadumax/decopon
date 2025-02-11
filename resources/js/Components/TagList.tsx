@@ -1,16 +1,25 @@
 import { useApi } from "@/Hooks/useApi";
-import { Tag } from "@/types";
-import { useEffect, useState } from "react";
+import { currentTagAtom, tagsAtom } from "@/Lib/atoms";
+
+import { useAtom, useSetAtom } from "jotai";
+import { useCallback, useEffect, useState } from "react";
 
 export const TagList = () => {
-  const [tags, setTags] = useState<Tag[]>([]);
+  const [tags, setTags] = useAtom(tagsAtom);
+  const setCurrentTag = useSetAtom(currentTagAtom);
   const api = useApi();
+
   useEffect(() => {
     // Initialize Tags
     api.get(route("api.tags.index"), (response) => {
       setTags(response.data.tags);
     });
   }, []);
+
+  const handleTagClicked = useCallback((index: number) => {
+    console.log(index);
+    setCurrentTag(tags[index]);
+  }, [tags])
   return (
     <>
       <h3 className="font-bold text-base sticky border-primary border-b-2 p-2 top-0">
@@ -23,6 +32,7 @@ export const TagList = () => {
               <li
                 key={index}
                 className="px-2 cursor-pointer hover:bg-stone-100"
+                onClick={() => handleTagClicked(index)}
               >
                 <span className="px-1 font-thin rounded border-1 border-primary bg-stone-100 mr-2">
                   #

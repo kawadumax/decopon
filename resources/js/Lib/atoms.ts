@@ -1,11 +1,12 @@
 import { atom, PrimitiveAtom } from "jotai";
 import { Log, Task, TimeEntry } from "../types";
 import { atomFamily, atomWithStorage, splitAtom } from "jotai/utils";
+import { Tag } from "@/types";
 
 // TaskAtom
 
 export const tasksAtom = atom<Task[]>([]);
-tasksAtom.debugLabel = "tasksAtom";
+
 // あるタスクを根とするタスクツリーを取得するためのAtom
 export const taskTreeAtomFamily = atomFamily((rootTaskId: number) =>
     atom((get) => {
@@ -45,7 +46,6 @@ export const tasksBatchAtom = atom(null, (get, set, newTasks: Task[]) => {
 });
 
 export const splitedTasksAtom = splitAtom(tasksAtom);
-splitedTasksAtom.debugLabel = "splitedTasks";
 
 const currentTaskAtom: PrimitiveAtom<Task> | PrimitiveAtom<null> = atom(null);
 const currentTaskBaseAtom = atom<PrimitiveAtom<Task> | PrimitiveAtom<null>>(
@@ -119,3 +119,9 @@ export const breakTimeAtom = atom(
 // Logs atom
 
 export const logsAtom = atom<Log[]>([]);
+
+// tags atom
+
+export const tagsAtom = atom<Tag[]>([]);
+export const splitedTagsAtom = splitAtom(tagsAtom);
+export const currentTagAtom = atom<Tag | null>(null);

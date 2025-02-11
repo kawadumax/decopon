@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Api\ApiController;
 use App\Models\Task;
+use App\Models\Tag;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
+use Number;
 
 class TaskApiController extends ApiController
 {
@@ -132,5 +134,23 @@ class TaskApiController extends ApiController
       'message' => 'タスクの完了状態が正常に更新されました。',
       'tasks' => $updatedTasks
     ], 200);
+  }
+
+  /**
+   * get tasks by tag_id
+   */
+  public function getTasksByTagId($tagId): JsonResponse
+  {
+    // Validate the existence of the tag directly
+    $tag = Tag::find($tagId);
+    $tasks = $tag ? $tag->tasks()->with('tags')->get() : collect();
+    return response()->json(
+      [
+        'success' => true,
+        'message' => "タグに基づくタスクが正常に取得されました。",
+        'tasks' => $tasks
+      ],
+      200
+    );
   }
 }
