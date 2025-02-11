@@ -6,6 +6,7 @@ import { useAtom } from "jotai";
 import { LogItem } from "@/Components/LogItem";
 import { useEffect, useRef } from "react";
 import Split from "react-split";
+import { LogTagList } from "./Partials/LogTagList";
 
 export default function Index(
     props: PageProps<{
@@ -34,7 +35,7 @@ export default function Index(
                 // 元のgutterのスタイルを削除
                 gutterStyle={() => ({})}
             >
-                <div>不必要エリア</div>
+                <div><LogTagList></LogTagList></div>
                 <div>
                     <ul
                         ref={logContainerRef}
