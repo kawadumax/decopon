@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\TagApiController;
 
 Route::middleware('auth:sanctum')->group(function () {
     //TasksのApi
+    Route::get('tasks/tags/{tagId}', [TaskApiController::class, 'getTasksByTagId'])->name('api.tasks.tags.index');
     Route::apiResource('tasks', TaskApiController::class, ['as' => 'api']);
 
     // updateCompleteへのルートを追加

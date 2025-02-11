@@ -4,23 +4,32 @@ import { Head } from "@inertiajs/react";
 import { TaskTree } from "./Partials/TaskTree";
 import { TaskTools } from "./Partials/TaskTools";
 import { TaskSideView } from "./Partials/TaskSideView";
-import { useAtom } from "jotai";
-import { tasksAtom } from "@/Lib/atoms";
+import { useAtom, useAtomValue } from "jotai";
+import { currentTagAtom, tasksAtom } from "@/Lib/atoms";
 import { useEffect } from "react";
 import Split from "react-split";
 import { Timer } from "@/Components/Timer";
 import { TaskTagList } from "./Partials/TaskTagList";
+import { useApi } from "@/Hooks/useApi";
 
 export default function Index(
     props: PageProps<{
         tasks: Task[];
     }>
 ) {
+    const currentTag = useAtomValue(currentTagAtom);
     const [, setTasks] = useAtom(tasksAtom);
-
+    const api = useApi()
     useEffect(() => {
-        setTasks(props.tasks);
-    }, [props.tasks]);
+        if (currentTag) {
+            api.get(route("api.tasks.tags.index", currentTag.id), (response) => {
+                setTasks(response.data.tasks || []);
+            })
+        } else {
+            setTasks(props.tasks);
+        }
+
+    }, [props.tasks, currentTag]);
 
     return (
         <AuthenticatedLayout>
