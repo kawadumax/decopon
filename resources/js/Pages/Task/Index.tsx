@@ -19,16 +19,18 @@ export default function Index(
 ) {
     const currentTag = useAtomValue(currentTagAtom);
     const [, setTasks] = useAtom(tasksAtom);
-    const api = useApi()
+    const api = useApi();
     useEffect(() => {
         if (currentTag) {
-            api.get(route("api.tasks.tags.index", currentTag.id), (response) => {
-                setTasks(response.data.tasks || []);
-            })
+            api.get(
+                route("api.tasks.tags.index", currentTag.id),
+                (response) => {
+                    setTasks(response.data.tasks || []);
+                }
+            );
         } else {
             setTasks(props.tasks);
         }
-
     }, [props.tasks, currentTag]);
 
     return (
@@ -67,6 +69,9 @@ export default function Index(
                 </Split>
                 <div className="overflow-auto hidden-scrollbar bg-stone-50/50 shadow-sm dark:bg-gray-800 max-h-full">
                     <TaskTools></TaskTools>
+                    <h2 className="font-bold text-2xl sticky p-4 top-0">
+                        {currentTag ? "#" + currentTag.name : "All Tasks"}
+                    </h2>
                     <TaskTree></TaskTree>
                 </div>
                 <div className="overflow-hidden bg-stone-50/20 shadow-sm dark:bg-gray-800 max-h-full">
