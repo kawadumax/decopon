@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\PreferenceController;
 use App\Http\Controllers\LogController;
+use App\Http\Controllers\TagController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -33,6 +34,9 @@ Route::middleware('auth')->group(function () {
 
     // Log
     Route::get("/logs", [LogController::class, "index"])->name('logs.index');
+
+    // Tag
+    Route::get("/tags", [TagController::class, "index"])->name('tags.index');
 });
 
 require __DIR__ . '/auth.php';
