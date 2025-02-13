@@ -125,3 +125,7 @@ export const logsAtom = atom<Log[]>([]);
 export const tagsAtom = atom<Tag[]>([]);
 export const splitedTagsAtom = splitAtom(tagsAtom);
 export const currentTagAtom = atom<Tag | null>(null);
+
+// TODO: tagsAtomからderiveして、直近いくつかを取得するもの。
+// TagListに使う予定
+export const latestTagAtom = atom<Tag[]>([]);

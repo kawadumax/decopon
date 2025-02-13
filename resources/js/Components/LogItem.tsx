@@ -1,18 +1,6 @@
 import { Log } from "@/types";
+import { formatDate } from "@/Lib/formatDate";
 export const LogItem = ({ log }: { log: Log }) => {
-    const formatDate = (isoString: string): string => {
-        const date = new Date(isoString);
-        return new Intl.DateTimeFormat("ja-JP", {
-            year: "numeric",
-            month: "2-digit",
-            day: "2-digit",
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: false,
-        })
-            .format(date)
-            .replace(/\//g, "/");
-    };
     return (
         <li className="rounded flex flex-row justify-between hover:ring-1 hover:ring-amber-400 m-1 p-1">
             <p className="text-base">{log.content}</p>
