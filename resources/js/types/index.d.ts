@@ -53,7 +53,8 @@ export interface Tag {
     id: number;
     name: string;
     user_id: number;
-    toEmblorTag: (this) => EmblorTag;
+    created_at: string;
+    updated_at: string;
 }
 
 export type PageProps<
