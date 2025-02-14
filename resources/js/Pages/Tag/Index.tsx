@@ -22,7 +22,7 @@ export default function Index(
 
     return (
         <AuthenticatedLayout>
-            <Head title="Timeline" />
+            <Head title="All Tags" />
 
             <Split
                 className="flex flex-row min-h-full max-h-full bg-white"

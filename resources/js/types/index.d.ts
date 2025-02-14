@@ -40,11 +40,11 @@ export interface TimeEntry {
     started_at: string;
     ended_at: string;
     status:
-        | "In_Progress"
-        | "Completed"
-        | "Interrupted"
-        | "Abandoned"
-        | "Extended";
+    | "In_Progress"
+    | "Completed"
+    | "Interrupted"
+    | "Abandoned"
+    | "Extended";
     created_at: string;
     updated_at: string;
 }
@@ -56,6 +56,13 @@ export interface Tag {
     created_at: string;
     updated_at: string;
 }
+
+export interface TagWithCheck {
+    id: number;
+    checked: boolean;
+}
+
+export type TagCheckable = Tag & TagWithCheck;
 
 export type PageProps<
     T extends Record<string, unknown> = Record<string, unknown>
