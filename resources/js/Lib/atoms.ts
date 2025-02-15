@@ -141,14 +141,35 @@ export const checkableTagsAtom = atom(
 			};
 		});
 	},
-	(get, set, newValues: TagWithCheck[]) => {
+
+	(
+		get,
+		set,
+		update: { action: "add" | "remove" | "reset"; tags: TagWithCheck[] },
+	) => {
 		const tagChecks = get(tagChecksAtom);
-		set(tagChecksAtom, (prev) => {
-			// prevの中に同じidを持つものがあればそれをフィルタする。
-			const filtered = prev.filter(
-				(v) => !newValues.some((nv) => nv.id === v.id),
-			);
-			return [...filtered, ...newValues];
+		set(tagChecksAtom, (prev): TagWithCheck[] => {
+			switch (update.action) {
+				case "add": {
+					// 重複を避けて新しいタグを追加
+					const filteredAdd = prev.filter(
+						(v) => !update.tags.some((nv) => nv.id === v.id),
+					);
+					return [...filteredAdd, ...update.tags];
+				}
+
+				case "remove":
+					// 指定されたタグを削除
+					return prev.filter((v) => !update.tags.some((nv) => nv.id === v.id));
+
+				case "reset":
+					// 全てのタグをリセット
+					return [];
+
+				default:
+					// 'default' を使わないようにするので、このケースは不要
+					return prev; // すでにすべてのケースを網羅しているので、これは実行されない
+			}
 		});
 	},
 );

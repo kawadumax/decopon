@@ -114,23 +114,15 @@ class TagApiController extends ApiController
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Tag $tag): JsonResponse
+    public function destroyMultiple(Request $request): JsonResponse
     {
-        if ($tag->user_id !== Auth::id()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'このタグを削除する権限がありません。',
-            ], 403);
-        }
+        debug_log("destroyMultiple called");
+        $validated = $request->validate([
+            'tag_ids' => 'required|array',
+            'tag_ids.*' => 'exists:tags,id,user_id,' . Auth::id(), // 各タグのIDが存在し、ユーザーが所有していることを確認
+        ]);
 
-        if (!$tag) {
-            return response()->json([
-                'success' => false,
-                'message' => 'タグが見つかりません。',
-            ], 404);
-        }
-
-        $tag->delete();
+        Tag::where('user_id', Auth::id())->whereIn('id', $validated['tag_ids'])->delete();
 
         return response()->json([
             'success' => true,

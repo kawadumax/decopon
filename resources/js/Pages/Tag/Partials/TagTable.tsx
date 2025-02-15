@@ -19,18 +19,19 @@ export const TagTable = ({ tags }: { tags: Tag[] }) => {
 	const handleHeadChecked = useCallback(
 		(checked: boolean) => {
 			// ヘッダーのチェックボタンが押されたら、表示されているすべてのタグをcheckableTags入れる
-			setCheckableTags(
-				tags.map((tag) => {
+			setCheckableTags({
+				action: "add",
+				tags: tags.map((tag) => {
 					return { id: tag.id, checked };
 				}),
-			);
+			});
 		},
 		[tags, setCheckableTags],
 	);
 
 	const handleBodyChecked = useCallback(
 		(checkedTag: TagWithCheck) => {
-			setCheckableTags([checkedTag]);
+			setCheckableTags({ action: "add", tags: [checkedTag] });
 		},
 		[setCheckableTags],
 	);
