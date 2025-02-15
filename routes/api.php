@@ -26,5 +26,6 @@ Route::middleware('auth:sanctum')->group(function () {
     //TagsのApi
     Route::delete('tags/relation', [TagApiController::class, 'destroyRelation'])->name('api.tags.relation.destroy');
     Route::post('/tags/relation', [TagApiController::class, 'storeRelation'])->name('api.tags.relation.post');
-    Route::apiResource('tags', TagApiController::class, ['as' => 'api']);
+    Route::delete('tags/multiple', [TagApiController::class, 'destroyMultiple'])->name('api.tags.destroy');
+    Route::apiResource('tags', TagApiController::class, ['as' => 'api'])->only(["index", "store"]);
 });
