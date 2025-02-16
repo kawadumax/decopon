@@ -26,6 +26,7 @@ export const TagTableRow = ({
 					#
 				</span>
 				{tag.name}
+				{` (${tag.tasks?.length || 0})`}
 			</TableCell>
 			<TableCell>{formatDate(tag.created_at)}</TableCell>
 			<TableCell>{formatDate(tag.updated_at)}</TableCell>
