@@ -12,16 +12,15 @@ export const TagList = ({ _tags }: { _tags?: Tag[] }) => {
 	const api = useApi();
 
 	useEffect(() => {
-		// Initialize Tags
-		// 引数として与えられていたらそれを、そうじゃなかったら取得しに行く
 		if (_tags) {
 			setTags(_tags);
-		} else {
-			api.get(route("api.tags.index"), (response) => {
-				setTags(response.data.tags);
-			});
+			return;
 		}
-	}, [setTags, _tags, api]);
+
+		api.get(route("api.tags.index"), (response) => {
+			setTags(response.data.tags);
+		});
+	}, [_tags, setTags, api]);
 
 	const handleTagClicked = useCallback(
 		(index: number) => {
