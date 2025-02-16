@@ -22,7 +22,7 @@ class TagController extends Controller
         $user = Auth::user();
 
         return Inertia::render('Tag/Index', [
-            'tags' => Tag::where('user_id', $user->id)->get()
+            'tags' => Tag::with("tasks")->where('user_id', $user->id)->get()
         ]);
     }
 }

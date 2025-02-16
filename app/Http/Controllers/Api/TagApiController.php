@@ -17,7 +17,8 @@ class TagApiController extends ApiController
      */
     public function index(): JsonResponse
     {
-        $tags = Tag::where('user_id', Auth::id())->get();
+        $tags = Tag::with('tasks')->where('user_id', Auth::id())->get();
+        debug_log("tags", $tags);
         return response()->json(['tags' => $tags]);
     }
 
