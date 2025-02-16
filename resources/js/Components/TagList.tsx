@@ -24,7 +24,6 @@ export const TagList = ({ _tags }: { _tags?: Tag[] }) => {
 
 	const handleTagClicked = useCallback(
 		(index: number) => {
-			console.log(index);
 			setCurrentTag(tags[index]);
 		},
 		[tags, setCurrentTag],
