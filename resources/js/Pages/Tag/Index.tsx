@@ -1,3 +1,5 @@
+import { TagHeader } from "@/Components/TagHeader";
+import { TaskTree } from "@/Components/TaskTree";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { tagsAtom } from "@/Lib/atoms";
 import type { PageProps } from "@/types";
@@ -14,7 +16,6 @@ export default function Index(
 		tags: Tag[];
 	}>,
 ) {
-	const tagContainerRef = useRef<HTMLUListElement>(null);
 	const [tags, setTags] = useAtom(tagsAtom);
 	useEffect(() => {
 		setTags(props.tags);
@@ -41,7 +42,10 @@ export default function Index(
 					<TagTools />
 					<TagTable tags={tags} />
 				</div>
-				<div>選んだタグのタスクの一覧が出る？？？</div>
+				<div>
+					<TagHeader />
+					<TaskTree />
+				</div>
 			</Split>
 		</AuthenticatedLayout>
 	);
