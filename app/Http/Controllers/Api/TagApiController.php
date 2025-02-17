@@ -106,7 +106,7 @@ class TagApiController extends ApiController
         return response()->json([
             'success' => true,
             'message' => '正常にタスクからタグの関連付けが削除されました。',
-            'tag' => 12
+            'tag' => $tag
         ], 201);
     }
 

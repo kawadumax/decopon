@@ -1,9 +1,10 @@
 import { useApi } from "@/Hooks/useApi";
+import { tagsAtom } from "@/Lib/atoms";
 import { toEmblorTags } from "@/Lib/utils";
 import type { Task } from "@/types";
 import type { Tag } from "@/types";
 import { type Tag as EmblorTag, TagInput } from "emblor";
-import { useAtom, useAtomValue } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import type { PrimitiveAtom } from "jotai";
 import { useCallback, useEffect, useState } from "react";
 
@@ -14,12 +15,14 @@ export const TaskEditableTagList = ({
 }) => {
 	const [activeTagIndex, setActiveTagIndex] = useState<number | null>(null);
 	const [currentTask, setCurrentTask] = useAtom(taskAtom);
-	const [tags, setTags] = useState<EmblorTag[]>(toEmblorTags(currentTask.tags));
+	const [emblorTags, setEmblorTags] = useState<EmblorTag[]>(
+		toEmblorTags(currentTask.tags),
+	);
+	const setTags = useSetAtom(tagsAtom);
 	const api = useApi();
 
 	const handleTagAdded = useCallback(
 		(tagText: string) => {
-			console.log("tag added", tagText);
 			api.post(
 				route("api.tags.relation.post"),
 				{
@@ -27,17 +30,25 @@ export const TaskEditableTagList = ({
 					name: tagText,
 				},
 				(response) => {
-					console.log(response);
+					const newTag = response.data.tag;
+					setTags((prev) => {
+						// タグの名前で重複をチェック
+						const isDuplicate = prev.some((tag) => tag.name === newTag.name);
+						if (isDuplicate) {
+							return prev; // 重複がある場合は既存の配列をそのまま返す
+						}
+						return [newTag, ...prev]; // 重複がない場合のみ新しいタグを追加
+					});
 					setCurrentTask((prev) => {
 						return {
 							...prev,
-							tags: [...prev.tags, response.data.tag],
+							tags: [...prev.tags, newTag],
 						};
 					});
 				},
 			);
 		},
-		[api, currentTask, setCurrentTask],
+		[api, currentTask, setCurrentTask, setTags],
 	);
 
 	const handleTagRemoved = useCallback(
@@ -53,7 +64,7 @@ export const TaskEditableTagList = ({
 					console.log(response);
 					setCurrentTask((prev) => {
 						const newTags = prev.tags
-							? prev.tags.filter((tag) => tag.name === response.data.tag.name)
+							? prev.tags.filter((tag) => tag.name !== response.data.tag.name)
 							: [];
 						return {
 							...prev,
@@ -67,7 +78,7 @@ export const TaskEditableTagList = ({
 	);
 
 	useEffect(() => {
-		setTags(toEmblorTags(currentTask.tags));
+		setEmblorTags(toEmblorTags(currentTask.tags));
 	}, [currentTask]);
 
 	return (
@@ -81,8 +92,8 @@ export const TaskEditableTagList = ({
 				},
 				inlineTagsContainer: "border-0 px-0",
 			}}
-			tags={tags}
-			setTags={setTags}
+			tags={emblorTags}
+			setTags={setEmblorTags}
 			activeTagIndex={activeTagIndex}
 			setActiveTagIndex={setActiveTagIndex}
 			onTagAdd={handleTagAdded}
