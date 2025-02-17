@@ -30,9 +30,7 @@ export const TagList = ({ _tags }: { _tags?: Tag[] }) => {
 	);
 	return (
 		<>
-			<h3 className="font-bold text-base sticky border-primary border-b-2 p-2 top-0">
-				Latest Tags
-			</h3>
+			<h3 className="font-bold text-base sticky p-2 top-0">Latest Tags</h3>
 			<ul className="text-primary font-bold">
 				{tags
 					? tags.map((tag, index) => {

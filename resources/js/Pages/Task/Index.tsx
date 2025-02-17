@@ -45,13 +45,16 @@ export default function Index(
 					className="split flex flex-col"
 					sizes={[50, 50]}
 					gutterSize={1}
+					direction="vertical"
 					gutter={() => {
 						const gutterElement = document.createElement("div");
 						gutterElement.className =
 							"h-2 bg-stone-50 hover:cursor-row-resize hover:h-2 hover:bg-amber-400 transition-all delay-100 duration-300 ease-in-out";
+
 						return gutterElement;
 					}}
-					direction="vertical"
+					// 元のgutterのスタイルを削除
+					gutterStyle={() => ({})}
 				>
 					<div className="shadow-sm dark:bg-gray-800 overflow-scroll hidden-scrollbar">
 						<TaskTagList />
