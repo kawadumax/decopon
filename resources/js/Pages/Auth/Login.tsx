@@ -1,4 +1,4 @@
-import Checkbox from "@/Components/Checkbox";
+import { Checkbox } from "@/Components/ui/checkbox";
 import InputError from "@/Components/InputError";
 import InputLabel from "@/Components/InputLabel";
 import PrimaryButton from "@/Components/PrimaryButton";
@@ -77,8 +77,8 @@ export default function Login({
                         <Checkbox
                             name="remember"
                             checked={data.remember}
-                            onChange={(e) =>
-                                setData("remember", e.target.checked)
+                            onCheckedChange={(checked) =>
+                                setData("remember", checked as boolean)
                             }
                         />
                         <span className="ms-2 text-sm text-gray-600 dark:text-gray-400">
