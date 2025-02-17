@@ -1,13 +1,14 @@
 import { Button } from "@/Components/ui/button";
 import { useApi } from "@/Hooks/useApi";
-import { checkableTagsAtom, tagsAtom } from "@/Lib/atoms";
+import { checkableTagsAtom, currentTagAtom, tagsAtom } from "@/Lib/atoms";
 import { Plus, Trash } from "@mynaui/icons-react";
-import { useAtom } from "jotai";
+import { useAtom, useSetAtom } from "jotai";
 import { useCallback } from "react";
 
 export const TagTools = () => {
 	const [, setTags] = useAtom(tagsAtom);
 	const [checkableTags, setCheckableTags] = useAtom(checkableTagsAtom);
+	const setCurrentTag = useSetAtom(currentTagAtom);
 	const api = useApi();
 
 	// const handleAddNewTag = () => {
@@ -40,9 +41,10 @@ export const TagTools = () => {
 				});
 				// checkedTagをリセットする
 				setCheckableTags({ action: "reset", tags: [] });
+				setCurrentTag(null);
 			},
 		);
-	}, [checkableTags, api, setCheckableTags, setTags]);
+	}, [checkableTags, api, setCheckableTags, setTags, setCurrentTag]);
 
 	return (
 		<div className="flex justify-start gap-4 my-4">

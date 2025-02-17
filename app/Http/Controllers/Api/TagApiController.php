@@ -116,7 +116,6 @@ class TagApiController extends ApiController
      */
     public function destroyMultiple(Request $request): JsonResponse
     {
-        debug_log("destroyMultiple called");
         $validated = $request->validate([
             'tag_ids' => 'required|array',
             'tag_ids.*' => 'exists:tags,id,user_id,' . Auth::id(), // 各タグのIDが存在し、ユーザーが所有していることを確認
