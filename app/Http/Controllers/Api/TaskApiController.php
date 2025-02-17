@@ -14,6 +14,15 @@ class TaskApiController extends ApiController
 {
 
   /**
+   * get tasks
+   */
+  public function index(): JsonResponse
+  {
+    $tasks = Task::with('tags')->where('user_id', Auth::id())->get();
+    return response()->json(['tasks' => $tasks], 200);
+  }
+
+  /**
    * Store a newly created resource in storage.
    */
   public function store(Request $request): JsonResponse
