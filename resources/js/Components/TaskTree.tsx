@@ -18,6 +18,11 @@ export const TaskTree = () => {
 			api.get(route("api.tasks.tags.index", currentTag.id), (response) => {
 				setTasks(response.data.tasks || []);
 			});
+		} else {
+			// currentTagが無い場合は通常のtask一覧を取得する
+			api.get(route("api.tasks.index"), (response) => {
+				setTasks(response.data.tasks || []);
+			});
 		}
 	}, [currentTag, api, setTasks]);
 

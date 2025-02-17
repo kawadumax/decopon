@@ -1,11 +1,10 @@
 import { TagHeader } from "@/Components/TagHeader";
 import { Timer } from "@/Components/Timer";
-import { useApi } from "@/Hooks/useApi";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
-import { currentTagAtom, tasksAtom } from "@/Lib/atoms";
+import { tasksAtom } from "@/Lib/atoms";
 import type { PageProps, Task } from "@/types";
 import { Head } from "@inertiajs/react";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { useSetAtom } from "jotai";
 import { useEffect } from "react";
 import Split from "react-split";
 import { TaskTree } from "../../Components/TaskTree";
@@ -18,14 +17,11 @@ export default function Index(
 		tasks: Task[];
 	}>,
 ) {
-	const currentTag = useAtomValue(currentTagAtom);
 	const setTasks = useSetAtom(tasksAtom);
-
 	useEffect(() => {
-		if (!currentTag) {
-			setTasks(props.tasks);
-		}
-	}, [setTasks, props.tasks, currentTag]);
+		setTasks(props.tasks);
+	}, [props.tasks, setTasks]);
+
 	return (
 		<AuthenticatedLayout>
 			<Head title="Task List" />
