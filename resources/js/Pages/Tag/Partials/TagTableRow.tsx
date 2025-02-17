@@ -1,5 +1,5 @@
 import { currentTagAtom } from "@/Lib/atoms";
-import { formatDate } from "@/Lib/formatDate";
+import { formatDate } from "@/Lib/utils";
 import { cn } from "@/Lib/utils";
 import type { Tag, TagCheckable } from "@/types";
 import type { CheckedState } from "@radix-ui/react-checkbox";
