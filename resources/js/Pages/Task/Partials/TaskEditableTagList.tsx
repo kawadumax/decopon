@@ -61,7 +61,6 @@ export const TaskEditableTagList = ({
 					name: tagText,
 				},
 				(response) => {
-					console.log(response);
 					setCurrentTask((prev) => {
 						const newTags = prev.tags
 							? prev.tags.filter((tag) => tag.name !== response.data.tag.name)
