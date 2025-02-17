@@ -66,8 +66,12 @@ export const TagTools = () => {
 				Delete
 			</Button>
 			<div className="flex justify-start gap-0">
-				<Input placeholder="New Tag Name" onChange={handleInputName} />
-				<Button onClick={handleAddNewTag}>
+				<Input
+					className="rounded-r-none"
+					placeholder="New Tag Name"
+					onChange={handleInputName}
+				/>
+				<Button className="rounded-l-none" onClick={handleAddNewTag}>
 					<Plus />
 				</Button>
 			</div>
