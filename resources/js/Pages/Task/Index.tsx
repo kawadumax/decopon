@@ -22,8 +22,10 @@ export default function Index(
 	const setTasks = useSetAtom(tasksAtom);
 
 	useEffect(() => {
-		setTasks(props.tasks);
-	}, [setTasks, props.tasks]);
+		if (!currentTag) {
+			setTasks(props.tasks);
+		}
+	}, [setTasks, props.tasks, currentTag]);
 	return (
 		<AuthenticatedLayout>
 			<Head title="Task List" />
@@ -56,7 +58,7 @@ export default function Index(
 					// 元のgutterのスタイルを削除
 					gutterStyle={() => ({})}
 				>
-					<div className="shadow-sm dark:bg-gray-800 overflow-scroll hidden-scrollbar">
+					<div className="shadow-sm dark:bg-gray-800 overflow-scroll hidden-scrollbar flex flex-col justify-start">
 						<TaskTagList />
 					</div>
 					<div className="shadow-sm dark:bg-gray-800 max-h-full">
