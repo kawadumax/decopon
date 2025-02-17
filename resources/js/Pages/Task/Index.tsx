@@ -53,19 +53,19 @@ export default function Index(
 					}}
 					direction="vertical"
 				>
-					<div className="bg-stone-50 shadow-sm dark:bg-gray-800 overflow-scroll hidden-scrollbar">
+					<div className="shadow-sm dark:bg-gray-800 overflow-scroll hidden-scrollbar">
 						<TaskTagList />
 					</div>
-					<div className="bg-stone-50 shadow-sm dark:bg-gray-800 max-h-full">
+					<div className="shadow-sm dark:bg-gray-800 max-h-full">
 						<Timer />
 					</div>
 				</Split>
-				<div className="overflow-auto hidden-scrollbar bg-stone-50/50 shadow-sm dark:bg-gray-800 max-h-full">
+				<div className="overflow-auto hidden-scrollbar shadow-sm dark:bg-gray-800 max-h-full">
 					<TaskTools />
 					<TagHeader />
 					<TaskTree />
 				</div>
-				<div className="overflow-hidden bg-stone-50/20 shadow-sm dark:bg-gray-800 max-h-full">
+				<div className="overflow-hidden shadow-sm dark:bg-gray-800 max-h-full">
 					<TaskSideView />
 				</div>
 			</Split>
