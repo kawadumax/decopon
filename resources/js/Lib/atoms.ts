@@ -147,7 +147,6 @@ export const checkableTagsAtom = atom(
 		set,
 		update: { action: "add" | "remove" | "reset"; tags: TagWithCheck[] },
 	) => {
-		const tagChecks = get(tagChecksAtom);
 		set(tagChecksAtom, (prev): TagWithCheck[] => {
 			switch (update.action) {
 				case "add": {
