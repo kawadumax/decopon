@@ -1,27 +1,36 @@
 import { Button } from "@/Components/ui/button";
+import { Input } from "@/Components/ui/input";
 import { useApi } from "@/Hooks/useApi";
 import { checkableTagsAtom, currentTagAtom, tagsAtom } from "@/Lib/atoms";
 import { Plus, Trash } from "@mynaui/icons-react";
 import { useAtom, useSetAtom } from "jotai";
-import { useCallback } from "react";
+import type React from "react";
+import { useCallback, useState } from "react";
 
 export const TagTools = () => {
 	const [, setTags] = useAtom(tagsAtom);
 	const [checkableTags, setCheckableTags] = useAtom(checkableTagsAtom);
 	const setCurrentTag = useSetAtom(currentTagAtom);
+	const [newTagName, setNewTagName] = useState("");
 	const api = useApi();
 
-	// const handleAddNewTag = () => {
-	// 	const tagTemplate = {
-	// 		name: "",
-	// 	};
+	const handleInputName = useCallback(
+		(event: React.ChangeEvent<HTMLInputElement>) => {
+			setNewTagName(event.target.value);
+		},
+		[],
+	);
 
-	// 	api.post(route("api.tags.store"), tagTemplate, (response) => {
-	// 		// setTags((prev) => [...prev, response.data.tagk]);
-	// 		// 今は何もしない
-	// 		console.log("tags.store called");
-	// 	});
-	// };
+	const handleAddNewTag = useCallback(() => {
+		const tagTemplate = {
+			name: newTagName,
+		};
+
+		api.post(route("api.tags.store"), tagTemplate, (response) => {
+			setTags((prev) => [...prev, response.data.tag]);
+			setNewTagName("");
+		});
+	}, [newTagName, api.post, setTags]);
 
 	const handleDeleteTag = useCallback(() => {
 		const deleteTagIds = checkableTags
@@ -56,9 +65,12 @@ export const TagTools = () => {
 				<Trash />
 				Delete
 			</Button>
-			{/* <Button onClick={handleAddNewTag}>
-                <Plus />
-            </Button> */}
+			<div className="flex justify-start gap-0">
+				<Input placeholder="New Tag Name" onChange={handleInputName} />
+				<Button onClick={handleAddNewTag}>
+					<Plus />
+				</Button>
+			</div>
 		</div>
 	);
 };
