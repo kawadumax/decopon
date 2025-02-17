@@ -8,7 +8,7 @@ import { TagItem } from "./TagItem";
 
 export const TagList = ({ _tags }: { _tags?: Tag[] }) => {
 	const [tags, setTags] = useAtom(tagsAtom);
-	const setCurrentTag = useSetAtom(currentTagAtom);
+	const [currentTag, setCurrentTag] = useAtom(currentTagAtom);
 	const api = useApi();
 
 	useEffect(() => {
@@ -31,14 +31,25 @@ export const TagList = ({ _tags }: { _tags?: Tag[] }) => {
 	return (
 		<>
 			<h3 className="font-bold text-base sticky p-2 top-0">Latest Tags</h3>
-			<ul className="text-primary font-bold">
+			<ul
+				className="text-primary font-bold flex-1"
+				onClick={() => {
+					setCurrentTag(null);
+				}}
+				onKeyDown={() => {
+					// setCurrentTag(null)
+				}}
+			>
 				{tags
 					? tags.map((tag, index) => {
 							return (
 								<TagItem
 									tag={tag}
 									key={tag.id}
-									onClick={() => handleTagClicked(index)}
+									onClick={(event) => {
+										event.stopPropagation();
+										handleTagClicked(index);
+									}}
 								/>
 							);
 						})
