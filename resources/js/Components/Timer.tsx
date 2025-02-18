@@ -6,6 +6,7 @@ import {
 	elapsedTimeAtom,
 	isTimerRunningAtom,
 	isWorkTimeAtom,
+	startedTimeAtom,
 	workTimeAtom,
 } from "@/Lib/atoms";
 import { logger } from "@/Lib/utils";
@@ -28,7 +29,7 @@ export const Timer = () => {
 	const [currentTimeEntry, setCurrentTimeEntry] = useAtom(currentTimeEntryAtom);
 	const [isRunning, setIsRunning] = useAtom(isTimerRunningAtom);
 	const [isWorkTime, setIsWorkTime] = useAtom(isWorkTimeAtom);
-	const [startTime, setStartTime] = useState<number | null>(null);
+	const [startTime, setStartTime] = useAtom(startedTimeAtom);
 	const [elapsedTime, setElapsedTime] = useAtom(elapsedTimeAtom);
 	const api = useApi();
 	const [cycles, setCycles] = useState(0);
@@ -151,7 +152,7 @@ export const Timer = () => {
 				if (isWorkTime && newElapsedTime >= workTime) {
 					// フォーカスタイムの終了時
 					setIsWorkTime(false);
-					setStartTime(Date.now());
+					setStartTime(null);
 					setElapsedTime(0);
 					completeTimeEntry();
 					// 時間が来たらタイマーを止める
@@ -159,7 +160,7 @@ export const Timer = () => {
 				} else if (!isWorkTime && newElapsedTime >= breakTime) {
 					// 休憩時間の終了時
 					setIsWorkTime(true);
-					setStartTime(Date.now());
+					setStartTime(null);
 					setElapsedTime(0);
 					setCycles(cycles + 1);
 					setIsRunning(false);
@@ -175,12 +176,13 @@ export const Timer = () => {
 		startTime,
 		isWorkTime,
 		cycles,
-		completeTimeEntry,
 		breakTime,
+		workTime,
+		completeTimeEntry,
 		setElapsedTime,
 		setIsRunning,
 		setIsWorkTime,
-		workTime,
+		setStartTime,
 	]);
 
 	useEffect(() => {
@@ -190,25 +192,25 @@ export const Timer = () => {
 		};
 	}, [handleBeforeUnload]);
 
-	const startTimer = () => {
+	const startTimer = useCallback(() => {
 		setIsRunning(true);
 		const started_at = Date.now() - elapsedTime;
 		progressTimeEntry();
 		setStartTime(started_at);
-	};
+	}, [setIsRunning, elapsedTime, setStartTime, progressTimeEntry]);
 
-	const stopTimer = () => {
+	const stopTimer = useCallback(() => {
 		setIsRunning(false);
 		interruptTimeEntry();
-	};
+	}, [setIsRunning, interruptTimeEntry]);
 
-	const resetTimer = () => {
+	const resetTimer = useCallback(() => {
 		setIsRunning(false);
 		setElapsedTime(0);
 		setIsWorkTime(true);
 		setCycles(0);
 		abandoneTimeEntry();
-	};
+	}, [setIsRunning, setElapsedTime, setIsWorkTime, abandoneTimeEntry]);
 
 	const formatTime = (time: number) => {
 		const minutes = Math.floor(time / 60000);
