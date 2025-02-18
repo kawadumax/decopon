@@ -100,7 +100,12 @@ export const TaskEditableTitle = ({
 			) : (
 				titleElement
 			)}
-			<Toggle variant={"default"} size={"sm"} onClick={handleEditToggle}>
+			<Toggle
+				variant={"default"}
+				size={"sm"}
+				onClick={handleEditToggle}
+				data-state={editable ? "on" : "off"}
+			>
 				<Edit />
 			</Toggle>
 		</span>
