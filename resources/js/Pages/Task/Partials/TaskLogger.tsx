@@ -70,7 +70,7 @@ export const TaskLogger = ({ taskAtom }: { taskAtom: PrimitiveAtom<Task> }) => {
 		if (logContainerRef.current) {
 			logContainerRef.current.scrollTop = logContainerRef.current.scrollHeight;
 		}
-	}, [logs]);
+	}, []);
 
 	useEffect(() => {
 		if (task) {
@@ -85,12 +85,14 @@ export const TaskLogger = ({ taskAtom }: { taskAtom: PrimitiveAtom<Task> }) => {
 				},
 			);
 		}
-	}, [task]);
+	}, [task, api]);
 
 	return (
 		<div className="flex flex-col flex-1">
 			<ul ref={logContainerRef} className="flex-1 overflow-y-auto">
-				{logs && logs.map((log, index) => <LogItem key={index} log={log} />)}
+				{logs?.map((log) => (
+					<LogItem key={log.id} log={log} />
+				))}
 			</ul>
 			<div className="pt-4">
 				<AutosizeTextarea
@@ -100,7 +102,7 @@ export const TaskLogger = ({ taskAtom }: { taskAtom: PrimitiveAtom<Task> }) => {
 					defaultValue={content}
 					maxHeight={200}
 					minHeight={0}
-				></AutosizeTextarea>
+				/>
 			</div>
 		</div>
 	);
