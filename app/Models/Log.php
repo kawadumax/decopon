@@ -17,6 +17,7 @@ class Log extends Model
     protected $fillable = [
         'content',
         'task_id',
+        'user_id'
     ];
 
     public function tags()
