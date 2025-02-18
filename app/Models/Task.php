@@ -71,8 +71,9 @@ class Task extends Model
         $updatedTasks = [];
 
         $this->completed = $status;
-        $this->save();
-        $updatedTasks[] = $this;
+        if ($this->save()) {
+            $updatedTasks[] = $this;
+        }
 
         foreach ($this->subTasks as $subTask) {
             $updatedTasks = array_merge($updatedTasks, $subTask->updateStatusRecursive($status));
