@@ -67,12 +67,14 @@ export const taskSelectorAtom = atom(
 
 interface TimerState {
 	elapsedTime: number;
+	startedTime: number | null;
+
 	currentTimeEntry?: Partial<TimeEntry>;
 }
 
 const timeStateAtom = atomWithStorage<TimerState>(
 	"timerState",
-	{ elapsedTime: 0, currentTimeEntry: undefined },
+	{ elapsedTime: 0, startedTime: null, currentTimeEntry: undefined },
 	undefined,
 	{ getOnInit: true },
 );
@@ -99,6 +101,16 @@ export const elapsedTimeAtom = atom(
 		set(timeStateAtom, {
 			...get(timeStateAtom),
 			elapsedTime: newValue,
+		});
+	},
+);
+
+export const startedTimeAtom = atom(
+	(get) => get(timeStateAtom)?.startedTime,
+	(get, set, newValue: number | null) => {
+		set(timeStateAtom, {
+			...get(timeStateAtom),
+			startedTime: newValue,
 		});
 	},
 );
