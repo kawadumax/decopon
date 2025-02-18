@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\TaskCompletedEvent;
 use App\Http\Controllers\Api\ApiController;
 use App\Models\Task;
 use App\Models\Tag;
@@ -136,6 +137,11 @@ class TaskApiController extends ApiController
     ]);
 
     $updatedTasks = $task->updateStatusRecursive($validated['completed']);
+
+    if ($updatedTasks && !empty($updatedTasks) && $validated['completed']) {
+      // 完了時、タスク完了イベントを発火する
+      event(new TaskCompletedEvent($task));
+    }
 
     return response()->json([
       'success' => true,
