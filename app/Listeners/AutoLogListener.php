@@ -2,6 +2,7 @@
 
 namespace App\Listeners;
 
+use App\Enums\LogSource;
 use App\Events\TaskCompletedEvent;
 use App\Models\Log;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -29,7 +30,8 @@ class AutoLogListener
         Log::create([
             'content' => "タスク「{$event->task->title}」が完了されました。",
             'task_id' => $task->id,
-            'user_id' => \Auth::id()
+            'user_id' => \Auth::id(),
+            'source' => LogSource::System
         ]);
     }
 }

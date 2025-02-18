@@ -25,6 +25,11 @@ export interface Task {
 	tags: Tag[];
 }
 
+enum LogSource {
+	User = "User",
+	System = "System",
+}
+
 export interface Log {
 	id: number;
 	user_id: number;
@@ -32,6 +37,7 @@ export interface Log {
 	content: string;
 	created_at: string;
 	updated_at: string;
+	source: "User" | "System";
 }
 
 export interface TimeEntry {
