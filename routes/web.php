@@ -9,6 +9,11 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
+// 開発環境においてはプロキシを用意し、vite serverを一部統合する
+if (!app()->isProduction()) {
+    require __DIR__ . '/proxy.dev.php';
+}
+
 Route::get('/', function () {
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
