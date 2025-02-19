@@ -4,13 +4,21 @@ import NavLink from "@/Components/NavLink";
 import ResponsiveNavLink from "@/Components/ResponsiveNavLink";
 import { TimerStateWidget } from "@/Components/TimerStateWidget";
 import { Toaster } from "@/Components/ui/sonner";
+import { breakTimeAtom, workTimeAtom } from "@/Lib/atoms";
 import { Link, usePage } from "@inertiajs/react";
+import { useSetAtom } from "jotai";
 import { type PropsWithChildren, type ReactNode, useState } from "react";
 export default function Authenticated({
 	header,
 	children,
 }: PropsWithChildren<{ header?: ReactNode }>) {
 	const user = usePage().props.auth.user;
+
+	const preference = usePage().props.auth.user.preference;
+	const setWorkTime = useSetAtom(workTimeAtom);
+	const setBreakTime = useSetAtom(breakTimeAtom);
+	setWorkTime(preference.work_time);
+	setBreakTime(preference.break_time);
 
 	const [showingNavigationDropdown, setShowingNavigationDropdown] =
 		useState(false);
