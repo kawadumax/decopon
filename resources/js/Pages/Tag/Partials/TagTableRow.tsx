@@ -1,5 +1,5 @@
 import { currentTagAtom } from "@/Lib/atoms";
-import { formatDate } from "@/Lib/utils";
+import { formatISODate } from "@/Lib/utils";
 import { cn } from "@/Lib/utils";
 import type { Tag, TagCheckable } from "@/types";
 import type { CheckedState } from "@radix-ui/react-checkbox";
@@ -43,8 +43,12 @@ export const TagTableRow = ({
 				{tag.name}
 				{` (${tag.tasks?.length || 0})`}
 			</TableCell>
-			<TableCell className="font-mono">{formatDate(tag.created_at)}</TableCell>
-			<TableCell className="font-mono">{formatDate(tag.updated_at)}</TableCell>
+			<TableCell className="font-mono">
+				{formatISODate(tag.created_at)}
+			</TableCell>
+			<TableCell className="font-mono">
+				{formatISODate(tag.updated_at)}
+			</TableCell>
 		</TableRow>
 	);
 };

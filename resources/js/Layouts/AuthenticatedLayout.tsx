@@ -2,6 +2,7 @@ import ApplicationLogo from "@/Components/ApplicationLogo";
 import Dropdown from "@/Components/Dropdown";
 import NavLink from "@/Components/NavLink";
 import ResponsiveNavLink from "@/Components/ResponsiveNavLink";
+import { TimerStateWidget } from "@/Components/TimerStateWidget";
 import { Toaster } from "@/Components/ui/sonner";
 import { Link, usePage } from "@inertiajs/react";
 import { type PropsWithChildren, type ReactNode, useState } from "react";
@@ -55,6 +56,7 @@ export default function Authenticated({
 						</div>
 
 						<div className="hidden sm:ms-6 sm:flex sm:items-center">
+							<TimerStateWidget />
 							<div className="relative ms-3">
 								<Dropdown>
 									<Dropdown.Trigger>
@@ -71,6 +73,7 @@ export default function Authenticated({
 													viewBox="0 0 20 20"
 													fill="currentColor"
 												>
+													<title>DropDown Trigger</title>
 													<path
 														fillRule="evenodd"
 														d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
@@ -99,6 +102,7 @@ export default function Authenticated({
 
 						<div className="-me-2 flex items-center sm:hidden">
 							<button
+								type="button"
 								onClick={() =>
 									setShowingNavigationDropdown(
 										(previousState) => !previousState,
@@ -112,6 +116,7 @@ export default function Authenticated({
 									fill="none"
 									viewBox="0 0 24 24"
 								>
+									<title>Dropdown</title>
 									<path
 										className={
 											!showingNavigationDropdown ? "inline-flex" : "hidden"
@@ -137,9 +142,7 @@ export default function Authenticated({
 				</div>
 
 				<div
-					className={
-						(showingNavigationDropdown ? "block" : "hidden") + " sm:hidden"
-					}
+					className={`${showingNavigationDropdown ? "block" : "hidden"} sm:hidden`}
 				>
 					<div className="space-y-1 pb-3 pt-2">
 						<ResponsiveNavLink
