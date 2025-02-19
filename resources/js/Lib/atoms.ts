@@ -68,55 +68,58 @@ export const taskSelectorAtom = atom(
 interface TimerState {
 	elapsedTime: number;
 	startedTime: number | null;
-
-	currentTimeEntry?: Partial<TimeEntry>;
+	isWorkTime: boolean;
+	isRunning: boolean;
+	timeEntry?: Partial<TimeEntry>;
 }
 
-const timeStateAtom = atomWithStorage<TimerState>(
+export const timerStateAtom = atomWithStorage<TimerState>(
 	"timerState",
-	{ elapsedTime: 0, startedTime: null, currentTimeEntry: undefined },
+	{
+		elapsedTime: 0,
+		startedTime: null,
+		timeEntry: undefined,
+		isWorkTime: true,
+		isRunning: false,
+	},
 	undefined,
 	{ getOnInit: true },
 );
-export const currentTimeEntryAtom = atom(
-	(get) => get(timeStateAtom)?.currentTimeEntry,
-	(get, set, newValue: Partial<TimeEntry> | undefined) => {
-		set(timeStateAtom, {
-			...get(timeStateAtom),
-			currentTimeEntry: newValue,
-		});
+
+export const isRunningAtom = atom(
+	(get) => {
+		return get(timerStateAtom).isRunning;
+	},
+	(get, set, isRunning: boolean) => {
+		set(timerStateAtom, { ...get(timerStateAtom), isRunning });
 	},
 );
-export const currentTimeEntryIdAtom = atom(
-	(get) => get(currentTimeEntryAtom)?.id,
-	(get, set, newValue: number) =>
-		set(currentTimeEntryAtom, {
-			...get(currentTimeEntryAtom),
-			id: newValue,
-		}),
-);
-export const elapsedTimeAtom = atom(
-	(get) => get(timeStateAtom)?.elapsedTime,
-	(get, set, newValue: number) => {
-		set(timeStateAtom, {
-			...get(timeStateAtom),
-			elapsedTime: newValue,
+
+export const getSpanAtom = atom((get) => {
+	const timerState = get(timerStateAtom);
+	return timerState.isWorkTime ? get(workTimeAtom) : get(breakTimeAtom);
+});
+
+export const remainTimeAtom = atom(
+	(get) => {
+		return get(getSpanAtom) - get(timerStateAtom).elapsedTime;
+	},
+	(get, set, newTime: number) => {
+		const timerState = get(timerStateAtom);
+		set(timerStateAtom, {
+			...timerState,
+			elapsedTime: get(getSpanAtom) - newTime,
 		});
 	},
 );
 
-export const startedTimeAtom = atom(
-	(get) => get(timeStateAtom)?.startedTime,
-	(get, set, newValue: number | null) => {
-		set(timeStateAtom, {
-			...get(timeStateAtom),
-			startedTime: newValue,
-		});
-	},
-);
-
-export const isTimerRunningAtom = atom<boolean>(false);
-export const isWorkTimeAtom = atom<boolean>(true);
+export const resetRemainTimeAtom = atom(null, (get, set, command: string) => {
+	if (command !== "RESET") return;
+	set(timerStateAtom, {
+		...get(timerStateAtom),
+		elapsedTime: 0,
+	});
+});
 
 const _workTimeAtom = atom<number>(25 * 60 * 1000);
 const _breakTimeAtom = atom<number>(10 * 60 * 1000);
