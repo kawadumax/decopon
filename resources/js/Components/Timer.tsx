@@ -9,7 +9,7 @@ import {
 	startedTimeAtom,
 	workTimeAtom,
 } from "@/Lib/atoms";
-import { logger } from "@/Lib/utils";
+import { formatTime, logger } from "@/Lib/utils";
 import type { TimeEntry } from "@/types";
 import { usePage } from "@inertiajs/react";
 import { useAtom } from "jotai";
@@ -211,15 +211,6 @@ export const Timer = () => {
 		setCycles(0);
 		abandoneTimeEntry();
 	}, [setIsRunning, setElapsedTime, setIsWorkTime, abandoneTimeEntry]);
-
-	const formatTime = (time: number) => {
-		const minutes = Math.floor(time / 60000);
-		const seconds = Math.floor((time % 60000) / 1000);
-
-		return `${minutes.toString().padStart(2, "0")}:${seconds
-			.toString()
-			.padStart(2, "0")}`;
-	};
 
 	const remainingTime = isWorkTime
 		? workTime - elapsedTime
