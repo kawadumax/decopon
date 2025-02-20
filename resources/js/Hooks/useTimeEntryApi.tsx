@@ -1,32 +1,68 @@
 import { timerStateAtom } from "@/Lib/atoms";
 import { logger } from "@/Lib/utils";
 import type { TimeEntry } from "@/types";
+import type axios from "axios";
 import { useAtom } from "jotai";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { useApi } from "./useApi";
 
 export const useTimeEntryApi = () => {
 	const [timerState, setTimerState] = useAtom(timerStateAtom);
 	const api = useApi();
 
+	const hasActiveTimeEntry = useMemo(() => {
+		return !!timerState?.timeEntry?.id;
+	}, [timerState.timeEntry]);
+
+	const updateTimeEntry = useCallback(
+		(
+			id: number,
+			data: Partial<TimeEntry>,
+			onSuccess: (response: axios.AxiosResponse) => void,
+		) => {
+			api.put(
+				route("api.time-entries-id.update", id),
+				data,
+				(response) => {
+					logger("Time entry updated:", response);
+					onSuccess(response);
+				},
+				(error) => {
+					logger("Error updating time entry:", error);
+				},
+			);
+		},
+		[api],
+	);
+
+	const setResponseToAtom = useCallback(
+		(response: axios.AxiosResponse) => {
+			setTimerState((prev) => {
+				return { ...prev, timeEntry: response.data.time_entry };
+			});
+		},
+		[setTimerState],
+	);
+
+	const setUndefinedToAtom = useCallback(() => {
+		setTimerState((prev) => {
+			return { ...prev, timeEntry: undefined };
+		});
+	}, [setTimerState]);
+
 	const progressTimeEntry = useCallback(() => {
 		if (!timerState.isWorkTime) return;
 
-		if (timerState.timeEntry) {
+		if (hasActiveTimeEntry) {
 			// timeEntryがあるがInterrupted
-			api.put(
-				route("api.time-entries-id.update", timerState.timeEntry.id),
+			updateTimeEntry(
+				(timerState.timeEntry as TimeEntry).id,
 				{
 					started_at: new Date().toISOString(),
 					ended_at: undefined,
 					status: "In_Progress",
-				} as Partial<TimeEntry>,
-				(response) => {
-					logger("Time entry progressed:", response);
-					setTimerState((prev) => {
-						return { ...prev, timeEntry: response.data.time_entry };
-					});
 				},
+				setResponseToAtom,
 			);
 		} else {
 			// TimeEntryレコード作成
@@ -37,71 +73,49 @@ export const useTimeEntryApi = () => {
 					ended_at: undefined,
 					status: "In_Progress",
 				},
-				(response) => {
-					// TimeEntryIdが返ってくるのでatomに保持する
-					setTimerState((prev) => {
-						return { ...prev, timeEntry: response.data.time_entry };
-					});
-				},
+				setResponseToAtom,
 			);
 		}
-	}, [timerState, setTimerState, api]);
+	}, [timerState, api, updateTimeEntry, hasActiveTimeEntry, setResponseToAtom]);
 
 	const interruptTimeEntry = useCallback(() => {
-		const timeEntryId = timerState?.timeEntry?.id;
-		if (!timeEntryId) return;
-		api.put(
-			route("api.time-entries-id.update", timeEntryId),
+		if (!hasActiveTimeEntry) return;
+		updateTimeEntry(
+			(timerState.timeEntry as TimeEntry).id,
 			{
 				ended_at: new Date().toISOString(),
 				status: "Interrupted",
-			} as Partial<TimeEntry>,
-			(response) => {
-				logger("Time entry interrupted:", response);
-				setTimerState((prev) => {
-					return {
-						...prev,
-						timeEntry: response.data.time_entry,
-					};
-				});
 			},
+			setResponseToAtom,
 		);
-	}, [timerState, setTimerState, api]);
+	}, [timerState, hasActiveTimeEntry, updateTimeEntry, setResponseToAtom]);
 
 	const completeTimeEntry = useCallback(() => {
-		const timeEntryId = timerState?.timeEntry?.id;
-		if (!timeEntryId) return;
-		api.put(
-			route("api.time-entries-id.update", timeEntryId),
+		if (!hasActiveTimeEntry) return;
+
+		updateTimeEntry(
+			(timerState.timeEntry as TimeEntry).id,
 			{
 				ended_at: new Date().toISOString(),
 				status: "Completed",
-			} as Partial<TimeEntry>,
-			(response) => {
-				logger("Time entry completed:", response);
-				setTimerState((prev) => {
-					return { ...prev, timeEntry: undefined };
-				});
 			},
+			setUndefinedToAtom,
 		);
-	}, [timerState, setTimerState, api]);
+	}, [timerState, updateTimeEntry, hasActiveTimeEntry, setUndefinedToAtom]);
 
 	const abandoneTimeEntry = useCallback(() => {
-		if (!timerState?.timeEntry?.id) return;
-		api.put(
-			route("api.time-entries-id.update", timerState.timeEntry.id),
+		if (!hasActiveTimeEntry) return;
+
+		updateTimeEntry(
+			(timerState.timeEntry as TimeEntry).id,
 			{
 				ended_at: new Date().toISOString(),
 				status: "Abandoned",
-			} as Partial<TimeEntry>,
-			(response) => {
-				logger("Time entry abandoned:", response);
-				setTimerState((prev) => {
-					return { ...prev, timeEntry: undefined };
-				});
 			},
+			setUndefinedToAtom,
 		);
-	}, [timerState, setTimerState, api]);
+	}, [timerState, updateTimeEntry, hasActiveTimeEntry, setUndefinedToAtom]);
+
 	return {
 		progressTimeEntry,
 		interruptTimeEntry,
