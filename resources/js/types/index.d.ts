@@ -1,5 +1,3 @@
-import { Tag as EmblorTag } from "emblor";
-
 export interface User {
 	id: number;
 	preference: Preference;
@@ -37,7 +35,15 @@ export interface Log {
 	content: string;
 	created_at: string;
 	updated_at: string;
-	source: "User" | "System";
+	source: LogSource;
+}
+
+export enum TimeEntryStatus {
+	InProgress = "In_Progress",
+	Completed = "Completed",
+	Interrupted = "Interrupted",
+	Abandoned = "Abandoned",
+	Extended = "Extended",
 }
 
 export interface TimeEntry {
@@ -45,12 +51,7 @@ export interface TimeEntry {
 	user_id: number;
 	started_at: string;
 	ended_at: string;
-	status:
-		| "In_Progress"
-		| "Completed"
-		| "Interrupted"
-		| "Abandoned"
-		| "Extended";
+	status: TimeEntryStatus;
 	created_at: string;
 	updated_at: string;
 }

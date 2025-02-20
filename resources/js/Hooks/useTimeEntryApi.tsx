@@ -1,6 +1,6 @@
 import { timerStateAtom } from "@/Lib/atoms";
 import { logger } from "@/Lib/utils";
-import type { TimeEntry } from "@/types";
+import { type TimeEntry, TimeEntryStatus } from "@/types/index.d";
 import type axios from "axios";
 import { useAtom } from "jotai";
 import { useCallback, useMemo } from "react";
@@ -10,9 +10,19 @@ export const useTimeEntryApi = () => {
 	const [timerState, setTimerState] = useAtom(timerStateAtom);
 	const api = useApi();
 
-	const hasActiveTimeEntry = useMemo(() => {
-		return !!timerState?.timeEntry?.id;
+	const activeTimeEntry = useMemo(() => {
+		return timerState.timeEntry || null;
 	}, [timerState.timeEntry]);
+
+	const createUpdateData = useCallback(
+		(status: TimeEntryStatus): Partial<TimeEntry> => {
+			return {
+				ended_at: new Date().toISOString(),
+				status,
+			};
+		},
+		[],
+	);
 
 	const updateTimeEntry = useCallback(
 		(
@@ -53,68 +63,55 @@ export const useTimeEntryApi = () => {
 	const progressTimeEntry = useCallback(() => {
 		if (!timerState.isWorkTime) return;
 
-		if (hasActiveTimeEntry) {
-			// timeEntryがあるがInterrupted
-			updateTimeEntry(
-				(timerState.timeEntry as TimeEntry).id,
-				{
-					started_at: new Date().toISOString(),
-					ended_at: undefined,
-					status: "In_Progress",
-				},
-				setResponseToAtom,
-			);
+		const data: Partial<TimeEntry> = {
+			started_at: new Date().toISOString(),
+			ended_at: undefined,
+			status: TimeEntryStatus.InProgress,
+		};
+
+		if (activeTimeEntry) {
+			// timeEntryがある場合はInterruptedされているということ
+			updateTimeEntry(activeTimeEntry.id, data, setResponseToAtom);
 		} else {
 			// TimeEntryレコード作成
-			api.post(
-				route("api.time-entries.store"),
-				{
-					started_at: new Date().toISOString(),
-					ended_at: undefined,
-					status: "In_Progress",
-				},
-				setResponseToAtom,
-			);
+			api.post(route("api.time-entries.store"), data, setResponseToAtom);
 		}
-	}, [timerState, api, updateTimeEntry, hasActiveTimeEntry, setResponseToAtom]);
+	}, [
+		api,
+		timerState.isWorkTime,
+		updateTimeEntry,
+		setResponseToAtom,
+		activeTimeEntry,
+	]);
 
 	const interruptTimeEntry = useCallback(() => {
-		if (!hasActiveTimeEntry) return;
+		if (!activeTimeEntry) return;
 		updateTimeEntry(
-			(timerState.timeEntry as TimeEntry).id,
-			{
-				ended_at: new Date().toISOString(),
-				status: "Interrupted",
-			},
+			activeTimeEntry.id,
+			createUpdateData(TimeEntryStatus.Interrupted),
 			setResponseToAtom,
 		);
-	}, [timerState, hasActiveTimeEntry, updateTimeEntry, setResponseToAtom]);
+	}, [updateTimeEntry, setResponseToAtom, createUpdateData, activeTimeEntry]);
 
 	const completeTimeEntry = useCallback(() => {
-		if (!hasActiveTimeEntry) return;
+		if (!activeTimeEntry) return;
 
 		updateTimeEntry(
-			(timerState.timeEntry as TimeEntry).id,
-			{
-				ended_at: new Date().toISOString(),
-				status: "Completed",
-			},
+			activeTimeEntry.id,
+			createUpdateData(TimeEntryStatus.Completed),
 			setUndefinedToAtom,
 		);
-	}, [timerState, updateTimeEntry, hasActiveTimeEntry, setUndefinedToAtom]);
+	}, [updateTimeEntry, setUndefinedToAtom, createUpdateData, activeTimeEntry]);
 
 	const abandoneTimeEntry = useCallback(() => {
-		if (!hasActiveTimeEntry) return;
+		if (!activeTimeEntry) return;
 
 		updateTimeEntry(
-			(timerState.timeEntry as TimeEntry).id,
-			{
-				ended_at: new Date().toISOString(),
-				status: "Abandoned",
-			},
+			activeTimeEntry.id,
+			createUpdateData(TimeEntryStatus.Abandoned),
 			setUndefinedToAtom,
 		);
-	}, [timerState, updateTimeEntry, hasActiveTimeEntry, setUndefinedToAtom]);
+	}, [updateTimeEntry, setUndefinedToAtom, createUpdateData, activeTimeEntry]);
 
 	return {
 		progressTimeEntry,
