@@ -1,5 +1,6 @@
 import { useTimeEntryApi } from "@/Hooks/useTimeEntryApi";
 import { getSpanAtom, timerStateAtom } from "@/Lib/atoms";
+import type { TimeEntry } from "@/types";
 import { useAtom, useAtomValue } from "jotai";
 import { useCallback, useEffect, useState } from "react";
 import TimerWorker from "../Workers/TimerWorker.ts?worker";
@@ -20,7 +21,6 @@ export const TimeManager = () => {
 		setTimeWorker(timerWorker);
 
 		timerWorker.onmessage = (e) => {
-			console.log("receive message from workder");
 			if (e.data.type === "TICK") {
 				setTimerState((prev) => {
 					return { ...prev, elapsedTime: prev.elapsedTime + 1000 };
@@ -33,56 +33,66 @@ export const TimeManager = () => {
 		};
 	}, [setTimerState]);
 
+	/**
+	 * タイマーの作動状態を監視する
+	 */
 	useEffect(() => {
 		if (timerState.isRunning) {
-			// タイマーが動き始めたとき
 			timerWorker?.postMessage({ type: "START" });
 		} else {
 			timerWorker?.postMessage({ type: "STOP" });
 		}
 	}, [timerState.isRunning, timerWorker]);
 
-	// const [cycles, setCycles] = useState(0);
-
 	/**
-	 * elapsedTimeを監視して、終わった時、リセットされたとき、中断されたときを把握する?
-	 *
+	 * elapsedTimeを監視して、フォーカスタイムの完了を監視する。
 	 */
 	useEffect(() => {
-		if (timerState.elapsedTime > timeSpan && timerState.isWorkTime) {
-			// タイマーが終わった時
+		if (timerState.elapsedTime < timeSpan) return;
+		let currentCycles = timerState.cycles || 0;
+
+		// タイマーが終わった時
+
+		if (timerState.isWorkTime) {
+			// Worktimeの時
 			completeTimeEntry();
-			setTimerState((prev) => {
-				return {
-					...prev,
-					isRunning: false,
-					isWorkTime: !prev.isWorkTime,
-					elapsedTime: 0,
-					startedTime: null,
-				};
-			});
+			currentCycles++;
 		}
+
+		// WorkTimeとBreakTimeを切り替える
+		setTimerState((prev) => {
+			return {
+				...prev,
+				isRunning: false,
+				isWorkTime: !prev.isWorkTime,
+				elapsedTime: 0,
+				startedTime: null,
+				cycles: currentCycles,
+			};
+		});
 	}, [
-		setTimerState,
 		timerState.elapsedTime,
 		timerState.isWorkTime,
+		timerState.cycles,
 		timeSpan,
+		setTimerState,
 		completeTimeEntry,
 	]);
 
 	/**
-	 * タイマー状態: In-Progress時にページが閉じられた場合、タイマー状態をInterruptedにして、サーバーにリクエストを送る
+	 * タイマー状態: In-Progress時にページが閉じられた場合、
+	 * タイマー状態をInterruptedにして、サーバーにリクエストを送る
 	 *  */
 	const handleBeforeUnload = useCallback(
 		(event: BeforeUnloadEvent) => {
-			if (timerState?.timeEntry?.status === "In_Progress") {
+			if (timerState.timeEntry?.status === "In_Progress") {
 				event.preventDefault(); // 離脱時に進行中のタイマーがある場合、アラートが表示される
 				interruptTimeEntry();
 				setTimerState((prev) => {
 					return {
 						...prev,
 						timeEntry: {
-							...timerState.timeEntry,
+							...(timerState.timeEntry as TimeEntry),
 							status: "Interrupted",
 						},
 					};

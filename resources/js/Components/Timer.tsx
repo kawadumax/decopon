@@ -3,10 +3,11 @@ import {
 	isRunningAtom,
 	remainTimeAtom,
 	resetRemainTimeAtom,
+	timerStateAtom,
 } from "@/Lib/atoms";
 import { formatTime } from "@/Lib/utils";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback } from "react";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 
@@ -14,6 +15,7 @@ export const Timer = () => {
 	const [isRunning, setIsRunning] = useAtom(isRunningAtom);
 	const remainTime = useAtomValue(remainTimeAtom);
 	const resetRemainTime = useSetAtom(resetRemainTimeAtom);
+	const timeState = useAtomValue(timerStateAtom);
 
 	const { abandoneTimeEntry, progressTimeEntry, interruptTimeEntry } =
 		useTimeEntryApi();
@@ -39,14 +41,14 @@ export const Timer = () => {
 			<div className="font-mono self-center p-2 bg-white text-4xl text-center border-solid border border-amber-400 rounded">
 				{formatTime(remainTime)}
 			</div>
-			{/* <div className="flex flex-row justify-center gap-2">
+			<div className="flex flex-row justify-center gap-2">
 				<Badge className="text-center bg-white text-black">
-					{isWorkTime ? "Work Time" : "Break Time"}
+					{timeState.isWorkTime ? "Work Time" : "Break Time"}
 				</Badge>
 				<Badge className="text-center bg-white text-black">
-					Cycles: {cycles}
+					Cycles: {timeState.cycles}
 				</Badge>
-			</div> */}
+			</div>
 
 			<Button
 				className="w-fit self-center"
