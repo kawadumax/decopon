@@ -1,6 +1,6 @@
 import { useTimeEntryApi } from "@/Hooks/useTimeEntryApi";
 import { getSpanAtom, timerStateAtom } from "@/Lib/atoms";
-import type { TimeEntry } from "@/types";
+import { type TimeEntry, TimeEntryStatus } from "@/types/index.d";
 import { useAtom, useAtomValue } from "jotai";
 import { useCallback, useEffect, useState } from "react";
 import TimerWorker from "../Workers/TimerWorker.ts?worker";
@@ -93,8 +93,9 @@ export const TimeManager = () => {
 						...prev,
 						timeEntry: {
 							...(timerState.timeEntry as TimeEntry),
-							status: "Interrupted",
+							status: TimeEntryStatus.Interrupted,
 						},
+						isRunning: false,
 					};
 				});
 			}
