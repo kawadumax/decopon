@@ -70,7 +70,8 @@ interface TimerState {
 	startedTime: number | null;
 	isWorkTime: boolean;
 	isRunning: boolean;
-	timeEntry?: Partial<TimeEntry>;
+	cycles: number;
+	timeEntry?: TimeEntry;
 }
 
 export const timerStateAtom = atomWithStorage<TimerState>(
@@ -81,6 +82,7 @@ export const timerStateAtom = atomWithStorage<TimerState>(
 		timeEntry: undefined,
 		isWorkTime: true,
 		isRunning: false,
+		cycles: 0,
 	},
 	undefined,
 	{ getOnInit: true },
@@ -158,7 +160,7 @@ export const checkableTagsAtom = atom(
 	},
 
 	(
-		get,
+		_get,
 		set,
 		update: { action: "add" | "remove" | "reset"; tags: TagWithCheck[] },
 	) => {
