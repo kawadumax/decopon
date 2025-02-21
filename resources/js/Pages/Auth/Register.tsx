@@ -5,8 +5,10 @@ import TextInput from "@/Components/TextInput";
 import GuestLayout from "@/Layouts/GuestLayout";
 import { Head, Link, useForm } from "@inertiajs/react";
 import type { FormEventHandler } from "react";
+import { useTranslation } from "react-i18next";
 
 export default function Register() {
+	const { t } = useTranslation();
 	const { data, setData, post, processing, errors, reset } = useForm({
 		name: "",
 		email: "",
@@ -24,7 +26,7 @@ export default function Register() {
 
 	return (
 		<GuestLayout>
-			<Head title="Register" />
+			<Head title={t("auth.register.title")} />
 
 			<form onSubmit={submit}>
 				<div>
@@ -103,11 +105,11 @@ export default function Register() {
 						href={route("login")}
 						className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:text-gray-400 dark:hover:text-gray-100 dark:focus:ring-offset-gray-800"
 					>
-						Already registered?
+						{t("auth.register.alreadyRegistered")}
 					</Link>
 
 					<PrimaryButton className="ms-4" disabled={processing}>
-						Register
+						{t("auth.register.submit")}
 					</PrimaryButton>
 				</div>
 			</form>
