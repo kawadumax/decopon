@@ -7,6 +7,9 @@ import { createRoot } from "react-dom/client";
 
 import { DevTools } from "jotai-devtools";
 import "jotai-devtools/styles.css";
+
+// i18nの設定をインポート
+import "./i18n";
 import { TimeManager } from "./Components/TimeManager";
 
 const appName = import.meta.env.VITE_APP_NAME || "Laravel";

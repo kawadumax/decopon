@@ -3,8 +3,10 @@ import { useApi } from "@/Hooks/useApi";
 import { tasksAtom } from "@/Lib/atoms";
 import { useAtom } from "jotai";
 import { useCallback } from "react";
+import { useTranslation } from "react-i18next";
 
 export const TaskTools = () => {
+	const { t } = useTranslation();
 	const [, setTasks] = useAtom(tasksAtom);
 	const api = useApi();
 
@@ -27,8 +29,8 @@ export const TaskTools = () => {
 	return (
 		<div className="flex justify-start m-4 mb-0">
 			<AddItemInput
-				placeholder="Add Task Title"
-				buttonText="Add"
+				placeholder={t("task.add")}
+				buttonText={t("common.add")}
 				onAddItem={handleAddNewTask}
 			/>
 		</div>
