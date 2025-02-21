@@ -159,7 +159,7 @@ export default function Authenticated({
 							href={route("dashboard")}
 							active={route().current("dashboard")}
 						>
-							Dashboard
+							{t("header.menu.dashboard")}
 						</ResponsiveNavLink>
 					</div>
 
