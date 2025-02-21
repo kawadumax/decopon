@@ -1,0 +1,14 @@
+{
+	"task": {
+		"add": "Add New Task",
+		"edit": "Edit Task",
+		"delete": "Delete Task",
+		"status": {
+			"completed": "Completed",
+			"inProgress": "In Progress"
+		}
+	},
+	"common": {
+		"add": "Add"
+	}
+}

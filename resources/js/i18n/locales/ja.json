@@ -1,0 +1,14 @@
+{
+	"task": {
+		"add": "タスクを追加",
+		"edit": "タスクを編集",
+		"delete": "タスクを削除",
+		"status": {
+			"completed": "完了",
+			"inProgress": "進行中"
+		}
+	},
+	"common": {
+		"add": "Add"
+	}
+}
