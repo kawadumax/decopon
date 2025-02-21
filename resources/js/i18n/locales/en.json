@@ -18,7 +18,36 @@
 			"tags": "All Tags",
 			"timeline": "Timeline",
 			"profile": "Profile",
-			"logout": "Log Out"
+			"login": "Log in",
+			"logout": "Log Out",
+			"register": "Register"
 		}
+	},
+	"welcome": {
+		"title": "Decopon",
+		"subtitle": "The Task Manager for ADHD",
+		"features": {
+			"focusSessions": {
+				"title": "Focus Sessions",
+				"description": "Pomodoro technique to boost productivity"
+			},
+			"nestedLists": {
+				"title": "Nested Lists",
+				"description": "Organize tasks with ease"
+			},
+			"easyLogging": {
+				"title": "Easy Logging",
+				"description": "Tag tasks for simple categorization"
+			},
+			"search": {
+				"title": "Search",
+				"description": "Find tasks quickly with keywords or tags"
+			}
+		},
+		"description": "Decopon helps you break down complex tasks into smaller, more manageable chunks, just like the juicy segments of a Dekopon fruit.",
+		"getStarted": "Get Started"
+	},
+	"dashboard": {
+		"greeting": "You're logged in!"
 	}
 }
