@@ -8,10 +8,12 @@ import { breakTimeAtom, workTimeAtom } from "@/Lib/atoms";
 import { Link, usePage } from "@inertiajs/react";
 import { useSetAtom } from "jotai";
 import { type PropsWithChildren, type ReactNode, useState } from "react";
+import { useTranslation } from "react-i18next";
 export default function Authenticated({
 	header,
 	children,
 }: PropsWithChildren<{ header?: ReactNode }>) {
+	const { t, i18n } = useTranslation();
 	const user = usePage().props.auth.user;
 
 	const preference = usePage().props.auth.user.preference;
@@ -40,25 +42,25 @@ export default function Authenticated({
 									href={route("dashboard")}
 									active={route().current("dashboard")}
 								>
-									Dashboard
+									{t("header.menu.dashboard")}
 								</NavLink>
 								<NavLink
 									href={route("tasks.index")}
 									active={route().current("tasks.index")}
 								>
-									All Tasks
+									{t("header.menu.tasks")}
 								</NavLink>
 								<NavLink
 									href={route("tags.index")}
 									active={route().current("tags.index")}
 								>
-									All Tags
+									{t("header.menu.tags")}
 								</NavLink>
 								<NavLink
 									href={route("logs.index")}
 									active={route().current("logs.index")}
 								>
-									Timeline
+									{t("header.menu.timeline")}
 								</NavLink>
 							</div>
 						</div>
@@ -94,14 +96,14 @@ export default function Authenticated({
 
 									<Dropdown.Content>
 										<Dropdown.Link href={route("profile.edit")}>
-											Profile
+											{t("header.menu.profile")}
 										</Dropdown.Link>
 										<Dropdown.Link
 											href={route("logout")}
 											method="post"
 											as="button"
 										>
-											Log Out
+											{t("header.menu.logout")}
 										</Dropdown.Link>
 									</Dropdown.Content>
 								</Dropdown>
@@ -173,14 +175,14 @@ export default function Authenticated({
 
 						<div className="mt-3 space-y-1">
 							<ResponsiveNavLink href={route("profile.edit")}>
-								Profile
+								{t("header.menu.profile")}
 							</ResponsiveNavLink>
 							<ResponsiveNavLink
 								method="post"
 								href={route("logout")}
 								as="button"
 							>
-								Log Out
+								{t("header.menu.logout")}
 							</ResponsiveNavLink>
 						</div>
 					</div>
