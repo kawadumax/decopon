@@ -10,5 +10,15 @@
 	},
 	"common": {
 		"add": "Add"
+	},
+	"header": {
+		"menu": {
+			"dashboard": "Dashboard",
+			"tasks": "All Tasks",
+			"tags": "All Tags",
+			"timeline": "Timeline",
+			"profile": "Profile",
+			"logout": "Log Out"
+		}
 	}
 }

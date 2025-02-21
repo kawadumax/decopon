@@ -9,6 +9,16 @@
 		}
 	},
 	"common": {
-		"add": "Add"
+		"add": "追加"
+	},
+	"header": {
+		"menu": {
+			"dashboard": "ダッシュボード",
+			"tasks": "全てのタスク",
+			"tags": "全てのタグ",
+			"timeline": "タイムライン",
+			"profile": "プロフィール",
+			"logout": "ログアウト"
+		}
 	}
 }
