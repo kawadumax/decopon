@@ -6,6 +6,7 @@ import { Checkbox } from "@/Components/ui/checkbox";
 import GuestLayout from "@/Layouts/GuestLayout";
 import { Head, Link, useForm } from "@inertiajs/react";
 import type { FormEventHandler } from "react";
+import { useTranslation } from "react-i18next";
 
 export default function Login({
 	status,
@@ -14,6 +15,7 @@ export default function Login({
 	status?: string;
 	canResetPassword: boolean;
 }) {
+	const { t } = useTranslation();
 	const { data, setData, post, processing, errors, reset } = useForm({
 		email: "",
 		password: "",
@@ -30,16 +32,15 @@ export default function Login({
 
 	return (
 		<GuestLayout>
-			<Head title="Log in" />
+			<Head title={t("auth.login.title")} />
 
 			{status && (
-				<div className="mb-4 text-sm font-medium text-green-600">{status}</div>
+				<div className="mb-4 font-medium text-sm text-green-600">{status}</div>
 			)}
 
 			<form onSubmit={submit}>
 				<div>
-					<InputLabel htmlFor="email" value="Email" />
-
+					<InputLabel htmlFor="email" value={t("common.email")} />
 					<TextInput
 						id="email"
 						type="email"
@@ -50,13 +51,11 @@ export default function Login({
 						isFocused={true}
 						onChange={(e) => setData("email", e.target.value)}
 					/>
-
 					<InputError message={errors.email} className="mt-2" />
 				</div>
 
 				<div className="mt-4">
-					<InputLabel htmlFor="password" value="Password" />
-
+					<InputLabel htmlFor="password" value={t("common.password")} />
 					<TextInput
 						id="password"
 						type="password"
@@ -66,11 +65,10 @@ export default function Login({
 						autoComplete="current-password"
 						onChange={(e) => setData("password", e.target.value)}
 					/>
-
 					<InputError message={errors.password} className="mt-2" />
 				</div>
 
-				<div className="mt-4 block">
+				<div className="block mt-4">
 					<label className="flex items-center" htmlFor="remember">
 						<Checkbox
 							id="remember"
@@ -81,23 +79,23 @@ export default function Login({
 							}
 						/>
 						<span className="ms-2 text-sm text-gray-600 dark:text-gray-400">
-							Remember me
+							{t("auth.login.rememberMe")}
 						</span>
 					</label>
 				</div>
 
-				<div className="mt-4 flex items-center justify-end">
+				<div className="flex items-center justify-end mt-4">
 					{canResetPassword && (
 						<Link
 							href={route("password.request")}
-							className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:text-gray-400 dark:hover:text-gray-100 dark:focus:ring-offset-gray-800"
+							className="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800"
 						>
-							Forgot your password?
+							{t("auth.login.forgotPassword")}
 						</Link>
 					)}
 
 					<PrimaryButton className="ms-4" disabled={processing}>
-						Log in
+						{t("auth.login.submit")}
 					</PrimaryButton>
 				</div>
 			</form>
