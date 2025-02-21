@@ -10,6 +10,8 @@
 	},
 	"common": {
 		"add": "Add",
+		"save": "Save",
+		"saved": "Saved.",
 		"email": "Email",
 		"password": "Password",
 		"confirmPassword": "Confirm Password",
@@ -86,6 +88,40 @@
 			"resend": "Resend Verification Email",
 			"linkSent": "A new verification link has been sent to the email address you provided during registration.",
 			"logout": "Log Out"
+		}
+	},
+	"profile": {
+		"title": "Profile",
+		"updatePreference": {
+			"title": "Preference Information",
+			"description": "Update your account's preference information and email address.",
+			"workTime": "Work Time (minutes)",
+			"breakTime": "Break Time (minutes)",
+			"save": "Save",
+			"saved": "Saved."
+		},
+		"updateProfileInformation": {
+			"title": "Profile Information",
+			"description": "Update your account's profile information and email address.",
+			"unverified": "Your email address is unverified.",
+			"resend": "Click here to re-send the verification email.",
+			"verificationLinkSent": "A new verification link has been sent to your email address."
+		},
+		"updatePassword": {
+			"title": "Update Password",
+			"description": "Ensure your account is using a long, random password to stay secure.",
+			"saved": "Saved."
+		},
+		"deleteAccount": {
+			"title": "Delete Account",
+			"description": "Once your account is deleted, all of its resources and data will be permanently deleted.",
+			"button": "Delete Account",
+			"modal": {
+				"title": "Are you sure you want to delete your account?",
+				"description": "Once your account is deleted, all of its resources and data will be permanently deleted. Please enter your password to confirm you would like to permanently delete your account.",
+				"cancel": "Cancel",
+				"confirm": "Delete Account"
+			}
 		}
 	}
 }
