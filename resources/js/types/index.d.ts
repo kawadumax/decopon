@@ -23,7 +23,7 @@ export interface Task {
 	tags: Tag[];
 }
 
-enum LogSource {
+export enum LogSource {
 	User = "User",
 	System = "System",
 }

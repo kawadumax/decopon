@@ -1,8 +1,10 @@
 import { remainTimeAtom, timerStateAtom } from "@/Lib/atoms";
 import { formatTime } from "@/Lib/utils";
 import { useAtomValue } from "jotai";
+import { useTranslation } from "react-i18next";
 
 export const TimerStateWidget = () => {
+	const { t } = useTranslation();
 	const timerState = useAtomValue(timerStateAtom);
 	const remainTime = useAtomValue(remainTimeAtom);
 	return (
@@ -11,7 +13,7 @@ export const TimerStateWidget = () => {
 				{formatTime(remainTime)}
 			</span>
 			<span className="text-xs text-gray-500">
-				{timerState?.timeEntry?.status || "Not Started"}
+				{timerState?.timeEntry?.status || t("timeEntry.status.notStarted")}
 			</span>
 		</div>
 	);

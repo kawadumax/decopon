@@ -3,8 +3,9 @@ import { Button } from "@/Components/ui/button";
 import { useApi } from "@/Hooks/useApi";
 import { checkableTagsAtom, currentTagAtom, tagsAtom } from "@/Lib/atoms";
 import { Trash } from "@mynaui/icons-react";
+import { t } from "i18next";
 import { useAtom, useSetAtom } from "jotai";
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 
 export const TagTools = () => {
 	const [, setTags] = useAtom(tagsAtom);
@@ -56,12 +57,12 @@ export const TagTools = () => {
 				onClick={handleDeleteTag}
 			>
 				<Trash />
-				Delete
+				{t("common.delete")}
 			</Button>
 			<AddItemInput
-				placeholder="New Tag Name"
+				placeholder={t("tag.placeholderInput")}
 				onAddItem={handleAddNewTag}
-				buttonText="Add"
+				buttonText={t("common.add")}
 			/>
 		</div>
 	);
