@@ -4,7 +4,8 @@
 		"add": "Add New Task",
 		"edit": "Edit Task",
 		"delete": "Delete Task",
-		"noCurrent": "No Selected Task"
+		"noCurrent": "No Selected Task",
+		"noTasks": "No Tasks"
 	},
 	"log": {
 		"type": {
