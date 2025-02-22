@@ -1,21 +1,55 @@
 {
 	"task": {
+		"title": "Task List",
 		"add": "Add New Task",
 		"edit": "Edit Task",
 		"delete": "Delete Task",
+		"noCurrent": "No Selected Task"
+	},
+	"log": {
+		"type": {
+			"system": "System Log"
+		}
+	},
+	"tag": {
+		"title": "All Tags",
+		"latestTags": "Latest Tags",
+		"noTags": "No Tags There",
+		"placeholderInput": "New Tag Name",
+		"table": {
+			"caption": "A list of your tags",
+			"header": {
+				"name": "Tag Name",
+				"createdAt": "Created At",
+				"updatedAt": "Updated At"
+			}
+		}
+	},
+	"timeEntry": {
 		"status": {
+			"notStarted": "Not Started",
 			"completed": "Completed",
 			"inProgress": "In Progress"
 		}
 	},
+	"timer": {
+		"workTime": "Work Time",
+		"breakTime": "Break Time",
+		"cycles": "Cycles",
+		"start": "Start",
+		"stop": "Stop",
+		"reset": "Reset"
+	},
 	"common": {
 		"add": "Add",
+		"delete": "Delete",
 		"save": "Save",
 		"saved": "Saved.",
 		"email": "Email",
 		"password": "Password",
 		"confirmPassword": "Confirm Password",
-		"name": "Name"
+		"name": "Name",
+		"placeholderInput": "Add New Item"
 	},
 	"header": {
 		"menu": {
@@ -96,9 +130,7 @@
 			"title": "Preference Information",
 			"description": "Update your account's preference information and email address.",
 			"workTime": "Work Time (minutes)",
-			"breakTime": "Break Time (minutes)",
-			"save": "Save",
-			"saved": "Saved."
+			"breakTime": "Break Time (minutes)"
 		},
 		"updateProfileInformation": {
 			"title": "Profile Information",

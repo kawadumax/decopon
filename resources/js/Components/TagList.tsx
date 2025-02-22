@@ -2,11 +2,13 @@ import { useApi } from "@/Hooks/useApi";
 import { currentTagAtom, tagsAtom } from "@/Lib/atoms";
 import type { Tag } from "@/types";
 
-import { useAtom, useSetAtom } from "jotai";
-import { useCallback, useEffect, useState } from "react";
+import { useAtom } from "jotai";
+import { useCallback, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { TagItem } from "./TagItem";
 
 export const TagList = ({ _tags }: { _tags?: Tag[] }) => {
+	const { t } = useTranslation();
 	const [tags, setTags] = useAtom(tagsAtom);
 	const [currentTag, setCurrentTag] = useAtom(currentTagAtom);
 	const api = useApi();
@@ -30,7 +32,9 @@ export const TagList = ({ _tags }: { _tags?: Tag[] }) => {
 	);
 	return (
 		<>
-			<h3 className="font-bold text-base sticky p-2 top-0">Latest Tags</h3>
+			<h3 className="font-bold text-base sticky p-2 top-0">
+				{t("tag.latestTags")}
+			</h3>
 			<ul
 				className="text-primary font-bold flex-1"
 				onClick={() => {
@@ -53,7 +57,7 @@ export const TagList = ({ _tags }: { _tags?: Tag[] }) => {
 								/>
 							);
 						})
-					: "No Tags There"}
+					: t("tags.noTags")}
 			</ul>
 		</>
 	);

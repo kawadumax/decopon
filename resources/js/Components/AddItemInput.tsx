@@ -1,6 +1,7 @@
 import { Button } from "@/Components/ui/button";
 import { Input } from "@/Components/ui/input";
 import { Plus } from "@mynaui/icons-react";
+import { t } from "i18next";
 import React from "react";
 
 interface AddItemInputProps {
@@ -11,8 +12,8 @@ interface AddItemInputProps {
 
 const AddItemInput: React.FC<AddItemInputProps> = ({
 	onAddItem,
-	placeholder = "New Item Name",
-	buttonText = "Add",
+	placeholder = t("common.placeholderInput"),
+	buttonText = t("common.add"),
 }) => {
 	const [newItemName, setNewItemName] = React.useState("");
 
