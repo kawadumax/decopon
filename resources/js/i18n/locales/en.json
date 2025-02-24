@@ -156,5 +156,58 @@
 				"confirm": "Delete Account"
 			}
 		}
+	},
+	"api": {
+		"log": {},
+		"preference": {},
+		"profile": {},
+		"tag": {
+			"store": { "201": "Tag created successfully." },
+			"storeRelation": {
+				"403": "Permission denied: You cannot add tags to this task.",
+				"201": "Successfully created tag and associated it with the task."
+			},
+			"destroyRelation": {
+				"403": "Permission denied: You cannot remove tags to this task.",
+				"201": "Successfully removed tag from the task."
+			},
+			"destroyMultiple": {
+				"200": "Successfully removed tag"
+			}
+		},
+    "task": {
+      "store": {
+        "201": "Task created successfully."
+      },
+      "update": {
+        "200": "Task updated successfully.",
+        "403": "Permission denied: You cannot update this task."
+      },
+      "destroy": {
+        "200": "Task deleted successfully.",
+        "403": "Permission denied: You cannot delete this task.",
+        "404": "Task not found."
+      },
+      "updateCompletion": {
+        "200": "Task completion status updated successfully.",
+        "403": "Permission denied: You cannot update this task."
+      },
+      "getTasksByTagId": {
+        "200": "Tasks retrieved successfully based on tag."
+      }
+    },
+    "timeEntry": {
+      "store": {
+        "201": "Focus time recording started."
+      },
+      "update": {
+        "200": "Time entry updated successfully.",
+        "403": "Permission denied: You cannot update this time entry.",
+        "404": "Time entry not found."
+      },
+      "destroy": {
+        "204": "Time entry deleted successfully.",
+        "403": "Permission denied: You cannot delete this time entry."
+      }
 	}
 }
