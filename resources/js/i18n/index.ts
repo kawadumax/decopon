@@ -12,7 +12,7 @@ const resources = {
 export const initializeI18n = (lang: Locale) => {
 	i18n.use(initReactI18next).init({
 		resources,
-		lng: document.documentElement.lang || Locale.ENGLISH,
+		lng: lang || Locale.ENGLISH,
 		fallbackLng: Locale.ENGLISH,
 		interpolation: {
 			escapeValue: false,
