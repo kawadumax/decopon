@@ -8,30 +8,12 @@ import { createRoot } from "react-dom/client";
 import { DevTools } from "jotai-devtools";
 import "jotai-devtools/styles.css";
 
-import { useAtomValue } from "jotai";
-import { type ReactNode, useEffect } from "react";
+import { LangManager } from "./Components/LangManager";
 import { TimeManager } from "./Components/TimeManager";
-import { languageAtom } from "./Lib/atoms";
 import { initializeI18n } from "./i18n";
+import { Locale } from "./types/index.d";
 
 const appName = import.meta.env.VITE_APP_NAME || "Laravel";
-
-function App({ children }: { children: ReactNode }) {
-	const lang = useAtomValue(languageAtom);
-
-	useEffect(() => {
-		initializeI18n(lang);
-		document.documentElement.lang = lang;
-	}, [lang]);
-
-	return (
-		<>
-			<TimeManager />
-			<DevTools position="top-left" />
-			{children}
-		</>
-	);
-}
 
 createInertiaApp({
 	title: (title) => `${title} | ${appName}`,
@@ -40,12 +22,19 @@ createInertiaApp({
 			`./Pages/${name}.tsx`,
 			import.meta.glob("./Pages/**/*.tsx"),
 		),
-	setup({ el, App: InertiaApp, props }) {
+	setup({ el, App, props }) {
 		const root = createRoot(el);
+
+		//TODO: LocalStorageに保存し、読みにいくようにする
+		// LocalStorage > リクエストのロケール？ > 英語
+		initializeI18n(Locale.ENGLISH);
 		root.render(
-			<App>
-				<InertiaApp {...props} />
-			</App>,
+			<>
+				<LangManager />
+				<TimeManager />
+				<DevTools position="top-left" />
+				<App {...props} />,
+			</>,
 		);
 	},
 	progress: {
