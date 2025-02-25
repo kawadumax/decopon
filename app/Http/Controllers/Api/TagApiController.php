@@ -34,11 +34,13 @@ class TagApiController extends ApiController
         $tag->user_id = Auth::id();
         $tag->save();
 
+        $statusCode = 201;
         return response()->json([
             'success' => true,
-            'message' => 'タグが正常に作成されました。',
+            'message' => 'Tag created successfully.',
+            'i18nKey' => $this->generateI18nKey(__FUNCTION__, $statusCode),
             'tag' => $tag
-        ], 201);
+        ], $statusCode);
     }
 
     /**
@@ -55,10 +57,12 @@ class TagApiController extends ApiController
 
         // ユーザーがこのタスクを編集する権限があるか確認
         if ($task->user_id !== Auth::id()) {
+            $statusCode = 403;
             return response()->json([
                 'success' => false,
-                'message' => 'このタスクにタグを追加する権限がありません。',
-            ], 403);
+                'message' => 'Permission denied: You cannot add tags to this task.',
+                'i18nKey' => $this->generateI18nKey(__FUNCTION__, $statusCode),
+            ], $statusCode);
         }
 
         $tag = Tag::firstOrCreate(
@@ -68,11 +72,13 @@ class TagApiController extends ApiController
         // タスクとタグを関連付ける（重複を避けるため）
         $task->tags()->syncWithoutDetaching([$tag->id]);
 
+        $statusCode = 201;
         return response()->json([
             'success' => true,
-            'message' => 'タグが正常に作成され、タスクに関連付けられました。',
+            'message' => 'Successfully created tag and associated it with the task.',
+            'i18nKey' => $this->generateI18nKey(__FUNCTION__, $statusCode),
             'tag' => $tag
-        ], 201);
+        ], $statusCode);
     }
 
     /**
@@ -88,10 +94,12 @@ class TagApiController extends ApiController
         $task = Task::with("tags")->findOrFail($validated['task_id']);
 
         if ($task->user_id !== Auth::id()) {
+            $statusCode = 403;
             return response()->json([
                 'success' => false,
-                'message' => 'このタスクのタグを削除する権限がありません。',
-            ], 403);
+                'message' => 'Permission denied: You cannot remove tags from this task.',
+                'i18nKey' => $this->generateI18nKey(__FUNCTION__, $statusCode),
+            ], $statusCode);
         }
 
         $tag = $task->tags->where(
@@ -103,11 +111,13 @@ class TagApiController extends ApiController
             $task->tags()->detach([$tag->id]);
         }
 
+        $statusCode = 201;
         return response()->json([
             'success' => true,
-            'message' => '正常にタスクからタグの関連付けが削除されました。',
+            'message' => 'Successfully removed tag from the task.',
+            'i18nKey' => $this->generateI18nKey(__FUNCTION__, $statusCode),
             'tag' => $tag
-        ], 201);
+        ], $statusCode);
     }
 
 
@@ -123,9 +133,11 @@ class TagApiController extends ApiController
 
         Tag::where('user_id', Auth::id())->whereIn('id', $validated['tag_ids'])->delete();
 
+        $statusCode = 200;
         return response()->json([
             'success' => true,
-            'message' => 'タグが正常に削除されました。',
-        ], 200);
+            'message' => 'Successfully removed tags.',
+            'i18nKey' => $this->generateI18nKey(__FUNCTION__, $statusCode),
+        ], $statusCode);
     }
 }

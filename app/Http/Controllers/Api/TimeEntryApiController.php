@@ -34,11 +34,14 @@ class TimeEntryApiController extends ApiController
         $timeEntry = new TimeEntry($validatedData);
         $timeEntry->user_id = Auth::id();
         $timeEntry->save();
+
+        $statusCode = 201;
         return response()->json([
             'success' => true,
-            'message' => "フォーカスタイムを記録開始しました",
+            'message' => 'Focus time recording started.',
+            'i18nKey' => $this->generateI18nKey(__FUNCTION__, $statusCode),
             'time_entry' => $timeEntry,
-        ], 201);
+        ], $statusCode);
     }
 
     /**
@@ -58,17 +61,21 @@ class TimeEntryApiController extends ApiController
         $timeEntry = TimeEntry::find($id);
 
         if (!$timeEntry) {
+            $statusCode = 404;
             return response()->json([
                 'success' => false,
-                'message' => 'タイムエントリーが見つかりません。',
-            ], 404);
+                'message' => 'Time entry not found.',
+                'i18nKey' => $this->generateI18nKey(__FUNCTION__, $statusCode),
+            ], $statusCode);
         }
 
         if ($timeEntry->user_id != Auth::id()) {
+            $statusCode = 403;
             return response()->json([
                 'success' => false,
-                'message' => 'このタイムエントリーを更新する権限がありません。',
-            ], 403);
+                'message' => 'Permission denied: You cannot update this time entry.',
+                'i18nKey' => $this->generateI18nKey(__FUNCTION__, $statusCode),
+            ], $statusCode);
         }
 
         $validatedData = $request->validate([
@@ -77,11 +84,13 @@ class TimeEntryApiController extends ApiController
         ]);
         $timeEntry->update($validatedData);
 
+        $statusCode = 200;
         return response()->json([
             'success' => true,
-            'message' => $timeEntry->get_status_message(),
+            'message' => 'Time entry updated successfully.',
+            'i18nKey' => $this->generateI18nKey(__FUNCTION__, $statusCode),
             'time_entry' => $timeEntry,
-        ]);
+        ], $statusCode);
     }
 
     /**
@@ -90,13 +99,20 @@ class TimeEntryApiController extends ApiController
     public function destroy(TimeEntry $timeEntry): JsonResponse
     {
         if ($timeEntry->user_id != Auth::id()) {
+            $statusCode = 403;
             return response()->json([
                 'success' => false,
-                'message' => 'このタイムエントリーを削除する権限がありません。',
-            ], 403);
+                'message' => 'Permission denied: You cannot delete this time entry.',
+                'i18nKey' => $this->generateI18nKey(__FUNCTION__, $statusCode),
+            ], $statusCode);
         }
 
         $timeEntry->delete();
-        return response()->json(null, 204);
+        $statusCode = 204;
+        return response()->json([
+            'success' => true,
+            'message' => 'Time entry deleted successfully.',
+            'i18nKey' => $this->generateI18nKey(__FUNCTION__, $statusCode),
+        ], $statusCode);
     }
 }
