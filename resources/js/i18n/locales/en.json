@@ -129,9 +129,10 @@
 		"title": "Profile",
 		"updatePreference": {
 			"title": "Preference Information",
-			"description": "Update your account's preference information and email address.",
+			"description": "Update your account's preference.",
 			"workTime": "Work Time (minutes)",
-			"breakTime": "Break Time (minutes)"
+			"breakTime": "Break Time (minutes)",
+			"locale": "Locale"
 		},
 		"updateProfileInformation": {
 			"title": "Profile Information",

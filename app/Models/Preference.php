@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Locale;
 use Illuminate\Database\Eloquent\Model;
 
 class Preference extends Model
@@ -13,7 +14,8 @@ class Preference extends Model
      */
     protected $fillable = [
         "work_time",
-        "break_time"
+        "break_time",
+        "locale"
     ];
 
     /**
@@ -23,6 +25,7 @@ class Preference extends Model
      */
     protected $attributes = [
         'work_time' => 25,
-        'break_time' => 10
+        'break_time' => 10,
+        'locale' => Locale::ENGLISH,
     ];
 }
