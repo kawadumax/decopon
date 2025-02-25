@@ -66,6 +66,7 @@
 	},
 	"welcome": {
 		"title": "Decopon",
+		"lang": "言語:",
 		"subtitle": "ADHDのためのタスク管理ツール",
 		"features": {
 			"focusSessions": {
