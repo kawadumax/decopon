@@ -8,11 +8,30 @@ import { createRoot } from "react-dom/client";
 import { DevTools } from "jotai-devtools";
 import "jotai-devtools/styles.css";
 
-// import i18n configuration
-import "./i18n";
+import { useAtomValue } from "jotai";
+import { type ReactNode, useEffect } from "react";
 import { TimeManager } from "./Components/TimeManager";
+import { languageAtom } from "./Lib/atoms";
+import { initializeI18n } from "./i18n";
 
 const appName = import.meta.env.VITE_APP_NAME || "Laravel";
+
+function App({ children }: { children: ReactNode }) {
+	const lang = useAtomValue(languageAtom);
+
+	useEffect(() => {
+		initializeI18n(lang);
+		document.documentElement.lang = lang;
+	}, [lang]);
+
+	return (
+		<>
+			<TimeManager />
+			<DevTools position="top-left" />
+			{children}
+		</>
+	);
+}
 
 createInertiaApp({
 	title: (title) => `${title} | ${appName}`,
@@ -21,14 +40,12 @@ createInertiaApp({
 			`./Pages/${name}.tsx`,
 			import.meta.glob("./Pages/**/*.tsx"),
 		),
-	setup({ el, App, props }) {
+	setup({ el, App: InertiaApp, props }) {
 		const root = createRoot(el);
 		root.render(
-			<>
-				<TimeManager />
-				<DevTools position="top-left" />
-				<App {...props} />
-			</>,
+			<App>
+				<InertiaApp {...props} />
+			</App>,
 		);
 	},
 	progress: {

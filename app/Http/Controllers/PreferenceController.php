@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Enums\Locale;
+use Illuminate\Http\Request;
+use Illuminate\Validation\Rules\Enum;
 
 class PreferenceController extends Controller
 {
@@ -13,6 +15,7 @@ class PreferenceController extends Controller
         $validated = $request->validate([
             'work_time' => 'required|integer|min:1',
             'break_time' => 'required|integer|min:1',
+            'locale' => ['required', new Enum(Locale::class)]
         ]);
 
         $request->user()->preference()->updateOrCreate(
@@ -20,6 +23,6 @@ class PreferenceController extends Controller
             $validated
         );
 
-        return redirect()->route('profile.edit')->with('message', '設定を更新しました。');
+        return redirect()->route('profile.edit')->with('message', 'Preference Updated.');
     }
 }

@@ -2,6 +2,14 @@ import InputError from "@/Components/InputError";
 import InputLabel from "@/Components/InputLabel";
 import PrimaryButton from "@/Components/PrimaryButton";
 import TextInput from "@/Components/TextInput";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/Components/ui/select";
+import { Locale } from "@/types/index.d";
 import { Transition } from "@headlessui/react";
 import { useForm, usePage } from "@inertiajs/react";
 import type { FormEventHandler } from "react";
@@ -19,6 +27,7 @@ export default function UpdatePreferenceForm({
 		useForm({
 			work_time: user.preference?.work_time || 25,
 			break_time: user.preference?.break_time || 5,
+			locale: user.preference?.locale || Locale.ENGLISH,
 		});
 
 	const submit: FormEventHandler = (e) => {
@@ -80,6 +89,35 @@ export default function UpdatePreferenceForm({
 					/>
 
 					<InputError className="mt-2" message={errors.break_time} />
+				</div>
+
+				<div>
+					<InputLabel
+						htmlFor="locale"
+						value={t("profile.updatePreference.locale")}
+					/>
+
+					<Select
+						defaultValue={data.locale}
+						onValueChange={(e) => {
+							setData("locale", e as Locale);
+						}}
+					>
+						<SelectTrigger id="locale">
+							<SelectValue placeholder={t("profile.updatePreference.locale")} />
+						</SelectTrigger>
+						<SelectContent>
+							{Object.entries(Locale).map(([key, value]) => {
+								return (
+									<SelectItem key={key} value={value}>
+										{key}
+									</SelectItem>
+								);
+							})}
+						</SelectContent>
+					</Select>
+
+					<InputError className="mt-2" message={errors.locale} />
 				</div>
 
 				<div className="flex items-center gap-4">
