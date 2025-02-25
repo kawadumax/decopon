@@ -1,4 +1,5 @@
 import ApplicationLogo from "@/Components/ApplicationLogo";
+import { LangSwitch } from "@/Components/LangSwitch";
 import type { PageProps } from "@/types";
 import { Head, Link } from "@inertiajs/react";
 import { useTranslation } from "react-i18next";
@@ -16,6 +17,13 @@ export default function Welcome({
 					<div className="relative w-full max-w-2xl px-6 lg:max-w-7xl">
 						<header className="items-center py-10">
 							<nav className="-mx-3 flex justify-end">
+								<div className="flex flex-row">
+									<span className="h-10 px-3 py-2 font-bold">
+										{t("welcome.lang")}
+									</span>
+									<LangSwitch />
+								</div>
+
 								{auth.user ? (
 									<Link
 										href={route("dashboard")}
