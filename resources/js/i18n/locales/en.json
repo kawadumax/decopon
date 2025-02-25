@@ -66,6 +66,7 @@
 	},
 	"welcome": {
 		"title": "Decopon",
+		"lang": "Language:",
 		"subtitle": "The Task Manager for ADHD",
 		"features": {
 			"focusSessions": {
