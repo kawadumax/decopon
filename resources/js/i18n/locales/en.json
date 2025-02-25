@@ -177,7 +177,8 @@
 		},
 		"task": {
 			"store": {
-				"201": "Task created successfully."
+				"201": "Task created successfully.",
+				"422": "Unprocessable Entity"
 			},
 			"update": {
 				"200": "Task updated successfully.",
@@ -209,6 +210,10 @@
 				"204": "Time entry deleted successfully.",
 				"403": "Permission denied: You cannot delete this time entry."
 			}
+		},
+		"unknown": {
+			"200": "Success.",
+			"403": "Permission denied"
 		}
 	}
 }
