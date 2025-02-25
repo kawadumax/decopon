@@ -2,6 +2,7 @@ import axiosInstance from "@/Lib/axios";
 import axios from "axios";
 // resources/js/hooks/useApi.ts
 import { useCallback, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 type FnOnSucsess = (response: axios.AxiosResponse) => void;
@@ -12,6 +13,7 @@ type ApiData = Record<string, unknown> | FormData | undefined;
 
 export function useApi() {
 	const [loading, setLoading] = useState(false);
+	const { t } = useTranslation();
 
 	const request = useCallback(
 		async (
@@ -25,14 +27,15 @@ export function useApi() {
 			setLoading(true);
 			try {
 				const response = await axiosInstance({ method, url, data });
-
-				response.data.message && toast.success(response.data.message);
+				const message = t(response.data.i18nKey) || response.data.message;
+				message && toast.success(message);
 				onSuccess?.(response);
 				return response.data;
 			} catch (error) {
 				if (axios.isAxiosError(error)) {
-					const message = error.response?.data.message;
-					toast.error(message);
+					const message =
+						t(error.response?.data.i18nKey) || error.response?.data.message;
+					message && toast.error(message);
 				}
 				onError?.(error);
 				throw error;
@@ -41,7 +44,7 @@ export function useApi() {
 				setLoading(false);
 			}
 		},
-		[],
+		[t],
 	);
 
 	const api = useMemo(
