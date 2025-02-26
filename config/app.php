@@ -123,4 +123,14 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /**
+     * i18n Configure
+     */
+
+    'i18n' => [
+        'locale' => env('APP_LOCALE', 'en'),
+        'fallback_locale' => 'en',
+        'available_locales' => ['en', 'ja'],
+    ],
+
 ];

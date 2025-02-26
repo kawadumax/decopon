@@ -20,9 +20,9 @@ class TaskController extends Controller
         }
 
         $user = Auth::user();
-
+        $tasks = Task::where('user_id', $user->id)->with("tags")->get();
         return Inertia::render('Task/Index', [
-            'tasks' => Task::where('user_id', $user->id)->get()
+            'tasks' => $tasks,
         ]);
     }
 
