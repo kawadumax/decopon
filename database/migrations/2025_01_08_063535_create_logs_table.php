@@ -18,6 +18,7 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreignId('task_id')->nullable()->index();
+            $table->enum('source', ['User', 'System'])->default('User');
         });
     }
 
