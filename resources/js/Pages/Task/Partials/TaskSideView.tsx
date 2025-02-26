@@ -1,18 +1,19 @@
 import { taskSelectorAtom } from "@/Lib/atoms";
 import type { Task } from "@/types";
-import { useAtom, useAtomValue } from "jotai";
+import { useAtomValue } from "jotai";
 import type { PrimitiveAtom } from "jotai";
 import { TaskEditableDescription } from "./TaskEditableDescription";
 import { TaskEditableTagList } from "./TaskEditableTagList";
 import { TaskEditableTitle } from "./TaskEditableTitle";
 import { TaskLogger } from "./TaskLogger";
+import { useTranslation } from "react-i18next";
 export const TaskSideView = () => {
 	const currentTaskAtom = useAtomValue(taskSelectorAtom);
 	const currentTask = useAtomValue(currentTaskAtom);
-
+	const { t } = useTranslation();
 	const renderTaskContent = () => {
 		if (!currentTask) {
-			return "選択されていません";
+			return t("task.noCurrent");
 		}
 		return (
 			<>

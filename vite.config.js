@@ -49,6 +49,7 @@ export default ({ mode }) => {
 			watch: {
 				usePolling: true,
 			},
+			open: false, // Laravelサーバから配信するためオフ
 		},
 	});
 };

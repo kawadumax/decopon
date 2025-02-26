@@ -2,9 +2,8 @@ import { useApi } from "@/Hooks/useApi";
 import { tagsAtom } from "@/Lib/atoms";
 import { toEmblorTags } from "@/Lib/utils";
 import type { Task } from "@/types";
-import type { Tag } from "@/types";
 import { type Tag as EmblorTag, TagInput } from "emblor";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { useAtom, useSetAtom } from "jotai";
 import type { PrimitiveAtom } from "jotai";
 import { useCallback, useEffect, useState } from "react";
 
