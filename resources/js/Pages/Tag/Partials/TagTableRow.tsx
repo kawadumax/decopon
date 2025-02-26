@@ -1,10 +1,9 @@
 import { currentTagAtom } from "@/Lib/atoms";
 import { formatISODate } from "@/Lib/utils";
-import { cn } from "@/Lib/utils";
-import type { Tag, TagCheckable } from "@/types";
+import type { TagCheckable } from "@/types";
 import type { CheckedState } from "@radix-ui/react-checkbox";
 import { useAtom } from "jotai";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { Checkbox } from "../../../Components/ui/checkbox";
 import { TableCell, TableRow } from "../../../Components/ui/table";
 export const TagTableRow = ({

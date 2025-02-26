@@ -85,7 +85,7 @@ export const TimeManager = () => {
 	 *  */
 	const handleBeforeUnload = useCallback(
 		(event: BeforeUnloadEvent) => {
-			if (timerState.timeEntry?.status === "In_Progress") {
+			if (timerState.timeEntry?.status === TimeEntryStatus.InProgress) {
 				event.preventDefault(); // 離脱時に進行中のタイマーがある場合、アラートが表示される
 				interruptTimeEntry();
 				setTimerState((prev) => {

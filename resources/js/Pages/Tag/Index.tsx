@@ -6,16 +6,18 @@ import type { PageProps } from "@/types";
 import type { Tag } from "@/types";
 import { Head } from "@inertiajs/react";
 import { useAtom } from "jotai";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import Split from "react-split";
 import { TagTable } from "./Partials/TagTable";
 import { TagTools } from "./Partials/TagTools";
+import { useTranslation } from "react-i18next";
 
 export default function Index(
 	props: PageProps<{
 		tags: Tag[];
 	}>,
 ) {
+	const { t } = useTranslation();
 	const [tags, setTags] = useAtom(tagsAtom);
 	useEffect(() => {
 		setTags(props.tags);
@@ -23,7 +25,7 @@ export default function Index(
 
 	return (
 		<AuthenticatedLayout>
-			<Head title="All Tags" />
+			<Head title={t("tag.title")} />
 
 			<Split
 				className="flex flex-row min-h-full max-h-full bg-white"

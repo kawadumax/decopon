@@ -11,6 +11,12 @@ export interface Preference {
 	user_id: number;
 	work_time: number;
 	break_time: number;
+	locale: Locale;
+}
+
+export enum Locale {
+	ENGLISH = "en",
+	JAPANESE = "ja",
 }
 
 export interface Task {
@@ -23,7 +29,7 @@ export interface Task {
 	tags: Tag[];
 }
 
-enum LogSource {
+export enum LogSource {
 	User = "User",
 	System = "System",
 }

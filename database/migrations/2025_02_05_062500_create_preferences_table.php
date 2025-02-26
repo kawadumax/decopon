@@ -13,8 +13,9 @@ return new class extends Migration {
         Schema::create('preferences', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->integer('work_time')->default(25); // デフォルト25分
-            $table->integer('break_time')->default(5);  // デフォルト5分
+            $table->integer('work_time')->default(25); // default: 25 minutes
+            $table->integer('break_time')->default(5);  // default: 5 minutes
+            $table->string('locale', 2)->default('en');
             $table->timestamps();
         });
     }

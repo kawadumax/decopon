@@ -11,12 +11,14 @@ import { TaskTree } from "../../Components/TaskTree";
 import { TaskSideView } from "./Partials/TaskSideView";
 import { TaskTagList } from "./Partials/TaskTagList";
 import { TaskTools } from "./Partials/TaskTools";
+import { useTranslation } from "react-i18next";
 
 export default function Index(
 	props: PageProps<{
 		tasks: Task[];
 	}>,
 ) {
+	const { t } = useTranslation();
 	const setTasks = useSetAtom(tasksAtom);
 	useEffect(() => {
 		setTasks(props.tasks);
@@ -24,7 +26,7 @@ export default function Index(
 
 	return (
 		<AuthenticatedLayout>
-			<Head title="Task List" />
+			<Head title={t("task.title")} />
 
 			<Split
 				className="flex flex-row min-h-full max-h-full bg-white"
