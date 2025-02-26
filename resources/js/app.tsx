@@ -13,7 +13,7 @@ import { TimeManager } from "./Components/TimeManager";
 import { initializeI18n } from "./i18n";
 import { Locale } from "./types/index.d";
 
-const appName = import.meta.env.VITE_APP_NAME || "Laravel";
+const appName = import.meta.env.VITE_APP_NAME || "Decopon";
 
 createInertiaApp({
 	title: (title) => `${title} | ${appName}`,
