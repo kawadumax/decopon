@@ -5,7 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class Task extends Model
 {
@@ -45,6 +47,14 @@ class Task extends Model
     }
 
     /**
+     * Taskに紐づくTagを取得
+     */
+    public function tags(): BelongsToMany
+    {
+        return $this->belongsToMany(Tag::class);
+    }
+
+    /**
      * サブタスクを取得
      */
     public function subTasks(): HasMany
@@ -61,8 +71,9 @@ class Task extends Model
         $updatedTasks = [];
 
         $this->completed = $status;
-        $this->save();
-        $updatedTasks[] = $this;
+        if ($this->save()) {
+            $updatedTasks[] = $this;
+        }
 
         foreach ($this->subTasks as $subTask) {
             $updatedTasks = array_merge($updatedTasks, $subTask->updateStatusRecursive($status));
