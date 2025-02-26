@@ -1,4 +1,4 @@
-import type { Tag } from "@/types";
+import { Locale, type Tag } from "@/types/index.d";
 import { type PrimitiveAtom, atom } from "jotai";
 import { atomFamily, atomWithStorage, splitAtom } from "jotai/utils";
 import type {
@@ -193,3 +193,5 @@ export const checkableTagsAtom = atom(
 // TODO: tagsAtomからderiveして、直近いくつかを取得するもの。
 // TagListに使う予定
 export const latestTagAtom = atom<Tag[]>([]);
+
+export const languageAtom = atom<Locale>(Locale.ENGLISH);

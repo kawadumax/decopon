@@ -8,10 +8,12 @@ import {
 import { formatTime } from "@/Lib/utils";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 
 export const Timer = () => {
+	const { t } = useTranslation();
 	const [isRunning, setIsRunning] = useAtom(isRunningAtom);
 	const remainTime = useAtomValue(remainTimeAtom);
 	const resetRemainTime = useSetAtom(resetRemainTimeAtom);
@@ -43,10 +45,10 @@ export const Timer = () => {
 			</div>
 			<div className="flex flex-row justify-center gap-2">
 				<Badge className="text-center bg-white text-black">
-					{timeState.isWorkTime ? "Work Time" : "Break Time"}
+					{timeState.isWorkTime ? t("timer.workTime") : t("timer.breakTime")}
 				</Badge>
 				<Badge className="text-center bg-white text-black">
-					Cycles: {timeState.cycles}
+					{t("timer.cycles")}: {timeState.cycles}
 				</Badge>
 			</div>
 
@@ -55,17 +57,17 @@ export const Timer = () => {
 				onClick={startTimer}
 				disabled={isRunning}
 			>
-				Start
+				{t("timer.start")}
 			</Button>
 			<div className="flex flex-row justify-center gap-2">
 				<Button onClick={stopTimer} disabled={!isRunning}>
-					Stop
+					{t("timer.stop")}
 				</Button>
 				<Button
 					className="bg-lime-400 text-white focus:bg-lime-300 focus:outline-2 focus:outline-offset-2 focus:outline-lime-400"
 					onClick={resetTimer}
 				>
-					Reset
+					{t("timer.reset")}
 				</Button>
 			</div>
 		</div>

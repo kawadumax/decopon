@@ -1,10 +1,11 @@
 import { useApi } from "@/Hooks/useApi";
 import { currentTagAtom, splitedTasksAtom, tasksAtom } from "@/Lib/atoms";
 import type { Task } from "@/types";
-import { type PrimitiveAtom, useAtom, useAtomValue, useSetAtom } from "jotai";
+import { type PrimitiveAtom, useAtom, useAtomValue } from "jotai";
 import type React from "react";
 import { useEffect, useMemo } from "react";
 import { TaskItem } from "../Pages/Task/Partials/TaskItem";
+import { t } from "i18next";
 
 export const TaskTree = () => {
 	const currentTag = useAtomValue(currentTagAtom);
@@ -90,7 +91,9 @@ export const TaskTree = () => {
 			{tasks.length ? (
 				createTaskList()
 			) : (
-				<li className="pl-4 list-none hover:bg-stone-400">{"No Tasks"}</li>
+				<li className="pl-4 list-none hover:bg-stone-400">
+					{t("task.noTasks")}
+				</li>
 			)}
 		</ul>
 	);
