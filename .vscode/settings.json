@@ -14,6 +14,5 @@
 	},
 	"[typescriptreact]": {
 		"editor.defaultFormatter": "biomejs.biome"
-	},
-	"i18n-ally.localesPaths": ["resources/js/i18n", "resources/js/i18n/locales"]
+	}
 }
