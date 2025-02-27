@@ -19,3 +19,13 @@ Originally conceived as a countermeasure against procrastination for individuals
 - **Easy Logging**: Add tags to each task to categorize them easily.
 - **Search Functionality**: Quickly find tasks using keywords or tags.
 
+
+## Support the Project
+
+As someone living with ADHD and severe anxiety disorder, I find it challenging to maintain stable employment. I started this project primarily for my own needs, but I've decided to make it public in the hope that it might help others facing similar challenges.
+
+Your support can make a significant difference in maintaining and further developing this application. If you find this project valuable and would like to contribute to its growth, please consider supporting us through the link below:
+
+https://buymeacoffee.com/kawadumax
+
+Your generosity will help ensure the continued development and improvement of Decopon, making it an even more effective tool for those of us navigating life with ADHD. Thank you for your support!
