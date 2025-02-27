@@ -1,5 +1,6 @@
 import ApplicationLogo from "@/Components/ApplicationLogo";
 import { LangSwitch } from "@/Components/LangSwitch";
+import { ParticlesBackground } from "@/Components/ParticlesBackground";
 import type { PageProps } from "@/types";
 import { Head, Link } from "@inertiajs/react";
 import { useTranslation } from "react-i18next";
@@ -26,6 +27,7 @@ export default function Welcome({
 		<>
 			<Head title="Welcome" />
 			<div className="bg-stone-50 text-black/70 dark:bg-black dark:text-white/50">
+				<ParticlesBackground />
 				<div className="relative flex min-h-screen flex-col items-center justify-center selection:bg-[#FF2D20] selection:text-white">
 					<div className="relative w-full max-w-2xl px-6 lg:max-w-7xl">
 						<header className="items-center py-10">
