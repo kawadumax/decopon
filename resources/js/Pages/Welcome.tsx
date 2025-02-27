@@ -98,12 +98,12 @@ export default function Welcome({
 										description={t("welcome.features.search.description")}
 									/>
 								</div>
-								<button
+								<Link
 									className="bg-amber-400 text-white px-6 py-3 rounded-full font-semibold hover:bg-amber-500 transition duration-300"
-									type="button"
+									href={auth.user ? route("dashboard") : route("register")}
 								>
 									{t("welcome.getStarted")}
-								</button>
+								</Link>
 							</div>
 						</main>
 
