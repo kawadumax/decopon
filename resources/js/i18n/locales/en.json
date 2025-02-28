@@ -97,12 +97,16 @@
 			"title": "Log in",
 			"rememberMe": "Remember me",
 			"forgotPassword": "Forgot your password?",
-			"submit": "Log in"
+			"submit": "Log in",
+			"caution": "Caution",
+			"demo": "You are trying to log in to a demo version of a service. In the demo version, data may be deleted without prior notice. Additionally, in the demo version, it is possible to log in as a guest account."
 		},
 		"register": {
 			"title": "Register",
 			"alreadyRegistered": "Already registered?",
-			"submit": "Register"
+			"submit": "Register",
+			"caution": "Caution",
+			"demo": "You are trying to sign up to a demo version of a service. In the demo version, data may be deleted without prior notice. Additionally, in the demo version, it is possible to log in as a guest account."
 		},
 		"forgotPassword": {
 			"title": "Forgot Password",
