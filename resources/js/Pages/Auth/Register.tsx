@@ -6,6 +6,7 @@ import GuestLayout from "@/Layouts/GuestLayout";
 import { Head, Link, useForm } from "@inertiajs/react";
 import type { FormEventHandler } from "react";
 import { useTranslation } from "react-i18next";
+import { DemoCaution } from "./Partials/DemoCaution";
 
 export default function Register() {
 	const { t } = useTranslation();
@@ -29,6 +30,10 @@ export default function Register() {
 			<Head title={t("auth.register.title")} />
 
 			<form onSubmit={submit}>
+				<DemoCaution
+					header={t("auth.register.caution")}
+					content={t("auth.register.demo")}
+				/>
 				<div>
 					<InputLabel htmlFor="name" value="Name" />
 
