@@ -33,7 +33,7 @@ createInertiaApp({
 				<LangManager />
 				<TimeManager />
 				<DevTools position="top-left" />
-				<App {...props} />,
+				<App {...props} />
 			</>,
 		);
 	},
