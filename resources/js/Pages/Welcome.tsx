@@ -1,8 +1,41 @@
 import ApplicationLogo from "@/Components/ApplicationLogo";
 import { LangSwitch } from "@/Components/LangSwitch";
+import { ParticlesBackground } from "@/Components/ParticlesBackground";
 import type { PageProps } from "@/types";
 import { Head, Link } from "@inertiajs/react";
 import { useTranslation } from "react-i18next";
+
+const WelcomeCard = ({
+	variable = "right",
+	title,
+	description,
+	videoPath,
+}: {
+	variable?: "left" | "right";
+	title: string;
+	description: string;
+	videoPath: string;
+}) => {
+	return (
+		<div
+			className={`bg-stone-200 p-6 rounded-lg flex ${variable === "left" ? "flex-row" : "flex-row-reverse"} gap-6`}
+		>
+			<video
+				className="w-1/2 rounded-lg object-cover"
+				autoPlay
+				muted
+				loop={true}
+			>
+				<source src={videoPath} />
+			</video>
+			<div className="w-1/2">
+				<h3 className="text-xl font-semibold mb-2">{title}</h3>
+				<p className="">{description}</p>
+			</div>
+		</div>
+	);
+};
+
 export default function Welcome({
 	auth,
 	laravelVersion,
@@ -12,22 +45,20 @@ export default function Welcome({
 	return (
 		<>
 			<Head title="Welcome" />
-			<div className="bg-gray-50 text-black/50 dark:bg-black dark:text-white/50">
+			<div className="bg-stone-50 text-black/70 dark:bg-black dark:text-white/50">
+				<ParticlesBackground />
 				<div className="relative flex min-h-screen flex-col items-center justify-center selection:bg-[#FF2D20] selection:text-white">
 					<div className="relative w-full max-w-2xl px-6 lg:max-w-7xl">
 						<header className="items-center py-10">
 							<nav className="-mx-3 flex justify-end">
 								<div className="flex flex-row">
-									<span className="h-10 px-3 py-2 font-bold">
-										{t("welcome.lang")}
-									</span>
 									<LangSwitch />
 								</div>
 
 								{auth.user ? (
 									<Link
 										href={route("dashboard")}
-										className="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
+										className="rounded-md px-3 py-2 ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
 									>
 										{t("header.menu.dashboard")}
 									</Link>
@@ -35,13 +66,13 @@ export default function Welcome({
 									<>
 										<Link
 											href={route("login")}
-											className="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
+											className="rounded-md px-3 py-2 ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
 										>
 											{t("header.menu.login")}
 										</Link>
 										<Link
 											href={route("register")}
-											className="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
+											className="rounded-md py-2 ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
 										>
 											{t("header.menu.register")}
 										</Link>
@@ -58,52 +89,48 @@ export default function Welcome({
 										{t("welcome.title")}
 									</h1>
 								</div>
-								<h2 className="text-2xl text-amber-300 mb-16">
-									{t("welcome.subtitle")}
-								</h2>
-								<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-									<div className="bg-white p-6 rounded-lg shadow-md">
-										<h3 className="text-xl font-semibold text-green-300 mb-2">
-											{t("welcome.features.focusSessions.title")}
-										</h3>
-										<p className="text-amber-400">
-											{t("welcome.features.focusSessions.description")}
-										</p>
-									</div>
-									<div className="bg-white p-6 rounded-lg shadow-md">
-										<h3 className="text-xl font-semibold text-green-300 mb-2">
-											{t("welcome.features.nestedLists.title")}
-										</h3>
-										<p className="text-amber-400">
-											{t("welcome.features.nestedLists.description")}
-										</p>
-									</div>
-									<div className="bg-white p-6 rounded-lg shadow-md">
-										<h3 className="text-xl font-semibold text-green-300 mb-2">
-											{t("welcome.features.easyLogging.title")}
-										</h3>
-										<p className="text-amber-400">
-											{t("welcome.features.easyLogging.description")}
-										</p>
-									</div>
-									<div className="bg-white p-6 rounded-lg shadow-md">
-										<h3 className="text-xl font-semibold text-green-300 mb-2">
-											{t("welcome.features.search.title")}
-										</h3>
-										<p className="text-amber-400">
-											{t("welcome.features.search.description")}
-										</p>
-									</div>
+
+								<div className="m-20 mb-32">
+									<h2 className="text-2xl text-center font-extrabold">
+										{t("welcome.subtitle")}
+									</h2>
+									<p className="text-center max-w-2xl">
+										{t("welcome.description")}
+									</p>
 								</div>
-								<p className="text-amber-400 mb-8 text-center max-w-2xl">
-									{t("welcome.description")}
-								</p>
-								<button
+
+								<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 mb-12">
+									<WelcomeCard
+										title={t("welcome.features.focusSessions.title")}
+										description={t(
+											"welcome.features.focusSessions.description",
+										)}
+										videoPath="videos/focus.mp4"
+									/>
+									<WelcomeCard
+										title={t("welcome.features.nestedLists.title")}
+										description={t("welcome.features.nestedLists.description")}
+										variable="left"
+										videoPath="videos/nested.mp4"
+									/>
+									<WelcomeCard
+										title={t("welcome.features.easyLogging.title")}
+										description={t("welcome.features.easyLogging.description")}
+										videoPath="videos/logging.mp4"
+									/>
+									<WelcomeCard
+										title={t("welcome.features.organize.title")}
+										description={t("welcome.features.organize.description")}
+										variable="left"
+										videoPath="videos/organize.mp4"
+									/>
+								</div>
+								<Link
 									className="bg-amber-400 text-white px-6 py-3 rounded-full font-semibold hover:bg-amber-500 transition duration-300"
-									type="button"
+									href={auth.user ? route("dashboard") : route("register")}
 								>
 									{t("welcome.getStarted")}
-								</button>
+								</Link>
 							</div>
 						</main>
 

@@ -13,9 +13,15 @@ jobs:
       # リポジトリをチェックアウト
       - name: Checkout repository
         uses: actions/checkout@v3
-
+        with:
+          lfs: true
       # Node.js環境のセットアップとnpmビルド
       - name: Set up Node.js and install dependencies
+      # Viteのimport.metaはビルド時の変数を展開するため、
+      # この段階で .envを作成する
+        env: 
+          VITE_APP_NAME: Decopon
+          VITE_APP_ENV: demo
         uses: actions/setup-node@v3
         with:
           node-version: "20.x" # プロジェクトに合わせたNode.jsバージョンを指定

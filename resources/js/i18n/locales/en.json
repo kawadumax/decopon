@@ -81,9 +81,9 @@
 				"title": "Easy Logging",
 				"description": "Tag tasks for simple categorization"
 			},
-			"search": {
-				"title": "Search",
-				"description": "Find tasks quickly with keywords or tags"
+			"organize": {
+				"title": "Organize",
+				"description": "Find and organize tasks quickly with tags"
 			}
 		},
 		"description": "Decopon helps you break down complex tasks into smaller, more manageable chunks, just like the juicy segments of a Dekopon fruit.",
@@ -97,12 +97,16 @@
 			"title": "Log in",
 			"rememberMe": "Remember me",
 			"forgotPassword": "Forgot your password?",
-			"submit": "Log in"
+			"submit": "Log in",
+			"caution": "Caution",
+			"demo": "You are trying to log in to a demo version of a service. In the demo version, data may be deleted without prior notice. Additionally, in the demo version, it is possible to log in as a guest account."
 		},
 		"register": {
 			"title": "Register",
 			"alreadyRegistered": "Already registered?",
-			"submit": "Register"
+			"submit": "Register",
+			"caution": "Caution",
+			"demo": "You are trying to sign up to a demo version of a service. In the demo version, data may be deleted without prior notice. Additionally, in the demo version, it is possible to log in as a guest account."
 		},
 		"forgotPassword": {
 			"title": "Forgot Password",
