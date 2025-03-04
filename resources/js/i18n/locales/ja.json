@@ -81,12 +81,12 @@
 				"title": "簡単なログ記録",
 				"description": "タスクにタグを付けて簡単に分類"
 			},
-			"search": {
-				"title": "検索",
-				"description": "キーワードやタグで素早くタスクを見つける"
+			"organize": {
+				"title": "タスクの整理",
+				"description": "タグで素早くタスクを見つけ、整理する"
 			}
 		},
-		"description": "Decoponは、デコポンの果肉のように、複雑なタスクをより小さく管理しやすい塊に分解するのに役立ちます。",
+		"description": "Decoponは、複雑なタスクをより小さくし、取り組みやすくします。",
 		"getStarted": "始めましょう"
 	},
 	"dashboard": {
