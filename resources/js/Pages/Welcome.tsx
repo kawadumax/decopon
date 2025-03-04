@@ -4,25 +4,44 @@ import { ParticlesBackground } from "@/Components/ParticlesBackground";
 import type { PageProps } from "@/types";
 import { Head, Link } from "@inertiajs/react";
 import { useTranslation } from "react-i18next";
+
+const WelcomeCard = ({
+	variable = "right",
+	title,
+	description,
+	videoPath,
+}: {
+	variable?: "left" | "right";
+	title: string;
+	description: string;
+	videoPath: string;
+}) => {
+	return (
+		<div
+			className={`bg-stone-200 p-6 rounded-lg flex ${variable === "left" ? "flex-row" : "flex-row-reverse"} gap-6`}
+		>
+			<video
+				className="w-1/2 rounded-lg object-cover"
+				autoPlay
+				muted
+				loop={true}
+			>
+				<source src={videoPath} />
+			</video>
+			<div className="w-1/2">
+				<h3 className="text-xl font-semibold mb-2">{title}</h3>
+				<p className="">{description}</p>
+			</div>
+		</div>
+	);
+};
+
 export default function Welcome({
 	auth,
 	laravelVersion,
 	phpVersion,
 }: PageProps<{ laravelVersion: string; phpVersion: string }>) {
 	const { t } = useTranslation();
-
-	const WelcomeCard = ({
-		title,
-		description,
-	}: { title: string; description: string }) => {
-		return (
-			<div className="bg-stone-200 p-6 rounded-lg">
-				<h3 className="text-xl font-semibold mb-2">{title}</h3>
-				<p className="">{description}</p>
-			</div>
-		);
-	};
-
 	return (
 		<>
 			<Head title="Welcome" />
@@ -86,18 +105,24 @@ export default function Welcome({
 										description={t(
 											"welcome.features.focusSessions.description",
 										)}
+										videoPath="videos/focus.mp4"
 									/>
 									<WelcomeCard
 										title={t("welcome.features.nestedLists.title")}
 										description={t("welcome.features.nestedLists.description")}
+										variable="left"
+										videoPath="videos/nested.mp4"
 									/>
 									<WelcomeCard
 										title={t("welcome.features.easyLogging.title")}
 										description={t("welcome.features.easyLogging.description")}
+										videoPath="videos/logging.mp4"
 									/>
 									<WelcomeCard
-										title={t("welcome.features.search.title")}
-										description={t("welcome.features.search.description")}
+										title={t("welcome.features.organize.title")}
+										description={t("welcome.features.organize.description")}
+										variable="left"
+										videoPath="videos/organize.mp4"
 									/>
 								</div>
 								<Link
