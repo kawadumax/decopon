@@ -81,9 +81,9 @@
 				"title": "Easy Logging",
 				"description": "Tag tasks for simple categorization"
 			},
-			"search": {
-				"title": "Search",
-				"description": "Find tasks quickly with keywords or tags"
+			"organize": {
+				"title": "Organize",
+				"description": "Find and organize tasks quickly with tags"
 			}
 		},
 		"description": "Decopon helps you break down complex tasks into smaller, more manageable chunks, just like the juicy segments of a Dekopon fruit.",
