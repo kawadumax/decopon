@@ -13,7 +13,8 @@ jobs:
       # リポジトリをチェックアウト
       - name: Checkout repository
         uses: actions/checkout@v3
-
+        with:
+          lfs: true
       # Node.js環境のセットアップとnpmビルド
       - name: Set up Node.js and install dependencies
       # Viteのimport.metaはビルド時の変数を展開するため、
