@@ -7,6 +7,7 @@ import GuestLayout from "@/Layouts/GuestLayout";
 import { Head, Link, useForm } from "@inertiajs/react";
 import type { FormEventHandler } from "react";
 import { useTranslation } from "react-i18next";
+import { DemoCaution } from "./Partials/DemoCaution";
 
 export default function Login({
 	status,
@@ -39,6 +40,11 @@ export default function Login({
 			)}
 
 			<form onSubmit={submit}>
+				<DemoCaution
+					header={t("auth.login.caution")}
+					content={t("auth.login.demo")}
+				/>
+
 				<div>
 					<InputLabel htmlFor="email" value={t("common.email")} />
 					<TextInput
