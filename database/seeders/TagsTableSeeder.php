@@ -2,10 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
 
-class TagsTableSeeder extends Seeder
+class TagsTableSeeder extends BaseSeeder
 {
     /**
      * Run the database seeds.
