@@ -6,18 +6,10 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\User;
 
-class UsersTableSeeder extends Seeder
+class UsersTableSeeder extends BaseSeeder
 {
     /**
      * Run the database seeds.
      */
-    public function run(): void
-    {
-        // Adminは他のシーダで行う。
-        User::factory()->create([
-            'name' => 'guest',
-            'email' => 'guest@example.com',
-            'password' => bcrypt('guestP@$$w0rd'),
-        ]);
-    }
+    public function run(): void {}
 }
