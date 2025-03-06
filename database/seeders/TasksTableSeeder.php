@@ -2,20 +2,19 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
 use App\Models\Task;
 use App\Models\User;
 
-class TasksTableSeeder extends Seeder
+class TasksTableSeeder extends BaseSeeder
 {
   /**
    * Run the database seeds.
    */
   public function run(): void
   {
+    $adminEmail = $this->getAdminEmail();
     //Adminユーザを取得
-    $adminUser = User::where('email', '***REMOVED***')->first();
+    $adminUser = User::where('email', $adminEmail)->first();
     //Adminユーザが存在する場合のみタスクを作成
     if ($adminUser) {
       $this->createTasksForUser($adminUser);

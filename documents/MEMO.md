@@ -10,7 +10,7 @@ npm install # jsの依存ファイルを入れる
 DB の初期化
 
 ```
-php artisan migrate
+php artisan migrate --seed
 ```
 
 暗号化キーの生成がいるかも
