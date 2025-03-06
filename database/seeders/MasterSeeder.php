@@ -2,17 +2,38 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
-class MasterSeeder extends Seeder
+class MasterSeeder extends BaseSeeder
 {
+
     public function run()
     {
-        $email = env('ADMIN_EMAIL', '***REMOVED***');
-        $password = env('ADMIN_PASSWORD', 'password');
+        $this->createAdmin();
+
+        if (env("APP_ENV", "local") !== 'production') {
+            $this->createGuest();
+        }
+    }
+
+    private function createGuest()
+    {
+
+        $email = env('GUEST_EMAIL', 'guest@example.com');
+        $password = env('GUEST_PASSWORD', 'password');
+        // Adminは他のシーダで行う。
+        User::factory()->create([
+            'name' => 'guest',
+            'email' => $email,
+            'password' => Hash::make($password),
+        ]);
+    }
+
+    private function createAdmin()
+    {
+        $email = $this->getAdminEmail();
+        $password = $this->getAdminPassword();
 
         User::updateOrCreate(
             ['email' => $email], // 一意の条件
