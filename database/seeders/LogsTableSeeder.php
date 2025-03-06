@@ -2,21 +2,21 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
 use App\Models\User;
 use App\Models\Task;
 use App\Models\Log;
 
-class LogsTableSeeder extends Seeder
+class LogsTableSeeder extends BaseSeeder
 {
     /**
      * Run the database seeds.
      */
     public function run(): void
     {
+
+        $adminEmail = $this->getAdminEmail();
         // Adminユーザーを取得
-        $adminUser = User::where('email', '***REMOVED***')->first();
+        $adminUser = User::where('email', $adminEmail)->first();
 
         // Adminユーザーが存在する場合のみログを作成
         if ($adminUser) {
