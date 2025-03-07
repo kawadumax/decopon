@@ -1,6 +1,7 @@
 import { useTimeEntryApi } from "@/Hooks/useTimeEntryApi";
 import {
 	isRunningAtom,
+	isWorkTimeAtom,
 	remainTimeAtom,
 	resetRemainTimeAtom,
 	timerStateAtom,
@@ -18,6 +19,7 @@ export const Timer = () => {
 	const remainTime = useAtomValue(remainTimeAtom);
 	const resetRemainTime = useSetAtom(resetRemainTimeAtom);
 	const timeState = useAtomValue(timerStateAtom);
+	const [isWorkTime, setIsWorkTime] = useAtom(isWorkTimeAtom);
 
 	const { abandoneTimeEntry, progressTimeEntry, interruptTimeEntry } =
 		useTimeEntryApi();
@@ -38,16 +40,25 @@ export const Timer = () => {
 		abandoneTimeEntry();
 	}, [setIsRunning, resetRemainTime, abandoneTimeEntry]);
 
+	const toggleWorkOrBreak = useCallback(() => {
+		if (isRunning) return;
+		setIsWorkTime(!isWorkTime);
+		resetTimer();
+	}, [isRunning, isWorkTime, setIsWorkTime, resetTimer]);
+
 	return (
 		<div className="flex flex-col h-full justify-center gap-2 bg-[url(/images/decopon-icon-300x300.png)] bg-blend-lighten bg-white/50 bg-center bg-no-repeat">
 			<div className="font-mono self-center p-2 bg-white text-4xl text-center border-solid border border-amber-400 rounded">
 				{formatTime(remainTime)}
 			</div>
 			<div className="flex flex-row justify-center gap-2">
-				<Badge className="text-center bg-white text-black">
-					{timeState.isWorkTime ? t("timer.workTime") : t("timer.breakTime")}
+				<Badge
+					className={`text-center bg-white text-black ${isRunning ? "cursor-not-allowed" : "cursor-pointer"}`}
+					onClick={toggleWorkOrBreak}
+				>
+					{isWorkTime ? t("timer.workTime") : t("timer.breakTime")}
 				</Badge>
-				<Badge className="text-center bg-white text-black">
+				<Badge className="text-center bg-white text-black cursor-default">
 					{t("timer.cycles")}: {timeState.cycles}
 				</Badge>
 			</div>

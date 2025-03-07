@@ -1,7 +1,7 @@
 import { timerStateAtom } from "@/Lib/atoms";
 import { logger } from "@/Lib/utils";
 import { type TimeEntry, TimeEntryStatus } from "@/types/index.d";
-import type axios from "axios";
+import type { AxiosResponse } from "axios";
 import { useAtom } from "jotai";
 import { useCallback, useMemo } from "react";
 import { useApi } from "./useApi";
@@ -28,7 +28,7 @@ export const useTimeEntryApi = () => {
 		(
 			id: number,
 			data: Partial<TimeEntry>,
-			onSuccess: (response: axios.AxiosResponse) => void,
+			onSuccess: (response: AxiosResponse) => void,
 		) => {
 			api.put(
 				route("api.time-entries-id.update", id),
@@ -46,7 +46,7 @@ export const useTimeEntryApi = () => {
 	);
 
 	const setResponseToAtom = useCallback(
-		(response: axios.AxiosResponse) => {
+		(response: AxiosResponse) => {
 			setTimerState((prev) => {
 				return { ...prev, timeEntry: response.data.time_entry };
 			});

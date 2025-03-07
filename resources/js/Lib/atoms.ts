@@ -97,9 +97,18 @@ export const isRunningAtom = atom(
 	},
 );
 
+export const isWorkTimeAtom = atom(
+	(get) => {
+		return get(timerStateAtom).isWorkTime;
+	},
+	(get, set, isWorkTime: boolean) => {
+		set(timerStateAtom, { ...get(timerStateAtom), isWorkTime });
+	},
+);
+
 export const getSpanAtom = atom((get) => {
-	const timerState = get(timerStateAtom);
-	return timerState.isWorkTime ? get(workTimeAtom) : get(breakTimeAtom);
+	const isWorkTime = get(isWorkTimeAtom);
+	return isWorkTime ? get(workTimeAtom) : get(breakTimeAtom);
 });
 
 export const remainTimeAtom = atom(
