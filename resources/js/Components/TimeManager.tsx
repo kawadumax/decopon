@@ -22,9 +22,10 @@ export const TimeManager = () => {
 
 		timerWorker.onmessage = (e) => {
 			if (e.data.type === "TICK") {
-				setTimerState((prev) => {
-					return { ...prev, elapsedTime: prev.elapsedTime + 1000 };
-				});
+				setTimerState((prev) => ({
+					...prev,
+					elapsedTime: prev.elapsedTime + 1000,
+				}));
 			}
 		};
 
@@ -60,16 +61,14 @@ export const TimeManager = () => {
 		}
 
 		// WorkTimeとBreakTimeを切り替える
-		setTimerState((prev) => {
-			return {
-				...prev,
-				isRunning: false,
-				isWorkTime: !prev.isWorkTime,
-				elapsedTime: 0,
-				startedTime: null,
-				cycles: currentCycles,
-			};
-		});
+		setTimerState((prev) => ({
+			...prev,
+			isRunning: false,
+			isWorkTime: !prev.isWorkTime,
+			elapsedTime: 0,
+			startedTime: null,
+			cycles: currentCycles,
+		}));
 	}, [
 		timerState.elapsedTime,
 		timerState.isWorkTime,
