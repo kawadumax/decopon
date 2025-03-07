@@ -1,7 +1,9 @@
 {
 	"private": true,
 	"type": "module",
+
 	"scripts": {
+		"preinstall": "npx only-allow pnpm",
 		"build": "tsc && vite build",
 		"dev": "vite"
 	},
