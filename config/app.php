@@ -133,4 +133,18 @@ return [
         'available_locales' => ['en', 'ja'],
     ],
 
+    /**
+     * Guest User Configure
+     */
+
+    'guest_email' => env('GUEST_EMAIL', 'guest@example.com'),
+    'guest_password' => env('GUEST_PASSWORD', 'password'),
+
+    /**
+     * Admin User Configure
+     */
+
+    'admin_email' => env('ADMIN_EMAIL', 'admin@example.com'),
+    'admin_password' => env('ADMIN_PASSWORD', 'password'),
+
 ];
