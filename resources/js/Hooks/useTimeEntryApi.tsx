@@ -2,6 +2,7 @@ import { timerStateAtom } from "@/Lib/atoms";
 import { logger } from "@/Lib/utils";
 import { type TimeEntry, TimeEntryStatus } from "@/types/index.d";
 import type { AxiosResponse } from "axios";
+import { format } from "date-fns";
 import { useAtom } from "jotai";
 import { useCallback, useMemo } from "react";
 import { useApi } from "./useApi";
@@ -10,17 +11,16 @@ export const useTimeEntryApi = () => {
 	const [timerState, setTimerState] = useAtom(timerStateAtom);
 	const api = useApi();
 
-	const activeTimeEntry = useMemo(() => {
-		return timerState.timeEntry || null;
-	}, [timerState.timeEntry]);
+	const activeTimeEntry = useMemo(
+		() => timerState.timeEntry || null,
+		[timerState.timeEntry],
+	);
 
 	const createUpdateData = useCallback(
-		(status: TimeEntryStatus): Partial<TimeEntry> => {
-			return {
-				ended_at: new Date().toISOString(),
-				status,
-			};
-		},
+		(status: TimeEntryStatus): Partial<TimeEntry> => ({
+			ended_at: new Date().toISOString(),
+			status,
+		}),
 		[],
 	);
 
@@ -47,17 +47,16 @@ export const useTimeEntryApi = () => {
 
 	const setResponseToAtom = useCallback(
 		(response: AxiosResponse) => {
-			setTimerState((prev) => {
-				return { ...prev, timeEntry: response.data.time_entry };
-			});
+			setTimerState((prev) => ({
+				...prev,
+				timeEntry: response.data.time_entry,
+			}));
 		},
 		[setTimerState],
 	);
 
 	const setUndefinedToAtom = useCallback(() => {
-		setTimerState((prev) => {
-			return { ...prev, timeEntry: undefined };
-		});
+		setTimerState((prev) => ({ ...prev, timeEntry: undefined }));
 	}, [setTimerState]);
 
 	const progressTimeEntry = useCallback(() => {
@@ -113,7 +112,26 @@ export const useTimeEntryApi = () => {
 		);
 	}, [updateTimeEntry, setUndefinedToAtom, createUpdateData, activeTimeEntry]);
 
+	const updateCyclesOfTimeEntry = useCallback(() => {
+		const today = format(new Date(), "yyyy-MM-dd");
+		api.get(
+			route("api.time-entries.cycles", {
+				date: today,
+			}),
+			(response) => {
+				setTimerState((prev) => ({
+					...prev,
+					cycles: response.data.cycles || {
+						date: today,
+						count: 0,
+					},
+				}));
+			},
+		);
+	}, [api, setTimerState]);
+
 	return {
+		updateCyclesOfTimeEntry,
 		progressTimeEntry,
 		interruptTimeEntry,
 		completeTimeEntry,

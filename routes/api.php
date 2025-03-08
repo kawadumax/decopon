@@ -20,8 +20,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('logs/task/{taskId}', [LogApiController::class, 'getLogsTaskId'])->name('api.logs.task');
 
     //TimeEntryのAPI
-    Route::apiResource('time-entries', TimeEntryApiController::class, ['as' => 'api']);
+    Route::get('time-entries/cycles', [TimeEntryApiController::class, 'getCycles'])->name('api.time-entries.cycles');
     Route::put('/time-entries/{id}', [TimeEntryApiController::class, 'update'])->name('api.time-entries-id.update');
+    Route::apiResource('time-entries', TimeEntryApiController::class, ['as' => 'api']);
 
     //TagsのApi
     Route::delete('tags/relation', [TagApiController::class, 'destroyRelation'])->name('api.tags.relation.destroy');

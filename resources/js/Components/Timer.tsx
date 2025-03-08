@@ -59,7 +59,7 @@ export const Timer = () => {
 					{isWorkTime ? t("timer.workTime") : t("timer.breakTime")}
 				</Badge>
 				<Badge className="text-center bg-white text-black cursor-default">
-					{t("timer.cycles")}: {timeState.cycles}
+					{t("timer.cycles")}: {timeState.cycles.count}
 				</Badge>
 			</div>
 

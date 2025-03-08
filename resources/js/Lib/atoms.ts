@@ -1,4 +1,5 @@
 import { Locale, type Tag } from "@/types/index.d";
+import { format } from "date-fns";
 import { type PrimitiveAtom, atom } from "jotai";
 import { atomFamily, atomWithStorage, splitAtom } from "jotai/utils";
 import type {
@@ -70,7 +71,10 @@ interface TimerState {
 	startedTime: number | null;
 	isWorkTime: boolean;
 	isRunning: boolean;
-	cycles: number;
+	cycles: {
+		date: string;
+		count: number;
+	};
 	timeEntry?: TimeEntry;
 }
 
@@ -82,7 +86,10 @@ export const timerStateAtom = atomWithStorage<TimerState>(
 		timeEntry: undefined,
 		isWorkTime: true,
 		isRunning: false,
-		cycles: 0,
+		cycles: {
+			date: format(new Date(), "yyyy-MM-dd"),
+			count: 0,
+		},
 	},
 	undefined,
 	{ getOnInit: true },
@@ -103,6 +110,15 @@ export const isWorkTimeAtom = atom(
 	},
 	(get, set, isWorkTime: boolean) => {
 		set(timerStateAtom, { ...get(timerStateAtom), isWorkTime });
+	},
+);
+
+export const cyclesAtom = atom(
+	(get) => {
+		return get(timerStateAtom).cycles;
+	},
+	(get, set, cycles: { date: string; count: number }) => {
+		set(timerStateAtom, { ...get(timerStateAtom), cycles });
 	},
 );
 
