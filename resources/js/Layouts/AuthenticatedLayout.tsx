@@ -27,7 +27,7 @@ export default function Authenticated({
 	const preference = user.preference;
 	const lang = preference.locale || Locale.ENGLISH;
 	const setLang = useSetAtom(languageAtom);
-	const { updateCyclesOfTimeEntry } = useTimeEntryApi();
+	const { initCyclesOfTimeEntry } = useTimeEntryApi();
 
 	useEffect(() => {
 		setLang(lang);
@@ -39,8 +39,8 @@ export default function Authenticated({
 	setBreakTime(preference.break_time);
 
 	useEffect(() => {
-		updateCyclesOfTimeEntry();
-	}, [updateCyclesOfTimeEntry]);
+		initCyclesOfTimeEntry();
+	}, [initCyclesOfTimeEntry]);
 
 	const [showingNavigationDropdown, setShowingNavigationDropdown] =
 		useState(false);

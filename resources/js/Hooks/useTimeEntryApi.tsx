@@ -111,8 +111,9 @@ export const useTimeEntryApi = () => {
 		);
 	}, [updateTimeEntry, setUndefinedToAtom, createUpdateData, activeTimeEntry]);
 
-	const updateCyclesOfTimeEntry = useCallback(() => {
+	const initCyclesOfTimeEntry = useCallback(() => {
 		const today = getToday();
+		if (timerState.cycles.date === today) return;
 		api.get(
 			route("api.time-entries.cycles", {
 				date: today,
@@ -127,10 +128,10 @@ export const useTimeEntryApi = () => {
 				}));
 			},
 		);
-	}, [api, setTimerState]);
+	}, [api, setTimerState, timerState.cycles.date]);
 
 	return {
-		updateCyclesOfTimeEntry,
+		initCyclesOfTimeEntry,
 		progressTimeEntry,
 		interruptTimeEntry,
 		completeTimeEntry,

@@ -141,11 +141,23 @@ export const remainTimeAtom = atom(
 );
 
 export const resetRemainTimeAtom = atom(null, (get, set, command: string) => {
-	if (command !== "RESET") return;
-	set(timerStateAtom, {
-		...get(timerStateAtom),
-		elapsedTime: 0,
-	});
+	// if (command !== "RESET") return;
+	switch (command) {
+		case "RESET":
+			set(timerStateAtom, {
+				...get(timerStateAtom),
+				elapsedTime: 0,
+			});
+			break;
+		case "ZERO":
+			set(timerStateAtom, {
+				...get(timerStateAtom),
+				elapsedTime: get(getSpanAtom),
+			});
+			break;
+		default:
+			break;
+	}
 });
 
 const _workTimeAtom = atom<number>(25 * 60 * 1000);
