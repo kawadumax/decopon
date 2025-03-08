@@ -1,5 +1,4 @@
 import { Locale, type Tag } from "@/types/index.d";
-import { format } from "date-fns";
 import { type PrimitiveAtom, atom } from "jotai";
 import { atomFamily, atomWithStorage, splitAtom } from "jotai/utils";
 import type {
@@ -9,6 +8,7 @@ import type {
 	Task,
 	TimeEntry,
 } from "../types";
+import { getToday } from "./utils";
 
 // TaskAtom
 
@@ -87,7 +87,7 @@ export const timerStateAtom = atomWithStorage<TimerState>(
 		isWorkTime: true,
 		isRunning: false,
 		cycles: {
-			date: format(new Date(), "yyyy-MM-dd"),
+			date: getToday(),
 			count: 0,
 		},
 	},

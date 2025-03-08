@@ -1,8 +1,7 @@
 import { timerStateAtom } from "@/Lib/atoms";
-import { logger } from "@/Lib/utils";
+import { getToday, logger } from "@/Lib/utils";
 import { type TimeEntry, TimeEntryStatus } from "@/types/index.d";
 import type { AxiosResponse } from "axios";
-import { format } from "date-fns";
 import { useAtom } from "jotai";
 import { useCallback, useMemo } from "react";
 import { useApi } from "./useApi";
@@ -113,7 +112,7 @@ export const useTimeEntryApi = () => {
 	}, [updateTimeEntry, setUndefinedToAtom, createUpdateData, activeTimeEntry]);
 
 	const updateCyclesOfTimeEntry = useCallback(() => {
-		const today = format(new Date(), "yyyy-MM-dd");
+		const today = getToday();
 		api.get(
 			route("api.time-entries.cycles", {
 				date: today,
