@@ -45,6 +45,11 @@ DB リセットして Seeder 実行
 php artisan migrate:fresh --seed
 ```
 
+## Git hooksのフォルダを指定
+```
+git config --local core.hooksPath .githooks
+```
+
 ## フロントエンドのルーティングについて。
 
 route("name のほうをいれる")
