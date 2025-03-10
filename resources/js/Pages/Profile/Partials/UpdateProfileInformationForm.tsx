@@ -2,6 +2,7 @@ import InputError from "@/Components/InputError";
 import InputLabel from "@/Components/InputLabel";
 import PrimaryButton from "@/Components/PrimaryButton";
 import TextInput from "@/Components/TextInput";
+import type { PageProps } from "@/types";
 import { Transition } from "@headlessui/react";
 import { Link, useForm, usePage } from "@inertiajs/react";
 import type { FormEventHandler } from "react";
@@ -17,8 +18,8 @@ export default function UpdateProfileInformation({
 	className?: string;
 }) {
 	const { t } = useTranslation();
-	const user = usePage().props.auth.user;
-
+	const { auth } = usePage<PageProps>().props;
+	const user = auth.user;
 	const { data, setData, patch, errors, processing, recentlySuccessful } =
 		useForm({
 			name: user.name,
