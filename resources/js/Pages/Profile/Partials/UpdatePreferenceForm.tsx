@@ -9,7 +9,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/Components/ui/select";
-import { Locale } from "@/types/index.d";
+import { Locale, type PageProps } from "@/types/index.d";
 import { Transition } from "@headlessui/react";
 import { useForm, usePage } from "@inertiajs/react";
 import type { FormEventHandler } from "react";
@@ -21,8 +21,8 @@ export default function UpdatePreferenceForm({
 	className?: string;
 }) {
 	const { t } = useTranslation();
-	const user = usePage().props.auth.user;
-
+	const { auth } = usePage<PageProps>().props;
+	const user = auth.user;
 	const { data, setData, patch, errors, processing, recentlySuccessful } =
 		useForm({
 			work_time: user.preference?.work_time || 25,

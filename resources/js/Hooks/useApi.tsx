@@ -1,11 +1,11 @@
 import axiosInstance from "@/Lib/axios";
-import axios from "axios";
+import axios, { type AxiosResponse } from "axios";
 // resources/js/hooks/useApi.ts
 import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
-type FnOnSucsess = (response: axios.AxiosResponse) => void;
+type FnOnSucsess = (response: AxiosResponse) => void;
 type FnOnError = (error: unknown) => void;
 type FnOnFinaly = () => void;
 

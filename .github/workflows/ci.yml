@@ -1,0 +1,36 @@
+name: CI
+
+# Pull Requestに対してトリガー
+on:
+  pull_request:
+    branches:
+      - dev
+      - main
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1) リポジトリのチェックアウト
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      # 2) Node.jsのセットアップ
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20  # Node.jsのバージョンを指定
+
+      # 3) pnpmのセットアップ (pnpm/action-setupを使う場合)
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10 # 好みのpnpmバージョン
+
+      # 4) 依存関係のインストール
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # 5) ビルド
+      - name: Build
+        run: pnpm run build
