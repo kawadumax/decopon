@@ -22,9 +22,10 @@ export const TimeManager = () => {
 
 		timerWorker.onmessage = (e) => {
 			if (e.data.type === "TICK") {
-				setTimerState((prev) => {
-					return { ...prev, elapsedTime: prev.elapsedTime + 1000 };
-				});
+				setTimerState((prev) => ({
+					...prev,
+					elapsedTime: prev.elapsedTime + 1000,
+				}));
 			}
 		};
 
@@ -49,7 +50,7 @@ export const TimeManager = () => {
 	 */
 	useEffect(() => {
 		if (timerState.elapsedTime < timeSpan) return;
-		let currentCycles = timerState.cycles || 0;
+		let currentCycles = timerState.cycles.count || 0;
 
 		// タイマーが終わった時
 
@@ -60,16 +61,14 @@ export const TimeManager = () => {
 		}
 
 		// WorkTimeとBreakTimeを切り替える
-		setTimerState((prev) => {
-			return {
-				...prev,
-				isRunning: false,
-				isWorkTime: !prev.isWorkTime,
-				elapsedTime: 0,
-				startedTime: null,
-				cycles: currentCycles,
-			};
-		});
+		setTimerState((prev) => ({
+			...prev,
+			isRunning: false,
+			isWorkTime: !prev.isWorkTime,
+			elapsedTime: 0,
+			startedTime: null,
+			cycles: { date: prev.cycles.date, count: currentCycles },
+		}));
 	}, [
 		timerState.elapsedTime,
 		timerState.isWorkTime,

@@ -67,7 +67,7 @@ export const TaskEditableTitle = ({
 				route("api.tasks.update", task.id),
 				{ title: task.title },
 				(response) => {
-					setTask(response.data.task);
+					setTask((prev) => ({ ...prev, title: response.data.task.title }));
 				},
 				undefined,
 				() => {
