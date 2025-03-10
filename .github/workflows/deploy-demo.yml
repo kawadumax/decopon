@@ -34,7 +34,7 @@ jobs:
           cache: 'pnpm'
       - name: Install dependencies
         run: |
-          pnpm approve-builds esbuild --yes
+          pnpm approve-builds esbuild
           pnpm install
 
       # PHP依存関係のインストール（Composer）
