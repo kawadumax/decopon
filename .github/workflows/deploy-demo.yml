@@ -33,9 +33,7 @@ jobs:
           node-version: 20
           cache: 'pnpm'
       - name: Install dependencies
-        run: |
-          pnpm approve-builds esbuild
-          pnpm install
+        run: pnpm install
 
       # PHP依存関係のインストール（Composer）
       - name: Set up PHP and install dependencies

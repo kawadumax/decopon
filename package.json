@@ -38,6 +38,7 @@
 		"clsx": "^2.1.1",
 		"date-fns": "^4.1.0",
 		"emblor": "^1.4.7",
+		"esbuild": "^0.25.0",
 		"i18next": "^24.2.2",
 		"jotai": "^2.10.3",
 		"jotai-devtools": "^0.10.1",
@@ -48,5 +49,11 @@
 		"sonner": "^1.7.0",
 		"tailwind-merge": "^2.5.5",
 		"tailwindcss-animate": "^1.0.7"
+	},
+	"pnpm": {
+		"onlyBuiltDependencies": [
+			"@biomejs/biome",
+			"esbuild"
+		]
 	}
 }
