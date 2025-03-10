@@ -20,12 +20,10 @@ export const TaskEditableDescription = ({
 				route("api.tasks.update", task.id),
 				{ description: description },
 				(response) => {
-					setTask((prev) => {
-						return {
-							...prev,
-							...response.data.task,
-						};
-					});
+					setTask((prev) => ({
+						...prev,
+						...response.data.task,
+					}));
 				},
 			);
 		}

@@ -1,5 +1,6 @@
 import type { Tag } from "@/types";
 import { type ClassValue, clsx } from "clsx";
+import { format } from "date-fns";
 import type { Tag as EmblorTag } from "emblor";
 import { twMerge } from "tailwind-merge";
 
@@ -49,6 +50,15 @@ export const formatTime = (unixTime: number): string => {
 	return `${minutes.toString().padStart(2, "0")}:${seconds
 		.toString()
 		.padStart(2, "0")}`;
+};
+
+/**
+ * 今日の日付を取得する
+ * @returns yyyy-mm-dd
+ */
+export const getToday = (): string => {
+	const date = new Date();
+	return format(date, "yyyy-MM-dd");
 };
 
 /**

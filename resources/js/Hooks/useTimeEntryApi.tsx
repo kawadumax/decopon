@@ -1,7 +1,7 @@
 import { timerStateAtom } from "@/Lib/atoms";
-import { logger } from "@/Lib/utils";
+import { getToday, logger } from "@/Lib/utils";
 import { type TimeEntry, TimeEntryStatus } from "@/types/index.d";
-import type axios from "axios";
+import type { AxiosResponse } from "axios";
 import { useAtom } from "jotai";
 import { useCallback, useMemo } from "react";
 import { useApi } from "./useApi";
@@ -10,17 +10,16 @@ export const useTimeEntryApi = () => {
 	const [timerState, setTimerState] = useAtom(timerStateAtom);
 	const api = useApi();
 
-	const activeTimeEntry = useMemo(() => {
-		return timerState.timeEntry || null;
-	}, [timerState.timeEntry]);
+	const activeTimeEntry = useMemo(
+		() => timerState.timeEntry || null,
+		[timerState.timeEntry],
+	);
 
 	const createUpdateData = useCallback(
-		(status: TimeEntryStatus): Partial<TimeEntry> => {
-			return {
-				ended_at: new Date().toISOString(),
-				status,
-			};
-		},
+		(status: TimeEntryStatus): Partial<TimeEntry> => ({
+			ended_at: new Date().toISOString(),
+			status,
+		}),
 		[],
 	);
 
@@ -28,7 +27,7 @@ export const useTimeEntryApi = () => {
 		(
 			id: number,
 			data: Partial<TimeEntry>,
-			onSuccess: (response: axios.AxiosResponse) => void,
+			onSuccess: (response: AxiosResponse) => void,
 		) => {
 			api.put(
 				route("api.time-entries-id.update", id),
@@ -46,18 +45,17 @@ export const useTimeEntryApi = () => {
 	);
 
 	const setResponseToAtom = useCallback(
-		(response: axios.AxiosResponse) => {
-			setTimerState((prev) => {
-				return { ...prev, timeEntry: response.data.time_entry };
-			});
+		(response: AxiosResponse) => {
+			setTimerState((prev) => ({
+				...prev,
+				timeEntry: response.data.time_entry,
+			}));
 		},
 		[setTimerState],
 	);
 
 	const setUndefinedToAtom = useCallback(() => {
-		setTimerState((prev) => {
-			return { ...prev, timeEntry: undefined };
-		});
+		setTimerState((prev) => ({ ...prev, timeEntry: undefined }));
 	}, [setTimerState]);
 
 	const progressTimeEntry = useCallback(() => {
@@ -113,7 +111,27 @@ export const useTimeEntryApi = () => {
 		);
 	}, [updateTimeEntry, setUndefinedToAtom, createUpdateData, activeTimeEntry]);
 
+	const initCyclesOfTimeEntry = useCallback(() => {
+		const today = getToday();
+		if (timerState.cycles.date === today) return;
+		api.get(
+			route("api.time-entries.cycles", {
+				date: today,
+			}),
+			(response) => {
+				setTimerState((prev) => ({
+					...prev,
+					cycles: response.data.cycles || {
+						date: today,
+						count: 0,
+					},
+				}));
+			},
+		);
+	}, [api, setTimerState, timerState.cycles.date]);
+
 	return {
+		initCyclesOfTimeEntry,
 		progressTimeEntry,
 		interruptTimeEntry,
 		completeTimeEntry,
