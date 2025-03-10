@@ -8,6 +8,7 @@ import type {
 	Task,
 	TimeEntry,
 } from "../types";
+import { getToday } from "./utils";
 
 // TaskAtom
 
@@ -70,7 +71,10 @@ interface TimerState {
 	startedTime: number | null;
 	isWorkTime: boolean;
 	isRunning: boolean;
-	cycles: number;
+	cycles: {
+		date: string;
+		count: number;
+	};
 	timeEntry?: TimeEntry;
 }
 
@@ -82,7 +86,10 @@ export const timerStateAtom = atomWithStorage<TimerState>(
 		timeEntry: undefined,
 		isWorkTime: true,
 		isRunning: false,
-		cycles: 0,
+		cycles: {
+			date: getToday(),
+			count: 0,
+		},
 	},
 	undefined,
 	{ getOnInit: true },
@@ -97,9 +104,27 @@ export const isRunningAtom = atom(
 	},
 );
 
+export const isWorkTimeAtom = atom(
+	(get) => {
+		return get(timerStateAtom).isWorkTime;
+	},
+	(get, set, isWorkTime: boolean) => {
+		set(timerStateAtom, { ...get(timerStateAtom), isWorkTime });
+	},
+);
+
+export const cyclesAtom = atom(
+	(get) => {
+		return get(timerStateAtom).cycles;
+	},
+	(get, set, cycles: { date: string; count: number }) => {
+		set(timerStateAtom, { ...get(timerStateAtom), cycles });
+	},
+);
+
 export const getSpanAtom = atom((get) => {
-	const timerState = get(timerStateAtom);
-	return timerState.isWorkTime ? get(workTimeAtom) : get(breakTimeAtom);
+	const isWorkTime = get(isWorkTimeAtom);
+	return isWorkTime ? get(workTimeAtom) : get(breakTimeAtom);
 });
 
 export const remainTimeAtom = atom(
@@ -116,11 +141,23 @@ export const remainTimeAtom = atom(
 );
 
 export const resetRemainTimeAtom = atom(null, (get, set, command: string) => {
-	if (command !== "RESET") return;
-	set(timerStateAtom, {
-		...get(timerStateAtom),
-		elapsedTime: 0,
-	});
+	// if (command !== "RESET") return;
+	switch (command) {
+		case "RESET":
+			set(timerStateAtom, {
+				...get(timerStateAtom),
+				elapsedTime: 0,
+			});
+			break;
+		case "ZERO":
+			set(timerStateAtom, {
+				...get(timerStateAtom),
+				elapsedTime: get(getSpanAtom),
+			});
+			break;
+		default:
+			break;
+	}
 });
 
 const _workTimeAtom = atom<number>(25 * 60 * 1000);

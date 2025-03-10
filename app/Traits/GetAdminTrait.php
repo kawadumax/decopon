@@ -6,11 +6,11 @@ trait GetAdminTrait
 {
     protected function getAdminEmail()
     {
-        return env('ADMIN_EMAIL', 'admin@example.com');
+        return config('app.admin_email', 'admin@example.com');
     }
 
     protected function getAdminPassword()
     {
-        return env('ADMIN_PASSWORD', 'password');
+        return config('app.admin_password', 'password');
     }
 }

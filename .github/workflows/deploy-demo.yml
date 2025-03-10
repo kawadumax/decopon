@@ -1,4 +1,4 @@
-name: Deploy Laravel to Lightsail
+name: Deploy as demo version
 
 on:
   push:
@@ -22,11 +22,18 @@ jobs:
         env: 
           VITE_APP_NAME: Decopon
           VITE_APP_ENV: demo
-        uses: actions/setup-node@v3
+        uses: pnpm/action-setup@v4
         with:
-          node-version: "20.x" # プロジェクトに合わせたNode.jsバージョンを指定
-      - run: npm ci
-      - run: npm run build
+          version: 10
+          run_install: false
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install
 
       # PHP依存関係のインストール（Composer）
       - name: Set up PHP and install dependencies
@@ -66,7 +73,8 @@ jobs:
             sudo chmod -R 775 /var/www/html/decopon/bootstrap/cache
             sudo chmod -R 775 /var/www/html/decopon/storage
             cd /var/www/html/decopon
-            php artisan migrate:fresh --seed # DBを初期化
+            php artisan migrate --force
+            php artisan db:seed --force
             php artisan config:cache
             php artisan route:cache
             php artisan view:cache

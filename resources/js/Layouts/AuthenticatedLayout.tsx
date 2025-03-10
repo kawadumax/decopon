@@ -4,8 +4,9 @@ import NavLink from "@/Components/NavLink";
 import ResponsiveNavLink from "@/Components/ResponsiveNavLink";
 import { TimerStateWidget } from "@/Components/TimerStateWidget";
 import { Toaster } from "@/Components/ui/sonner";
+import { useTimeEntryApi } from "@/Hooks/useTimeEntryApi";
 import { breakTimeAtom, languageAtom, workTimeAtom } from "@/Lib/atoms";
-import { Locale } from "@/types/index.d";
+import { Locale, type PageProps } from "@/types/index.d";
 import { Link, usePage } from "@inertiajs/react";
 import { useSetAtom } from "jotai";
 import {
@@ -15,15 +16,18 @@ import {
 	useState,
 } from "react";
 import { useTranslation } from "react-i18next";
+
 export default function Authenticated({
 	header,
 	children,
 }: PropsWithChildren<{ header?: ReactNode }>) {
 	const { t } = useTranslation();
-	const user = usePage().props.auth.user;
+	const { auth } = usePage<PageProps>().props;
+	const user = auth.user;
 	const preference = user.preference;
 	const lang = preference.locale || Locale.ENGLISH;
 	const setLang = useSetAtom(languageAtom);
+	const { initCyclesOfTimeEntry } = useTimeEntryApi();
 
 	useEffect(() => {
 		setLang(lang);
@@ -33,6 +37,10 @@ export default function Authenticated({
 	const setBreakTime = useSetAtom(breakTimeAtom);
 	setWorkTime(preference.work_time);
 	setBreakTime(preference.break_time);
+
+	useEffect(() => {
+		initCyclesOfTimeEntry();
+	}, [initCyclesOfTimeEntry]);
 
 	const [showingNavigationDropdown, setShowingNavigationDropdown] =
 		useState(false);
