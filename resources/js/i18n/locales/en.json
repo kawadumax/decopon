@@ -216,6 +216,9 @@
 			"destroy": {
 				"204": "Time entry deleted successfully.",
 				"403": "Permission denied: You cannot delete this time entry."
+			},
+			"getCycles": {
+				"200": "Cycles retrieved successfully."
 			}
 		},
 		"unknown": {
