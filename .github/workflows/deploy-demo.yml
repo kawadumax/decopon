@@ -27,13 +27,13 @@ jobs:
           version: 10
           run_install: false
 
-      - name: Install Node.js
+      - name: Install and build Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'pnpm'
-      - name: Install dependencies
-        run: pnpm install
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run build
 
       # PHP依存関係のインストール（Composer）
       - name: Set up PHP and install dependencies
@@ -48,35 +48,6 @@ jobs:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           DEPLOY_SERVER: ${{ secrets.DEPLOY_SERVER }}
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
-        run: |
-          # SSH設定を準備
-          mkdir -p ~/.ssh
-          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-
-          # ホストキー検証をスキップ
-          echo "StrictHostKeyChecking no" >> ~/.ssh/config
-
-          # ビルド済みのアプリケーションを転送
-          rsync -e "ssh -o StrictHostKeyChecking=no" -avz --delete \
-            --rsync-path="sudo rsync" \
-            --exclude=".env" \
-            --exclude="node_modules" \
-            --exclude=".git" \
-            ./ $DEPLOY_USER@$DEPLOY_SERVER:/var/www/html/decopon
-
-          # サーバー上での設定とデプロイ
-          ssh $DEPLOY_USER@$DEPLOY_SERVER << EOF
-            sudo chown -R ec2-user:ec2-user /var/www/html/decopon
-            sudo chown -R ec2-user:ec2-user /var/www/html/decopon/bootstrap/cache
-            sudo chown -R ec2-user:ec2-user /var/www/html/decopon/storage
-            sudo chmod -R 775 /var/www/html/decopon/bootstrap/cache
-            sudo chmod -R 775 /var/www/html/decopon/storage
-            cd /var/www/html/decopon
-            php artisan migrate --force
-            php artisan db:seed --force
-            php artisan config:cache
-            php artisan route:cache
-            php artisan view:cache
-            sudo systemctl restart nginx # 必要に応じてサーバー再起動
-          EOF
+        run: |    
+          chmod +x ./scripts/deploy.sh.example
+          ./scripts/deploy.sh.example
