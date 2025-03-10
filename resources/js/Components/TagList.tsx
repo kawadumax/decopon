@@ -44,20 +44,24 @@ export const TagList = ({ _tags }: { _tags?: Tag[] }) => {
 					// setCurrentTag(null)
 				}}
 			>
-				{tags
-					? tags.map((tag, index) => {
-							return (
-								<TagItem
-									tag={tag}
-									key={tag.id}
-									onClick={(event) => {
-										event.stopPropagation();
-										handleTagClicked(index);
-									}}
-								/>
-							);
-						})
-					: t("tags.noTags")}
+				{tags.length ? (
+					tags.map((tag, index) => {
+						return (
+							<TagItem
+								tag={tag}
+								key={tag.id}
+								onClick={(event) => {
+									event.stopPropagation();
+									handleTagClicked(index);
+								}}
+							/>
+						);
+					})
+				) : (
+					<span className="text-foreground p-2 font-normal">
+						{t("tag.noTags")}
+					</span>
+				)}
 			</ul>
 		</>
 	);

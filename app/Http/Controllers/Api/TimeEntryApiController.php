@@ -1,7 +1,9 @@
 <?php
 
+
 namespace App\Http\Controllers\Api;
 
+use Carbon\Carbon;
 use App\Http\Controllers\Controller;
 use App\Models\TimeEntry;
 use Illuminate\Http\Request;
@@ -114,5 +116,30 @@ class TimeEntryApiController extends ApiController
             'message' => 'Time entry deleted successfully.',
             'i18nKey' => $this->generateI18nKey(__FUNCTION__, $statusCode),
         ], $statusCode);
+    }
+
+    public function getCycles(Request $request): JsonResponse
+    {
+        $validatedData = $request->validate([
+            'date' => 'required|date',
+        ]);
+
+        $date = $validatedData['date'];
+
+        // 指定された日付の開始時刻と終了時刻を作成
+        $startOfDay = Carbon::parse($date)->startOfDay();
+        $endOfDay = Carbon::parse($date)->endOfDay();
+
+        $completedCount = TimeEntry::where('user_id', Auth::id())
+            ->whereBetween('ended_at', [$startOfDay, $endOfDay])
+            ->where('status', 'Completed')
+            ->count();
+
+        return response()->json([
+            'success' => true,
+            'cycles' => ['date' => $date, 'count' => $completedCount],
+            'message' => 'Completed time entries count retrieved successfully.',
+            'i18nKey' => $this->generateI18nKey(__FUNCTION__, 200),
+        ]);
     }
 }

@@ -50,7 +50,7 @@ export const TimeManager = () => {
 	 */
 	useEffect(() => {
 		if (timerState.elapsedTime < timeSpan) return;
-		let currentCycles = timerState.cycles || 0;
+		let currentCycles = timerState.cycles.count || 0;
 
 		// タイマーが終わった時
 
@@ -67,7 +67,7 @@ export const TimeManager = () => {
 			isWorkTime: !prev.isWorkTime,
 			elapsedTime: 0,
 			startedTime: null,
-			cycles: currentCycles,
+			cycles: { date: prev.cycles.date, count: currentCycles },
 		}));
 	}, [
 		timerState.elapsedTime,
