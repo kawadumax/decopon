@@ -15,7 +15,7 @@
 	"tag": {
 		"title": "All Tags",
 		"latestTags": "Latest Tags",
-		"noTags": "No Tags There",
+		"noTags": "No Tags",
 		"placeholderInput": "New Tag Name",
 		"table": {
 			"caption": "A list of your tags",
@@ -39,7 +39,8 @@
 		"cycles": "Cycles",
 		"start": "Start",
 		"stop": "Stop",
-		"reset": "Reset"
+		"reset": "Reset",
+		"complete": "Complete"
 	},
 	"common": {
 		"add": "Add",
@@ -203,7 +204,7 @@
 				"200": "Tasks retrieved successfully based on tag."
 			}
 		},
-		"timeEntry": {
+		"time_entry": {
 			"store": {
 				"201": "Focus time recording started."
 			},

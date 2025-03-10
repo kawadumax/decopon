@@ -34,8 +34,8 @@ export default ({ mode }) => {
 
 						if (id.includes("worker")) {
 							const newCode = code.replace(
-								"__laravel_vite_placeholder__",
-								"http://localhost:8000",
+								"__laravel_vite_placeholder__.test",
+								"localhost:8000",
 							);
 							return newCode;
 						}
