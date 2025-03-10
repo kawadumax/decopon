@@ -38,12 +38,10 @@ export const TaskEditableTagList = ({
 						}
 						return [newTag, ...prev]; // 重複がない場合のみ新しいタグを追加
 					});
-					setCurrentTask((prev) => {
-						return {
-							...prev,
-							tags: [...prev.tags, newTag],
-						};
-					});
+					setCurrentTask((prev) => ({
+						...prev,
+						tags: [...prev.tags, newTag],
+					}));
 				},
 			);
 		},

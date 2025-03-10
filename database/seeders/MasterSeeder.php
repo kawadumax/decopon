@@ -12,7 +12,7 @@ class MasterSeeder extends BaseSeeder
     {
         $this->createAdmin();
 
-        if (env("APP_ENV", "local") !== 'production') {
+        if (config('app.env') !== 'production') {
             $this->createGuest();
         }
     }
@@ -20,10 +20,10 @@ class MasterSeeder extends BaseSeeder
     private function createGuest()
     {
 
-        $email = env('GUEST_EMAIL', 'guest@example.com');
-        $password = env('GUEST_PASSWORD', 'password');
+        $email = config('app.guest_email', 'guest@example.com');
+        $password = config('app.guest_password', 'password');
         // Adminは他のシーダで行う。
-        User::factory()->create([
+        User::updateOrCreate(['email' => $email], [
             'name' => 'guest',
             'email' => $email,
             'password' => Hash::make($password),
