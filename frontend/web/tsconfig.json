@@ -12,15 +12,23 @@
 		"skipLibCheck": true,
 		"noEmit": true,
 		"paths": {
-			"@/*": ["./src/ts/*"],
-			// "ziggy-js": ["./vendor/tightenco/ziggy"]
+			"@/*": [
+				"./src/ts/*"
+			],
+			"@public/*": [
+				"../core/public/*"
+			]
 		},
-		"typeRoots": ["./node_modules/@types", "src/ts/types"]
+		"typeRoots": [
+			"./node_modules/@types",
+			"src/ts/types"
+		]
 	},
 	"include": [
-		"src/ts/**/*.ts",
-		"src/ts/**/*.tsx",
-		"src/ts/**/*.d.ts",
-		"src/ts/**/*.js"
+		"src/**/*.ts",
+		"src/**/*.tsx",
+		"src/**/*.d.ts",
+		"src/**/*.js",
+		"src/**/*.jsx"
 	]
 }

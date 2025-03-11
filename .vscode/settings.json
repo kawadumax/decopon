@@ -1,7 +1,4 @@
 {
-	"[javascript][javascriptreact][typescript][typescriptreact][json][jsonc]": {
-		"editor.defaultFormatter": "biomejs.biome"
-	},
 	"editor.formatOnSave": true,
 	"editor.codeActionsOnSave": {
 		"quickfix.biome": "explicit",
@@ -14,5 +11,12 @@
 	},
 	"[typescriptreact]": {
 		"editor.defaultFormatter": "biomejs.biome"
-	}
+	},
+	"[javascript]": {
+		"editor.defaultFormatter": "biomejs.biome"
+	},
+	"[json]": {
+		"editor.defaultFormatter": "biomejs.biome"
+	},
+	"biome.lspBin": "./frontend/web"
 }

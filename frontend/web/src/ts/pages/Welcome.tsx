@@ -2,7 +2,7 @@ import ApplicationLogo from "@/components/ApplicationLogo";
 import { LangSwitch } from "@/components/LangSwitch";
 import { ParticlesBackground } from "@/components/ParticlesBackground";
 import type { PageProps } from "@/types";
-import { Head, Link } from "@inertiajs/react";
+import { Link } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 const WelcomeCard = ({
@@ -38,13 +38,13 @@ const WelcomeCard = ({
 
 export default function Welcome({
 	auth,
-	laravelVersion,
-	phpVersion,
+	// laravelVersion,
+	// phpVersion,
 }: PageProps<{ laravelVersion: string; phpVersion: string }>) {
 	const { t } = useTranslation();
 	return (
 		<>
-			<Head title="Welcome" />
+			{/* <Head title="Welcome" /> */}
 			<div className="bg-stone-50 text-black/70 dark:bg-black dark:text-white/50">
 				<ParticlesBackground />
 				<div className="relative flex min-h-screen flex-col items-center justify-center selection:bg-[#FF2D20] selection:text-white">
@@ -57,7 +57,7 @@ export default function Welcome({
 
 								{auth.user ? (
 									<Link
-										href={route("dashboard")}
+										// href={route("dashboard")}
 										className="rounded-md px-3 py-2 ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
 									>
 										{t("header.menu.dashboard")}
@@ -65,13 +65,13 @@ export default function Welcome({
 								) : (
 									<>
 										<Link
-											href={route("login")}
+											// href={route("login")}
 											className="rounded-md px-3 py-2 ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
 										>
 											{t("header.menu.login")}
 										</Link>
 										<Link
-											href={route("register")}
+											// href={route("register")}
 											className="rounded-md py-2 ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
 										>
 											{t("header.menu.register")}
@@ -127,7 +127,7 @@ export default function Welcome({
 								</div>
 								<Link
 									className="bg-amber-400 text-white px-6 py-3 rounded-full font-semibold hover:bg-amber-500 transition duration-300"
-									href={auth.user ? route("dashboard") : route("register")}
+									// href={auth.user ? route("dashboard") : route("register")}
 								>
 									{t("welcome.getStarted")}
 								</Link>
@@ -135,7 +135,7 @@ export default function Welcome({
 						</main>
 
 						<footer className="py-16 text-center text-sm text-black dark:text-white/70">
-							Laravel v{laravelVersion} (PHP v{phpVersion})
+							{/* Laravel v{laravelVersion} (PHP v{phpVersion}) */}
 						</footer>
 					</div>
 				</div>

@@ -1,12 +1,7 @@
-// 例: src/ts/main.tsx （または app.tsx）など
-
-import React from "react";
+import { StrictMode } from "react";
 import ReactDOM from "react-dom/client";
-
-// Inertia.js 関連の import は削除
-// import { createInertiaApp } from "@inertiajs/react";
-// import { resolvePageComponent } from "laravel-vite-plugin/inertia-helpers";
-
+import { RouterProvider, createRouter } from '@tanstack/react-router';
+import { routeTree } from './routeTree.gen';
 import "./css/app.css";
 import "./ts/bootstrap";
 
@@ -18,9 +13,6 @@ import "./ts/bootstrap";
 // import { initializeI18n } from "./i18n";
 // import { Locale } from "./types";
 
-// アプリのトップレベルコンポーネント（App）を別途用意
-import { App } from "./ts/App"; // 自作のApp.tsxなど
-
 // 初期化処理
 // initializeI18n(Locale.ENGLISH);
 
@@ -28,11 +20,21 @@ import { App } from "./ts/App"; // 自作のApp.tsxなど
 const rootElement = document.getElementById("root")!;
 const root = ReactDOM.createRoot(rootElement);
 
+// Create a new router instance
+const router = createRouter({ routeTree })
+
+// Register the router instance for type safety
+declare module '@tanstack/react-router' {
+  interface Register {
+    router: typeof router
+  }
+}
+
 root.render(
-  <>
-    {/* <LangManager /> */}
-    {/* <TimeManager /> */}
-    {/* <DevTools position="top-left" /> */}
-    <App />
-  </>
+  <StrictMode>
+      {/* <LangManager /> */}
+  {/* <TimeManager /> */}
+  {/* <DevTools position="top-left" /> */}
+    <RouterProvider router={router} />
+  </StrictMode>
 );

@@ -1,12 +1,11 @@
 import AuthenticatedLayout from "@/layouts/AuthenticatedLayout";
-import { Head } from "@inertiajs/react";
 import { useTranslation } from "react-i18next";
 
-export default function Dashboard() {
+export const Dashboard =  () => {
 	const { t } = useTranslation();
 	return (
 		<AuthenticatedLayout>
-			<Head title="Dashboard" />
+			{/* <Head title="Dashboard" /> */}
 
 			<div className="py-12">
 				<div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
