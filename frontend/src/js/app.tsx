@@ -11,7 +11,7 @@ import "jotai-devtools/styles.css";
 import { LangManager } from "./Components/LangManager";
 import { TimeManager } from "./Components/TimeManager";
 import { initializeI18n } from "./i18n";
-import { Locale } from "./types/index.d";
+import { Locale } from "./types";
 
 const appName = import.meta.env.VITE_APP_NAME || "Decopon";
 
