@@ -1,13 +1,13 @@
+import path from "node:path";
+import { TanStackRouterVite } from "@tanstack/router-plugin/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 import svgr from "vite-plugin-svgr";
-import { TanStackRouterVite } from '@tanstack/router-plugin/vite';
-import path from 'path';
 
 export default () => {
 	return defineConfig({
 		plugins: [
-			TanStackRouterVite({ target: 'react', autoCodeSplitting: true }),
+			TanStackRouterVite({ target: "react", autoCodeSplitting: true }),
 			react({
 				babel: {
 					presets: ["jotai/babel/preset"],
@@ -18,7 +18,7 @@ export default () => {
 					exportType: "named",
 					ref: true,
 				},
-			})
+			}),
 		],
 		server: {
 			host: "localhost",
@@ -26,13 +26,13 @@ export default () => {
 			watch: {
 				usePolling: true,
 			},
-			open: true,		
+			open: true,
 		},
 		resolve: {
 			alias: {
-				'@': path.resolve(__dirname, './src/ts'),
-				'@public': path.resolve(__dirname, '../core/public'),
-			}
-		}
+				"@": path.resolve(__dirname, "./src/ts"),
+				"@public": path.resolve(__dirname, "../core/public"),
+			},
+		},
 	});
 };

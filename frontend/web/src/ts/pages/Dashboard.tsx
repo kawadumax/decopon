@@ -1,7 +1,7 @@
 import AuthenticatedLayout from "@/layouts/AuthenticatedLayout";
 import { useTranslation } from "react-i18next";
 
-export const Dashboard =  () => {
+export const Dashboard = () => {
 	const { t } = useTranslation();
 	return (
 		<AuthenticatedLayout>
@@ -18,4 +18,4 @@ export const Dashboard =  () => {
 			</div>
 		</AuthenticatedLayout>
 	);
-}
+};

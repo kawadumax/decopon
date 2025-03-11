@@ -3,7 +3,7 @@ import InputLabel from "@/components/InputLabel";
 import PrimaryButton from "@/components/PrimaryButton";
 import TextInput from "@/components/TextInput";
 import GuestLayout from "@/layouts/GuestLayout";
-import { Head, useForm } from "@inertiajs/react";
+// import { Head, useForm } from "@inertiajs/react";
 import type { FormEventHandler } from "react";
 import { useTranslation } from "react-i18next";
 

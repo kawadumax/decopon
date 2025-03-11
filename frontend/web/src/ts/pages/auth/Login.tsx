@@ -4,10 +4,10 @@ import PrimaryButton from "@/components/PrimaryButton";
 import TextInput from "@/components/TextInput";
 import { Checkbox } from "@/components/ui/checkbox";
 import GuestLayout from "@/layouts/GuestLayout";
-import { Head, Link, useForm } from "@inertiajs/react";
+// import { Head, Link, useForm } from "@inertiajs/react";
 import type { FormEventHandler } from "react";
 import { useTranslation } from "react-i18next";
-import { DemoCaution } from "./Partials/DemoCaution";
+import { DemoCaution } from "./partials/DemoCaution";
 
 export default function Login({
 	status,

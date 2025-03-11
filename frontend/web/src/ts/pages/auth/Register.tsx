@@ -3,10 +3,10 @@ import InputLabel from "@/components/InputLabel";
 import PrimaryButton from "@/components/PrimaryButton";
 import TextInput from "@/components/TextInput";
 import GuestLayout from "@/layouts/GuestLayout";
-import { Head, Link, useForm } from "@inertiajs/react";
+// import { Head, Link, useForm } from "@inertiajs/react";
 import type { FormEventHandler } from "react";
 import { useTranslation } from "react-i18next";
-import { DemoCaution } from "./Partials/DemoCaution";
+import { DemoCaution } from "./partials/DemoCaution";
 
 export default function Register() {
 	const { t } = useTranslation();
@@ -27,7 +27,7 @@ export default function Register() {
 
 	return (
 		<GuestLayout>
-			<Head title={t("auth.register.title")} />
+			{/* <Head title={t("auth.register.title")} /> */}
 
 			<form onSubmit={submit}>
 				<DemoCaution

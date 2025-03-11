@@ -2,7 +2,7 @@ import InputError from "@/components/InputError";
 import PrimaryButton from "@/components/PrimaryButton";
 import TextInput from "@/components/TextInput";
 import GuestLayout from "@/layouts/GuestLayout";
-import { Head, useForm } from "@inertiajs/react";
+// import { Head, useForm } from "@inertiajs/react";
 import type { FormEventHandler } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -20,7 +20,7 @@ export default function ForgotPassword({ status }: { status?: string }) {
 
 	return (
 		<GuestLayout>
-			<Head title={t("auth.forgotPassword.title")} />
+			{/* <Head title={t("auth.forgotPassword.title")} /> */}
 
 			<div className="mb-4 text-sm text-gray-600 dark:text-gray-400">
 				{t("auth.forgotPassword.description")}

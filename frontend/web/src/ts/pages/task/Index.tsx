@@ -3,7 +3,7 @@ import { Timer } from "@/components/Timer";
 import AuthenticatedLayout from "@/layouts/AuthenticatedLayout";
 import { tasksAtom } from "@/lib/atoms";
 import type { PageProps, Task } from "@/types";
-import { Head } from "@inertiajs/react";
+
 import { useSetAtom } from "jotai";
 import { useEffect } from "react";
 import Split from "react-split";
@@ -26,7 +26,7 @@ export default function Index(
 
 	return (
 		<AuthenticatedLayout>
-			<Head title={t("task.title")} />
+			{/* <Head title={t("task.title")} /> */}
 
 			<Split
 				className="flex flex-row min-h-full max-h-full bg-white"

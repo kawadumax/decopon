@@ -4,13 +4,13 @@ import AuthenticatedLayout from "@/layouts/AuthenticatedLayout";
 import { tagsAtom } from "@/lib/atoms";
 import type { PageProps } from "@/types";
 import type { Tag } from "@/types";
-import { Head } from "@inertiajs/react";
+
 import { useAtom } from "jotai";
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import Split from "react-split";
 import { TagTable } from "./partials/TagTable";
 import { TagTools } from "./partials/TagTools";
-import { useTranslation } from "react-i18next";
 
 export default function Index(
 	props: PageProps<{
@@ -25,7 +25,7 @@ export default function Index(
 
 	return (
 		<AuthenticatedLayout>
-			<Head title={t("tag.title")} />
+			{/* <Head title={t("tag.title")} /> */}
 
 			<Split
 				className="flex flex-row min-h-full max-h-full bg-white"

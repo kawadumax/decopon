@@ -1,6 +1,6 @@
 import AuthenticatedLayout from "@/layouts/AuthenticatedLayout";
 import type { PageProps } from "@/types";
-import { Head } from "@inertiajs/react";
+// import { Head } from "@inertiajs/react";
 import { useTranslation } from "react-i18next";
 import DeleteUserForm from "./partials/DeleteUserForm";
 import UpdatePasswordForm from "./partials/UpdatePasswordForm";
@@ -19,7 +19,7 @@ export default function Edit({
 				</h2>
 			}
 		>
-			<Head title={t("profile.title")} />
+			{/* <Head title={t("profile.title")} /> */}
 
 			<div className="py-12 bg-gray-100 dark:bg-gray-900">
 				<div className="mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8">

@@ -1,6 +1,6 @@
 import PrimaryButton from "@/components/PrimaryButton";
 import GuestLayout from "@/layouts/GuestLayout";
-import { Head, Link, useForm } from "@inertiajs/react";
+// import { Head, Link, useForm } from "@inertiajs/react";
 import type { FormEventHandler } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -16,7 +16,7 @@ export default function VerifyEmail({ status }: { status?: string }) {
 
 	return (
 		<GuestLayout>
-			<Head title={t("auth.verifyEmail.title")} />
+			{/* <Head title={t("auth.verifyEmail.title")} /> */}
 
 			<div className="mb-4 text-sm text-gray-600 dark:text-gray-400">
 				{t("auth.verifyEmail.description")}

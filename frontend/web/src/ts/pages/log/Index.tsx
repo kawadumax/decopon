@@ -2,7 +2,7 @@ import { LogItem } from "@/components/LogItem";
 import AuthenticatedLayout from "@/layouts/AuthenticatedLayout";
 import { logsAtom } from "@/lib/atoms";
 import type { Log, PageProps } from "@/types";
-import { Head } from "@inertiajs/react";
+// import { Head } from "@inertiajs/react";
 import { useAtom } from "jotai";
 import { useEffect, useRef } from "react";
 import Split from "react-split";
@@ -21,7 +21,7 @@ export default function Index(
 
 	return (
 		<AuthenticatedLayout>
-			<Head title="Timeline" />
+			{/* <Head title="Timeline" /> */}
 
 			<Split
 				className="flex flex-row min-h-full max-h-full bg-white"
