@@ -20,6 +20,21 @@ php artisan key:generate
 ```
 
 ## コマンドのメモ書き
+マイクロサービス化して、ルートディレクトリにコマンドを置いておく
+タスクランナとしてjustを使っているのでjustを入れてください
+
+```
+brew install just
+
+just backend # バックエンド起動
+just web # webのフロントエンド起動
+just all # 全部起動
+
+```
+
+
+
+
 
 開発サーバ実行
 
