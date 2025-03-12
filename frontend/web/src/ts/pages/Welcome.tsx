@@ -38,8 +38,8 @@ const WelcomeCard = ({
 
 export default function Welcome({
 	auth,
-	// laravelVersion,
-	// phpVersion,
+	laravelVersion,
+	phpVersion,
 }: PageProps<{ laravelVersion: string; phpVersion: string }>) {
 	const { t } = useTranslation();
 	return (
@@ -125,17 +125,18 @@ export default function Welcome({
 										videoPath="videos/organize.mp4"
 									/>
 								</div>
-								<Link
+								{/* biome-ignore lint/a11y/useValidAnchor: <explanation> */}
+								<a
 									className="bg-amber-400 text-white px-6 py-3 rounded-full font-semibold hover:bg-amber-500 transition duration-300"
 									// href={auth.user ? route("dashboard") : route("register")}
 								>
 									{t("welcome.getStarted")}
-								</Link>
+								</a>
 							</div>
 						</main>
 
 						<footer className="py-16 text-center text-sm text-black dark:text-white/70">
-							{/* Laravel v{laravelVersion} (PHP v{phpVersion}) */}
+							Laravel v{laravelVersion} (PHP v{phpVersion})
 						</footer>
 					</div>
 				</div>

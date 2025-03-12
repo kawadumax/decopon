@@ -34,5 +34,6 @@ export default () => {
 				"@public": path.resolve(__dirname, "../core/public"),
 			},
 		},
+		publicDir: "../core/public",
 	});
 };
