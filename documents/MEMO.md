@@ -24,34 +24,10 @@ php artisan key:generate
 タスクランナとしてjustを使っているのでjustを入れてください
 
 ```
-brew install just
-
+brew install just # just（タスクランナ）のインストール
 just backend # バックエンド起動
 just web # webのフロントエンド起動
 just all # 全部起動
-
-```
-
-
-
-
-
-開発サーバ実行
-
-```
-php artisan serve
-```
-
-フロントエンドも一緒に
-
-```
-npm run dev
-```
-
-上記を同時にできるかも
-
-```
-composer run dev
 ```
 
 DB リセットして Seeder 実行
@@ -64,13 +40,3 @@ php artisan migrate:fresh --seed
 ```
 git config --local core.hooksPath .githooks
 ```
-
-## フロントエンドのルーティングについて。
-
-route("name のほうをいれる")
-
-## ビューのイメージ
-
-タスクビューでは、ツリービューと詳細ビューがある？
-ツリービューは分解するためのビュー。詳細ビューはログを取るためのビュー。
-実行コンテクストも詳細ビュー。
