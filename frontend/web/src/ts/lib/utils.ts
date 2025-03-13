@@ -74,3 +74,12 @@ export const toEmblorTags = (tags: Tag[]): EmblorTag[] => {
 	}
 	return [];
 };
+
+/**
+ * 配列の最後の要素を取得する
+ * @param arr: T[] 配列
+ * @returns T 配列の最後の要素
+ */
+export const getLast = <T>(arr: T[]): T => {
+	return arr[arr.length - 1];
+};

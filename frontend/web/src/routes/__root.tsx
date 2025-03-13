@@ -1,11 +1,27 @@
-import { createRootRoute, Outlet } from "@tanstack/react-router";
-import React from "react";
+import { getLast } from "@/lib/utils";
+import {
+	HeadContent,
+	Outlet,
+	createRootRouteWithContext,
+} from "@tanstack/react-router";
 
-export const Route = createRootRoute({
+interface RouterContext {
+	title: string;
+}
+
+export const Route = createRootRouteWithContext<RouterContext>()({
 	component: () => (
 		<>
+			<HeadContent />
 			<Outlet />
 			{/* <TanStackRouterDevtools /> */}
 		</>
 	),
+	head: (ctx) => {
+		const pageTitle = getLast(ctx.matches).context.title;
+		const appName = import.meta.env.VITE_APP_NAME;
+		return {
+			meta: [{ title: `${pageTitle} | ${appName}` }],
+		};
+	},
 });

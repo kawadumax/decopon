@@ -35,5 +35,6 @@ export default () => {
 			},
 		},
 		publicDir: "../core/public",
+		envDir: "../../",
 	});
 };

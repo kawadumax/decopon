@@ -26,7 +26,7 @@ if (!rootElement) {
 const root = ReactDOM.createRoot(rootElement);
 
 // Create a new router instance
-const router = createRouter({ routeTree });
+const router = createRouter({ routeTree, context: { title: "" } });
 
 // Register the router instance for type safety
 declare module "@tanstack/react-router" {

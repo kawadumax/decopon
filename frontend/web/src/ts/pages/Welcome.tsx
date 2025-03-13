@@ -2,7 +2,7 @@ import ApplicationLogo from "@/components/ApplicationLogo";
 import { LangSwitch } from "@/components/LangSwitch";
 import { ParticlesBackground } from "@/components/ParticlesBackground";
 import type { PageProps } from "@/types";
-import { Link } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 
 const WelcomeCard = ({
@@ -36,11 +36,7 @@ const WelcomeCard = ({
 	);
 };
 
-export default function Welcome({
-	auth,
-	laravelVersion,
-	phpVersion,
-}: PageProps<{ laravelVersion: string; phpVersion: string }>) {
+export default function Welcome({ auth }: PageProps) {
 	const { t } = useTranslation();
 	return (
 		<>
@@ -57,7 +53,7 @@ export default function Welcome({
 
 								{auth.user ? (
 									<Link
-										// href={route("dashboard")}
+										to="/dashboard"
 										className="rounded-md px-3 py-2 ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
 									>
 										{t("header.menu.dashboard")}
@@ -65,13 +61,13 @@ export default function Welcome({
 								) : (
 									<>
 										<Link
-											// href={route("login")}
+											to="/login"
 											className="rounded-md px-3 py-2 ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
 										>
 											{t("header.menu.login")}
 										</Link>
 										<Link
-											// href={route("register")}
+											to="/register"
 											className="rounded-md py-2 ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
 										>
 											{t("header.menu.register")}
@@ -125,18 +121,21 @@ export default function Welcome({
 										videoPath="videos/organize.mp4"
 									/>
 								</div>
-								{/* biome-ignore lint/a11y/useValidAnchor: <explanation> */}
-								<a
+
+								<Link
+									to={auth.user ? "/dashboard" : "/register"}
 									className="bg-amber-400 text-white px-6 py-3 rounded-full font-semibold hover:bg-amber-500 transition duration-300"
-									// href={auth.user ? route("dashboard") : route("register")}
 								>
 									{t("welcome.getStarted")}
-								</a>
+								</Link>
 							</div>
 						</main>
 
 						<footer className="py-16 text-center text-sm text-black dark:text-white/70">
-							Laravel v{laravelVersion} (PHP v{phpVersion})
+							<small>
+								This software is originally made by kawadumax. Licensed under
+								the MPL 2.0 License.
+							</small>
 						</footer>
 					</div>
 				</div>
