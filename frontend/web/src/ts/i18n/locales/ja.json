@@ -8,6 +8,7 @@
 		"noTasks": "タスクはありません"
 	},
 	"log": {
+		"title": "タイムライン",
 		"type": {
 			"system": "システムログ"
 		}
@@ -66,7 +67,8 @@
 		}
 	},
 	"welcome": {
-		"title": "Decopon",
+		"title": "Welcome",
+		"appName": "Decopon",
 		"lang": "言語:",
 		"subtitle": "ADHDのためのタスク管理ツール",
 		"features": {
@@ -91,6 +93,7 @@
 		"getStarted": "始めましょう"
 	},
 	"dashboard": {
+		"title": "ダッシュボード",
 		"greeting": "ログインしました！"
 	},
 	"auth": {

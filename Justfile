@@ -15,6 +15,9 @@ backend:
 web:
     cd {{FRONTEND_WEB_DIR}} && pnpm run dev
 
+web-run *args:
+    cd {{FRONTEND_WEB_DIR}} && {{ args }}
+
 # バックエンドとフロントエンドの同時起動
 all:
     #!/bin/bash -eux

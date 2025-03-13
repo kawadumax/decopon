@@ -8,6 +8,7 @@
 		"noTasks": "No Tasks"
 	},
 	"log": {
+		"title": "Timeline",
 		"type": {
 			"system": "System Log"
 		}
@@ -66,7 +67,8 @@
 		}
 	},
 	"welcome": {
-		"title": "Decopon",
+		"title": "Welcome",
+		"appName": "Decopon",
 		"lang": "Language:",
 		"subtitle": "The Task Manager for ADHD",
 		"features": {
@@ -91,6 +93,7 @@
 		"getStarted": "Get Started"
 	},
 	"dashboard": {
+		"title": "Dashboard",
 		"greeting": "You're logged in!"
 	},
 	"auth": {

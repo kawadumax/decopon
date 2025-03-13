@@ -6,14 +6,14 @@ import { TimerStateWidget } from "@/components/TimerStateWidget";
 import { Toaster } from "@/components/ui/sonner";
 import { useTimeEntryApi } from "@/hooks/useTimeEntryApi";
 import { breakTimeAtom, languageAtom, workTimeAtom } from "@/lib/atoms";
-import { Locale, type PageProps } from "@/types/index.d";
-import { Link, usePage } from "@inertiajs/react";
+import { Locale } from "@/types/index.d";
+import { Link, useRouteContext } from "@tanstack/react-router";
 import { useSetAtom } from "jotai";
 import {
-    type PropsWithChildren,
-    type ReactNode,
-    useEffect,
-    useState,
+	type PropsWithChildren,
+	type ReactNode,
+	useEffect,
+	useState,
 } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -22,10 +22,15 @@ export default function Authenticated({
 	children,
 }: PropsWithChildren<{ header?: ReactNode }>) {
 	const { t } = useTranslation();
-	const { auth } = usePage<PageProps>().props;
+	const { auth } = useRouteContext({ from: "/" });
 	const user = auth.user;
+
+	if (!user) {
+		throw new Error("User not found");
+	}
+
 	const preference = user.preference;
-	const lang = preference.locale || Locale.ENGLISH;
+	const lang = preference?.locale || Locale.ENGLISH;
 	const setLang = useSetAtom(languageAtom);
 	const { initCyclesOfTimeEntry } = useTimeEntryApi();
 
@@ -35,8 +40,8 @@ export default function Authenticated({
 
 	const setWorkTime = useSetAtom(workTimeAtom);
 	const setBreakTime = useSetAtom(breakTimeAtom);
-	setWorkTime(preference.work_time);
-	setBreakTime(preference.break_time);
+	setWorkTime(preference?.work_time || 25);
+	setBreakTime(preference?.break_time || 5);
 
 	useEffect(() => {
 		initCyclesOfTimeEntry();
@@ -52,32 +57,32 @@ export default function Authenticated({
 					<div className="flex h-16 justify-between">
 						<div className="flex">
 							<div className="flex shrink-0 items-center">
-								<Link href="/">
+								<Link to="/">
 									<ApplicationLogo className="block h-9 w-auto fill-current text-gray-800 dark:text-gray-200" />
 								</Link>
 							</div>
 
 							<div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
 								<NavLink
-									href={route("dashboard")}
+									to={route("dashboard")}
 									active={route().current("dashboard")}
 								>
 									{t("header.menu.dashboard")}
 								</NavLink>
 								<NavLink
-									href={route("tasks.index")}
+									to={route("tasks.index")}
 									active={route().current("tasks.index")}
 								>
 									{t("header.menu.tasks")}
 								</NavLink>
 								<NavLink
-									href={route("tags.index")}
+									to={route("tags.index")}
 									active={route().current("tags.index")}
 								>
 									{t("header.menu.tags")}
 								</NavLink>
 								<NavLink
-									href={route("logs.index")}
+									to={route("logs.index")}
 									active={route().current("logs.index")}
 								>
 									{t("header.menu.timeline")}
@@ -115,11 +120,11 @@ export default function Authenticated({
 									</Dropdown.Trigger>
 
 									<Dropdown.Content>
-										<Dropdown.Link href={route("profile.edit")}>
+										<Dropdown.Link to={route("profile.edit")}>
 											{t("header.menu.profile")}
 										</Dropdown.Link>
 										<Dropdown.Link
-											href={route("logout")}
+											to={route("logout")}
 											method="post"
 											as="button"
 										>
@@ -176,7 +181,7 @@ export default function Authenticated({
 				>
 					<div className="space-y-1 pb-3 pt-2">
 						<ResponsiveNavLink
-							href={route("dashboard")}
+							to={route("dashboard")}
 							active={route().current("dashboard")}
 						>
 							{t("header.menu.dashboard")}
@@ -194,14 +199,10 @@ export default function Authenticated({
 						</div>
 
 						<div className="mt-3 space-y-1">
-							<ResponsiveNavLink href={route("profile.edit")}>
+							<ResponsiveNavLink to={route("profile.edit")}>
 								{t("header.menu.profile")}
 							</ResponsiveNavLink>
-							<ResponsiveNavLink
-								method="post"
-								href={route("logout")}
-								as="button"
-							>
+							<ResponsiveNavLink method="post" to={route("logout")} as="button">
 								{t("header.menu.logout")}
 							</ResponsiveNavLink>
 						</div>

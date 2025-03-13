@@ -1,8 +1,7 @@
 import ApplicationLogo from "@/components/ApplicationLogo";
 import { LangSwitch } from "@/components/LangSwitch";
 import { ParticlesBackground } from "@/components/ParticlesBackground";
-import type { PageProps } from "@/types";
-import { Link } from "@tanstack/react-router";
+import { Link, useRouteContext } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 
 const WelcomeCard = ({
@@ -36,11 +35,11 @@ const WelcomeCard = ({
 	);
 };
 
-export default function Welcome({ auth }: PageProps) {
+export default function Welcome() {
 	const { t } = useTranslation();
+	const { auth } = useRouteContext({ from: "/" });
 	return (
 		<>
-			{/* <Head title="Welcome" /> */}
 			<div className="bg-stone-50 text-black/70 dark:bg-black dark:text-white/50">
 				<ParticlesBackground />
 				<div className="relative flex min-h-screen flex-col items-center justify-center selection:bg-[#FF2D20] selection:text-white">
@@ -82,7 +81,7 @@ export default function Welcome({ auth }: PageProps) {
 								<div className="relative">
 									<ApplicationLogo className="w-64 h-64 mb-4" />
 									<h1 className="text-9xl font-bold text-amber-400 mb-4 font-cursive absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/3">
-										{t("welcome.title")}
+										{t("welcome.appName")}
 									</h1>
 								</div>
 

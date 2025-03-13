@@ -1,4 +1,5 @@
 import { getLast } from "@/lib/utils";
+import type { User } from "@/types";
 import {
 	HeadContent,
 	Outlet,
@@ -7,6 +8,9 @@ import {
 
 interface RouterContext {
 	title: string;
+	auth: {
+		user?: User;
+	};
 }
 
 export const Route = createRootRouteWithContext<RouterContext>()({

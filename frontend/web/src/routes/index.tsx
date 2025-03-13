@@ -1,6 +1,7 @@
 import Welcome from "@/pages/Welcome";
 import type { User } from "@/types/index.d";
 import { createFileRoute } from "@tanstack/react-router";
+import { t } from "i18next";
 
 // dummy auth object
 const auth = {
@@ -8,13 +9,13 @@ const auth = {
 		id: 1,
 		name: "test",
 		email: "user@example.com",
+		preference: {
+			locale: "en",
+		},
 	} as User,
-	preference: {
-		locale: "en",
-	},
 };
 
 export const Route = createFileRoute("/")({
-	component: () => <Welcome auth={auth} />,
-	context: () => ({ title: "Welcome" }),
+	component: () => <Welcome />,
+	context: () => ({ title: t("welcome.title") }),
 });
