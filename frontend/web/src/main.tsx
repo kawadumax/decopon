@@ -13,6 +13,13 @@ import { LangManager } from "@/components/LangManager";
 import { initializeI18n } from "@/i18n";
 import { Locale } from "@/types/index.d";
 
+// ziggy.js から生成されたルート名をグローバルに登録
+import { Ziggy } from "@core/ziggy.js";
+globalThis.Ziggy = Ziggy;
+
+import { route } from "ziggy-js";
+globalThis.route = route;
+
 // 初期化処理
 initializeI18n(Locale.ENGLISH);
 

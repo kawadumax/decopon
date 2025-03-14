@@ -17,6 +17,9 @@
 			],
 			"@public/*": [
 				"../core/public/*"
+			],
+			"@core/*": [
+				"../core/src/js/*"
 			]
 		},
 		"typeRoots": [

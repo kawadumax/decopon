@@ -1,15 +1,11 @@
+import type { Ziggy as ZiggyType, ziggyRoute } from "@core/ziggy.js";
 import type { PageProps as InertiaPageProps } from "@inertiajs/core";
-import type { AxiosInstance } from "axios";
-import type { route as ziggyRoute } from "ziggy-js";
 import type { PageProps as AppPageProps } from ".";
 
 declare global {
-	interface Window {
-		axios: AxiosInstance;
-	}
-
-	/* eslint-disable no-var */
+	// /* eslint-disable no-var */
 	var route: typeof ziggyRoute;
+	var Ziggy: typeof ZiggyType;
 }
 
 declare module "@inertiajs/core" {

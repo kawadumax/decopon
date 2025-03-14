@@ -32,6 +32,7 @@ export default () => {
 			alias: {
 				"@": path.resolve(__dirname, "./src/ts"),
 				"@public": path.resolve(__dirname, "../core/public"),
+				"@core": path.resolve(__dirname, "../core/src/js"),
 			},
 		},
 		publicDir: "../core/public",
