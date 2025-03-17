@@ -1,14 +1,15 @@
-import { type InertiaLinkProps, Link } from "@inertiajs/react";
+import type { DecoponLinkProps } from "@/types";
+import { Link } from "@tanstack/react-router";
 
 export default function NavLink({
 	active = false,
 	className = "",
 	children,
-	...props
-}: InertiaLinkProps & { active: boolean }) {
+	to,
+}: DecoponLinkProps & { active: boolean }) {
 	return (
 		<Link
-			{...props}
+			to={to}
 			className={`inline-flex items-center border-b-2 px-1 pt-1 text-sm font-medium leading-5 transition duration-150 ease-in-out focus:outline-none ${
 				active
 					? "border-amber-400 text-gray-900 focus:border-amber-700 dark:border-amber-600 dark:text-gray-100"

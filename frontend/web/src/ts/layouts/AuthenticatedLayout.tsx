@@ -22,7 +22,8 @@ export default function Authenticated({
 	children,
 }: PropsWithChildren<{ header?: ReactNode }>) {
 	const { t } = useTranslation();
-	const { auth } = useRouteContext({ from: "/" });
+	const ctx = useRouteContext({ from: "/auth" });
+	const { auth } = ctx;
 	const user = auth.user;
 
 	if (!user) {
@@ -64,27 +65,21 @@ export default function Authenticated({
 
 							<div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
 								<NavLink
-									to={route("dashboard")}
+									to="/auth/dashboard"
 									active={route().current("dashboard")}
 								>
 									{t("header.menu.dashboard")}
 								</NavLink>
 								<NavLink
-									to={route("tasks.index")}
+									to="/auth/tasks"
 									active={route().current("tasks.index")}
 								>
 									{t("header.menu.tasks")}
 								</NavLink>
-								<NavLink
-									to={route("tags.index")}
-									active={route().current("tags.index")}
-								>
+								<NavLink to="/auth/tags" active={route().current("tags.index")}>
 									{t("header.menu.tags")}
 								</NavLink>
-								<NavLink
-									to={route("logs.index")}
-									active={route().current("logs.index")}
-								>
+								<NavLink to="/auth/logs" active={route().current("logs.index")}>
 									{t("header.menu.timeline")}
 								</NavLink>
 							</div>
@@ -120,7 +115,7 @@ export default function Authenticated({
 									</Dropdown.Trigger>
 
 									<Dropdown.Content>
-										<Dropdown.Link to={route("profile.edit")}>
+										<Dropdown.Link to="/auth/profiles">
 											{t("header.menu.profile")}
 										</Dropdown.Link>
 										<Dropdown.Link
@@ -181,7 +176,7 @@ export default function Authenticated({
 				>
 					<div className="space-y-1 pb-3 pt-2">
 						<ResponsiveNavLink
-							to={route("dashboard")}
+							to={"/auth/dashboard"}
 							active={route().current("dashboard")}
 						>
 							{t("header.menu.dashboard")}
@@ -199,7 +194,7 @@ export default function Authenticated({
 						</div>
 
 						<div className="mt-3 space-y-1">
-							<ResponsiveNavLink to={route("profile.edit")}>
+							<ResponsiveNavLink to="/auth/profiles">
 								{t("header.menu.profile")}
 							</ResponsiveNavLink>
 							<ResponsiveNavLink method="post" to={route("logout")} as="button">

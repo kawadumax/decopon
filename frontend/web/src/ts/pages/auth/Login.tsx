@@ -2,7 +2,6 @@ import InputLabel from "@/components/InputLabel";
 import PrimaryButton from "@/components/PrimaryButton";
 import TextInput from "@/components/TextInput";
 import { Checkbox } from "@/components/ui/checkbox";
-import GuestLayout from "@/layouts/GuestLayout";
 // import { Head, Link, useForm } from "@inertiajs/react";
 import { useForm } from "@tanstack/react-form";
 import { Link } from "@tanstack/react-router";
@@ -36,7 +35,7 @@ export default function Login({
 	};
 
 	return (
-		<GuestLayout>
+		<>
 			{status && (
 				<div className="mb-4 font-medium text-sm text-green-600">{status}</div>
 			)}
@@ -110,6 +109,6 @@ export default function Login({
 					</PrimaryButton>
 				</div>
 			</form>
-		</GuestLayout>
+		</>
 	);
 }

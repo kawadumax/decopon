@@ -1,3 +1,6 @@
+import type { LinkProps } from "@tanstack/react-router";
+import type { RegisteredRouter } from "@tanstack/react-router";
+
 export interface User {
 	id: number;
 	preference: Preference;
@@ -85,4 +88,9 @@ export type PageProps<
 	auth: {
 		user: User;
 	};
+};
+
+export type DecoponLinkProps = Pick<LinkProps<RegisteredRouter>, "to"> & {
+	children: React.ReactNode;
+	className?: string;
 };
