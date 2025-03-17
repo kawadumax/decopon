@@ -5,17 +5,17 @@ import { t } from "i18next";
 
 // dummy auth object
 const auth = {
-	user: {
-		id: 1,
-		name: "test",
-		email: "user@example.com",
-		preference: {
-			locale: "en",
-		},
-	} as User,
+  user: {
+    id: 1,
+    name: "test",
+    email: "user@example.com",
+    preference: {
+      locale: "en",
+    },
+  } as User,
 };
 
 export const Route = createFileRoute("/")({
-	component: () => <Welcome />,
-	context: () => ({ title: t("welcome.title") }),
+  component: () => <Welcome />,
+  context: () => ({ title: t("welcome.title") }),
 });

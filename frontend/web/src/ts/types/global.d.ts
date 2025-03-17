@@ -3,11 +3,11 @@ import type { PageProps as InertiaPageProps } from "@inertiajs/core";
 import type { PageProps as AppPageProps } from ".";
 
 declare global {
-	// /* eslint-disable no-var */
-	var route: typeof ziggyRoute;
-	var Ziggy: typeof ZiggyType;
+  // /* eslint-disable no-var */
+  var route: typeof ziggyRoute;
+  var Ziggy: typeof ZiggyType;
 }
 
 declare module "@inertiajs/core" {
-	interface PageProps extends InertiaPageProps, AppPageProps {}
+  interface PageProps extends InertiaPageProps, AppPageProps {}
 }

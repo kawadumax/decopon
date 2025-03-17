@@ -3,27 +3,23 @@ import { useCallback, useState } from "react";
 import { useApi } from "./useApi";
 
 export function useLogout() {
-	const router = useRouter();
-	const [loading, setLoading] = useState(false);
-	const [error, setError] = useState<string | null>(null);
-	const api = useApi();
-	const logout = useCallback(async () => {
-		setLoading(true);
-		setError(null);
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const api = useApi();
+  const logout = useCallback(async () => {
+    setLoading(true);
+    api.post(
+      route("logout"),
+      {},
+      (response) => {
+        router.navigate({ to: "/" });
+      },
+      (response) => {
+        setLoading(false);
+        return;
+      },
+    );
+  }, [router, api]);
 
-		api.post(
-			route("logout"),
-			{},
-			(response) => {
-				router.navigate({ to: "/" });
-			},
-			(response) => {
-				setError("ログアウトに失敗しました。");
-				setLoading(false);
-				return;
-			},
-		);
-	}, [router, api]);
-
-	return { logout, loading, error };
+  return { logout, loading };
 }

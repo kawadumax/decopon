@@ -27,29 +27,29 @@ initializeI18n(Locale.ENGLISH);
 const rootElement = document.getElementById("root");
 
 if (!rootElement) {
-	throw new Error("Root element not found");
+  throw new Error("Root element not found");
 }
 
 const root = ReactDOM.createRoot(rootElement);
 
 // Create a new router instance
 const router = createRouter({
-	routeTree,
-	context: { title: "", auth: { user: undefined } },
+  routeTree,
+  context: { title: "", auth: { user: undefined } },
 });
 
 // Register the router instance for type safety
 declare module "@tanstack/react-router" {
-	interface Register {
-		router: typeof router;
-	}
+  interface Register {
+    router: typeof router;
+  }
 }
 
 root.render(
-	<StrictMode>
-		<LangManager />
-		{/* <TimeManager /> */}
-		{/* <DevTools position="top-left" /> */}
-		<RouterProvider router={router} />
-	</StrictMode>,
+  <StrictMode>
+    <LangManager />
+    {/* <TimeManager /> */}
+    {/* <DevTools position="top-left" /> */}
+    <RouterProvider router={router} />
+  </StrictMode>,
 );

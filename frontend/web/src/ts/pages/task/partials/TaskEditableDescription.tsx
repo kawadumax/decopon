@@ -6,44 +6,44 @@ import type React from "react";
 import { useEffect, useState } from "react";
 
 export const TaskEditableDescription = ({
-	taskAtom,
+  taskAtom,
 }: {
-	taskAtom: PrimitiveAtom<Task>;
+  taskAtom: PrimitiveAtom<Task>;
 }) => {
-	const api = useApi();
-	const [task, setTask] = useAtom(taskAtom);
-	const [description, setDescription] = useState(task.description);
+  const api = useApi();
+  const [task, setTask] = useAtom(taskAtom);
+  const [description, setDescription] = useState(task.description);
 
-	const handleOnBlur = (event: React.FocusEvent<HTMLTextAreaElement>) => {
-		if (description !== task.description) {
-			api.put(
-				route("api.tasks.update", task.id),
-				{ description: description },
-				(response) => {
-					setTask((prev) => ({
-						...prev,
-						...response.data.task,
-					}));
-				},
-			);
-		}
-	};
+  const handleOnBlur = (event: React.FocusEvent<HTMLTextAreaElement>) => {
+    if (description !== task.description) {
+      api.put(
+        route("api.tasks.update", task.id),
+        { description: description },
+        (response) => {
+          setTask((prev) => ({
+            ...prev,
+            ...response.data.task,
+          }));
+        },
+      );
+    }
+  };
 
-	const handleOnChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-		setDescription(event.target.value);
-	};
+  const handleOnChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setDescription(event.target.value);
+  };
 
-	useEffect(() => {
-		setDescription(task.description);
-	}, [task.description]);
+  useEffect(() => {
+    setDescription(task.description);
+  }, [task.description]);
 
-	return (
-		<div>
-			<Textarea
-				value={description}
-				onChange={handleOnChange}
-				onBlur={handleOnBlur}
-			/>
-		</div>
-	);
+  return (
+    <div>
+      <Textarea
+        value={description}
+        onChange={handleOnChange}
+        onBlur={handleOnBlur}
+      />
+    </div>
+  );
 };

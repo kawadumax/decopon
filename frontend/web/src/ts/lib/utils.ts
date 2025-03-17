@@ -5,7 +5,7 @@ import type { Tag as EmblorTag } from "emblor";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
-	return twMerge(clsx(inputs));
+  return twMerge(clsx(inputs));
 }
 
 /**
@@ -13,10 +13,10 @@ export function cn(...inputs: ClassValue[]) {
  * @param args ログに表示したいもの
  */
 export const logger = (...args: unknown[]) => {
-	const viteAppEnv = import.meta.env.VITE_APP_ENV;
-	if (viteAppEnv === "local") {
-		console.log(...args);
-	}
+  const viteAppEnv = import.meta.env.VITE_APP_ENV;
+  if (viteAppEnv === "local") {
+    console.log(...args);
+  }
 };
 
 /**
@@ -24,17 +24,17 @@ export const logger = (...args: unknown[]) => {
  * @returns date
  */
 export const formatISODate = (isoString: string): string => {
-	const date = new Date(isoString);
-	return date
-		.toLocaleString("ja-JP", {
-			year: "numeric",
-			month: "2-digit",
-			day: "2-digit",
-			hour: "2-digit",
-			minute: "2-digit",
-			hour12: false,
-		})
-		.replace(/\//g, "-");
+  const date = new Date(isoString);
+  return date
+    .toLocaleString("ja-JP", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    })
+    .replace(/\//g, "-");
 };
 
 /**
@@ -44,12 +44,12 @@ export const formatISODate = (isoString: string): string => {
  */
 
 export const formatTime = (unixTime: number): string => {
-	const minutes = Math.floor(unixTime / 60000);
-	const seconds = Math.floor((unixTime % 60000) / 1000);
+  const minutes = Math.floor(unixTime / 60000);
+  const seconds = Math.floor((unixTime % 60000) / 1000);
 
-	return `${minutes.toString().padStart(2, "0")}:${seconds
-		.toString()
-		.padStart(2, "0")}`;
+  return `${minutes.toString().padStart(2, "0")}:${seconds
+    .toString()
+    .padStart(2, "0")}`;
 };
 
 /**
@@ -57,8 +57,8 @@ export const formatTime = (unixTime: number): string => {
  * @returns yyyy-mm-dd
  */
 export const getToday = (): string => {
-	const date = new Date();
-	return format(date, "yyyy-MM-dd");
+  const date = new Date();
+  return format(date, "yyyy-MM-dd");
 };
 
 /**
@@ -67,12 +67,12 @@ export const getToday = (): string => {
  * @returns
  */
 export const toEmblorTags = (tags: Tag[]): EmblorTag[] => {
-	if (tags?.length) {
-		return tags.map((tag) => {
-			return { id: `${tag.id}`, text: tag.name };
-		});
-	}
-	return [];
+  if (tags?.length) {
+    return tags.map((tag) => {
+      return { id: `${tag.id}`, text: tag.name };
+    });
+  }
+  return [];
 };
 
 /**
@@ -81,5 +81,5 @@ export const toEmblorTags = (tags: Tag[]): EmblorTag[] => {
  * @returns T 配列の最後の要素
  */
 export const getLast = <T>(arr: T[]): T => {
-	return arr[arr.length - 1];
+  return arr[arr.length - 1];
 };

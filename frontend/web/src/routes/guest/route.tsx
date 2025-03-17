@@ -2,13 +2,13 @@ import Guest from "@/layouts/GuestLayout";
 import { Outlet, createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/guest")({
-	component: RouteComponent,
+  component: RouteComponent,
 });
 
 function RouteComponent() {
-	return (
-		<Guest>
-			<Outlet />
-		</Guest>
-	);
+  return (
+    <Guest>
+      <Outlet />
+    </Guest>
+  );
 }
