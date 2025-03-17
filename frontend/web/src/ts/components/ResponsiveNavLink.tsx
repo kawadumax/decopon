@@ -4,7 +4,7 @@ import { Link } from "@tanstack/react-router";
 
 type NavLinkProps = DecoponLinkProps & {
 	active?: boolean;
-	variant: "button" | "link";
+	variant?: "button" | "link";
 };
 
 type NavLinkInnerProps = Omit<NavLinkProps, "variant">;
@@ -51,7 +51,7 @@ export default function ResponsiveNavLink({
 			{children}
 		</WrapLink>
 	) : (
-		<Btn active={active} className={className} to={to}>
+		<Btn active={active} className={className}>
 			{children}
 		</Btn>
 	);

@@ -118,13 +118,7 @@ export default function Authenticated({
 										<Dropdown.Link to="/auth/profiles">
 											{t("header.menu.profile")}
 										</Dropdown.Link>
-										<Dropdown.Link
-											to={route("logout")}
-											method="post"
-											as="button"
-										>
-											{t("header.menu.logout")}
-										</Dropdown.Link>
+										<Dropdown.Button>{t("header.menu.logout")}</Dropdown.Button>
 									</Dropdown.Content>
 								</Dropdown>
 							</div>
@@ -197,7 +191,7 @@ export default function Authenticated({
 							<ResponsiveNavLink to="/auth/profiles">
 								{t("header.menu.profile")}
 							</ResponsiveNavLink>
-							<ResponsiveNavLink method="post" to={route("logout")} as="button">
+							<ResponsiveNavLink to={route("logout")} variant="button">
 								{t("header.menu.logout")}
 							</ResponsiveNavLink>
 						</div>

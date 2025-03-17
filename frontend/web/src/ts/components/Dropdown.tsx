@@ -1,9 +1,11 @@
+import { useLogout } from "@/hooks/useLogout";
 import type { DecoponLinkProps } from "@/types";
 import { Transition } from "@headlessui/react";
 import { Link } from "@tanstack/react-router";
 import {
 	type Dispatch,
 	type PropsWithChildren,
+	type ReactNode,
 	type SetStateAction,
 	createContext,
 	useContext,
@@ -107,6 +109,9 @@ const Content = ({
 	);
 };
 
+const commonClassis = (additionalClasses: string) =>
+	`block w-full px-4 py-2 text-start text-sm leading-5 text-gray-700 transition duration-150 ease-in-out hover:bg-gray-100 focus:bg-gray-100 focus:outline-none dark:text-gray-300 dark:hover:bg-gray-800 dark:focus:bg-gray-800 ${additionalClasses}`;
+
 const DropdownLink = ({
 	className = "",
 	children,
@@ -114,18 +119,32 @@ const DropdownLink = ({
 	...props
 }: DecoponLinkProps) => {
 	return (
-		<Link
-			to={to}
-			{...props}
-			className={`block w-full px-4 py-2 text-start text-sm leading-5 text-gray-700 transition duration-150 ease-in-out hover:bg-gray-100 focus:bg-gray-100 focus:outline-none dark:text-gray-300 dark:hover:bg-gray-800 dark:focus:bg-gray-800 ${className}`}
-		>
+		<Link to={to} {...props} className={commonClassis(className)}>
 			{children}
 		</Link>
+	);
+};
+
+const DropdownButton = ({
+	className = "",
+	children,
+}: { className?: string; children: ReactNode }) => {
+	const { logout, loading } = useLogout();
+
+	return (
+		<button
+			type="button"
+			onClick={logout}
+			disabled={loading}
+			className={commonClassis(className)}
+		>
+			{children}
+		</button>
 	);
 };
 
 Dropdown.Trigger = Trigger;
 Dropdown.Content = Content;
 Dropdown.Link = DropdownLink;
-
+Dropdown.Button = DropdownButton;
 export default Dropdown;
