@@ -9,8 +9,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Locale, type PageProps } from "@/types/index.d";
+import { Locale } from "@/types/index.d";
 import { Transition } from "@headlessui/react";
+import { useForm } from "@tanstack/react-form";
+import { useRouteContext } from "@tanstack/react-router";
 import type { FormEventHandler } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -20,7 +22,7 @@ export default function UpdatePreferenceForm({
   className?: string;
 }) {
   const { t } = useTranslation();
-  const { auth } = usePage<PageProps>().props;
+  const { auth } = useRouteContext({ from: "/auth" });
   const user = auth.user;
   const { data, setData, patch, errors, processing, recentlySuccessful } =
     useForm({

@@ -1,6 +1,6 @@
-import axiosInstance from "@/lib/axios";
+import { callApi } from "@/lib/apiClient";
+import type { ApiData } from "@/types";
 import axios, { type AxiosResponse } from "axios";
-// resources/js/hooks/useApi.ts
 import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -9,15 +9,13 @@ type FnOnSucsess = (response: AxiosResponse) => void;
 type FnOnError = (error: unknown) => void;
 type FnOnFinaly = () => void;
 
-type ApiData = Record<string, unknown> | FormData | undefined;
-
 export function useApi() {
   const [loading, setLoading] = useState(false);
   const { t } = useTranslation();
 
   const request = useCallback(
     async (
-      method: string,
+      method: "get" | "post" | "put" | "delete",
       url: string,
       data?: ApiData,
       onSuccess?: FnOnSucsess,
@@ -26,7 +24,7 @@ export function useApi() {
     ) => {
       setLoading(true);
       try {
-        const response = await axiosInstance({ method, url, data });
+        const response = await callApi(method, url, data);
         const message = t(response.data.i18nKey) || response.data.message;
         message && toast.success(message);
         onSuccess?.(response);

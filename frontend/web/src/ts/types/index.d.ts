@@ -94,3 +94,6 @@ export type DecoponLinkProps = Pick<LinkProps<RegisteredRouter>, "to"> & {
   children: React.ReactNode;
   className?: string;
 };
+
+// Axios層
+export type ApiData = Record<string, unknown> | FormData | undefined;

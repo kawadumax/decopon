@@ -1,5 +1,3 @@
-import type { PageProps } from "@/types";
-// import { Head } from "@inertiajs/react";
 import { useTranslation } from "react-i18next";
 import DeleteUserForm from "./partials/DeleteUserForm";
 import UpdatePasswordForm from "./partials/UpdatePasswordForm";
@@ -8,7 +6,7 @@ import UpdateProfileInformationForm from "./partials/UpdateProfileInformationFor
 export default function Edit({
   mustVerifyEmail,
   status,
-}: PageProps<{ mustVerifyEmail: boolean; status?: string }>) {
+}: { mustVerifyEmail: boolean; status?: string }) {
   const { t } = useTranslation();
   return (
     <>

@@ -11,6 +11,9 @@ FRONTEND_WEB_DIR := 'frontend/web'
 backend:
     cd {{BACKEND_DIR}} && php artisan serve
 
+backend-run *args:
+    cd {{BACKEND_DIR}} && {{ args }}
+
 ziggy:
     cd {{BACKEND_DIR}} && php artisan ziggy:generate
 

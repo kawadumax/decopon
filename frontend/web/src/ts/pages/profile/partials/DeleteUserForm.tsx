@@ -4,7 +4,7 @@ import InputLabel from "@/components/InputLabel";
 import Modal from "@/components/Modal";
 import SecondaryButton from "@/components/SecondaryButton";
 import TextInput from "@/components/TextInput";
-import { useForm } from "@inertiajs/react";
+import { useForm } from "@tanstack/react-form";
 import { type FormEventHandler, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -17,17 +17,17 @@ export default function DeleteUserForm({
   const [confirmingUserDeletion, setConfirmingUserDeletion] = useState(false);
   const passwordInput = useRef<HTMLInputElement>(null);
 
-  const {
-    data,
-    setData,
-    delete: destroy,
-    processing,
-    reset,
-    errors,
-    clearErrors,
-  } = useForm({
-    password: "",
-  });
+  // const {
+  //   data,
+  //   setData,
+  //   delete: destroy,
+  //   processing,
+  //   reset,
+  //   errors,
+  //   clearErrors,
+  // } = useForm({
+  //   password: "",
+  // });
 
   const confirmUserDeletion = () => {
     setConfirmingUserDeletion(true);

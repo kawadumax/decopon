@@ -80,6 +80,9 @@ importers:
       ziggy-js:
         specifier: ^2.5.2
         version: 2.5.2
+      zod:
+        specifier: ^3.24.2
+        version: 3.24.2
     devDependencies:
       '@biomejs/biome':
         specifier: ^1.9.4

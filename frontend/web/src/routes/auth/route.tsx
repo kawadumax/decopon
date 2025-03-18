@@ -9,6 +9,7 @@ const getAuth = async () => {
         id: 1,
         name: "User",
         email: "dummy@example.com",
+        email_verified_at: null,
         preference: {
           locale: Locale.ENGLISH,
           work_time: 25,

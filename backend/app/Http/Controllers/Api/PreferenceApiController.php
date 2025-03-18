@@ -1,16 +1,16 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
-use Inertia\Inertia;
 use App\Enums\Locale;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Validation\Rules\Enum;
 
-class PreferenceController extends Controller
+class PreferenceApiController extends ApiController
 {
 
-    public function update(Request $request)
+    public function update(Request $request): JsonResponse
     {
         $validated = $request->validate([
             'work_time' => 'required|integer|min:1',
@@ -23,6 +23,12 @@ class PreferenceController extends Controller
             $validated
         );
 
-        return redirect()->route('profile.edit')->with('message', 'Preference Updated.');
+        $statusCode = 200;
+        return response()->json([
+            'success' => true,
+            'message' => 'Preference Updated.',
+            'i18nKey' => $this->generateI18nKey(__FUNCTION__, $statusCode),
+            'preference' => $validated,
+        ], $statusCode);
     }
 }
