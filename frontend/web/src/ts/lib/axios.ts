@@ -1,7 +1,7 @@
 import SecuredAxios from "@/bootstrap";
 
 const instance = SecuredAxios.create({
-  baseURL: "",
+  baseURL: "http://localhost:8000",
   headers: {
     "X-Requested-With": "XMLHttpRequest",
     Accept: "application/json",

@@ -17,6 +17,9 @@ backend-run *args:
 ziggy:
     cd {{BACKEND_DIR}} && php artisan ziggy:generate
 
+route:
+    cd {{BACKEND_DIR}} && php artisan route:list
+
 # フロントエンドの起動
 web:
     cd {{FRONTEND_WEB_DIR}} && pnpm run dev

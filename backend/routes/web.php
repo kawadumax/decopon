@@ -1,5 +1,9 @@
 <?php
 
-/**
- * API としてのみの使用を想定しているため、このファイルは空です。
- */
+use Illuminate\Support\Facades\Route;
+
+Route::get('/', function () {
+    return ['Laravel' => app()->version()];
+});
+
+require __DIR__.'/auth.php';
