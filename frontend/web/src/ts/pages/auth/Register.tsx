@@ -1,16 +1,15 @@
 import InputLabel from "@/components/InputLabel";
 import PrimaryButton from "@/components/PrimaryButton";
 import TextInput from "@/components/TextInput";
-import GuestLayout from "@/layouts/GuestLayout";
+import { callApi } from "@/lib/apiClient";
 import { useForm } from "@tanstack/react-form";
-import { Link } from "@tanstack/react-router";
-import type { FormEventHandler } from "react";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { DemoCaution } from "./partials/DemoCaution";
 
 export default function Register() {
   const { t } = useTranslation();
-  // const { data, setData, post, processing, errors, reset } = useForm({
+  const navigate = useNavigate();
   const form = useForm({
     defaultValues: {
       name: "",
@@ -18,109 +17,133 @@ export default function Register() {
       password: "",
       password_confirmation: "",
     },
+    onSubmit: async ({ value, formApi }) => {
+      try {
+        const res = await callApi("post", route("register"), value);
+        if (res.is_login) {
+          navigate({ to: "/auth/dashboard" });
+        }
+      } catch (error) {
+        // エラーメッセージ表示例
+        // formApi.setError("email", "Email already exists");
+        // formApi.setError("password", "Password is too short");
+        // formApi.setError("password_confirmation", "Password confirmation does not match");
+        console.error("API error:", error);
+        formApi.reset();
+      }
+    },
   });
 
-  const submit: FormEventHandler = (e) => {
-    e.preventDefault();
-
-    // post(route("register"), {
-    // 	onFinish: () => reset("password", "password_confirmation"),
-    // });
-  };
-
   return (
-    <GuestLayout>
-      {/* <Head title={t("auth.register.title")} /> */}
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        form.handleSubmit();
+      }}
+    >
+      <DemoCaution
+        header={t("auth.register.caution")}
+        content={t("auth.register.demo")}
+      />
 
-      <form onSubmit={submit}>
-        <DemoCaution
-          header={t("auth.register.caution")}
-          content={t("auth.register.demo")}
-        />
-        <div>
-          <InputLabel htmlFor="name" value="Name" />
+      <div>
+        <form.Field name="name">
+          {(field) => (
+            <>
+              <InputLabel htmlFor={field.name} value="Name" />
+              <TextInput
+                id={field.name}
+                name={field.name}
+                value={field.state.value}
+                className="mt-1 block w-full"
+                autoComplete="name"
+                isFocused={true}
+                onChange={(e) => field.handleChange(e.target.value)}
+                required
+              />
+              {/* エラーメッセージ表示例 */}
+              {/* {field.state.errors.length > 0 && (
+              <div className="mt-2 text-red-600">
+                {field.state.errors.join(", ")}
+              </div>
+            )} */}
+            </>
+          )}
+        </form.Field>
+      </div>
 
-          <TextInput
-            id="name"
-            name="name"
-            // value={data.name}
-            className="mt-1 block w-full"
-            autoComplete="name"
-            isFocused={true}
-            // onChange={(e) => setData("name", e.target.value)}
-            required
-          />
+      <div className="mt-4">
+        <form.Field name="email">
+          {(field) => (
+            <>
+              <InputLabel htmlFor={field.name} value="Email" />
+              <TextInput
+                id={field.name}
+                type="email"
+                name={field.name}
+                value={field.state.value}
+                className="mt-1 block w-full"
+                autoComplete="username"
+                onChange={(e) => field.handleChange(e.target.value)}
+                required
+              />
+            </>
+          )}
+        </form.Field>
+      </div>
 
-          {/* {<InputError message={errors.name} className="mt-2" />} */}
-        </div>
+      <div className="mt-4">
+        <form.Field name="password">
+          {(field) => (
+            <>
+              <InputLabel htmlFor={field.name} value="Password" />
+              <TextInput
+                id={field.name}
+                type="password"
+                name={field.name}
+                value={field.state.value}
+                className="mt-1 block w-full"
+                autoComplete="new-password"
+                onChange={(e) => field.handleChange(e.target.value)}
+                required
+              />
+            </>
+          )}
+        </form.Field>
+      </div>
 
-        <div className="mt-4">
-          <InputLabel htmlFor="email" value="Email" />
+      <div className="mt-4">
+        <form.Field name="password_confirmation">
+          {(field) => (
+            <>
+              <InputLabel htmlFor={field.name} value="Confirm Password" />
+              <TextInput
+                id={field.name}
+                type="password"
+                name={field.name}
+                value={field.state.value}
+                className="mt-1 block w-full"
+                autoComplete="new-password"
+                onChange={(e) => field.handleChange(e.target.value)}
+                required
+              />
+            </>
+          )}
+        </form.Field>
+      </div>
 
-          <TextInput
-            id="email"
-            type="email"
-            name="email"
-            // value={data.email}
-            className="mt-1 block w-full"
-            autoComplete="username"
-            // onChange={(e) => setData("email", e.target.value)}
-            required
-          />
+      <div className="mt-4 flex items-center justify-end">
+        <Link
+          to="/guest/login"
+          className="rounded-md text-gray-600 text-sm underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:text-gray-400 dark:focus:ring-offset-gray-800 dark:hover:text-gray-100"
+        >
+          {t("auth.register.alreadyRegistered")}
+        </Link>
 
-          {/* <InputError message={errors.email} className="mt-2" /> */}
-        </div>
-
-        <div className="mt-4">
-          <InputLabel htmlFor="password" value="Password" />
-
-          <TextInput
-            id="password"
-            type="password"
-            name="password"
-            // value={data.password}
-            className="mt-1 block w-full"
-            autoComplete="new-password"
-            // onChange={(e) => setData("password", e.target.value)}
-            required
-          />
-
-          {/* <InputError message={errors.password} className="mt-2" /> */}
-        </div>
-
-        <div className="mt-4">
-          <InputLabel
-            htmlFor="password_confirmation"
-            value="Confirm Password"
-          />
-
-          <TextInput
-            id="password_confirmation"
-            type="password"
-            name="password_confirmation"
-            // value={data.password_confirmation}
-            className="mt-1 block w-full"
-            autoComplete="new-password"
-            // onChange={(e) => setData("password_confirmation", e.target.value)}
-            required
-          />
-
-          {/* <InputError message={errors.password_confirmation} className="mt-2" /> */}
-        </div>
-
-        <div className="mt-4 flex items-center justify-end">
-          <Link
-            to="/login"
-            className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:text-gray-400 dark:hover:text-gray-100 dark:focus:ring-offset-gray-800"
-          >
-            {t("auth.register.alreadyRegistered")}
-          </Link>
-
-          <PrimaryButton className="ms-4">
-            {t("auth.register.submit")}
-          </PrimaryButton>
-        </div>
-      </form>
-    </GuestLayout>
+        <PrimaryButton className="ms-4">
+          {t("auth.register.submit")}
+        </PrimaryButton>
+      </div>
+    </form>
   );
 }

@@ -17,11 +17,7 @@ class AuthenticatedSessionController extends Controller
     public function store(LoginRequest $request): JsonResponse
     {
         $request->authenticate();
-
         $request->session()->regenerate();
-
-        // return response()->noContent();
-        // Auth ファサードを使用して現在認証されているユーザーを取得
         $user = Auth::user();
 
         // ユーザー情報をJSON形式で返す
