@@ -11,10 +11,10 @@ export function useLogout() {
     api.post(
       route("logout"),
       {},
-      (response) => {
+      () => {
         router.navigate({ to: "/" });
       },
-      (response) => {
+      () => {
         setLoading(false);
         return;
       },

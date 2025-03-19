@@ -24,11 +24,11 @@ export function useApi() {
     ) => {
       setLoading(true);
       try {
-        const response = await callApi(method, url, data);
-        const message = t(response.data.i18nKey) || response.data.message;
+        const responseData = await callApi(method, url, data);
+        const message = t(responseData.i18nKey) || responseData.message;
         message && toast.success(message);
-        onSuccess?.(response);
-        return response.data;
+        onSuccess?.(responseData);
+        return responseData;
       } catch (error) {
         if (axios.isAxiosError(error)) {
           const message =
