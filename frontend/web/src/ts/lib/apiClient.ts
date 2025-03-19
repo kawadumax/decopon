@@ -1,4 +1,3 @@
-// apiClient.ts
 import axiosInstance from "@/lib/axios";
 import type { ApiData } from "@/types/index.d";
 import axios from "axios";

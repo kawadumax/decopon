@@ -1,9 +1,9 @@
 import { useTimeEntryApi } from "@/hooks/useTimeEntryApi";
 import { getSpanAtom, timerStateAtom } from "@/lib/atoms";
 import { type TimeEntry, TimeEntryStatus } from "@/types/index.d";
+import TimerWorker from "@/workers/TimerWorker.ts?worker";
 import { useAtom, useAtomValue } from "jotai";
 import { useCallback, useEffect, useState } from "react";
-import TimerWorker from "../Workers/TimerWorker.ts?worker";
 
 /**
  * 時間を進めるWebWorkerの処理を発行及び購読を行う

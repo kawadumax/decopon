@@ -1,4 +1,9 @@
-import SecuredAxios from "@/bootstrap";
+import axios from "axios";
+
+const SecuredAxios = axios;
+
+SecuredAxios.defaults.withCredentials = true;
+SecuredAxios.defaults.withXSRFToken = true;
 
 const instance = SecuredAxios.create({
   baseURL: "http://localhost:8000",
