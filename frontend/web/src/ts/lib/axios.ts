@@ -10,6 +10,7 @@ const instance = SecuredAxios.create({
   headers: {
     "X-Requested-With": "XMLHttpRequest",
     Accept: "application/json",
+    "Content-Type": "application/json",
   },
 });
 

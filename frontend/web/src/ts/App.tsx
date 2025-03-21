@@ -1,22 +1,14 @@
+import { QueryClientProvider } from "@tanstack/react-query";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
 import { DevTools } from "jotai-devtools";
+import NProgress from "nprogress";
 import { routeTree } from "../routeTree.gen";
 import { LangManager } from "./components/LangManager";
 import { TimeManager } from "./components/TimeManager";
 import { initializeI18n } from "./i18n";
 import { Locale } from "./types/index.d";
-import "jotai-devtools/styles.css";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import NProgress from "nprogress";
 import "../css/app.css";
-
-const queryClient: QueryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false,
-    },
-  },
-});
+import { queryClient } from "./lib/queryClient";
 
 // Create a new router instance
 const router = createRouter({
@@ -45,7 +37,7 @@ export const App = () => {
       <QueryClientProvider client={queryClient}>
         <LangManager />
         <TimeManager />
-        <DevTools position="top-left" />
+        <DevTools position="bottom-left" />
         <RouterProvider router={router} />
       </QueryClientProvider>
     </>

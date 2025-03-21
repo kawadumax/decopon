@@ -4,9 +4,26 @@ import TextInput from "@/components/TextInput";
 import { Checkbox } from "@/components/ui/checkbox";
 import { callApi } from "@/lib/apiClient";
 import { useForm } from "@tanstack/react-form";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { DemoCaution } from "./partials/DemoCaution";
+
+type LoginData = {
+  email: string;
+  password: string;
+  remember: boolean;
+};
+
+const loginMutationFn = async (loginData: LoginData) => {
+  await callApi("get", route("sanctum.csrf-cookie"));
+  const res = await callApi("post", route("login"), loginData);
+  console.log(res);
+  if (!res.user) {
+    throw new Error("ログインに失敗しました");
+  }
+  return res;
+};
 
 export default function Login({
   status,
@@ -17,6 +34,19 @@ export default function Login({
 }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
+
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: loginMutationFn,
+    onSuccess: (data) => {
+      queryClient.setQueryData(["user"], data);
+    },
+    onError: (error) => {
+      console.error("ログインエラー:", error);
+    },
+  });
+
   const form = useForm({
     defaultValues: {
       email: "",
@@ -24,19 +54,15 @@ export default function Login({
       remember: false,
     },
     onSubmit: async ({ value, formApi }) => {
-      await callApi("get", route("sanctum.csrf-cookie"));
-      try {
-        console.log(value);
-        const res = await callApi("post", route("login"), value);
-        console.log(res);
-        if (res.is_login) {
-          console.log("login success", res.is_login);
+      // mutation.mutate でログインリクエストを実行
+      mutation.mutate(value, {
+        onError: () => {
+          formApi.reset();
+        },
+        onSuccess: () => {
           navigate({ to: "/auth/dashboard" });
-        }
-      } catch (error) {
-        console.log(error);
-        formApi.reset();
-      }
+        },
+      });
     },
   });
 
@@ -49,6 +75,7 @@ export default function Login({
       <form
         onSubmit={(e) => {
           e.preventDefault();
+          e.stopPropagation();
           form.handleSubmit();
         }}
       >

@@ -22,10 +22,7 @@ class AuthenticatedSessionController extends Controller
 
         // ユーザー情報をJSON形式で返す
         return response()->json([
-            'id' => $user->id,
-            'name' => $user->name,
-            'email' => $user->email,
-            'is_login' => true
+            'user' => $user
         ]);
     }
 
