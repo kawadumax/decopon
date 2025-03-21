@@ -29,7 +29,7 @@ web-run *args:
 
 # バックエンドとフロントエンドの同時起動
 all:
-    #!/bin/bash -eux
+    #!/bin/bash -eu
     (stdbuf -oL just backend | sed "s/^/$(printf '\033[32m[BACKEND]\033[0m ')/") &
     (stdbuf -oL just web | sed "s/^/$(printf '\033[34m[FRONTEND]\033[0m ')/") &
     trap 'kill $(jobs -pr)' EXIT

@@ -7,6 +7,8 @@ import { initializeI18n } from "./i18n";
 import { Locale } from "./types/index.d";
 import "jotai-devtools/styles.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import NProgress from "nprogress";
+import "../css/app.css";
 
 const queryClient: QueryClient = new QueryClient({
   defaultOptions: {
@@ -15,9 +17,6 @@ const queryClient: QueryClient = new QueryClient({
     },
   },
 });
-
-// 多言語化初期化
-initializeI18n(Locale.ENGLISH);
 
 // Create a new router instance
 const router = createRouter({
@@ -31,6 +30,14 @@ declare module "@tanstack/react-router" {
     router: typeof router;
   }
 }
+
+// Subscribe to events for progress bar
+NProgress.configure({ showSpinner: false });
+router.subscribe("onBeforeLoad", () => NProgress.start());
+router.subscribe("onLoad", () => NProgress.done());
+
+// 多言語化初期化
+initializeI18n(Locale.ENGLISH);
 
 export const App = () => {
   return (

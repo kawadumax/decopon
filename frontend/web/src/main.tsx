@@ -1,7 +1,6 @@
+import { App } from "@/App";
 import { StrictMode } from "react";
 import ReactDOM from "react-dom/client";
-import "./css/app.css";
-import { App } from "@/App";
 
 // ziggy.js から生成されたルート名をグローバルに登録
 import { Ziggy } from "@core/ziggy.js";

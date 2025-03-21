@@ -1,170 +1,182 @@
+@import "nprogress/nprogress.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
-	* {
-		@apply border-border;
-	}
-	body {
-		@apply bg-background text-foreground;
-	}
-	:root {
-		--background: 100% 0 0;
-		--foreground: 0.2 0.01 20;
-		--card: 100% 0 0;
-		--card-foreground: 0.2 0.01 20;
-		--popover: 100% 0 0;
-		--popover-foreground: 0.2 0.01 20;
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  :root {
+    --background: 100% 0 0;
+    --foreground: 0.2 0.01 20;
+    --card: 100% 0 0;
+    --card-foreground: 0.2 0.01 20;
+    --popover: 100% 0 0;
+    --popover-foreground: 0.2 0.01 20;
 
-		/* amber-400と同じ */
-		--primary: 0.828 0.189 84.429;
-		--primary-foreground: 0.98 0.005 60;
+    /* amber-400と同じ */
+    --primary: 0.828 0.189 84.429;
+    --primary-foreground: 0.98 0.005 60;
 
-		/* lime-400と同じ */
-		--secondary: 0.841 0.238 128.85;
-		--secondary-foreground: 0.25 0.02 24;
-		--muted: 0.96 0.01 60;
-		--muted-foreground: 0.45 0.01 25;
-		--accent: 0.96 0.01 60;
-		--accent-foreground: 0.25 0.02 24;
-		--destructive: 0.55 0.15 0;
-		--destructive-foreground: 0.98 0.005 60;
-		--border: 0.9 0.01 20;
-		--input: 0.9 0.01 20;
-		--ring: 0.2 0.01 20;
-		--chart-1: 0.65 0.15 12;
-		--chart-2: 0.5 0.1 173;
-		--chart-3: 0.3 0.05 197;
-		--chart-4: 0.7 0.15 43;
-		--chart-5: 0.7 0.2 27;
-		--radius: 0.5rem;
-	}
-	.dark {
-		--background: 0.2 0.01 20;
-		--foreground: 0.98 0.005 60;
-		--card: 0.2 0.01 20;
-		--card-foreground: 0.98 0.005 60;
-		--popover: 0.2 0.01 20;
-		--popover-foreground: 0.98 0.005 60;
-		--primary: 0.98 0.005 60;
-		--primary-foreground: 0.25 0.02 24;
-		--secondary: 0.2 0.02 12;
-		--secondary-foreground: 0.98 0.005 60;
-		--muted: 0.2 0.02 12;
-		--muted-foreground: 0.65 0.01 24;
-		--accent: 0.2 0.02 12;
-		--accent-foreground: 0.98 0.005 60;
-		--destructive: 0.3 0.1 0;
-		--destructive-foreground: 0.98 0.005 60;
-		--border: 0.2 0.02 12;
-		--input: 0.2 0.02 12;
-		--ring: 0.83 0.01 24;
-		--chart-1: 0.55 0.15 220;
-		--chart-2: 0.5 0.1 160;
-		--chart-3: 0.6 0.2 30;
-		--chart-4: 0.65 0.15 280;
-		--chart-5: 0.6 0.2 340;
-	}
+    /* lime-400と同じ */
+    --secondary: 0.841 0.238 128.85;
+    --secondary-foreground: 0.25 0.02 24;
+    --muted: 0.96 0.01 60;
+    --muted-foreground: 0.45 0.01 25;
+    --accent: 0.96 0.01 60;
+    --accent-foreground: 0.25 0.02 24;
+    --destructive: 0.55 0.15 0;
+    --destructive-foreground: 0.98 0.005 60;
+    --border: 0.9 0.01 20;
+    --input: 0.9 0.01 20;
+    --ring: 0.2 0.01 20;
+    --chart-1: 0.65 0.15 12;
+    --chart-2: 0.5 0.1 173;
+    --chart-3: 0.3 0.05 197;
+    --chart-4: 0.7 0.15 43;
+    --chart-5: 0.7 0.2 27;
+    --radius: 0.5rem;
+  }
+  .dark {
+    --background: 0.2 0.01 20;
+    --foreground: 0.98 0.005 60;
+    --card: 0.2 0.01 20;
+    --card-foreground: 0.98 0.005 60;
+    --popover: 0.2 0.01 20;
+    --popover-foreground: 0.98 0.005 60;
+    --primary: 0.98 0.005 60;
+    --primary-foreground: 0.25 0.02 24;
+    --secondary: 0.2 0.02 12;
+    --secondary-foreground: 0.98 0.005 60;
+    --muted: 0.2 0.02 12;
+    --muted-foreground: 0.65 0.01 24;
+    --accent: 0.2 0.02 12;
+    --accent-foreground: 0.98 0.005 60;
+    --destructive: 0.3 0.1 0;
+    --destructive-foreground: 0.98 0.005 60;
+    --border: 0.2 0.02 12;
+    --input: 0.2 0.02 12;
+    --ring: 0.83 0.01 24;
+    --chart-1: 0.55 0.15 220;
+    --chart-2: 0.5 0.1 160;
+    --chart-3: 0.6 0.2 30;
+    --chart-4: 0.65 0.15 280;
+    --chart-5: 0.6 0.2 340;
+  }
 
-	@font-face {
-		font-family: "Caveat";
-		src: url("/fonts/Caveat-VariableFont_wght.woff2") format("woff2-variations"),
-			url("/fonts/Caveat-VariableFont_wght.woff") format("woff-variations"),
-			url("/fonts/Caveat-VariableFont_wght.ttf") format("truetype-variations");
-		font-weight: 400 700;
-		font-style: normal;
-		font-display: block;
-	}
+  @font-face {
+    font-family: "Caveat";
+    src: url("/fonts/Caveat-VariableFont_wght.woff2") format("woff2-variations"),
+      url("/fonts/Caveat-VariableFont_wght.woff") format("woff-variations"),
+      url("/fonts/Caveat-VariableFont_wght.ttf") format("truetype-variations");
+    font-weight: 400 700;
+    font-style: normal;
+    font-display: block;
+  }
 
-	@font-face {
-		font-family: "Figtree";
-		src: url("/fonts/Figtree-VariableFont_wght.woff2") format("woff2"),
-			url("/fonts/Figtree-VariableFont_wght.woff") format("woff"),
-			url("/fonts/Figtree-VariableFont_wght.ttf") format("truetype");
-		font-weight: 400 500 600;
-		font-style: normal;
-		font-display: swap;
-	}
+  @font-face {
+    font-family: "Figtree";
+    src: url("/fonts/Figtree-VariableFont_wght.woff2") format("woff2"),
+      url("/fonts/Figtree-VariableFont_wght.woff") format("woff"),
+      url("/fonts/Figtree-VariableFont_wght.ttf") format("truetype");
+    font-weight: 400 500 600;
+    font-style: normal;
+    font-display: swap;
+  }
 
-	@font-face {
-		font-family: "IBM Plex Sans JP";
-		src: url("/fonts/IBMPlexSansJP-Thin.woff2") format("woff2"),
-			url("/fonts/IBMPlexSansJP-Thin.woff") format("woff"),
-			url("/fonts/IBMPlexSansJP-Thin.ttf") format("truetype");
-		font-weight: 100;
-		font-style: normal;
-		font-display: swap;
-	}
+  @font-face {
+    font-family: "IBM Plex Sans JP";
+    src: url("/fonts/IBMPlexSansJP-Thin.woff2") format("woff2"),
+      url("/fonts/IBMPlexSansJP-Thin.woff") format("woff"),
+      url("/fonts/IBMPlexSansJP-Thin.ttf") format("truetype");
+    font-weight: 100;
+    font-style: normal;
+    font-display: swap;
+  }
 
-	@font-face {
-		font-family: "IBM Plex Sans JP";
-		src: url("/fonts/IBMPlexSansJP-ExtraLight.woff2") format("woff2"),
-			url("/fonts/IBMPlexSansJP-ExtraLight.woff") format("woff"),
-			url("/fonts/IBMPlexSansJP-ExtraLight.ttf") format("truetype");
-		font-weight: 200;
-		font-style: normal;
-		font-display: swap;
-	}
+  @font-face {
+    font-family: "IBM Plex Sans JP";
+    src: url("/fonts/IBMPlexSansJP-ExtraLight.woff2") format("woff2"),
+      url("/fonts/IBMPlexSansJP-ExtraLight.woff") format("woff"),
+      url("/fonts/IBMPlexSansJP-ExtraLight.ttf") format("truetype");
+    font-weight: 200;
+    font-style: normal;
+    font-display: swap;
+  }
 
-	@font-face {
-		font-family: "IBM Plex Sans JP";
-		src: url("/fonts/IBMPlexSansJP-Light.woff2") format("woff2"),
-			url("/fonts/IBMPlexSansJP-Light.woff") format("woff"),
-			url("/fonts/IBMPlexSansJP-Light.ttf") format("truetype");
-		font-weight: 300;
-		font-style: normal;
-		font-display: swap;
-	}
+  @font-face {
+    font-family: "IBM Plex Sans JP";
+    src: url("/fonts/IBMPlexSansJP-Light.woff2") format("woff2"),
+      url("/fonts/IBMPlexSansJP-Light.woff") format("woff"),
+      url("/fonts/IBMPlexSansJP-Light.ttf") format("truetype");
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+  }
 
-	@font-face {
-		font-family: "IBM Plex Sans JP";
-		src: url("/fonts/IBMPlexSansJP-Regular.woff2") format("woff2"),
-			url("/fonts/IBMPlexSansJP-Regular.woff") format("woff"),
-			url("/fonts/IBMPlexSansJP-Regular.ttf") format("truetype");
-		font-weight: 400;
-		font-style: normal;
-		font-display: swap;
-	}
+  @font-face {
+    font-family: "IBM Plex Sans JP";
+    src: url("/fonts/IBMPlexSansJP-Regular.woff2") format("woff2"),
+      url("/fonts/IBMPlexSansJP-Regular.woff") format("woff"),
+      url("/fonts/IBMPlexSansJP-Regular.ttf") format("truetype");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
 
-	@font-face {
-		font-family: "IBM Plex Sans JP";
-		src: url("/fonts/IBMPlexSansJP-Medium.woff2") format("woff2"),
-			url("/fonts/IBMPlexSansJP-Medium.woff") format("woff"),
-			url("/fonts/IBMPlexSansJP-Medium.ttf") format("truetype");
-		font-weight: 500;
-		font-style: normal;
-		font-display: swap;
-	}
+  @font-face {
+    font-family: "IBM Plex Sans JP";
+    src: url("/fonts/IBMPlexSansJP-Medium.woff2") format("woff2"),
+      url("/fonts/IBMPlexSansJP-Medium.woff") format("woff"),
+      url("/fonts/IBMPlexSansJP-Medium.ttf") format("truetype");
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+  }
 
-	@font-face {
-		font-family: "IBM Plex Sans JP";
-		src: url("/fonts/IBMPlexSansJP-SemiBold.woff2") format("woff2"),
-			url("/fonts/IBMPlexSansJP-SemiBold.woff") format("woff"),
-			url("/fonts/IBMPlexSansJP-SemiBold.ttf") format("truetype");
-		font-weight: 600;
-		font-style: normal;
-		font-display: swap;
-	}
+  @font-face {
+    font-family: "IBM Plex Sans JP";
+    src: url("/fonts/IBMPlexSansJP-SemiBold.woff2") format("woff2"),
+      url("/fonts/IBMPlexSansJP-SemiBold.woff") format("woff"),
+      url("/fonts/IBMPlexSansJP-SemiBold.ttf") format("truetype");
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+  }
 
-	@font-face {
-		font-family: "IBM Plex Sans JP";
-		src: url("/fonts/IBMPlexSansJP-Bold.woff2") format("woff2"),
-			url("/fonts/IBMPlexSansJP-Bold.woff") format("woff"),
-			url("/fonts/IBMPlexSansJP-Bold.ttf") format("truetype");
-		font-weight: 700;
-		font-style: normal;
-		font-display: swap;
-	}
+  @font-face {
+    font-family: "IBM Plex Sans JP";
+    src: url("/fonts/IBMPlexSansJP-Bold.woff2") format("woff2"),
+      url("/fonts/IBMPlexSansJP-Bold.woff") format("woff"),
+      url("/fonts/IBMPlexSansJP-Bold.ttf") format("truetype");
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  #nprogress {
+    .bar {
+      background-color: oklch(var(--primary));
+      height: 3px;
+    }
+    .peg {
+      box-shadow: 0 0 10px oklch(var(--primary)), 0 0 5px oklch(var(--primary));
+    }
+  }
 }
 
 @layer utilities {
-	.hidden-scrollbar {
-		-ms-overflow-style: none; /* IE, Edge 対応 */
-		scrollbar-width: none; /* Firefox 対応 */
-	}
-	.hidden-scrollbar::-webkit-scrollbar {
-		/* Chrome, Safari 対応 */
-		display: none;
-	}
+  .hidden-scrollbar {
+    -ms-overflow-style: none; /* IE, Edge 対応 */
+    scrollbar-width: none; /* Firefox 対応 */
+  }
+  .hidden-scrollbar::-webkit-scrollbar {
+    /* Chrome, Safari 対応 */
+    display: none;
+  }
 }

@@ -4,7 +4,12 @@ import defaultTheme from "tailwindcss/defaultTheme";
 /** @type {import('tailwindcss').Config} */
 export default {
   darkMode: ["class"],
-  content: ["./src/main.tsx", "./src/ts/**/*.tsx", "./src/routes/*.tsx"],
+  content: [
+    "./src/main.tsx",
+    "./src/ts/App.tsx",
+    "./src/ts/**/*.tsx",
+    "./src/routes/*.tsx",
+  ],
 
   theme: {
     extend: {
