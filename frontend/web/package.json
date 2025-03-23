@@ -75,7 +75,8 @@
   "pnpm": {
     "onlyBuiltDependencies": [
       "@biomejs/biome",
-      "esbuild"
+      "esbuild",
+      "msw"
     ]
   }
 }
