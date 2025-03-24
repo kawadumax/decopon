@@ -14,6 +14,9 @@ backend:
 backend-run *args:
     cd {{BACKEND_DIR}} && {{ args }}
 
+pail:
+    cd {{BACKEND_DIR}} && php artisan pail --timeout=0
+
 ziggy:
     cd {{BACKEND_DIR}} && php artisan ziggy:generate
 
@@ -35,6 +38,7 @@ all:
     #!/bin/bash -eu
     just ziggy
     (stdbuf -oL just backend | sed "s/^/$(printf '\033[32m[BACKEND]\033[0m ')/") &
+    (stdbuf -oL just pail | sed "s/^/$(printf '\033[31m[PAIL]\033[0m ')/") &
     (stdbuf -oL just web | sed "s/^/$(printf '\033[34m[FRONTEND]\033[0m ')/") &
     trap 'kill $(jobs -pr)' EXIT
     wait
