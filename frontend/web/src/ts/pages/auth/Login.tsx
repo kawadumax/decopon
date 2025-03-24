@@ -38,7 +38,7 @@ export default function Login({
   const mutation = useMutation({
     mutationFn: loginMutationFn,
     onSuccess: (data) => {
-      queryClient.setQueryData(["user"], data);
+      queryClient.setQueryData(["auth"], data);
     },
     onError: (error) => {
       console.error("ログインエラー:", error);

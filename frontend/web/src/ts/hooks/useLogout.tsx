@@ -21,11 +21,11 @@ export function useLogout() {
   const mutation = useMutation({
     mutationFn: () => logoutMutationFn(setLoading),
     onSuccess: () => {
-      queryClient.setQueryData(["user"], { user: undefined });
+      queryClient.setQueryData(["auth"], { user: undefined });
       navigate({ to: "/" });
     },
     onError: (error) => {
-      console.error("ログアウトエラー:", error);
+      console.error("Logout Error", error);
     },
   });
 

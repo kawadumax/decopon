@@ -26,7 +26,7 @@ export default () => {
       watch: {
         usePolling: true,
       },
-      open: true,
+      open: false,
     },
     resolve: {
       alias: {

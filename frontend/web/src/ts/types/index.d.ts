@@ -90,6 +90,10 @@ export type PageProps<
   };
 };
 
+export interface Auth {
+  user?: User;
+}
+
 export type DecoponLinkProps = Pick<LinkProps<RegisteredRouter>, "to"> & {
   children: React.ReactNode;
   className?: string;

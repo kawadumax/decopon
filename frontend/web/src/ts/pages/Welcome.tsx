@@ -1,8 +1,8 @@
 import ApplicationLogo from "@/components/ApplicationLogo";
 import { LangSwitch } from "@/components/LangSwitch";
 import { ParticlesBackground } from "@/components/ParticlesBackground";
-import { callApi } from "@/lib/apiClient";
-import { useQuery } from "@tanstack/react-query";
+import type { Auth } from "@/types";
+import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 
@@ -37,22 +37,13 @@ const WelcomeCard = ({
   );
 };
 
-export async function fetchUser() {
-  const res = await callApi("get", route("get-user"));
-  if (!res.user) {
-    throw new Error("ユーザ情報の取得に失敗しました");
-  }
-  return res;
-}
-
 export default function Welcome() {
   const { t } = useTranslation();
 
-  const { data } = useQuery({
-    queryKey: ["user"],
-    initialData: { user: undefined },
-    queryFn: fetchUser,
-  });
+  const queryClient = useQueryClient();
+  const auth: Auth = queryClient.getQueryData(["auth"]) || { user: undefined };
+
+  console.log(auth);
 
   return (
     <>
@@ -66,7 +57,7 @@ export default function Welcome() {
                   <LangSwitch />
                 </div>
 
-                {data.user ? (
+                {auth?.user ? (
                   <Link
                     to="/auth/dashboard"
                     className="rounded-md px-3 py-2 ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:focus-visible:ring-white dark:hover:text-white/80"
@@ -138,7 +129,7 @@ export default function Welcome() {
                 </div>
 
                 <Link
-                  to={data.user ? "/auth/dashboard" : "/guest/register"}
+                  to={auth?.user ? "/auth/dashboard" : "/guest/register"}
                   className="rounded-full bg-amber-400 px-6 py-3 font-semibold text-white transition duration-300 hover:bg-amber-500"
                 >
                   {t("welcome.getStarted")}
