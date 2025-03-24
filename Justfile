@@ -20,6 +20,9 @@ ziggy:
 route:
     cd {{BACKEND_DIR}} && php artisan route:list
 
+fresh:
+    cd {{BACKEND_DIR}} && php artisan migrate:fresh --seed
+
 # フロントエンドの起動
 web:
     cd {{FRONTEND_WEB_DIR}} && pnpm run dev

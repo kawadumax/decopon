@@ -1,6 +1,7 @@
 import { QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
-import { DevTools } from "jotai-devtools";
+import { DevTools as JotaiDevTools } from "jotai-devtools";
 import NProgress from "nprogress";
 import { routeTree } from "../routeTree.gen";
 import { LangManager } from "./components/LangManager";
@@ -37,8 +38,9 @@ export const App = () => {
       <QueryClientProvider client={queryClient}>
         <LangManager />
         <TimeManager />
-        <DevTools position="bottom-left" />
         <RouterProvider router={router} />
+        <JotaiDevTools position="bottom-left" />
+        <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
     </>
   );

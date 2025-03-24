@@ -1,25 +1,37 @@
-import { useRouter } from "@tanstack/react-router";
-import { useCallback, useState } from "react";
-import { useApi } from "./useApi";
+import { callApi } from "@/lib/apiClient";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
+
+const logoutMutationFn = async (setLoading: (loading: boolean) => void) => {
+  setLoading(true);
+  try {
+    await callApi("post", route("logout"));
+  } catch (e) {
+    console.error(e);
+  } finally {
+    setLoading(false);
+  }
+};
 
 export function useLogout() {
-  const router = useRouter();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const api = useApi();
-  const logout = useCallback(async () => {
-    setLoading(true);
-    api.post(
-      route("logout"),
-      {},
-      () => {
-        router.navigate({ to: "/" });
-      },
-      () => {
-        setLoading(false);
-        return;
-      },
-    );
-  }, [router, api]);
+  const queryClient = useQueryClient();
+  const mutation = useMutation({
+    mutationFn: () => logoutMutationFn(setLoading),
+    onSuccess: () => {
+      queryClient.setQueryData(["user"], { user: undefined });
+      navigate({ to: "/" });
+    },
+    onError: (error) => {
+      console.error("ログアウトエラー:", error);
+    },
+  });
+
+  const logout = () => {
+    mutation.mutate();
+  };
 
   return { logout, loading };
 }
