@@ -16,19 +16,16 @@ type LoginData = {
 const loginMutationFn = async (loginData: LoginData) => {
   await callApi("get", route("sanctum.csrf-cookie"));
   const res = await callApi("post", route("login"), loginData);
-  console.log(res);
   if (!res.user) {
-    throw new Error("ログインに失敗しました");
+    throw new Error("Login failed");
   }
   return res;
 };
 
 export default function Login({
   status,
-  canResetPassword,
 }: {
   status?: string;
-  canResetPassword: boolean;
 }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -41,7 +38,7 @@ export default function Login({
       queryClient.setQueryData(["auth"], data);
     },
     onError: (error) => {
-      console.error("ログインエラー:", error);
+      console.error("Login Error:", error);
     },
   });
 
@@ -51,7 +48,6 @@ export default function Login({
       password: "",
     },
     onSubmit: async ({ value, formApi }) => {
-      // mutation.mutate でログインリクエストを実行
       mutation.mutate(value, {
         onError: () => {
           formApi.reset();
@@ -124,14 +120,12 @@ export default function Login({
         </div>
 
         <div className="mt-4 flex items-center justify-end">
-          {canResetPassword && (
-            <Link
-              to={route("password.request")}
-              className="rounded-md text-gray-600 text-sm underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:text-gray-400 dark:focus:ring-offset-gray-800 dark:hover:text-gray-100"
-            >
-              {t("auth.login.forgotPassword")}
-            </Link>
-          )}
+          <Link
+            to="/guest/forgot-password"
+            className="rounded-md text-gray-600 text-sm underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:text-gray-400 dark:focus:ring-offset-gray-800 dark:hover:text-gray-100"
+          >
+            {t("auth.login.forgotPassword")}
+          </Link>
           <PrimaryButton className="ms-4">
             {t("auth.login.submit")}
           </PrimaryButton>
