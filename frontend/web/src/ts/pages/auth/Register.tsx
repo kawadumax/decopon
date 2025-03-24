@@ -140,7 +140,7 @@ export default function Register() {
           {t("auth.register.alreadyRegistered")}
         </Link>
 
-        <PrimaryButton className="ms-4">
+        <PrimaryButton className="ms-4" disabled={form.state.isSubmitting}>
           {t("auth.register.submit")}
         </PrimaryButton>
       </div>

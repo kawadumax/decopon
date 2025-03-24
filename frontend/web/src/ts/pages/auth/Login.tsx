@@ -126,7 +126,7 @@ export default function Login({
           >
             {t("auth.login.forgotPassword")}
           </Link>
-          <PrimaryButton className="ms-4">
+          <PrimaryButton className="ms-4" disabled={form.state.isSubmitting}>
             {t("auth.login.submit")}
           </PrimaryButton>
         </div>
