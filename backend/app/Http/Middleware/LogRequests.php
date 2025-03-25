@@ -26,7 +26,6 @@ class LogRequests
     );
 
     Log::info($message, [
-      'session_id' => session()->getId(),
       'user_id' => $request->user()?->id,
     ]);
 

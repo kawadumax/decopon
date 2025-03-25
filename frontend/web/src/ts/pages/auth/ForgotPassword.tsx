@@ -1,11 +1,14 @@
+import InputLabel from "@/components/InputLabel";
 import PrimaryButton from "@/components/PrimaryButton";
 import TextInput from "@/components/TextInput";
 import { callApi } from "@/lib/apiClient";
 import { useForm } from "@tanstack/react-form";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
-export default function ForgotPassword({ status }: { status?: string }) {
+export default function ForgotPassword() {
   const { t } = useTranslation();
+  const [status, setStatus] = useState<string>("");
 
   const form = useForm({
     defaultValues: {
@@ -13,14 +16,12 @@ export default function ForgotPassword({ status }: { status?: string }) {
     },
     async onSubmit({ value, formApi }) {
       try {
-        console.log(value);
         const res = await callApi("post", route("password.email"), value);
-        console.log(res);
+        setStatus(res.status);
       } catch (error) {
         console.error("API error:", error);
-        formApi.reset();
       } finally {
-        // 画面遷移？
+        formApi.reset();
       }
     },
   });
@@ -47,6 +48,7 @@ export default function ForgotPassword({ status }: { status?: string }) {
         <form.Field name="email">
           {(field) => (
             <>
+              <InputLabel htmlFor={field.name} value="Email" />
               <TextInput
                 id={field.name}
                 type="email"

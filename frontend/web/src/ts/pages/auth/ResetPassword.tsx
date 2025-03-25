@@ -1,97 +1,121 @@
-import InputError from "@/components/InputError";
 import InputLabel from "@/components/InputLabel";
 import PrimaryButton from "@/components/PrimaryButton";
 import TextInput from "@/components/TextInput";
-import GuestLayout from "@/layouts/GuestLayout";
+import { callApi } from "@/lib/apiClient";
 import { useForm } from "@tanstack/react-form";
-import type { FormEventHandler } from "react";
+import { getRouteApi } from "@tanstack/react-router";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
-export default function ResetPassword({
-  token,
-  email,
-}: {
-  token: string;
-  email: string;
-}) {
+export default function ResetPassword() {
   const { t } = useTranslation();
-  const { data, setData, post, processing, errors, reset } = useForm({
-    token: token,
-    email: email,
-    password: "",
-    password_confirmation: "",
+  const [status, setStatus] = useState<string>("");
+  const routeApi = getRouteApi("/guest/reset-password/$token");
+  const token = routeApi.useParams({
+    select: (params) => params.token,
+  });
+  const { email } = routeApi.useSearch();
+  const form = useForm({
+    defaultValues: {
+      token: token,
+      email: email,
+      password: "",
+      password_confirmation: "",
+    },
+    async onSubmit({ value, formApi }) {
+      try {
+        const res = await callApi("post", route("password.store"), value);
+        setStatus(res.status);
+      } catch (error) {
+        console.error("API error:", error);
+      } finally {
+        formApi.reset();
+      }
+    },
   });
 
-  const submit: FormEventHandler = (e) => {
-    e.preventDefault();
-
-    post(route("password.store"), {
-      onFinish: () => reset("password", "password_confirmation"),
-    });
-  };
-
   return (
-    <GuestLayout>
-      <Head title={t("auth.reserPassword.title")} />
+    <>
+      <div className="mb-4 text-gray-600 text-sm dark:text-gray-400">
+        {t("auth.forgotPassword.description")}
+      </div>
 
-      <form onSubmit={submit}>
-        <div>
-          <InputLabel htmlFor="email" value="Email" />
-
-          <TextInput
-            id="email"
-            type="email"
-            name="email"
-            value={data.email}
-            className="mt-1 block w-full"
-            autoComplete="username"
-            onChange={(e) => setData("email", e.target.value)}
-          />
-
-          <InputError message={errors.email} className="mt-2" />
+      {status && (
+        <div className="mb-4 font-medium text-green-600 text-sm dark:text-green-400">
+          {status}
         </div>
+      )}
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          form.handleSubmit();
+        }}
+      >
+        <form.Field name="email">
+          {(field) => (
+            <>
+              <InputLabel htmlFor={field.name} value="Email" />
+              <TextInput
+                id={field.name}
+                type="email"
+                name="email"
+                value={field.state.value}
+                onChange={(e) => field.handleChange(e.target.value)}
+                className="mt-1 block w-full"
+                autoComplete="email"
+                isFocused={true}
+              />
 
-        <div className="mt-4">
-          <InputLabel htmlFor="password" value="Password" />
+              {/* <InputError message={form.errors.email} className="mt-2" /> */}
+            </>
+          )}
+        </form.Field>
 
-          <TextInput
-            id="password"
-            type="password"
-            name="password"
-            value={data.password}
-            className="mt-1 block w-full"
-            autoComplete="new-password"
-            isFocused={true}
-            onChange={(e) => setData("password", e.target.value)}
-          />
+        <form.Field name="password">
+          {(field) => (
+            <>
+              <InputLabel htmlFor={field.name} value="Password" />
+              <TextInput
+                id={field.name}
+                type="password"
+                name="password"
+                value={field.state.value}
+                onChange={(e) => field.handleChange(e.target.value)}
+                className="mt-1 block w-full"
+                autoComplete="new-password"
+                isFocused={false}
+              />
+              {/* <InputError message={form.errors.email} className="mt-2" /> */}
+            </>
+          )}
+        </form.Field>
+        <form.Field name="password_confirmation">
+          {(field) => (
+            <>
+              <InputLabel htmlFor={field.name} value="Confirm Password" />
 
-          <InputError message={errors.password} className="mt-2" />
-        </div>
+              <TextInput
+                type="password"
+                name={field.name}
+                id={field.name}
+                value={field.state.value}
+                onChange={(e) => field.handleChange(e.target.value)}
+                className="mt-1 block w-full"
+                autoComplete="new-password"
+              />
 
-        <div className="mt-4">
-          <InputLabel
-            htmlFor="password_confirmation"
-            value="Confirm Password"
-          />
-
-          <TextInput
-            type="password"
-            name="password_confirmation"
-            value={data.password_confirmation}
-            className="mt-1 block w-full"
-            autoComplete="new-password"
-            onChange={(e) => setData("password_confirmation", e.target.value)}
-          />
-
-          <InputError message={errors.password_confirmation} className="mt-2" />
-        </div>
+              {/* <InputError message={errors.password_confirmation} className="mt-2" /> */}
+            </>
+          )}
+        </form.Field>
 
         <div className="mt-4 flex items-center justify-end">
-          <PrimaryButton className="ms-4" disabled={processing}>
-            {t("auth.reserPassword.submit")}
+          <PrimaryButton className="ms-4" disabled={form.state.isSubmitting}>
+            {t("auth.resetPassword.submit")}
           </PrimaryButton>
         </div>
       </form>
-    </GuestLayout>
+    </>
   );
 }

@@ -4,5 +4,5 @@ import { t } from "i18next";
 
 export const Route = createFileRoute("/guest/forgot-password")({
   component: ForgotPassword,
-  context: () => ({ title: t("auth.forgetPassword.title") }),
+  context: () => ({ title: t("auth.forgotPassword.title") }),
 });
