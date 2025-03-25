@@ -1,12 +1,11 @@
 import axios from "axios";
 
-const SecuredAxios = axios;
+const baseURL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
-SecuredAxios.defaults.withCredentials = true;
-SecuredAxios.defaults.withXSRFToken = true;
-
-const instance = SecuredAxios.create({
-  baseURL: "http://localhost:8000",
+const instance = axios.create({
+  baseURL,
+  withCredentials: true,
+  withXSRFToken: true,
   headers: {
     "X-Requested-With": "XMLHttpRequest",
     Accept: "application/json",
@@ -16,16 +15,20 @@ const instance = SecuredAxios.create({
 
 instance.interceptors.request.use(
   async (config) => {
-    // POST や PUT、DELETE など、状態変更系のリクエストの場合のみ
-    if (["post", "put", "delete", "patch"].includes(config.method?.toLowerCase() || "")) {
-      // 例として、クッキーに "XSRF-TOKEN" が含まれているかをチェック
+    if (
+      ["post", "put", "delete", "patch"].includes(
+        config.method?.toLowerCase() || "",
+      )
+    ) {
       if (!document.cookie.includes("XSRF-TOKEN")) {
-        await axios.get("http://localhost:8000/sanctum/csrf-cookie");
+        // 同じインスタンスを使用してCSRFトークンを取得
+        // Get 以外を行うと無限ループなので注意
+        await instance.get("/sanctum/csrf-cookie");
       }
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
 export default instance;
