@@ -84,18 +84,16 @@ export default function UpdatePreferenceForm({
             {(field) => (
               <>
                 <InputLabel
-                  htmlFor="work_time"
+                  htmlFor={field.name}
                   value={t("profile.updatePreference.workTime")}
                 />
 
                 <TextInput
-                  id="work_time"
+                  id={field.name}
                   type="number"
                   className="mt-1 block w-full"
-                  value={data.work_time}
-                  onChange={(e) =>
-                    setData("work_time", Number.parseInt(e.target.value))
-                  }
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(Number.parseInt(e.target.value))}
                   required
                   min="1"
                 />
@@ -119,7 +117,7 @@ export default function UpdatePreferenceForm({
                   type="number"
                   className="mt-1 block w-full"
                   value={field.state.value}
-                  onChange={(e) => field.handleChange(e.target.value)}
+                  onChange={(e) => field.handleChange(Number.parseInt(e.target.value))}
                   required
                   min="1"
                 />
