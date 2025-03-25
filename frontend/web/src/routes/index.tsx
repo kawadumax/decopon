@@ -18,6 +18,7 @@ export const Route = createFileRoute("/")({
         queryKey: ["auth"],
         queryFn: fetchUser,
         staleTime: 1000 * 60 * 5, // 5分キャッシュ
+        initialData: { user: undefined },
       });
       return { user };
     } catch (_error) {

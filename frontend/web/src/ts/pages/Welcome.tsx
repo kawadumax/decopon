@@ -41,9 +41,7 @@ export default function Welcome() {
   const { t } = useTranslation();
 
   const queryClient = useQueryClient();
-  const auth: Auth = queryClient.getQueryData(["auth"]) || { user: undefined };
-
-  console.log(auth);
+  const auth = queryClient.getQueryData(["auth"]) as Auth;
 
   return (
     <>
@@ -57,7 +55,7 @@ export default function Welcome() {
                   <LangSwitch />
                 </div>
 
-                {auth?.user ? (
+                {auth.user ? (
                   <Link
                     to="/auth/dashboard"
                     className="rounded-md px-3 py-2 ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:focus-visible:ring-white dark:hover:text-white/80"
@@ -129,7 +127,7 @@ export default function Welcome() {
                 </div>
 
                 <Link
-                  to={auth?.user ? "/auth/dashboard" : "/guest/register"}
+                  to={auth.user ? "/auth/dashboard" : "/guest/register"}
                   className="rounded-full bg-amber-400 px-6 py-3 font-semibold text-white transition duration-300 hover:bg-amber-500"
                 >
                   {t("welcome.getStarted")}

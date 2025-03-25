@@ -36,12 +36,10 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        // ユーザー情報をJSON形式で返す
         return response()->json([
             'id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
-            'is_login' => true
         ]);
     }
 }

@@ -52,63 +52,70 @@ export default function ResetPassword() {
           form.handleSubmit();
         }}
       >
-        <form.Field name="email">
-          {(field) => (
-            <>
-              <InputLabel htmlFor={field.name} value="Email" />
-              <TextInput
-                id={field.name}
-                type="email"
-                name="email"
-                value={field.state.value}
-                onChange={(e) => field.handleChange(e.target.value)}
-                className="mt-1 block w-full"
-                autoComplete="email"
-                isFocused={true}
-              />
+        <div className="mt-4">
+          <form.Field name="email">
+            {(field) => (
+              <>
+                <InputLabel htmlFor={field.name} value="Email" />
+                <TextInput
+                  id={field.name}
+                  type="email"
+                  name="email"
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  className="mt-1 block w-full"
+                  autoComplete="email"
+                  isFocused={true}
+                />
 
-              {/* <InputError message={form.errors.email} className="mt-2" /> */}
-            </>
-          )}
-        </form.Field>
+                {/* <InputError message={form.errors.email} className="mt-2" /> */}
+              </>
+            )}
+          </form.Field>
+        </div>
 
-        <form.Field name="password">
-          {(field) => (
-            <>
-              <InputLabel htmlFor={field.name} value="Password" />
-              <TextInput
-                id={field.name}
-                type="password"
-                name="password"
-                value={field.state.value}
-                onChange={(e) => field.handleChange(e.target.value)}
-                className="mt-1 block w-full"
-                autoComplete="new-password"
-                isFocused={false}
-              />
-              {/* <InputError message={form.errors.email} className="mt-2" /> */}
-            </>
-          )}
-        </form.Field>
-        <form.Field name="password_confirmation">
-          {(field) => (
-            <>
-              <InputLabel htmlFor={field.name} value="Confirm Password" />
+        <div className="mt-4">
+          <form.Field name="password">
+            {(field) => (
+              <>
+                <InputLabel htmlFor={field.name} value="Password" />
+                <TextInput
+                  id={field.name}
+                  type="password"
+                  name="password"
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  className="mt-1 block w-full"
+                  autoComplete="new-password"
+                  isFocused={false}
+                />
+                {/* <InputError message={form.errors.email} className="mt-2" /> */}
+              </>
+            )}
+          </form.Field>
+        </div>
 
-              <TextInput
-                type="password"
-                name={field.name}
-                id={field.name}
-                value={field.state.value}
-                onChange={(e) => field.handleChange(e.target.value)}
-                className="mt-1 block w-full"
-                autoComplete="new-password"
-              />
+        <div className="mt-4">
+          <form.Field name="password_confirmation">
+            {(field) => (
+              <>
+                <InputLabel htmlFor={field.name} value="Confirm Password" />
 
-              {/* <InputError message={errors.password_confirmation} className="mt-2" /> */}
-            </>
-          )}
-        </form.Field>
+                <TextInput
+                  type="password"
+                  name={field.name}
+                  id={field.name}
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  className="mt-1 block w-full"
+                  autoComplete="new-password"
+                />
+
+                {/* <InputError message={errors.password_confirmation} className="mt-2" /> */}
+              </>
+            )}
+          </form.Field>
+        </div>
 
         <div className="mt-4 flex items-center justify-end">
           <PrimaryButton className="ms-4" disabled={form.state.isSubmitting}>

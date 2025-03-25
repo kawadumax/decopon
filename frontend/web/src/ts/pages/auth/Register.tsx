@@ -19,10 +19,8 @@ export default function Register() {
     },
     onSubmit: async ({ value, formApi }) => {
       try {
-        const res = await callApi("post", route("register"), value);
-        if (res.is_login) {
-          navigate({ to: "/auth/dashboard" });
-        }
+        await callApi("post", route("register"), value);
+        navigate({ to: "/auth/dashboard" });
       } catch (error) {
         // エラーメッセージ表示例
         // formApi.setError("email", "Email already exists");
@@ -38,6 +36,7 @@ export default function Register() {
     <form
       onSubmit={(e) => {
         e.preventDefault();
+        e.stopPropagation();
         form.handleSubmit();
       }}
     >
