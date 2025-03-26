@@ -38,5 +38,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/profile', [ProfileApiController::class, 'destroy'])->name('api.profile.destroy');
 
     // Preference
-    Route::patch('/preference', [PreferenceApiController::class, 'update'])->name('api.preference.update');
+    Route::put('/preference', [PreferenceApiController::class, 'update'])->name('api.preference.update');
 });

@@ -39,5 +39,8 @@ Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
 Route::get('/is-login', fn() => Auth::check())
     ->name('is-login');
 
-Route::get('/get-user', fn() => Auth::User())
+Route::get('/get-user', function () {
+    $user = Auth::user();
+    return $user->load('preference');
+})
     ->middleware('auth')->name('get-user');

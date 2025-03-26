@@ -32,8 +32,20 @@ export default function UpdatePreferenceForm({
     },
     onSubmit: async ({ value, formApi }) => {
       try {
-        const res = await callApi("post", route("register"), value);
+        const res = await callApi("put", route("api.preference.update"), value);
         console.log(res);
+        if (res.preference) {
+          queryClient.setQueryData(["auth"], (auth: Auth) => {
+            if (!auth || !auth.user) return auth;
+            return {
+              ...auth,
+              user: {
+                ...auth.user,
+                preference: res.preference,
+              },
+            };
+          });
+        }
       } catch (error) {
         // エラーメッセージ表示例
         // formApi.setError("email", "Email already exists");
@@ -44,19 +56,6 @@ export default function UpdatePreferenceForm({
       }
     },
   });
-
-  // const { data, setData, patch, errors, processing, recentlySuccessful } =
-  //   useForm({
-  //     work_time: user.preference?.work_time || 25,
-  //     break_time: user.preference?.break_time || 5,
-  //     locale: user.preference?.locale || Locale.ENGLISH,
-  //   });
-
-  // const submit: FormEventHandler = (e) => {
-  //   e.preventDefault();
-
-  //   patch(route("preference.update"));
-  // };
 
   return (
     <section className={className}>
