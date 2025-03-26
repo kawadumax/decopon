@@ -9,6 +9,7 @@ export async function callApi(
   data?: ApiData,
 ) {
   nProgress.start();
+  console.log("ngress start");
   try {
     const response = await axiosInstance({ method, url, data });
     return response.data;
@@ -19,5 +20,6 @@ export async function callApi(
     throw error;
   } finally {
     nProgress.done();
+    console.log("ngress done");
   }
 }

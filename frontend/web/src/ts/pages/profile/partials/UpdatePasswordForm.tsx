@@ -164,7 +164,7 @@ export default function UpdatePasswordForm({
           </PrimaryButton>
 
           <Transition
-            // show=recentlySuccessful
+            show={form.state.isSubmitSuccessful}
             enter="transition ease-in-out"
             enterFrom="opacity-0"
             leave="transition ease-in-out"

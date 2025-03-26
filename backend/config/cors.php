@@ -19,7 +19,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => array_filter(explode(',', env('CORS_ALLOWED_ORIGINS', env('FRONTEND_URL')))),
+    'allowed_origins' => explode(',', env('CORS_ALLOWED_ORIGINS', "*")),
 
     'allowed_origins_patterns' => [],
 

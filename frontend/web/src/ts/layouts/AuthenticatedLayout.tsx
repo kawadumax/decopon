@@ -6,8 +6,9 @@ import { TimerStateWidget } from "@/components/TimerStateWidget";
 import { Toaster } from "@/components/ui/sonner";
 import { useTimeEntryApi } from "@/hooks/useTimeEntryApi";
 import { breakTimeAtom, languageAtom, workTimeAtom } from "@/lib/atoms";
-import { Locale } from "@/types/index.d";
-import { Link, useRouteContext } from "@tanstack/react-router";
+import { type Auth, Locale } from "@/types/index.d";
+import { useQueryClient } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
 import { useSetAtom } from "jotai";
 import {
   type PropsWithChildren,
@@ -22,10 +23,12 @@ export default function Authenticated({
   children,
 }: PropsWithChildren<{ header?: ReactNode }>) {
   const { t } = useTranslation();
-  const ctx = useRouteContext({ from: "/auth" });
-  const { auth } = ctx;
+  // const ctx = useRouteContext({ from: "/auth" });
+  // const { auth } = ctx;
+  // const user = auth.user;
+  const queryClient = useQueryClient();
+  const auth = queryClient.getQueryData(["auth"]) as Auth;
   const user = auth.user;
-
   if (!user) {
     throw new Error("User not found");
   }

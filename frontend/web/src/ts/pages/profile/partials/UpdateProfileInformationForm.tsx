@@ -2,10 +2,10 @@ import InputError from "@/components/InputError";
 import InputLabel from "@/components/InputLabel";
 import PrimaryButton from "@/components/PrimaryButton";
 import TextInput from "@/components/TextInput";
+import type { Auth } from "@/types";
 import { Transition } from "@headlessui/react";
 import { useForm } from "@tanstack/react-form";
-import { useRouteContext } from "@tanstack/react-router";
-import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 // import { Link, useForm, usePage } from "@inertiajs/react";
 // import type { FormEventHandler } from "react";
 import { useTranslation } from "react-i18next";
@@ -21,22 +21,17 @@ export default function UpdateProfileInformation({
   className?: string;
 }) {
   const { t } = useTranslation();
-  const { auth } = useRouteContext({ from: "/auth" });
-  const user = auth.user;
-
-  const [recentlySuccessful, setRecentlySuccessful] = useState(false);
+  const queryClient = useQueryClient();
+  const { user } = queryClient.getQueryData(["auth"]) as Auth;
 
   const form = useForm({
     defaultValues: {
-      name: user.name,
-      email: user.email,
+      name: user?.name,
+      email: user?.email,
     },
     onSubmit: async (values) => {
       // ここでAPIを呼び出してプロフィールを更新する処理を実装
       // 例: await updateProfile(values);
-      console.log("values:", values);
-      setRecentlySuccessful(true);
-      setTimeout(() => setRecentlySuccessful(false), 2000);
     },
   });
   // const { data, setData, patch, errors, processing, recentlySuccessful } =
@@ -113,7 +108,7 @@ export default function UpdateProfileInformation({
           )}
         </form.Field>
 
-        {mustVerifyEmail && user.email_verified_at === null && (
+        {mustVerifyEmail && user?.email_verified_at === null && (
           <div>
             <p className="mt-2 text-gray-800 text-sm dark:text-gray-200">
               {t("profile.updateProfileInformation.unverified")}
@@ -139,7 +134,7 @@ export default function UpdateProfileInformation({
           </PrimaryButton>
 
           <Transition
-            show={recentlySuccessful}
+            show={form.state.isSubmitSuccessful}
             enter="transition ease-in-out"
             enterFrom="opacity-0"
             leave="transition ease-in-out"

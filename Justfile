@@ -15,7 +15,7 @@ backend-run *args:
     cd {{BACKEND_DIR}} && {{ args }}
 
 pail:
-    cd {{BACKEND_DIR}} && php artisan pail --timeout=60
+    cd {{BACKEND_DIR}} && php artisan pail --timeout=600
 
 queue:
     cd {{BACKEND_DIR}} && php artisan queue:listen --tries=1

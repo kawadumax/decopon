@@ -23,7 +23,6 @@ export default function UpdatePreferenceForm({
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const auth = queryClient.getQueryData(["auth"]) as Auth;
-  // const { auth } = useRouteContext({ from: "/auth" });
   const user = auth.user;
   const form = useForm({
     defaultValues: {
@@ -93,7 +92,9 @@ export default function UpdatePreferenceForm({
                   type="number"
                   className="mt-1 block w-full"
                   value={field.state.value}
-                  onChange={(e) => field.handleChange(Number.parseInt(e.target.value))}
+                  onChange={(e) =>
+                    field.handleChange(Number.parseInt(e.target.value))
+                  }
                   required
                   min="1"
                 />
@@ -117,7 +118,9 @@ export default function UpdatePreferenceForm({
                   type="number"
                   className="mt-1 block w-full"
                   value={field.state.value}
-                  onChange={(e) => field.handleChange(Number.parseInt(e.target.value))}
+                  onChange={(e) =>
+                    field.handleChange(Number.parseInt(e.target.value))
+                  }
                   required
                   min="1"
                 />
@@ -168,7 +171,7 @@ export default function UpdatePreferenceForm({
           </PrimaryButton>
 
           <Transition
-            show={false}
+            show={form.state.isSubmitSuccessful}
             enter="transition ease-in-out"
             enterFrom="opacity-0"
             leave="transition ease-in-out"
