@@ -1,16 +1,17 @@
 import axiosInstance from "@/lib/axios";
 import type { ApiData } from "@/types/index.d";
 import axios from "axios";
-import nProgress from "nprogress";
+import { NProgressManager } from "./nProgressManager";
+
+const progressManager = new NProgressManager();
 
 export async function callApi(
   method: "get" | "post" | "put" | "delete",
   url: string,
   data?: ApiData,
 ) {
-  nProgress.start();
-  console.log("ngress start");
   try {
+    progressManager.incrementRequests();
     const response = await axiosInstance({ method, url, data });
     return response.data;
   } catch (error) {
@@ -19,7 +20,6 @@ export async function callApi(
     }
     throw error;
   } finally {
-    nProgress.done();
-    console.log("ngress done");
+    progressManager.decrementRequests();
   }
 }

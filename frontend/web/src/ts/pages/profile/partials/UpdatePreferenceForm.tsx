@@ -33,7 +33,7 @@ export default function UpdatePreferenceForm({
     onSubmit: async ({ value, formApi }) => {
       try {
         const res = await callApi("put", route("api.preference.update"), value);
-        console.log(res);
+
         if (res.preference) {
           queryClient.setQueryData(["auth"], (auth: Auth) => {
             if (!auth || !auth.user) return auth;
