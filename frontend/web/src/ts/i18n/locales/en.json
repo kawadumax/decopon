@@ -102,7 +102,10 @@
       "forgotPassword": "Forgot your password?",
       "submit": "Log in",
       "caution": "Caution",
-      "demo": "You are trying to log in to a demo version of a service. In the demo version, data may be deleted without prior notice. Additionally, in the demo version, it is possible to log in as a guest account."
+      "demo": "You are trying to log in to a demo version of a service. In the demo version, data may be deleted without prior notice. Additionally, in the demo version, it is possible to log in as a guest account.",
+      "error": {
+        "notMatch": "These credentials do not match our records."
+      }
     },
     "register": {
       "title": "Register",

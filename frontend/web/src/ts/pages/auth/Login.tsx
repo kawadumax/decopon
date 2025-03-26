@@ -5,6 +5,8 @@ import { callApi } from "@/lib/apiClient";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
+import type { AxiosError } from "axios";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { DemoCaution } from "./partials/DemoCaution";
 
@@ -12,6 +14,12 @@ type LoginData = {
   email: string;
   password: string;
 };
+
+interface ErrorResponse {
+  data: {
+    message?: string;
+  };
+}
 
 const loginMutationFn = async (loginData: LoginData) => {
   await callApi("get", route("sanctum.csrf-cookie"));
@@ -22,11 +30,8 @@ const loginMutationFn = async (loginData: LoginData) => {
   return res;
 };
 
-export default function Login({
-  status,
-}: {
-  status?: string;
-}) {
+export default function Login() {
+  const [status, setStatus] = useState("");
   const { t } = useTranslation();
   const navigate = useNavigate();
 
@@ -37,8 +42,12 @@ export default function Login({
     onSuccess: (data) => {
       queryClient.setQueryData(["auth"], data);
     },
-    onError: (error) => {
+    onError: (error: AxiosError) => {
       console.error("Login Error:", error);
+      const message = (error.response as ErrorResponse).data.message;
+      if (message) {
+        setStatus(message);
+      }
     },
   });
 
