@@ -20,6 +20,7 @@ export const TagList = ({ _tags }: { _tags?: Tag[] }) => {
     }
 
     api.get(route("api.tags.index"), (response) => {
+      console.log(response);
       setTags(response.data.tags);
     });
   }, [_tags, setTags, api]);
