@@ -2,9 +2,10 @@ import InputLabel from "@/components/InputLabel";
 import PrimaryButton from "@/components/PrimaryButton";
 import TextInput from "@/components/TextInput";
 import { callApi } from "@/lib/apiClient";
+import type { Auth } from "@/types";
 import { Transition } from "@headlessui/react";
 import { useForm } from "@tanstack/react-form";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -30,6 +31,8 @@ export default function UpdatePasswordForm({
   const { t } = useTranslation();
   const passwordInput = useRef<HTMLInputElement>(null);
   const currentPasswordInput = useRef<HTMLInputElement>(null);
+  const queryClient = useQueryClient();
+  const auth = queryClient.getQueryData(["auth"]) as Auth;
   const [status, setStatus] = useState("");
   const mutation = useMutation({
     mutationFn: updatePassword,
@@ -37,6 +40,7 @@ export default function UpdatePasswordForm({
 
   const form = useForm({
     defaultValues: {
+      username: auth?.user?.name ?? "",
       current_password: "",
       password: "",
       password_confirmation: "",
@@ -52,26 +56,6 @@ export default function UpdatePasswordForm({
       });
     },
   });
-
-  // const updatePassword: FormEventHandler = (e) => {
-  //   e.preventDefault();
-
-  //   put(route("password.update"), {
-  //     preserveScroll: true,
-  //     onSuccess: () => reset(),
-  //     onError: (errors) => {
-  //       if (errors.password) {
-  //         reset("password", "password_confirmation");
-  //         passwordInput.current?.focus();
-  //       }
-
-  //       if (errors.current_password) {
-  //         reset("current_password");
-  //         currentPasswordInput.current?.focus();
-  //       }
-  //     },
-  //   });
-  // };
 
   return (
     <section className={className}>
@@ -99,6 +83,20 @@ export default function UpdatePasswordForm({
         }}
         className="mt-6 space-y-6"
       >
+        <form.Field name="username">
+          {(field) => (
+            <input
+              className="hidden"
+              type="text"
+              id={field.name}
+              name={field.name}
+              value={field.state.value}
+              onChange={(e) => field.handleChange(e.target.value)}
+              autoComplete="username"
+            />
+          )}
+        </form.Field>
+
         <div className="mt-4">
           <form.Field name="current_password">
             {(field) => (
