@@ -155,7 +155,8 @@
     "updatePassword": {
       "title": "Update Password",
       "description": "Ensure your account is using a long, random password to stay secure.",
-      "saved": "Saved."
+      "saved": "Saved.",
+      "error": "Password could not be updated"
     },
     "deleteAccount": {
       "title": "Delete Account",

@@ -18,7 +18,7 @@ pail:
     cd {{BACKEND_DIR}} && php artisan pail --timeout=600
 
 queue:
-    cd {{BACKEND_DIR}} && php artisan queue:listen --tries=1
+    cd {{BACKEND_DIR}} && php artisan queue:listen --tries=1 --timeout=600
 
 ziggy:
     cd {{BACKEND_DIR}} && php artisan ziggy:generate

@@ -36,6 +36,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/profile', [ProfileApiController::class, 'edit'])->name('api.profile.edit');
     Route::patch('/profile', [ProfileApiController::class, 'update'])->name('api.profile.update');
     Route::delete('/profile', [ProfileApiController::class, 'destroy'])->name('api.profile.destroy');
+    Route::put('/profile/password', [ProfileApiController::class, 'updatePassword'])->name('api.profile.password.update');
+
 
     // Preference
     Route::put('/preference', [PreferenceApiController::class, 'update'])->name('api.preference.update');

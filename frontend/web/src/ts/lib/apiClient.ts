@@ -3,10 +3,10 @@ import type { ApiData } from "@/types/index.d";
 import axios from "axios";
 import { NProgressManager } from "./nProgressManager";
 
-const progressManager = new NProgressManager();
+const progressManager = NProgressManager.getInstance();
 
 export async function callApi(
-  method: "get" | "post" | "put" | "delete",
+  method: "get" | "post" | "put" | "delete" | "patch",
   url: string,
   data?: ApiData,
 ) {

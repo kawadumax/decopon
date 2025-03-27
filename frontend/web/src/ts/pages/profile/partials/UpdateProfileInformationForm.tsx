@@ -2,14 +2,26 @@ import InputError from "@/components/InputError";
 import InputLabel from "@/components/InputLabel";
 import PrimaryButton from "@/components/PrimaryButton";
 import TextInput from "@/components/TextInput";
+import { callApi } from "@/lib/apiClient";
 import type { Auth } from "@/types";
 import { Transition } from "@headlessui/react";
 import { useForm } from "@tanstack/react-form";
-import { useQueryClient } from "@tanstack/react-query";
-// import { Link, useForm, usePage } from "@inertiajs/react";
-// import type { FormEventHandler } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { PostButton } from "./PostButton";
+
+type UpdateData = {
+  name: string;
+  email: string;
+};
+
+const updateProfile = async (updateData: UpdateData) => {
+  try {
+    await callApi("patch", route("api.profile.update"), updateData);
+  } catch (e) {
+    throw new Error(String(e));
+  }
+};
 
 export default function UpdateProfileInformation({
   mustVerifyEmail,
@@ -24,27 +36,26 @@ export default function UpdateProfileInformation({
   const queryClient = useQueryClient();
   const { user } = queryClient.getQueryData(["auth"]) as Auth;
 
-  const form = useForm({
-    defaultValues: {
-      name: user?.name,
-      email: user?.email,
-    },
-    onSubmit: async (values) => {
-      // ここでAPIを呼び出してプロフィールを更新する処理を実装
-      // 例: await updateProfile(values);
+  const mutation = useMutation({
+    mutationFn: updateProfile,
+    onSuccess: (data) => {
+      queryClient.setQueryData(["auth"], data);
     },
   });
-  // const { data, setData, patch, errors, processing, recentlySuccessful } =
-  //   useForm({
-  //     name: user.name,
-  //     email: user.email,
-  //   });
 
-  // const submit: FormEventHandler = (e) => {
-  //   e.preventDefault();
-
-  //   patch(route("profile.update"));
-  // };
+  const form = useForm({
+    defaultValues: {
+      name: user?.name ?? "",
+      email: user?.email ?? "",
+    },
+    onSubmit: async ({ value, formApi }) => {
+      mutation.mutate(value as UpdateData, {
+        onError: () => {
+          formApi.reset();
+        },
+      });
+    },
+  });
 
   return (
     <section className={className}>
@@ -134,7 +145,7 @@ export default function UpdateProfileInformation({
           </PrimaryButton>
 
           <Transition
-            show={form.state.isSubmitSuccessful}
+            show={mutation.isSuccess}
             enter="transition ease-in-out"
             enterFrom="opacity-0"
             leave="transition ease-in-out"

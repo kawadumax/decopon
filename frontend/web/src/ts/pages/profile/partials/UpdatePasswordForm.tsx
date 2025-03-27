@@ -4,8 +4,23 @@ import TextInput from "@/components/TextInput";
 import { callApi } from "@/lib/apiClient";
 import { Transition } from "@headlessui/react";
 import { useForm } from "@tanstack/react-form";
-import { useRef } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+
+type UpdatePasswordData = {
+  current_password: string;
+  password: string;
+  password_confirmation: string;
+};
+
+const updatePassword = async (updateData: UpdatePasswordData) => {
+  try {
+    await callApi("put", route("api.profile.password.update"), updateData);
+  } catch (e) {
+    throw new Error(String(e));
+  }
+};
 
 export default function UpdatePasswordForm({
   className = "",
@@ -15,13 +30,10 @@ export default function UpdatePasswordForm({
   const { t } = useTranslation();
   const passwordInput = useRef<HTMLInputElement>(null);
   const currentPasswordInput = useRef<HTMLInputElement>(null);
-
-  // const { data, setData, errors, put, reset, processing, recentlySuccessful } =
-  //   useForm({
-  //     current_password: "",
-  //     password: "",
-  //     password_confirmation: "",
-  //   });
+  const [status, setStatus] = useState("");
+  const mutation = useMutation({
+    mutationFn: updatePassword,
+  });
 
   const form = useForm({
     defaultValues: {
@@ -30,23 +42,14 @@ export default function UpdatePasswordForm({
       password_confirmation: "",
     },
     onSubmit: async ({ value, formApi }) => {
-      try {
-        await callApi("put", route("password.update"), value);
-        formApi.reset();
-      } catch (error) {
-        console.error("API error:", error);
-        // if (error?.response?.status === 422) {
-        //   const { errors } = error?.response?.data;
-        //   if (errors.password) {
-        //     formApi.reset();
-        //     passwordInput.current?.focus();
-        //   }
-        //   if (errors.current_password) {
-        //     formApi.reset({ current_password: "" });
-        //     currentPasswordInput.current?.focus();
-        //   }
-        // }
-      }
+      mutation.mutate(value, {
+        onSettled: () => {
+          formApi.reset();
+        },
+        onError: () => {
+          setStatus(t("profile.updatePassword.error"));
+        },
+      });
     },
   });
 
@@ -81,6 +84,12 @@ export default function UpdatePasswordForm({
           {t("profile.updatePassword.description")}
         </p>
       </header>
+
+      {status && (
+        <div className="mb-4 font-medium text-green-600 text-sm dark:text-green-400">
+          {status}
+        </div>
+      )}
 
       <form
         onSubmit={(e) => {
@@ -164,7 +173,7 @@ export default function UpdatePasswordForm({
           </PrimaryButton>
 
           <Transition
-            show={form.state.isSubmitSuccessful}
+            show={mutation.isSuccess}
             enter="transition ease-in-out"
             enterFrom="opacity-0"
             leave="transition ease-in-out"

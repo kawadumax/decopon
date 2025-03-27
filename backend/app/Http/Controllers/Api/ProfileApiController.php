@@ -7,6 +7,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rules\Password;
 
 class ProfileApiController extends ApiController
 {
@@ -33,6 +34,7 @@ class ProfileApiController extends ApiController
         }
 
         $request->user()->save();
+        $request->user()->load('preference');
 
         $statusCode = 200;
         return response()->json([
@@ -40,6 +42,28 @@ class ProfileApiController extends ApiController
             'message' => 'Profile updated.',
             'i18nKey' => $this->generateI18nKey(__FUNCTION__, 200),
             'user' => $request->user(),
+        ], $statusCode);
+    }
+
+    /**
+     * Update the user's password.
+     */
+    public function updatePassword(Request $request): JsonResponse
+    {
+        $request->validate([
+            'current_password' => ['required', 'current_password'],
+            'password' => ['required', 'confirmed', Password::defaults()],
+        ]);
+
+        $user = $request->user();
+        $user->password = \Hash::make($request->password);
+        $user->save();
+
+        $statusCode = 200;
+        return response()->json([
+            'success' => true,
+            'message' => 'Password updated successfully.',
+            'i18nKey' => $this->generateI18nKey(__FUNCTION__, $statusCode),
         ], $statusCode);
     }
 

@@ -9,6 +9,7 @@ import { TimeManager } from "./components/TimeManager";
 import { initializeI18n } from "./i18n";
 import { Locale } from "./types/index.d";
 import "../css/app.css";
+import { NProgressManager } from "./lib/nProgressManager";
 import { queryClient } from "./lib/queryClient";
 
 // Create a new router instance
@@ -26,8 +27,13 @@ declare module "@tanstack/react-router" {
 
 // Subscribe to events for progress bar
 NProgress.configure({ showSpinner: false });
-router.subscribe("onBeforeLoad", () => NProgress.start());
-router.subscribe("onLoad", () => NProgress.done());
+const progressManager = NProgressManager.getInstance();
+router.subscribe("onBeforeNavigate", () => {
+  progressManager.incrementRequests();
+});
+router.subscribe("onResolved", () => {
+  progressManager.decrementRequests();
+});
 
 // 多言語化初期化
 initializeI18n(Locale.ENGLISH);
