@@ -1,8 +1,13 @@
 import { useApi } from "@/hooks/useApi";
-import { currentTagAtom, splitedTasksAtom, tasksAtom } from "@/lib/atoms";
+import {
+  currentTagAtom,
+  setTasksAtom,
+  splitedTasksAtom,
+  tasksAtom,
+} from "@/lib/atoms";
 import type { Task } from "@/types";
 import { t } from "i18next";
-import { type PrimitiveAtom, useAtom, useAtomValue } from "jotai";
+import { type PrimitiveAtom, useAtom, useAtomValue, useSetAtom } from "jotai";
 import type React from "react";
 import { useEffect, useMemo } from "react";
 import { TaskItem } from "../pages/task/partials/TaskItem";
@@ -10,7 +15,8 @@ import { TaskItem } from "../pages/task/partials/TaskItem";
 export const TaskTree = () => {
   const currentTag = useAtomValue(currentTagAtom);
   const [taskAtoms, dispatch] = useAtom(splitedTasksAtom);
-  const [tasks, setTasks] = useAtom(tasksAtom);
+  const setTasks = useSetAtom(setTasksAtom);
+  const [{ data: tasks = [] }] = useAtom(tasksAtom);
   const api = useApi();
 
   useEffect(() => {

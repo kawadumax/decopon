@@ -4,7 +4,10 @@ export class NProgressManager {
   private static instance: NProgressManager;
   private activeRequests = 0;
 
-  private constructor() {}
+  private constructor() {
+    // Subscribe to events for progress bar
+    nProgress.configure({ showSpinner: false });
+  }
 
   public static getInstance(): NProgressManager {
     if (!NProgressManager.instance) {

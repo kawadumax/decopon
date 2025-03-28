@@ -1,9 +1,6 @@
 import { TagHeader } from "@/components/TagHeader";
 import { Timer } from "@/components/Timer";
-import { tasksAtom } from "@/lib/atoms";
-import type { PageProps, Task } from "@/types";
-import { useSetAtom } from "jotai";
-import { useEffect } from "react";
+import type {} from "@/types";
 import Split from "react-split";
 import { TaskTree } from "../../components/TaskTree";
 import { TaskSideView } from "./partials/TaskSideView";
@@ -11,14 +8,14 @@ import { TaskTagList } from "./partials/TaskTagList";
 import { TaskTools } from "./partials/TaskTools";
 
 export default function Index(
-  props: PageProps<{
-    tasks: Task[];
-  }>,
+  // props: PageProps<{
+  //   tasks: Task[];
+  // }>,
 ) {
-  const setTasks = useSetAtom(tasksAtom);
-  useEffect(() => {
-    setTasks(props.tasks);
-  }, [props.tasks, setTasks]);
+  // const setTasks = useSetAtom(tasksAtom);
+  // useEffect(() => {
+  //   setTasks(props.tasks);
+  // }, [props.tasks, setTasks]);
 
   return (
     <Split

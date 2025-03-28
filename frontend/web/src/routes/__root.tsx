@@ -1,17 +1,10 @@
+import type { RouterContext } from "@/App";
 import { getLast } from "@/lib/utils";
-import type { User } from "@/types";
 import {
   HeadContent,
   Outlet,
   createRootRouteWithContext,
 } from "@tanstack/react-router";
-
-interface RouterContext {
-  title: string;
-  auth: {
-    user?: User;
-  };
-}
 
 export const Route = createRootRouteWithContext<RouterContext>()({
   component: () => (
@@ -28,4 +21,11 @@ export const Route = createRootRouteWithContext<RouterContext>()({
       meta: [{ title: `${pageTitle} | ${appName}` }],
     };
   },
+  errorComponent: () => (
+    <div className="flex h-screen flex-col items-center justify-center">
+      <p className="text-center font-cursive text-9xl text-black/50">
+        Sorry, Some Errors Occured.
+      </p>
+    </div>
+  ),
 });

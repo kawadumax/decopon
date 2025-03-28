@@ -7,23 +7,23 @@ import { useCallback, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { TagItem } from "./TagItem";
 
-export const TagList = ({ _tags }: { _tags?: Tag[] }) => {
+export const TagList = () => {
   const { t } = useTranslation();
   const [tags, setTags] = useAtom(tagsAtom);
   const [currentTag, setCurrentTag] = useAtom(currentTagAtom);
   const api = useApi();
 
-  useEffect(() => {
-    if (_tags) {
-      setTags(_tags);
-      return;
-    }
+  // useEffect(() => {
+  //   if (_tags) {
+  //     setTags(_tags);
+  //     return;
+  //   }
 
-    api.get(route("api.tags.index"), (response) => {
-      console.log(response);
-      setTags(response.data.tags);
-    });
-  }, [_tags, setTags, api]);
+  //   api.get(route("api.tags.index"), (response) => {
+  //     console.log(response);
+  //     setTags(response.data.tags);
+  //   });
+  // }, [_tags, setTags, api]);
 
   const handleTagClicked = useCallback(
     (index: number) => {
