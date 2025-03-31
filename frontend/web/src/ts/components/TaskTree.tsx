@@ -1,37 +1,25 @@
-import { useApi } from "@/hooks/useApi";
-import {
-  currentTagAtom,
-  setTasksAtom,
-  splitedTasksAtom,
-  tasksAtom,
-} from "@/lib/atoms";
+import { currentTagAtom, splitedTasksAtom, tasksAtom } from "@/lib/atoms";
 import type { Task } from "@/types";
 import { t } from "i18next";
-import { type PrimitiveAtom, useAtom, useAtomValue, useSetAtom } from "jotai";
+import { type PrimitiveAtom, useAtom, useAtomValue } from "jotai";
 import type React from "react";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { TaskItem } from "../pages/task/partials/TaskItem";
 
 export const TaskTree = () => {
   const currentTag = useAtomValue(currentTagAtom);
   const [taskAtoms, dispatch] = useAtom(splitedTasksAtom);
-  const setTasks = useSetAtom(setTasksAtom);
-  const [{ data: tasks = [] }] = useAtom(tasksAtom);
-  const api = useApi();
+  const [tasks, setTasks] = useAtom(tasksAtom);
+  // const api = useApi();
 
-  useEffect(() => {
-    // currentTagがある場合、そのTagに合わせてTasksを更新する
-    if (currentTag) {
-      api.get(route("api.tasks.tags.index", currentTag.id), (response) => {
-        setTasks(response.data.tasks || []);
-      });
-    } else {
-      // currentTagが無い場合は通常のtask一覧を取得する
-      api.get(route("api.tasks.index"), (response) => {
-        setTasks(response.data.tasks || []);
-      });
-    }
-  }, [currentTag, api, setTasks]);
+  // useEffect(() => {
+  //   // currentTagがある場合、そのTagに合わせてTasksを更新する
+  //   if (currentTag) {
+  //     api.get(route("api.tasks.tags.index", currentTag.id), (response) => {
+  //       setTasks(response.data.tasks || []);
+  //     });
+  //   }
+  // }, [currentTag, api, setTasks]);
 
   const taskMap = useMemo(
     () => new Map(tasks.map((item, index) => [item.id, taskAtoms[index]])),
@@ -86,7 +74,6 @@ export const TaskTree = () => {
       return createTaskItem(taskAtom);
     };
 
-    // ルート要素から開始
     const rootTasks = tasks.filter((item) => item.parent_task_id === null);
     const taskItems = rootTasks.map((root) => createRecursiveTask(root.id));
     return <>{taskItems}</>;

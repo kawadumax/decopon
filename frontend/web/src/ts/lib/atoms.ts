@@ -1,7 +1,6 @@
 import { Locale, type Tag } from "@/types/index.d";
 import { type PrimitiveAtom, atom } from "jotai";
-import { atomWithQuery, queryClientAtom } from "jotai-tanstack-query";
-import { atomWithStorage, loadable, splitAtom } from "jotai/utils";
+import { atomWithStorage, splitAtom } from "jotai/utils";
 import type {
   Log,
   TagCheckable,
@@ -9,120 +8,38 @@ import type {
   Task,
   TimeEntry,
 } from "../types";
-import { callApi } from "./apiClient";
+import { createResListAtom } from "./atomHelpers";
 import { getToday } from "./utils";
-
-export const updateQueryDataAtom = atom(
-  null,
-  (
-    get,
-    _set,
-    {
-      queryKey,
-      updater,
-    }: {
-      queryKey: unknown[];
-      updater: (prev: unknown) => unknown;
-    },
-  ) => {
-    const queryClient = get(queryClientAtom);
-    const current = queryClient.getQueryData(queryKey);
-    const next = updater(current);
-    queryClient.setQueryData(queryKey, next);
-  },
-);
 
 // TaskAtom
 
-// export const tasksAtom = atom<Task[]>([]); // 元々こうだった
-export const tasksAtom = atomWithQuery<Task[]>(() => ({
-  queryKey: ["tasks"],
-  queryFn: async (): Promise<Task[]> => {
-    try {
-      const res = await callApi("get", route("api.tasks.index"));
-      console.log(res);
-      return res;
-    } catch (error) {
-      console.log(error);
-      return [];
-    }
-  },
-  placeholderData: [],
-}));
-
-export const setTasksAtom = atom(null, (_get, set, newTasks: Task[]) => {
-  set(updateQueryDataAtom, {
-    queryKey: ["tasks"],
-    updater: (_prev) => newTasks,
-  });
-});
-
-// あるタスクを根とするタスクツリーを取得するためのAtom
-// export const taskTreeAtomFamily = atomFamily((rootTaskId: number) =>
-//   atom(async (get) => {
-//     const tasks = get(waitForAll([tasksAtom]));
-//     const rootTask = tasks.find((task) => task.id === rootTaskId);
-
-//     if (!rootTask) return [];
-
-//     const collectLeaves = (root: Task): Task[] => {
-//       const children = tasks.filter((task) => task.parent_task_id === root.id);
-//       if (children.length > 0) {
-//         return [root].concat(children.flatMap((child) => collectLeaves(child)));
-//       }
-//       return [root];
-//     };
-
-//     return collectLeaves(rootTask);
-//   }),
-// );
+export const tasksAtom = createResListAtom<Task>("tasks");
+export const splitedTasksAtom = splitAtom(tasksAtom, (item) => item.id);
 
 // いくつかのTaskをまとめて更新するためのAtom
 export const tasksBatchAtom = atom(null, (get, set, newTasks: Task[]) => {
   // 現在のタスクの状態を取得
-  const currentTasks = get(tasksAtom).data as Task[];
+  const currentTasks = get(tasksAtom);
   // 新しいタスクの配列を作成
   const updatedTasks = currentTasks.map((task) => {
     const newTask = newTasks.find((newTask) => newTask.id === task.id);
     return newTask ? newTask : task;
   });
   // タスクの状態を更新
-  set(setTasksAtom, updatedTasks);
+  set(tasksAtom, updatedTasks);
 });
 
-const loadableTasksAtom = loadable(tasksAtom);
-
-const syncTasksArrayAtom = atom(
-  (get) => {
-    const result = get(loadableTasksAtom);
-
-    if (result.state === "hasData") {
-      const queryResult = result.data;
-      const tasks = queryResult.data;
-      return tasks ? tasks : [];
-    }
-    return [];
-  },
-  (_get, set, newTasks: Task[]) => {
-    set(setTasksAtom, newTasks);
-  },
-);
-
-export const splitedTasksAtom = splitAtom(
-  syncTasksArrayAtom,
-  (item) => item.id,
-);
-
-const currentTaskAtom: PrimitiveAtom<Task> | PrimitiveAtom<null> = atom(null);
-const currentTaskBaseAtom = atom<PrimitiveAtom<Task> | PrimitiveAtom<null>>(
-  currentTaskAtom,
-);
+const currentTaskAtom: PrimitiveAtom<Task> | PrimitiveAtom<undefined> =
+  atom(undefined);
+const currentTaskBaseAtom = atom<
+  PrimitiveAtom<Task> | PrimitiveAtom<undefined>
+>(currentTaskAtom);
 export const taskSelectorAtom = atom(
   (get) => get(currentTaskBaseAtom),
   (
     _get,
     set,
-    newCurrentTaskAtom: PrimitiveAtom<Task> | PrimitiveAtom<null>,
+    newCurrentTaskAtom: PrimitiveAtom<Task> | PrimitiveAtom<undefined>,
   ) => {
     set(currentTaskBaseAtom, newCurrentTaskAtom);
   },
@@ -241,7 +158,10 @@ export const logsAtom = atom<Log[]>([]);
 
 // tags atom
 
-export const tagsAtom = atom<Tag[]>([]);
+// export const tagsAtom = atom<Tag[]>([]);
+
+// const tagsQueryAtom = createFetchingListAtom<Tag>("tags");
+export const tagsAtom = createResListAtom<Tag>("tags");
 export const splitedTagsAtom = splitAtom(tagsAtom);
 export const currentTagAtom = atom<Tag | null>(null);
 const tagChecksAtom = atom<TagWithCheck[]>([]);

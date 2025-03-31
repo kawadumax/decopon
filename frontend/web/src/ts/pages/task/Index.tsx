@@ -1,22 +1,12 @@
 import { TagHeader } from "@/components/TagHeader";
-import { Timer } from "@/components/Timer";
-import type {} from "@/types";
+import { TaskTree } from "@/components/TaskTree";
+import { Timer } from "lucide-react";
 import Split from "react-split";
-import { TaskTree } from "../../components/TaskTree";
 import { TaskSideView } from "./partials/TaskSideView";
 import { TaskTagList } from "./partials/TaskTagList";
 import { TaskTools } from "./partials/TaskTools";
 
-export default function Index(
-  // props: PageProps<{
-  //   tasks: Task[];
-  // }>,
-) {
-  // const setTasks = useSetAtom(tasksAtom);
-  // useEffect(() => {
-  //   setTasks(props.tasks);
-  // }, [props.tasks, setTasks]);
-
+export default function Index() {
   return (
     <Split
       className="flex max-h-full min-h-full flex-row bg-white"

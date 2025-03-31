@@ -27,7 +27,7 @@ export const TaskItem = ({
   const handleDelete = () => {
     api.delete(route("api.tasks.destroy", task.id), undefined, (response) => {
       remove();
-      setCurrentTaskAtom(atom(null));
+      setCurrentTaskAtom(atom(undefined));
     });
   };
 
