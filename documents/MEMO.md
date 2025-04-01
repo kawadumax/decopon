@@ -1,10 +1,18 @@
+## 必要なコマンドなど
+
+```
+# nodeとphp
+# 略
+brew install just # just（タスクランナ）のインストール
+```
+
 ## プロジェクト初期化
 
 ```
 git clone git@github.com:kawadumax/decopon.git
 cp .env.example .env # git から落としてきた後、.env をコピーする。
-composer install # phpの依存ファイルを入れる
-npm install # jsの依存ファイルを入れる
+just backend-run composer install # phpの依存ファイルを入れる
+just web-run pnpm install # jsの依存ファイルを入れる
 ```
 
 DB の初期化
@@ -20,23 +28,16 @@ php artisan key:generate
 ```
 
 ## コマンドのメモ書き
-
-開発サーバ実行
-
-```
-php artisan serve
-```
-
-フロントエンドも一緒に
+マイクロサービス化して、ルートディレクトリにコマンドを置いておく
+タスクランナとしてjustを使っているのでjustを入れてください
 
 ```
-npm run dev
-```
-
-上記を同時にできるかも
-
-```
-composer run dev
+brew install just # just（タスクランナ）のインストール
+just backend # バックエンド起動
+just web # webのフロントエンド起動
+just web-run *args
+just backend-run *args
+just all # 全部起動
 ```
 
 DB リセットして Seeder 実行
@@ -49,13 +50,3 @@ php artisan migrate:fresh --seed
 ```
 git config --local core.hooksPath .githooks
 ```
-
-## フロントエンドのルーティングについて。
-
-route("name のほうをいれる")
-
-## ビューのイメージ
-
-タスクビューでは、ツリービューと詳細ビューがある？
-ツリービューは分解するためのビュー。詳細ビューはログを取るためのビュー。
-実行コンテクストも詳細ビュー。
