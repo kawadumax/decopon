@@ -43,7 +43,7 @@ jobs:
       - run: composer install --optimize-autoloader
 
       # サーバーにビルド済みアプリケーションを転送
-      - name: Deploy to Lightsail
+      - name: Deploy
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           DEPLOY_SERVER: ${{ secrets.DEPLOY_SERVER }}
