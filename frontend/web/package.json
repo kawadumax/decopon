@@ -3,7 +3,8 @@
   "type": "module",
   "scripts": {
     "preinstall": "npx only-allow pnpm",
-    "build": "tsc && vite build",
+    "generate:routes": "tsr generate",
+    "build": "pnpm run generate:routes && tsc && vite build",
     "dev": "vite",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
@@ -20,6 +21,7 @@
     "@storybook/react-vite": "^8.6.6",
     "@storybook/test": "^8.6.6",
     "@tailwindcss/forms": "^0.5.10",
+    "@tanstack/router-cli": "^1.114.29",
     "@tanstack/router-devtools": "^1.114.13",
     "@tanstack/router-plugin": "^1.114.13",
     "@types/node": "^18.19.80",
@@ -76,10 +78,6 @@
     "zod": "^3.24.2"
   },
   "pnpm": {
-    "onlyBuiltDependencies": [
-      "@biomejs/biome",
-      "esbuild",
-      "msw"
-    ]
+    "onlyBuiltDependencies": ["@biomejs/biome", "esbuild", "msw"]
   }
 }
