@@ -4,7 +4,7 @@ import { type TimeEntry, TimeEntryStatus } from "@/types/index.d";
 import type { AxiosResponse } from "axios";
 import { useAtom } from "jotai";
 import { useCallback, useMemo } from "react";
-import { useApi } from "./useApi";
+import { type ResponseData, useApi } from "./useApi";
 
 export const useTimeEntryApi = () => {
   const [timerState, setTimerState] = useAtom(timerStateAtom);
@@ -45,10 +45,10 @@ export const useTimeEntryApi = () => {
   );
 
   const setResponseToAtom = useCallback(
-    (response: AxiosResponse) => {
+    (data: ResponseData) => {
       setTimerState((prev) => ({
         ...prev,
-        timeEntry: response.data.time_entry,
+        timeEntry: data.time_entry,
       }));
     },
     [setTimerState],
@@ -118,10 +118,10 @@ export const useTimeEntryApi = () => {
       route("api.time-entries.cycles", {
         date: today,
       }),
-      (response) => {
+      (data: ResponseData) => {
         setTimerState((prev) => ({
           ...prev,
-          cycles: response.data.cycles || {
+          cycles: data.cycles || {
             date: today,
             count: 0,
           },

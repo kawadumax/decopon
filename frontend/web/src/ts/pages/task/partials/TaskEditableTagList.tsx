@@ -28,8 +28,8 @@ export const TaskEditableTagList = ({
           task_id: currentTask.id,
           name: tagText,
         },
-        (response) => {
-          const newTag = response.data.tag;
+        (data) => {
+          const newTag = data.tag;
           setTags((prev) => {
             // タグの名前で重複をチェック
             const isDuplicate = prev.some((tag) => tag.name === newTag.name);
@@ -57,10 +57,10 @@ export const TaskEditableTagList = ({
           task_id: currentTask.id,
           name: tagText,
         },
-        (response) => {
+        (data) => {
           setCurrentTask((prev) => {
             const newTags = prev.tags
-              ? prev.tags.filter((tag) => tag.name !== response.data.tag.name)
+              ? prev.tags.filter((tag) => tag.name !== data.tag.name)
               : [];
             return {
               ...prev,

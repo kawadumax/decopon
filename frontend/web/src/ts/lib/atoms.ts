@@ -8,12 +8,12 @@ import type {
   Task,
   TimeEntry,
 } from "../types";
-import { createResListAtom } from "./atomHelpers";
+import { createResourceListAtom } from "./atomHelpers";
 import { getToday } from "./utils";
 
 // TaskAtom
 
-export const tasksAtom = createResListAtom<Task>("tasks");
+export const tasksAtom = createResourceListAtom<Task>("tasks");
 export const splitedTasksAtom = splitAtom(tasksAtom, (item) => item.id);
 
 // いくつかのTaskをまとめて更新するためのAtom
@@ -161,7 +161,7 @@ export const logsAtom = atom<Log[]>([]);
 // export const tagsAtom = atom<Tag[]>([]);
 
 // const tagsQueryAtom = createFetchingListAtom<Tag>("tags");
-export const tagsAtom = createResListAtom<Tag>("tags");
+export const tagsAtom = createResourceListAtom<Tag>("tags");
 export const splitedTagsAtom = splitAtom(tagsAtom);
 export const currentTagAtom = atom<Tag | null>(null);
 const tagChecksAtom = atom<TagWithCheck[]>([]);

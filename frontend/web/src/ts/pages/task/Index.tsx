@@ -1,6 +1,6 @@
 import { TagHeader } from "@/components/TagHeader";
 import { TaskTree } from "@/components/TaskTree";
-import { Timer } from "lucide-react";
+import { Timer } from "@/components/Timer";
 import Split from "react-split";
 import { TaskSideView } from "./partials/TaskSideView";
 import { TaskTagList } from "./partials/TaskTagList";

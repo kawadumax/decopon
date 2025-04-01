@@ -7,9 +7,9 @@ const createAtomWithQueryList = <T>(endpoint: string) => {
     queryKey: [endpoint],
     queryFn: async (): Promise<T[]> => {
       try {
-        const res = await callApi("get", route(`api.${endpoint}.index`));
-        console.log(res);
-        return res[endpoint] ?? [];
+        const data = await callApi("get", route(`api.${endpoint}.index`));
+        console.log(data);
+        return data[endpoint] ?? [];
       } catch (error) {
         console.log(error);
         return [];
@@ -28,27 +28,27 @@ export const updateQueryDataAtom = atom(
       queryKey,
       updater,
     }: {
-      queryKey: unknown[];
-      updater: (prev: unknown) => unknown;
+      queryKey: string[];
+      updater: ((prev: unknown) => unknown) | unknown;
     },
   ) => {
     const queryClient = get(queryClientAtom);
     const current = queryClient.getQueryData(queryKey);
-    const next = updater(current);
+    const next = typeof updater === "function" ? updater(current) : updater;
     queryClient.setQueryData(queryKey, next);
   },
 );
 
-export const createResListAtom = <T>(endpoint: string) => {
+export const createResourceListAtom = <T>(endpoint: string) => {
   const queryAtom = createAtomWithQueryList<T>(endpoint);
-  const resAtom = atom(
+  const resourceAtom = atom(
     (get) => get(queryAtom).data ?? [],
-    (_get, set, newValues: T[]) => {
+    (_get, set, updater: T[] | ((prev: T[]) => T[])) => {
       set(updateQueryDataAtom, {
         queryKey: [endpoint],
-        updater: (_prev) => newValues,
+        updater,
       });
     },
   );
-  return resAtom;
+  return resourceAtom;
 };

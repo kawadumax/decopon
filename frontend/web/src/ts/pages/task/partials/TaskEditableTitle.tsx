@@ -47,8 +47,8 @@ export const TaskEditableTitle = ({
       api.put(
         route("api.tasks.update.complete", task.id),
         { completed: checked },
-        (response) => {
-          batchTasks(response.data.tasks);
+        (data) => {
+          batchTasks(data.tasks);
         },
       );
     },
@@ -66,8 +66,8 @@ export const TaskEditableTitle = ({
       api.put(
         route("api.tasks.update", task.id),
         { title: task.title },
-        (response) => {
-          setTask((prev) => ({ ...prev, title: response.data.task.title }));
+        (data) => {
+          setTask((prev) => ({ ...prev, title: data.task.title }));
         },
         undefined,
         () => {

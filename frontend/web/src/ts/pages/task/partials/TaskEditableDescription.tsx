@@ -19,10 +19,10 @@ export const TaskEditableDescription = ({
       api.put(
         route("api.tasks.update", task.id),
         { description: description },
-        (response) => {
+        (data) => {
           setTask((prev) => ({
             ...prev,
-            ...response.data.task,
+            ...data.task,
           }));
         },
       );

@@ -1,11 +1,14 @@
 import { callApi } from "@/lib/apiClient";
 import type { ApiData } from "@/types";
-import axios, { type AxiosResponse } from "axios";
+import axios from "axios";
 import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
-type FnOnSucsess = (response: AxiosResponse) => void;
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+export type ResponseData = any;
+
+type FnOnSucsess = (resData: ResponseData) => void;
 type FnOnError = (error: unknown) => void;
 type FnOnFinaly = () => void;
 
@@ -24,11 +27,11 @@ export function useApi() {
     ) => {
       setLoading(true);
       try {
-        const responseData = await callApi(method, url, data);
-        const message = t(responseData.i18nKey) || responseData.message;
+        const resData = await callApi(method, url, data);
+        const message = t(resData.i18nKey) || resData.message;
         message && toast.success(message);
-        onSuccess?.(responseData);
-        return responseData;
+        onSuccess?.(resData);
+        return resData;
       } catch (error) {
         if (axios.isAxiosError(error)) {
           const message =

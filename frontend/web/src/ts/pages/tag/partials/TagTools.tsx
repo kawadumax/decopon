@@ -19,8 +19,8 @@ export const TagTools = () => {
         name: newTagName,
       };
 
-      api.post(route("api.tags.store"), tagTemplate, (response) => {
-        setTags((prev) => [...prev, response.data.tag]);
+      api.post(route("api.tags.store"), tagTemplate, (data) => {
+        setTags((prev) => [...prev, data.tag]);
       });
     },
     [api.post, setTags],
@@ -30,23 +30,19 @@ export const TagTools = () => {
     const deleteTagIds = checkableTags
       .filter((tag) => tag.checked)
       .map((tag) => tag.id);
-    api.delete(
-      route("api.tags.destroy"),
-      { tag_ids: deleteTagIds },
-      (response) => {
-        if (!response.data.success) return;
-        // tagからcheckedTagに含まれるtagを消す
-        setTags((prev) => {
-          const filtered = prev.filter(
-            (tag) => !deleteTagIds.some((id) => id === tag.id),
-          );
-          return [...filtered];
-        });
-        // checkedTagをリセットする
-        setCheckableTags({ action: "reset", tags: [] });
-        setCurrentTag(null);
-      },
-    );
+    api.delete(route("api.tags.destroy"), { tag_ids: deleteTagIds }, (data) => {
+      if (!data.success) return;
+      // tagからcheckedTagに含まれるtagを消す
+      setTags((prev) => {
+        const filtered = prev.filter(
+          (tag) => !deleteTagIds.some((id) => id === tag.id),
+        );
+        return [...filtered];
+      });
+      // checkedTagをリセットする
+      setCheckableTags({ action: "reset", tags: [] });
+      setCurrentTag(null);
+    });
   }, [checkableTags, api, setCheckableTags, setTags, setCurrentTag]);
 
   return (

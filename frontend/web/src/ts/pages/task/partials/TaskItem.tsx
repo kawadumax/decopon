@@ -55,8 +55,8 @@ export const TaskItem = ({
       parent_task_id: task.id,
     };
 
-    api.post(route("api.tasks.store"), taskTemplate, (response) => {
-      insert(response.data.task);
+    api.post(route("api.tasks.store"), taskTemplate, (data) => {
+      insert(data.task);
     });
   };
 
