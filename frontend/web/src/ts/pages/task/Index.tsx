@@ -12,7 +12,10 @@ import { TaskTools } from "./partials/TaskTools";
 
 export default function Index() {
   return (
-    <ResizablePanelGroup direction="horizontal">
+    <ResizablePanelGroup
+      direction="horizontal"
+      className="flex max-h-full min-h-full flex-row bg-white"
+    >
       <ResizablePanel defaultSize={17.2}>
         <ResizablePanelGroup direction="vertical">
           <ResizablePanel

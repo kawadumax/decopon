@@ -73,7 +73,6 @@
     "nprogress": "^0.2.0",
     "react-i18next": "^15.4.1",
     "react-resizable-panels": "^2.1.7",
-    "react-split": "^2.0.14",
     "sonner": "^1.7.4",
     "tailwind-merge": "^2.6.0",
     "tailwindcss-animate": "^1.0.7",
