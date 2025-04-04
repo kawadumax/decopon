@@ -1,19 +1,24 @@
-import type { StorybookConfig } from '@storybook/react-vite';
-
+import type { StorybookConfig } from "@storybook/react-vite";
+import { mergeConfig } from "vite";
+import alias from "../vite/alias";
 const config: StorybookConfig = {
-  "stories": [
-    "../src/**/*.mdx",
-    "../src/**/*.stories.@(js|jsx|mjs|ts|tsx)"
-  ],
-  "addons": [
+  stories: ["../stories/*.mdx", "../stories/*.stories.@(js|jsx|mjs|ts|tsx)"],
+  addons: [
     "@storybook/addon-essentials",
-    "@storybook/addon-onboarding",
     "@chromatic-com/storybook",
-    "@storybook/experimental-addon-test"
+    "@storybook/experimental-addon-test",
+    "@storybook/addon-viewport",
   ],
-  "framework": {
-    "name": "@storybook/react-vite",
-    "options": {}
-  }
+  framework: {
+    name: "@storybook/react-vite",
+    options: {},
+  },
+  viteFinal: async (config) => {
+    return mergeConfig(config, {
+      resolve: {
+        alias,
+      },
+    });
+  },
 };
 export default config;

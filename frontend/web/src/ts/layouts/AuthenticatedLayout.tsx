@@ -23,9 +23,6 @@ export default function Authenticated({
   children,
 }: PropsWithChildren<{ header?: ReactNode }>) {
   const { t } = useTranslation();
-  // const ctx = useRouteContext({ from: "/auth" });
-  // const { auth } = ctx;
-  // const user = auth.user;
   const queryClient = useQueryClient();
   const auth = queryClient.getQueryData(["auth"]) as Auth;
   const user = auth.user;
