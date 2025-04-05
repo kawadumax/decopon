@@ -4,6 +4,7 @@ import { Ziggy } from "@core/ziggy.js";
 import type { Preview } from "@storybook/react";
 import { initialize as initializeMsw, mswLoader } from "msw-storybook-addon";
 import { route } from "ziggy-js";
+import "@/../css/app.css";
 
 initializeMsw();
 initializeI18n(Locale.ENGLISH);
