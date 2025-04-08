@@ -28,16 +28,14 @@ export const RouterDecorator: Decorator = (Story) => {
   });
 
   return (
-    <div className="h-screen">
-      <QueryClientProvider client={queryClient}>
-        <JotaiProvider>
-          <HydrateAtoms>
-            <LangManager />
-            <TimeManager />
-            <RouterProvider router={router} />
-          </HydrateAtoms>
-        </JotaiProvider>
-      </QueryClientProvider>
-    </div>
+    <QueryClientProvider client={queryClient}>
+      <JotaiProvider>
+        <HydrateAtoms>
+          <LangManager />
+          <TimeManager />
+          <RouterProvider router={router} />
+        </HydrateAtoms>
+      </JotaiProvider>
+    </QueryClientProvider>
   );
 };

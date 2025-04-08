@@ -61,6 +61,7 @@ export const SuccessBehavior = {
       });
     },
   ],
+  decorators: [RouterDecorator],
 };
 
 const meta: Meta<typeof Index> = {
@@ -72,7 +73,13 @@ const meta: Meta<typeof Index> = {
       defaultViewport: "mobile",
     },
   },
-  decorators: [RouterDecorator],
+  decorators: [
+    (Story) => (
+      <div className="h-screen">
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 export default meta;
