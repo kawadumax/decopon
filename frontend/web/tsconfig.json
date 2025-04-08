@@ -27,6 +27,7 @@
     "src/**/*.js",
     "src/**/*.jsx",
     ".storybook/*.ts",
+    ".storybook/**/*.tsx",
     "stories/*.stories.tsx",
     "vite/*.ts"
   ]

@@ -1,0 +1,43 @@
+import { HydrateAtoms } from "@/App";
+import { LangManager } from "@/components/LangManager";
+import { TimeManager } from "@/components/TimeManager";
+import Authenticated from "@/layouts/AuthenticatedLayout";
+import { queryClient } from "@/lib/queryClient";
+import type { Decorator } from "@storybook/react";
+import { QueryClientProvider } from "@tanstack/react-query";
+import {
+  RouterProvider,
+  createRootRoute,
+  createRouter,
+} from "@tanstack/react-router";
+import { Provider as JotaiProvider } from "jotai";
+
+export const RouterDecorator: Decorator = (Story) => {
+  const rootRoute = createRootRoute({
+    component: () => (
+      <Authenticated>
+        <Story />
+      </Authenticated>
+    ),
+  });
+
+  const routeTree = rootRoute;
+
+  const router = createRouter({
+    routeTree,
+  });
+
+  return (
+    <div className="h-screen">
+      <QueryClientProvider client={queryClient}>
+        <JotaiProvider>
+          <HydrateAtoms>
+            <LangManager />
+            <TimeManager />
+            <RouterProvider router={router} />
+          </HydrateAtoms>
+        </JotaiProvider>
+      </QueryClientProvider>
+    </div>
+  );
+};

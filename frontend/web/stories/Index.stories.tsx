@@ -1,9 +1,8 @@
-import Authenticated from "@/layouts/AuthenticatedLayout";
+import { queryClient } from "@/lib/queryClient";
 import Index from "@pages/task/Index";
 import type { Meta, StoryObj } from "@storybook/react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Provider as JotaiProvider } from "jotai";
 import { http, HttpResponse } from "msw";
+import { RouterDecorator } from "../.storybook/lib/withRouterDecorator";
 
 const baseUrl = "http://localhost:8000/api";
 
@@ -52,9 +51,17 @@ export const SuccessBehavior = {
       ],
     },
   },
+  loaders: [
+    async () => {
+      await queryClient.setQueryData(["auth"], {
+        user: {
+          id: 1,
+          name: "test user",
+        },
+      });
+    },
+  ],
 };
-
-const queryClient = new QueryClient();
 
 const meta: Meta<typeof Index> = {
   title: "Pages/Tasks/Index",
@@ -65,25 +72,11 @@ const meta: Meta<typeof Index> = {
       defaultViewport: "mobile",
     },
   },
-  decorators: [
-    (Story) => (
-      <div className="h-screen">
-        <QueryClientProvider client={queryClient}>
-          <JotaiProvider>
-            <Authenticated>
-              <Story />
-            </Authenticated>
-          </JotaiProvider>
-        </QueryClientProvider>
-      </div>
-    ),
-  ],
+  decorators: [RouterDecorator],
 };
 
 export default meta;
 
 type Story = StoryObj<typeof Index>;
 
-export const Default: Story = {
-  render: () => <Index />,
-};
+export const Default: Story = {};

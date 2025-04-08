@@ -12,7 +12,7 @@ import { useHydrateAtoms } from "jotai/utils";
 import type React from "react";
 import { queryClient } from "./lib/queryClient";
 
-const HydrateAtoms: React.FC<{ children: React.ReactNode }> = ({
+export const HydrateAtoms: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   useHydrateAtoms([[queryClientAtom, queryClient]]);
