@@ -13,15 +13,13 @@ import {
 import { Provider as JotaiProvider } from "jotai";
 
 export const RouterDecorator: Decorator = (Story) => {
-  const rootRoute = createRootRoute({
+  const routeTree = createRootRoute({
     component: () => (
       <Authenticated>
         <Story />
       </Authenticated>
     ),
   });
-
-  const routeTree = rootRoute;
 
   const router = createRouter({
     routeTree,
