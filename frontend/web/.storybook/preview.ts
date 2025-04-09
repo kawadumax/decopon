@@ -1,4 +1,4 @@
-import { initializeI18n } from "@/i18n"; // パスはプロジェクトに応じて修正
+import { initializeI18n } from "@/i18n";
 import { Locale } from "@/types/index.d";
 import { Ziggy } from "@core/ziggy.js";
 import type { Preview } from "@storybook/react";

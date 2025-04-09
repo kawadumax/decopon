@@ -3,23 +3,51 @@ import Dropdown from "@/components/Dropdown";
 import NavLink from "@/components/NavLink";
 import ResponsiveNavLink from "@/components/ResponsiveNavLink";
 import { TimerStateWidget } from "@/components/TimerStateWidget";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { Toaster } from "@/components/ui/sonner";
 import { useTimeEntryApi } from "@/hooks/useTimeEntryApi";
 import { breakTimeAtom, languageAtom, workTimeAtom } from "@/lib/atoms";
-import { type Auth, Locale } from "@/types/index.d";
+import { type Auth, Locale, type User } from "@/types/index.d";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
+import { t } from "i18next";
 import { useSetAtom } from "jotai";
 import {
+  type Dispatch,
   type PropsWithChildren,
   type ReactNode,
+  type SetStateAction,
+  forwardRef,
   useEffect,
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
 
+const links = [
+  {
+    name: t("header.menu.dashboard"),
+    href: "/auth/dashboard",
+  },
+  {
+    name: t("header.menu.tasks"),
+    href: "/auth/tasks",
+  },
+  {
+    name: t("header.menu.tags"),
+    href: "/auth/tags",
+  },
+  {
+    name: t("header.menu.timeline"),
+    href: "/auth/logs",
+  },
+] as const;
+
 export default function Authenticated({
-  header,
   children,
 }: PropsWithChildren<{ header?: ReactNode }>) {
   const { t } = useTranslation();
@@ -48,9 +76,6 @@ export default function Authenticated({
     initCyclesOfTimeEntry();
   }, [initCyclesOfTimeEntry]);
 
-  const [showingNavigationDropdown, setShowingNavigationDropdown] =
-    useState(false);
-
   return (
     <div className="flex h-screen flex-col bg-gray-100 dark:bg-gray-900">
       <nav className="h-16 border-gray-100 border-b bg-white dark:border-gray-700 dark:bg-gray-800">
@@ -64,24 +89,11 @@ export default function Authenticated({
               </div>
 
               <div className="sm:-my-px hidden space-x-8 sm:ms-10 sm:flex">
-                <NavLink
-                  to="/auth/dashboard"
-                  active={route().current("dashboard")}
-                >
-                  {t("header.menu.dashboard")}
-                </NavLink>
-                <NavLink
-                  to="/auth/tasks"
-                  active={route().current("tasks.index")}
-                >
-                  {t("header.menu.tasks")}
-                </NavLink>
-                <NavLink to="/auth/tags" active={route().current("tags.index")}>
-                  {t("header.menu.tags")}
-                </NavLink>
-                <NavLink to="/auth/logs" active={route().current("logs.index")}>
-                  {t("header.menu.timeline")}
-                </NavLink>
+                {links.map((link) => (
+                  <NavLink key={link.name} to={link.href}>
+                    {link.name}
+                  </NavLink>
+                ))}
               </div>
             </div>
 
@@ -124,91 +136,102 @@ export default function Authenticated({
               </div>
             </div>
 
-            <div className="-me-2 flex items-center sm:hidden">
-              <button
-                type="button"
-                onClick={() =>
-                  setShowingNavigationDropdown(
-                    (previousState) => !previousState,
-                  )
-                }
-                className="inline-flex items-center justify-center rounded-md p-2 text-gray-400 transition duration-150 ease-in-out hover:bg-gray-100 hover:text-gray-500 focus:bg-gray-100 focus:text-gray-500 focus:outline-none dark:text-gray-500 dark:focus:bg-gray-900 dark:focus:text-gray-400 dark:hover:bg-gray-900 dark:hover:text-gray-400"
-              >
-                <svg
-                  className="h-6 w-6"
-                  stroke="currentColor"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <title>Dropdown</title>
-                  <path
-                    className={
-                      !showingNavigationDropdown ? "inline-flex" : "hidden"
-                    }
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M4 6h16M4 12h16M4 18h16"
-                  />
-                  <path
-                    className={
-                      showingNavigationDropdown ? "inline-flex" : "hidden"
-                    }
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div
-          className={`${showingNavigationDropdown ? "block" : "hidden"} sm:hidden`}
-        >
-          <div className="space-y-1 pt-2 pb-3">
-            <ResponsiveNavLink
-              to={"/auth/dashboard"}
-              active={route().current("dashboard")}
-            >
-              {t("header.menu.dashboard")}
-            </ResponsiveNavLink>
-          </div>
-
-          <div className="border-gray-200 border-t pt-4 pb-1 dark:border-gray-600">
-            <div className="px-4">
-              <div className="font-medium text-base text-gray-800 dark:text-gray-200">
-                {user.name}
-              </div>
-              <div className="font-medium text-gray-500 text-sm">
-                {user.email}
-              </div>
-            </div>
-
-            <div className="mt-3 space-y-1">
-              <ResponsiveNavLink to="/auth/profiles">
-                {t("header.menu.profile")}
-              </ResponsiveNavLink>
-              <ResponsiveNavLink to={route("logout")} variant="button">
-                {t("header.menu.logout")}
-              </ResponsiveNavLink>
-            </div>
+            <Drawer user={user} />
           </div>
         </div>
       </nav>
-
-      {header && (
-        <header className="z-10 bg-white shadow dark:bg-gray-800">
-          <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-            {header}
-          </div>
-        </header>
-      )}
 
       <main className="h-[calc(100vh-8rem)] flex-grow">{children}</main>
       <Toaster richColors />
     </div>
   );
 }
+
+const Drawer = ({
+  user,
+}: {
+  user: User;
+}) => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger asChild>
+        <DrawerButton open={open} setOpen={setOpen} />
+      </SheetTrigger>
+      <SheetContent side={"left"}>
+        <SheetHeader>
+          <div className="px-4">
+            <div className="font-medium text-base text-gray-800 dark:text-gray-200">
+              {user.name}
+            </div>
+            <div className="font-medium text-gray-500 text-sm">
+              {user.email}
+            </div>
+          </div>
+        </SheetHeader>
+        <div className="space-y-1 pt-2 pb-3">
+          {links.map((link) => (
+            <ResponsiveNavLink key={link.name} to={link.href}>
+              {link.name}
+            </ResponsiveNavLink>
+          ))}
+        </div>
+
+        <div className="border-gray-200 border-t pt-4 pb-1 dark:border-gray-600">
+          <div className="mt-3 space-y-1">
+            <ResponsiveNavLink to="/auth/profiles">
+              {t("header.menu.profile")}
+            </ResponsiveNavLink>
+            <ResponsiveNavLink to={route("logout")} variant="button">
+              {t("header.menu.logout")}
+            </ResponsiveNavLink>
+          </div>
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
+};
+
+const DrawerButton = forwardRef<
+  HTMLButtonElement,
+  {
+    open: boolean;
+    setOpen: Dispatch<SetStateAction<boolean>>;
+  } & React.HTMLProps<HTMLButtonElement> // ← button props も追加
+>(({ open, setOpen, ...props }, ref) => {
+  return (
+    <div className="-me-2 flex items-center sm:hidden">
+      <button
+        ref={ref}
+        {...props}
+        type="button"
+        onClick={() => setOpen((previousState) => !previousState)}
+        className="inline-flex items-center justify-center rounded-md p-2 text-gray-400 transition duration-150 ease-in-out hover:bg-gray-100 hover:text-gray-500 focus:bg-gray-100 focus:text-gray-500 focus:outline-none dark:text-gray-500 dark:focus:bg-gray-900 dark:focus:text-gray-400 dark:hover:bg-gray-900 dark:hover:text-gray-400"
+      >
+        <svg
+          className="h-6 w-6"
+          stroke="currentColor"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <title>Dropdown</title>
+          <path
+            className={!open ? "inline-flex" : "hidden"}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="M4 6h16M4 12h16M4 18h16"
+          />
+          <path
+            className={open ? "inline-flex" : "hidden"}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="M6 18L18 6M6 6l12 12"
+          />
+        </svg>
+      </button>
+    </div>
+  );
+});
