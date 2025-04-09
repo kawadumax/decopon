@@ -3,6 +3,7 @@ import Dropdown from "@/components/Dropdown";
 import NavLink from "@/components/NavLink";
 import ResponsiveNavLink from "@/components/ResponsiveNavLink";
 import { TimerStateWidget } from "@/components/TimerStateWidget";
+import { Separator } from "@/components/ui/separator";
 import {
   Sheet,
   SheetContent,
@@ -170,16 +171,17 @@ const Drawer = ({
             </div>
           </div>
         </SheetHeader>
-        <div className="space-y-1 pt-2 pb-3">
+        <Separator className="my-4" />
+        <div className="space-y-1">
           {links.map((link) => (
             <ResponsiveNavLink key={link.name} to={link.href}>
               {link.name}
             </ResponsiveNavLink>
           ))}
         </div>
-
-        <div className="border-gray-200 border-t pt-4 pb-1 dark:border-gray-600">
-          <div className="mt-3 space-y-1">
+        <Separator className="my-4" />
+        <div className="border-gray-200 dark:border-gray-600">
+          <div className="space-y-1">
             <ResponsiveNavLink to="/auth/profiles">
               {t("header.menu.profile")}
             </ResponsiveNavLink>

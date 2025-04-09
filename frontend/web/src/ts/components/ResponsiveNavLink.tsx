@@ -1,6 +1,6 @@
 import { useLogout } from "@/hooks/useLogout";
 import type { DecoponLinkProps } from "@/types";
-import { Link } from "@tanstack/react-router";
+import { Link, useMatchRoute } from "@tanstack/react-router";
 
 type NavLinkProps = DecoponLinkProps & {
   active?: boolean;
@@ -40,18 +40,19 @@ const WrapLink = ({ active, className, children, to }: NavLinkInnerProps) => {
 };
 
 export default function ResponsiveNavLink({
-  active = false,
   variant = "link",
   className = "",
   children,
   to,
 }: NavLinkProps) {
+  const matchRoute = useMatchRoute();
+  const isActive = !!matchRoute({ to, fuzzy: false });
   return variant === "link" ? (
-    <WrapLink active={active} className={className} to={to}>
+    <WrapLink active={isActive} className={className} to={to}>
       {children}
     </WrapLink>
   ) : (
-    <Btn active={active} className={className}>
+    <Btn active={isActive} className={className}>
       {children}
     </Btn>
   );

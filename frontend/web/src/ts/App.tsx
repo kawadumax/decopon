@@ -4,7 +4,7 @@ import { RouterProvider } from "@tanstack/react-router";
 import { LangManager } from "./components/LangManager";
 import { TimeManager } from "./components/TimeManager";
 import { router } from "./lib/router";
-import "../css/app.css";
+import "../styles/app.css";
 import { Provider as JotaiProvider } from "jotai";
 import { DevTools as JotaiDevTools } from "jotai-devtools";
 import { queryClientAtom } from "jotai-tanstack-query";

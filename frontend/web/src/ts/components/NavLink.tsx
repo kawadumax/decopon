@@ -7,7 +7,7 @@ export default function NavLink({
   to,
 }: DecoponLinkProps) {
   const matchRoute = useMatchRoute();
-  const isActive = matchRoute({ to, fuzzy: false });
+  const isActive = !!matchRoute({ to, fuzzy: false });
   return (
     <Link
       to={to}
