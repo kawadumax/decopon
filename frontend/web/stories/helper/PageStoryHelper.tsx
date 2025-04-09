@@ -35,7 +35,7 @@ export const pageMswHandlers = [
   }),
 ];
 
-export const pageSuccessBehavior = {
+export const pageDefaultBehavior = {
   parameters: {
     msw: {
       handlers: pageMswHandlers,

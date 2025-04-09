@@ -2,7 +2,7 @@ import { Dashboard } from "@/pages/Dashboard";
 import type { Meta, StoryObj } from "@storybook/react";
 import {
   pageMetaSettings,
-  pageSuccessBehavior,
+  pageDefaultBehavior,
 } from "./helper/PageStoryHelper";
 
 const meta: Meta<typeof Dashboard> = {
@@ -16,5 +16,5 @@ export default meta;
 type Story = StoryObj<typeof Dashboard>;
 
 export const Default: Story = {
-  ...pageSuccessBehavior,
+  ...pageDefaultBehavior,
 };
