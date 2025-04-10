@@ -1,9 +1,84 @@
-@import "nprogress/nprogress.css";
-@import "jotai-devtools/styles.css";
+@import 'nprogress/nprogress.css' layer(base);
+@import 'jotai-devtools/styles.css' layer(base);
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+@plugin '@tailwindcss/forms';
+@plugin 'tailwindcss-animate';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --font-sans:
+    Figtree, IBM Plex Sans JP, ui-sans-serif, system-ui, sans-serif,
+    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  --font-cursive: 'Caveat', cursive;
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+
+  --color-background: oklch(var(--background));
+  --color-foreground: oklch(var(--foreground));
+
+  --color-card: oklch(var(--card));
+  --color-card-foreground: oklch(var(--card-foreground));
+
+  --color-popover: oklch(var(--popover));
+  --color-popover-foreground: oklch(var(--popover-foreground));
+
+  --color-primary: oklch(var(--primary));
+  --color-primary-foreground: oklch(var(--primary-foreground));
+
+  --color-secondary: oklch(var(--secondary));
+  --color-secondary-foreground: oklch(var(--secondary-foreground));
+
+  --color-muted: oklch(var(--muted));
+  --color-muted-foreground: oklch(var(--muted-foreground));
+
+  --color-accent: oklch(var(--accent));
+  --color-accent-foreground: oklch(var(--accent-foreground));
+
+  --color-destructive: oklch(var(--destructive));
+  --color-destructive-foreground: oklch(var(--destructive-foreground));
+
+  --color-border: oklch(var(--border));
+  --color-input: oklch(var(--input));
+  --color-ring: oklch(var(--ring));
+
+  --color-chart-1: oklch(var(--chart-1));
+  --color-chart-2: oklch(var(--chart-2));
+  --color-chart-3: oklch(var(--chart-3));
+  --color-chart-4: oklch(var(--chart-4));
+  --color-chart-5: oklch(var(--chart-5));
+}
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
+
+@utility hidden-scrollbar {
+  -ms-overflow-style: none; /* IE, Edge 対応 */
+  scrollbar-width: none; /* Firefox 対応 */
+  &::-webkit-scrollbar {
+    /* Chrome, Safari 対応 */
+    display: none;
+  }
+}
 
 @layer base {
   * {
@@ -168,16 +243,5 @@
     .peg {
       box-shadow: 0 0 10px oklch(var(--primary)), 0 0 5px oklch(var(--primary));
     }
-  }
-}
-
-@layer utilities {
-  .hidden-scrollbar {
-    -ms-overflow-style: none; /* IE, Edge 対応 */
-    scrollbar-width: none; /* Firefox 対応 */
-  }
-  .hidden-scrollbar::-webkit-scrollbar {
-    /* Chrome, Safari 対応 */
-    display: none;
   }
 }

@@ -58,7 +58,7 @@ export default function Welcome() {
                 {auth.user ? (
                   <Link
                     to="/auth/dashboard"
-                    className="rounded-md px-3 py-2 ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:focus-visible:ring-white dark:hover:text-white/80"
+                    className="rounded-md px-3 py-2 ring-1 ring-transparent transition hover:text-black/70 focus:outline-hidden focus-visible:ring-[#FF2D20] dark:text-white dark:focus-visible:ring-white dark:hover:text-white/80"
                   >
                     {t("header.menu.dashboard")}
                   </Link>
@@ -66,13 +66,13 @@ export default function Welcome() {
                   <>
                     <Link
                       to="/guest/login"
-                      className="rounded-md px-3 py-2 ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:focus-visible:ring-white dark:hover:text-white/80"
+                      className="rounded-md px-3 py-2 ring-1 ring-transparent transition hover:text-black/70 focus:outline-hidden focus-visible:ring-[#FF2D20] dark:text-white dark:focus-visible:ring-white dark:hover:text-white/80"
                     >
                       {t("header.menu.login")}
                     </Link>
                     <Link
                       to="/guest/register"
-                      className="rounded-md py-2 ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:focus-visible:ring-white dark:hover:text-white/80"
+                      className="rounded-md py-2 ring-1 ring-transparent transition hover:text-black/70 focus:outline-hidden focus-visible:ring-[#FF2D20] dark:text-white dark:focus-visible:ring-white dark:hover:text-white/80"
                     >
                       {t("header.menu.register")}
                     </Link>

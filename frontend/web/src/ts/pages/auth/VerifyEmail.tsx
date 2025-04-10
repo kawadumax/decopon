@@ -46,7 +46,7 @@ export default function VerifyEmail() {
 
           <Link
             to={route("logout")}
-            className="rounded-md text-gray-600 text-sm underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:text-gray-400 dark:focus:ring-offset-gray-800 dark:hover:text-gray-100"
+            className="rounded-md text-gray-600 text-sm underline hover:text-gray-900 focus:outline-hidden focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:text-gray-400 dark:focus:ring-offset-gray-800 dark:hover:text-gray-100"
           >
             {t("auth.verifyEmail.logout")}
           </Link>

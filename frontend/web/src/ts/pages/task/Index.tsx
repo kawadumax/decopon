@@ -20,14 +20,14 @@ export default function Index() {
         <ResizablePanelGroup direction="vertical">
           <ResizablePanel
             defaultSize={50}
-            className="hidden-scrollbar flex flex-col justify-start overflow-scroll shadow-sm dark:bg-gray-800"
+            className="hidden-scrollbar flex flex-col justify-start overflow-scroll shadow-xs dark:bg-gray-800"
           >
             <TaskTagList />
           </ResizablePanel>
 
           <ResizableHandle withHandle />
 
-          <ResizablePanel className="max-h-full shadow-sm dark:bg-gray-800">
+          <ResizablePanel className="max-h-full shadow-xs dark:bg-gray-800">
             <Timer />
           </ResizablePanel>
         </ResizablePanelGroup>
@@ -37,7 +37,7 @@ export default function Index() {
 
       <ResizablePanel
         defaultSize={41.4}
-        className="hidden-scrollbar max-h-full overflow-auto shadow-sm dark:bg-gray-800"
+        className="hidden-scrollbar max-h-full overflow-auto shadow-xs dark:bg-gray-800"
       >
         <TaskTools />
         <TagHeader />
@@ -46,7 +46,7 @@ export default function Index() {
 
       <ResizableHandle withHandle />
 
-      <ResizablePanel className="max-h-full overflow-hidden shadow-sm dark:bg-gray-800">
+      <ResizablePanel className="max-h-full overflow-hidden shadow-xs dark:bg-gray-800">
         <TaskSideView />
       </ResizablePanel>
     </ResizablePanelGroup>
