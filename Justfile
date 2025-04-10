@@ -34,7 +34,7 @@ web:
     cd {{FRONTEND_WEB_DIR}} && pnpm run dev
 
 storybook:
-    cd {{FRONTEND_WEB_DIR}} && pnpm run storybook
+    cd {{FRONTEND_WEB_DIR}} && pnpm run storybook --no-open
 
 web-run *args:
     cd {{FRONTEND_WEB_DIR}} && {{ args }}
