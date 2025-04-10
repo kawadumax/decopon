@@ -27,7 +27,7 @@ const preview: Preview = {
           name: "Mobile",
           styles: {
             width: "375px",
-            height: "667px",
+            height: "650px",
           },
         },
         tablet: {
@@ -35,6 +35,13 @@ const preview: Preview = {
           styles: {
             width: "768px",
             height: "1024px",
+          },
+        },
+        pc: {
+          name: "PC",
+          styles: {
+            width: "1024px",
+            height: "768px",
           },
         },
       },
