@@ -53,16 +53,20 @@
 
 }
 
+@theme {
+  
+}
+
 :root {
   --radius: 0.5rem;
 
   /* Color Variables */
   /* Tailwind CSS v4.0 */
-  --background: oklch(100% 0 0);
+  --background: oklch(1 0 0);
   --foreground: oklch(0.2 0.01 20);
-  --card: oklch(100% 0 0);
+  --card: oklch(1 0 0);
   --card-foreground: oklch(0.2 0.01 20);
-  --popover: oklch(100% 0 0);
+  --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.2 0.01 20);
 
   /* amber-400と同じ */
