@@ -1,4 +1,4 @@
-import type { RouterContext } from "@/App";
+import type { RouterContext } from "@/lib/router";
 import { getLast } from "@/lib/utils";
 import {
   HeadContent,
