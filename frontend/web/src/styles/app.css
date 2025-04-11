@@ -54,7 +54,30 @@
 }
 
 @theme {
-  
+  --animate-slide-in: slide-in 0.5s ease-in-out;
+  --animate-slide-out: slide-out 0.5s ease-in-out;
+
+  @keyframes slide-in {
+    0% {
+      transform: translateX(25%);
+      opacity: 0;
+    }
+    100% {
+      transform: translateX(0%);
+      opacity: 1;
+    }
+  }
+
+  @keyframes slide-out {
+    0% { 
+      opacity: 1;
+      transform: translateX(0%);
+    }
+    100% { 
+      opacity: 0; 
+      transform: translateX(-25%); 
+    }
+  }
 }
 
 :root {
