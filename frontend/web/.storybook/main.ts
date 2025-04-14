@@ -17,6 +17,13 @@ const config: StorybookConfig = {
       resolve: {
         alias,
       },
+      server: {
+        port: 6006,
+        watch: {
+          usePolling: true,
+          interval: 100,
+        },
+      },
     });
   },
 };

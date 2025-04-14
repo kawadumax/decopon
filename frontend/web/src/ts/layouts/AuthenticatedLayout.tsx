@@ -11,9 +11,11 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Toaster } from "@/components/ui/sonner";
+import { useDeviseSize } from "@/hooks/useDeviseSize";
 import { useTimeEntryApi } from "@/hooks/useTimeEntryApi";
 import { breakTimeAtom, languageAtom, workTimeAtom } from "@/lib/atoms";
 import { type Auth, Locale, type User } from "@/types/index.d";
+import { ArrowLeft } from "@mynaui/icons-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { t } from "i18next";
@@ -47,106 +49,6 @@ const links = [
     href: "/auth/logs",
   },
 ] as const;
-
-export default function Authenticated({
-  children,
-}: PropsWithChildren<{ header?: ReactNode }>) {
-  const { t } = useTranslation();
-  const queryClient = useQueryClient();
-  const auth = queryClient.getQueryData(["auth"]) as Auth;
-  const user = auth.user;
-  if (!user) {
-    throw new Error("User not found");
-  }
-
-  const preference = user.preference;
-  const lang = preference?.locale || Locale.ENGLISH;
-  const setLang = useSetAtom(languageAtom);
-  const { initCyclesOfTimeEntry } = useTimeEntryApi();
-
-  useEffect(() => {
-    setLang(lang);
-  }, [lang, setLang]);
-
-  const setWorkTime = useSetAtom(workTimeAtom);
-  const setBreakTime = useSetAtom(breakTimeAtom);
-  setWorkTime(preference?.work_time || 25);
-  setBreakTime(preference?.break_time || 5);
-
-  useEffect(() => {
-    initCyclesOfTimeEntry();
-  }, [initCyclesOfTimeEntry]);
-
-  return (
-    <div className="flex h-screen flex-col bg-gray-100 dark:bg-gray-900">
-      <nav className="h-16 border-gray-100 border-b bg-white dark:border-gray-700 dark:bg-gray-800">
-        <div className="mx-auto max-w-screen px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 justify-between">
-            <div className="flex">
-              <div className="flex shrink-0 items-center">
-                <Link to="/">
-                  <ApplicationLogo className="block h-9 w-auto fill-current text-gray-800 dark:text-gray-200" />
-                </Link>
-              </div>
-
-              <div className="sm:-my-px hidden space-x-8 sm:ms-10 sm:flex">
-                {links.map((link) => (
-                  <NavLink key={link.name} to={link.href}>
-                    {link.name}
-                  </NavLink>
-                ))}
-              </div>
-            </div>
-
-            <div className="hidden sm:ms-6 sm:flex sm:items-center">
-              <TimerStateWidget />
-              <div className="relative ms-3">
-                <Dropdown>
-                  <Dropdown.Trigger>
-                    <span className="inline-flex rounded-md">
-                      <button
-                        type="button"
-                        className="inline-flex items-center rounded-md border border-transparent bg-white px-3 py-2 font-medium text-gray-500 text-sm leading-4 transition duration-150 ease-in-out hover:text-gray-700 focus:outline-hidden dark:bg-gray-800 dark:text-gray-400 dark:hover:text-gray-300"
-                      >
-                        {user.name}
-
-                        <svg
-                          className="-me-0.5 ms-2 h-4 w-4"
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 20 20"
-                          fill="currentColor"
-                        >
-                          <title>DropDown Trigger</title>
-                          <path
-                            fillRule="evenodd"
-                            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                      </button>
-                    </span>
-                  </Dropdown.Trigger>
-
-                  <Dropdown.Content>
-                    <Dropdown.Link to="/auth/profiles">
-                      {t("header.menu.profile")}
-                    </Dropdown.Link>
-                    <Dropdown.Button>{t("header.menu.logout")}</Dropdown.Button>
-                  </Dropdown.Content>
-                </Dropdown>
-              </div>
-            </div>
-
-            <Drawer user={user} />
-          </div>
-        </div>
-      </nav>
-
-      <main className="h-[calc(100vh-8rem)] grow">{children}</main>
-      <Toaster richColors />
-    </div>
-  );
-}
 
 const Drawer = ({
   user,
@@ -203,7 +105,7 @@ const DrawerButton = forwardRef<
   } & React.HTMLProps<HTMLButtonElement> // ← button props も追加
 >(({ open, setOpen, ...props }, ref) => {
   return (
-    <div className="-me-2 flex items-center sm:hidden">
+    <div className="flex items-center sm:hidden">
       <button
         ref={ref}
         {...props}
@@ -237,3 +139,131 @@ const DrawerButton = forwardRef<
     </div>
   );
 });
+
+const HeaderNavigation = ({ user }: { user: User }) => {
+  const { t } = useTranslation();
+
+  return (
+    <nav className="h-16 border-gray-100 border-b bg-white dark:border-gray-700 dark:bg-gray-800">
+      <div className="mx-auto max-w-screen px-4 sm:px-6 lg:px-8">
+        <div className="flex h-16 justify-between">
+          <div className="flex">
+            <div className="flex shrink-0 items-center">
+              <Link to="/">
+                <ApplicationLogo className="block h-9 w-auto fill-current text-gray-800 dark:text-gray-200" />
+              </Link>
+            </div>
+
+            <div className="sm:-my-px hidden space-x-8 sm:ms-10 sm:flex">
+              {links.map((link) => (
+                <NavLink key={link.name} to={link.href}>
+                  {link.name}
+                </NavLink>
+              ))}
+            </div>
+          </div>
+
+          <div className="hidden sm:ms-6 sm:flex sm:items-center">
+            <TimerStateWidget />
+            <div className="relative ms-3">
+              <Dropdown>
+                <Dropdown.Trigger>
+                  <span className="inline-flex rounded-md">
+                    <button
+                      type="button"
+                      className="inline-flex items-center rounded-md border border-transparent bg-white px-3 py-2 font-medium text-gray-500 text-sm leading-4 transition duration-150 ease-in-out hover:text-gray-700 focus:outline-hidden dark:bg-gray-800 dark:text-gray-400 dark:hover:text-gray-300"
+                    >
+                      {user.name}
+
+                      <svg
+                        className="-me-0.5 ms-2 h-4 w-4"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <title>DropDown Trigger</title>
+                        <path
+                          fillRule="evenodd"
+                          d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </button>
+                  </span>
+                </Dropdown.Trigger>
+
+                <Dropdown.Content>
+                  <Dropdown.Link to="/auth/profiles">
+                    {t("header.menu.profile")}
+                  </Dropdown.Link>
+                  <Dropdown.Button>{t("header.menu.logout")}</Dropdown.Button>
+                </Dropdown.Content>
+              </Dropdown>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+  );
+};
+
+const BackButton = () => {
+  return (
+    <button type="button" className="p-2">
+      <ArrowLeft fill="currentColor" />
+    </button>
+  );
+};
+
+const HeaderNavigationMobile = ({ user }: { user: User }) => {
+  return (
+    <nav className="flex flex-row justify-between border-gray-100 border-b bg-white dark:border-gray-700 dark:bg-gray-800">
+      <BackButton />
+      <TimerStateWidget />
+      <Drawer user={user} />
+    </nav>
+  );
+};
+
+export default function Authenticated({
+  children,
+}: PropsWithChildren<{ header?: ReactNode }>) {
+  const queryClient = useQueryClient();
+  const auth = queryClient.getQueryData(["auth"]) as Auth;
+  const user = auth.user;
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  const devise = useDeviseSize();
+
+  const preference = user.preference;
+  const lang = preference?.locale || Locale.ENGLISH;
+  const setLang = useSetAtom(languageAtom);
+  const { initCyclesOfTimeEntry } = useTimeEntryApi();
+
+  useEffect(() => {
+    setLang(lang);
+  }, [lang, setLang]);
+
+  const setWorkTime = useSetAtom(workTimeAtom);
+  const setBreakTime = useSetAtom(breakTimeAtom);
+  setWorkTime(preference?.work_time || 25);
+  setBreakTime(preference?.break_time || 5);
+
+  useEffect(() => {
+    initCyclesOfTimeEntry();
+  }, [initCyclesOfTimeEntry]);
+
+  return (
+    <div className="flex h-screen flex-col bg-gray-100 dark:bg-gray-900">
+      {devise === "pc" ? (
+        <HeaderNavigation user={user} />
+      ) : (
+        <HeaderNavigationMobile user={user} />
+      )}
+      <main className="h-[calc(100vh-8rem)] grow">{children}</main>
+      <Toaster richColors />
+    </div>
+  );
+}
