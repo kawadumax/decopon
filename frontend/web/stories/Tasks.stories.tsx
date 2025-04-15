@@ -8,7 +8,7 @@ import {
 const meta: Meta<typeof Index> = {
   title: "Pages/Tasks/Index",
   component: Index,
-  ...pageMetaSettings,
+  ...pageMetaSettings(),
 };
 
 export default meta;

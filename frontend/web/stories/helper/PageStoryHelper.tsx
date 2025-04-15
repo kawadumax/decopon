@@ -1,10 +1,16 @@
-// frontend/web/stories/helpers/commonStorySetup.ts
 import { queryClient } from "@/lib/queryClient";
 import type { Meta, StoryFn } from "@storybook/react";
 import { http, HttpResponse } from "msw";
 import { RouterDecorator } from "../../.storybook/lib/withRouterDecorator";
 
 const baseUrl = "http://localhost:8000/api";
+const testUser = {
+  user: {
+    id: 1,
+    name: "test user",
+    email: "test@example.com",
+  },
+};
 
 export const pageMswHandlers = [
   http.get(`${baseUrl}/tags`, () => {
@@ -26,10 +32,7 @@ export const pageMswHandlers = [
   http.get(`${baseUrl}/get-user`, () => {
     return HttpResponse.json({
       auth: {
-        user: {
-          id: 1,
-          name: "test user",
-        },
+        user: testUser.user,
       },
     });
   }),
@@ -43,12 +46,12 @@ export const pageDefaultBehavior = {
   },
   loaders: [
     async () => {
+      queryClient.setQueryDefaults(["auth"], {
+        staleTime: Number.POSITIVE_INFINITY, // 常にfresh扱い
+        refetchOnMount: false, // マウント時にrefetchしない
+      });
       await queryClient.setQueryData(["auth"], {
-        user: {
-          id: 1,
-          name: "test user",
-          email: "test@example.com",
-        },
+        user: testUser.user,
       });
     },
   ],
@@ -56,12 +59,6 @@ export const pageDefaultBehavior = {
 };
 
 export const pageMetaSettings = <T,>(): Partial<Meta<T>> => ({
-  parameters: {
-    layout: "fullscreen",
-    viewport: {
-      defaultViewport: "mobile",
-    },
-  },
   decorators: [
     (Story: StoryFn) => (
       <div className="h-screen">

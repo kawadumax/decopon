@@ -1,14 +1,14 @@
 import { Dashboard } from "@/pages/Dashboard";
 import type { Meta, StoryObj } from "@storybook/react";
 import {
-  pageMetaSettings,
   pageDefaultBehavior,
+  pageMetaSettings,
 } from "./helper/PageStoryHelper";
 
 const meta: Meta<typeof Dashboard> = {
   title: "Pages/Dashboard",
   component: Dashboard,
-  ...pageMetaSettings,
+  ...pageMetaSettings(),
 };
 
 export default meta;
