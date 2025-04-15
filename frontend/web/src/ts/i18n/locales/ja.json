@@ -57,9 +57,9 @@
   "header": {
     "menu": {
       "dashboard": "ダッシュボード",
-      "tasks": "全てのタスク",
-      "tags": "全てのタグ",
-      "timeline": "タイムライン",
+      "tasks": "タスク",
+      "tags": "タグ",
+      "logs": "ログ",
       "profile": "プロフィール",
       "login": "ログイン",
       "logout": "ログアウト",

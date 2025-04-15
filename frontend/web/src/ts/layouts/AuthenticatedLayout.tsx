@@ -15,7 +15,13 @@ import { useDeviseSize } from "@/hooks/useDeviseSize";
 import { useTimeEntryApi } from "@/hooks/useTimeEntryApi";
 import { breakTimeAtom, languageAtom, workTimeAtom } from "@/lib/atoms";
 import { type Auth, Locale, type User } from "@/types/index.d";
-import { ArrowLeft } from "@mynaui/icons-react";
+import {
+  ActivitySquare,
+  ArrowLeft,
+  Book,
+  ListCheck,
+  Tag as TagIcon,
+} from "@mynaui/icons-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { t } from "i18next";
@@ -35,18 +41,22 @@ const links = [
   {
     name: t("header.menu.dashboard"),
     href: "/auth/dashboard",
+    icon: ActivitySquare,
   },
   {
     name: t("header.menu.tasks"),
     href: "/auth/tasks",
+    icon: ListCheck,
   },
   {
     name: t("header.menu.tags"),
     href: "/auth/tags",
+    icon: TagIcon,
   },
   {
-    name: t("header.menu.timeline"),
+    name: t("header.menu.logs"),
     href: "/auth/logs",
+    icon: Book,
   },
 ] as const;
 
@@ -225,6 +235,25 @@ const HeaderNavigationMobile = ({ user }: { user: User }) => {
   );
 };
 
+const FooterNavigation = () => {
+  return (
+    <nav className="flex flex-row justify-between items-stretch border-gray-100 border-b bg-white dark:border-gray-700 dark:bg-gray-800">
+      {links.map((link) => (
+        <Link
+          key={link.name}
+          to={link.href}
+          className="grow flex flex-col items-center"
+        >
+          <span className="flex flex-col items-center font-light text-center text-xs text-slate-700">
+            {<link.icon className="m-2 mb-0" />}
+            {link.name}
+          </span>
+        </Link>
+      ))}
+    </nav>
+  );
+};
+
 export default function Authenticated({
   children,
 }: PropsWithChildren<{ header?: ReactNode }>) {
@@ -263,6 +292,7 @@ export default function Authenticated({
         <HeaderNavigationMobile user={user} />
       )}
       <main className="h-[calc(100vh-8rem)] grow">{children}</main>
+      {devise !== "pc" && <FooterNavigation />}
       <Toaster richColors />
     </div>
   );

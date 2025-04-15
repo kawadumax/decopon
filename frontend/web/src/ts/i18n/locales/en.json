@@ -57,9 +57,9 @@
   "header": {
     "menu": {
       "dashboard": "Dashboard",
-      "tasks": "All Tasks",
-      "tags": "All Tags",
-      "timeline": "Timeline",
+      "tasks": "Tasks",
+      "tags": "Tags",
+      "logs": "Logs",
       "profile": "Profile",
       "login": "Log in",
       "logout": "Log Out",
