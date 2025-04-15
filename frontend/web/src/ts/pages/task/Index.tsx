@@ -67,20 +67,39 @@ const PCLayout = () => {
 };
 
 const TabletLayout = () => {
-  return <p>Tablet</p>;
+  return (
+    <ResizablePanelGroup
+      direction="horizontal"
+      className="flex max-h-full min-h-full flex-row bg-white"
+    >
+      <ResizablePanel
+        defaultSize={50}
+        className="hidden-scrollbar max-h-full overflow-auto shadow-xs dark:bg-gray-800"
+      >
+        <TaskTools />
+        <TagHeader />
+        <TaskTree />
+      </ResizablePanel>
+
+      <ResizableHandle withHandle />
+
+      <ResizablePanel className="max-h-full overflow-hidden shadow-xs dark:bg-gray-800">
+        <TaskSideView />
+      </ResizablePanel>
+    </ResizablePanelGroup>
+  );
 };
 
 const MobileLayout = () => {
   return (
-    <p className="flex h-full w-full items-center justify-center text-2xl font-bold text-gray-500">
-      Mobile layout is not supported yet.
-      <br />
-      Please use a larger screen for better experience.
-      <br />
-      <br />
-      <span className="text-sm text-gray-400">
-        (This is a work in progress, and we are working on it.)
-      </span>
-    </p>
+    <div className="flex min-h-full flex-col bg-white">
+      <div className="flex flex-1 flex-col">
+        <div className="hidden-scrollbar max-h-full overflow-auto shadow-xs dark:bg-gray-800">
+          <TaskTools />
+          <TagHeader />
+          <TaskTree />
+        </div>
+      </div>
+    </div>
   );
 };

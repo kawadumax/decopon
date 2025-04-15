@@ -237,15 +237,15 @@ const HeaderNavigationMobile = ({ user }: { user: User }) => {
 
 const FooterNavigation = () => {
   return (
-    <nav className="flex flex-row justify-between items-stretch border-gray-100 border-b bg-white dark:border-gray-700 dark:bg-gray-800">
+    <nav className="flex flex-row items-stretch justify-between divide-x border-gray-100 border-t border-b bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800">
       {links.map((link) => (
         <Link
           key={link.name}
           to={link.href}
-          className="grow flex flex-col items-center"
+          className="flex flex-1 flex-col items-center"
         >
-          <span className="flex flex-col items-center font-light text-center text-xs text-slate-700">
-            {<link.icon className="m-2 mb-0" />}
+          <span className="flex flex-col items-center text-center font-light text-slate-700 text-xs">
+            {<link.icon className="m-1 mb-0" />}
             {link.name}
           </span>
         </Link>
