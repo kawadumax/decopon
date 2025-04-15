@@ -6,7 +6,9 @@ import { initialize as initializeMsw, mswLoader } from "msw-storybook-addon";
 import { route } from "ziggy-js";
 import "@/../styles/app.css";
 
-initializeMsw();
+initializeMsw({
+  onUnhandledRequest: "bypass",
+});
 initializeI18n(Locale.ENGLISH);
 
 globalThis.Ziggy = Ziggy;

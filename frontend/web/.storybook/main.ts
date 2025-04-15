@@ -19,6 +19,7 @@ const config: StorybookConfig = {
       },
       server: {
         port: 6006,
+        host: "localhost",
         watch: {
           usePolling: true,
           interval: 100,
