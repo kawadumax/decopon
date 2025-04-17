@@ -115,7 +115,7 @@ const DrawerButton = forwardRef<
   } & React.HTMLProps<HTMLButtonElement> // ← button props も追加
 >(({ open, setOpen, ...props }, ref) => {
   return (
-    <div className="flex items-center sm:hidden">
+    <div className="flex items-center">
       <button
         ref={ref}
         {...props}
@@ -150,7 +150,7 @@ const DrawerButton = forwardRef<
   );
 });
 
-const HeaderNavigation = ({ user }: { user: User }) => {
+const HeaderNavigationPC = ({ user }: { user: User }) => {
   const { t } = useTranslation();
 
   return (
@@ -225,7 +225,7 @@ const BackButton = () => {
   );
 };
 
-const HeaderNavigationMobile = ({ user }: { user: User }) => {
+const HeaderNavigation = ({ user }: { user: User }) => {
   return (
     <nav className="flex flex-row justify-between border-gray-100 border-b bg-white dark:border-gray-700 dark:bg-gray-800">
       <BackButton />
@@ -286,10 +286,10 @@ export default function Authenticated({
 
   return (
     <div className="flex h-screen flex-col bg-gray-100 dark:bg-gray-900">
-      {devise === "pc" ? (
+      {devise !== "pc" ? (
         <HeaderNavigation user={user} />
       ) : (
-        <HeaderNavigationMobile user={user} />
+        <HeaderNavigationPC user={user} />
       )}
       <main className="h-[calc(100vh-8rem)] grow">{children}</main>
       {devise !== "pc" && <FooterNavigation />}

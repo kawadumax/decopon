@@ -1,3 +1,9 @@
+import {
+  type StackCommand,
+  StackView,
+  StackViewList,
+  StackViewPanel,
+} from "@/components/StackView";
 import { TagHeader } from "@/components/TagHeader";
 import { TaskTree } from "@/components/TaskTree";
 import { Timer } from "@/components/Timer";
@@ -8,6 +14,7 @@ import {
 } from "@/components/ui/resizable";
 import {} from "@/components/ui/tabs";
 import { useDeviseSize } from "@/hooks/useDeviseSize";
+import { useState } from "react";
 import { TaskSideView } from "./partials/TaskSideView";
 import { TaskTagList } from "./partials/TaskTagList";
 import { TaskTools } from "./partials/TaskTools";
@@ -91,13 +98,50 @@ const TabletLayout = () => {
 };
 
 const MobileLayout = () => {
+  const [command, setCommand] = useState<StackCommand>({
+    to: "default",
+    direction: "none",
+    command: "push",
+  });
+
   return (
     <div className="flex min-h-full flex-col bg-white">
+      <button
+        type="button"
+        onClick={() => {
+          setCommand({
+            to: "detail",
+            direction: "left",
+            command: "push",
+          });
+        }}
+      >
+        detail
+      </button>
+      <button
+        type="button"
+        onClick={() => {
+          setCommand({
+            command: "pop",
+          });
+        }}
+      >
+        default
+      </button>
       <div className="flex flex-1 flex-col">
         <div className="hidden-scrollbar max-h-full overflow-auto shadow-xs dark:bg-gray-800">
-          <TaskTools />
-          <TagHeader />
-          <TaskTree />
+          <StackView command={command}>
+            <StackViewList>
+              <StackViewPanel key="default">
+                <TaskTools />
+                <TagHeader />
+                <TaskTree />
+              </StackViewPanel>
+              <StackViewPanel key="detail">
+                <TaskSideView />
+              </StackViewPanel>
+            </StackViewList>
+          </StackView>
         </div>
       </div>
     </div>

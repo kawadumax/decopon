@@ -24,8 +24,9 @@ export const pageMswHandlers = [
   http.get(`${baseUrl}/tasks`, () => {
     return HttpResponse.json({
       tasks: [
-        { id: 1, title: "task1" },
-        { id: 2, title: "task2" },
+        { id: 1, title: "task1", parent_task_id: null },
+        { id: 2, title: "task2", parent_task_id: null },
+        { id: 3, title: "task2-1", parent_task_id: 2 },
       ],
     });
   }),
@@ -49,6 +50,10 @@ export const pageDefaultBehavior = {
       queryClient.setQueryDefaults(["auth"], {
         staleTime: Number.POSITIVE_INFINITY, // 常にfresh扱い
         refetchOnMount: false, // マウント時にrefetchしない
+        refetchOnReconnect: false, // 再接続時にrefetchしない
+        refetchOnWindowFocus: false, // ウィンドウフォーカス時にrefetchしない
+        gcTime: Number.POSITIVE_INFINITY, // キャッシュを無限に保持
+        retry: false, // エラー時にリトライしない
       });
       await queryClient.setQueryData(["auth"], {
         user: testUser.user,
