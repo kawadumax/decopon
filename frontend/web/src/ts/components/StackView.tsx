@@ -1,185 +1,220 @@
 import { cn } from "@/lib/utils";
 import {
   Children,
+  type ReactElement,
   type ReactNode,
   cloneElement,
+  createContext,
   isValidElement,
+  useContext,
   useEffect,
-  useState,
+  useMemo,
+  useReducer,
 } from "react";
 
-export const Directions = {
-  up: "up",
-  down: "down",
-  left: "left",
-  right: "right",
-  none: "none",
-};
+// --- 型と定数 -------------------------------------------------------
+export enum Direction {
+  Up = "up",
+  Down = "down",
+  Left = "left",
+  Right = "right",
+  None = "none",
+}
 
-export type Direction = (typeof Directions)[keyof typeof Directions];
+export enum StackCmdType {
+  Push = "push",
+  Pop = "pop",
+  None = "none",
+}
 
-export type StackCommand = {
-  command: "push" | "pop";
-  to?: string;
+export type PushCommand = {
+  type: StackCmdType.Push;
+  to: string;
   direction?: Direction;
 };
 
-interface StackViewProps {
-  command?: StackCommand | (() => StackCommand);
-  children: ReactNode;
+export type PopCommand = {
+  type: StackCmdType.Pop;
+};
+
+export type StackCommand = PushCommand | PopCommand;
+
+interface State {
+  current?: PushCommand;
+  previous?: PushCommand;
+  stack: PushCommand[];
 }
 
-interface StackViewListProps {
-  children: React.ReactElement[];
+// --- Reducer --------------------------------------------------------
+const initialState: State = { stack: [] };
+
+function reducer(
+  state: State,
+  action:
+    | { type: "push"; payload: PushCommand }
+    | { type: "pop" }
+    | { type: "reset" },
+): State {
+  switch (action.type) {
+    case "push":
+      return {
+        previous: state.current,
+        current: action.payload,
+        stack: [...state.stack, action.payload],
+      };
+    case "pop": {
+      if (state.stack.length <= 1) return state;
+      const nextStack = [...state.stack];
+      const popped = nextStack.pop();
+      return {
+        previous: popped,
+        current: nextStack.at(-1),
+        stack: nextStack,
+      };
+    }
+    case "reset":
+      return initialState;
+    default:
+      return state;
+  }
 }
 
-export function StackView({ command, children }: StackViewProps) {
-  // changeViewが関数の場合は実行する
-  const rawCommand = typeof command === "function" ? command() : command;
-  const [currentView, setCurrentView] = useState<StackCommand>({
-    command: "push",
-    to: "default",
-    direction: Directions.none,
-  });
-  const [viewStack, setViewStack] = useState<StackCommand[]>([
-    currentView as StackCommand,
-  ]);
+// --- Animation クラスマップ ----------------------------------------
+const animationMap: Record<
+  "push" | "pop" | "none",
+  Record<Direction, string>
+> = {
+  push: {
+    up: "animate-push-up",
+    down: "animate-push-down",
+    left: "animate-push-left",
+    right: "animate-push-right",
+    none: "animate-push-none",
+  },
+  pop: {
+    up: "animate-pop-up",
+    down: "animate-pop-down",
+    left: "animate-pop-left",
+    right: "animate-pop-right",
+    none: "animate-pop-none",
+  },
+  none: {
+    up: "",
+    down: "",
+    left: "",
+    right: "",
+    none: "",
+  },
+};
 
+// --- Context --------------------------------------------------------
+const StackContext = createContext<State | null>(null);
+export const useStack = () => {
+  const ctx = useContext(StackContext);
+  if (!ctx) throw new Error("useStack must be used within <StackView>");
+  return ctx;
+};
+
+// --- StackView ------------------------------------------------------
+export function StackView({
+  command,
+  children,
+}: { command?: StackCommand; children: ReactNode }) {
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  // コマンドを reducer に送信
   useEffect(() => {
-    if (rawCommand && rawCommand.command === "push") {
-      // ViewStackに操作を保存する
-      setCurrentView(rawCommand);
-      setViewStack((prev) => [...prev, rawCommand]);
-    } else if (rawCommand && rawCommand.command === "pop") {
-      // ViewStackから操作を削除する
-      setViewStack((prev) => {
-        const newStack = [...prev];
-        newStack.pop();
-        return newStack;
-      });
+    if (!command) return;
+    if (command.type === "push") {
+      dispatch({ type: "push", payload: command });
+    } else if (command.type === "pop") {
+      dispatch({ type: "pop" });
     }
-  }, [rawCommand]);
+  }, [command]);
 
-  console.log(viewStack);
-  console.log(currentView);
+  // 描画対象パネルを計算
+  const views = useMemo(() => {
+    const nodes: ReactElement[] = [];
 
-  const views: ReactNode[] = [];
-  const others: ReactNode[] = [];
+    Children.forEach(children, (child) => {
+      // StackViewList 以外はそのまま描画
+      if (!isValidElement(child) || child.type !== StackViewList) {
+        nodes.push(child as ReactElement);
+        return;
+      }
 
-  Children.forEach(children, (child) => {
-    if (
-      !isValidElement<StackViewListProps>(child) ||
-      child.type !== StackViewList
-    ) {
-      others.push(child);
-      return;
-    }
-
-    const panels = Array.isArray(child.props.children)
-      ? child.props.children
-      : [child.props.children];
-    if (rawCommand?.command === "push") {
+      // パネルを走査
+      const panels = Children.toArray(child.props.children) as ReactElement[];
       for (const panel of panels) {
-        if (!isValidElement(panel)) {
-          // パネルでない場合はスキップ
-          continue;
-        }
+        if (!isValidElement<PanelProps>(panel)) return;
 
-        views.push(
-          // パネルに対して引数を与えながらクローン
+        const key = panel.props.panelId;
+        const { current, previous } = state;
+
+        // 表示対象のパネルを判定
+        const isCurrent = current?.to === key;
+        const isPrev = previous?.to === key;
+        if (!isCurrent && !isPrev) return;
+
+        const cmd = isCurrent
+          ? StackCmdType.Push
+          : (command?.type ?? StackCmdType.None);
+        const dir = isCurrent
+          ? (current?.direction ?? Direction.None)
+          : (previous?.direction ?? Direction.None);
+
+        nodes.push(
           cloneElement(panel, {
-            isActive: panel.key === currentView?.to,
-            cmd: "push",
-            direction: currentView?.direction,
-          } as React.HTMLAttributes<HTMLElement>),
+            isActive: true,
+            cmd,
+            direction: dir,
+          }),
         );
       }
-    } else if (rawCommand?.command === "pop") {
-      for (const panel of panels) {
-        if (!isValidElement(panel)) {
-          // パネルでない場合はスキップ
-          continue;
-        }
+    });
 
-        const prevView = viewStack.at(-1);
-
-        if (panel.key === prevView?.to) {
-          views.push(
-            // パネルに対して引数を与えながらクローン
-            cloneElement(panel, {
-              isActive: true,
-              direction: "none",
-              cmd: "push",
-            } as React.HTMLAttributes<HTMLElement>),
-          );
-        } else if (panel.key === currentView?.to) {
-          views.push(
-            // パネルに対して引数を与えながらクローン
-            cloneElement(panel, {
-              isActive: true,
-              direction: currentView?.direction,
-              cmd: "pop",
-            } as React.HTMLAttributes<HTMLElement>),
-          );
-        }
-      }
-    }
-  });
+    return nodes;
+  }, [children, state, command]);
 
   return (
-    <div className="relative min-h-[400px] w-full overflow-hidden">
-      {others}
-      {views}
-    </div>
+    <StackContext.Provider value={state}>
+      <div className="relative flex-1 overflow-hidden">{views}</div>
+    </StackContext.Provider>
   );
 }
 
-export const StackViewList: React.FC<StackViewListProps> = ({
-  children,
-}: { children: ReactNode }) => {
-  return <>{children}</>;
-};
+// --- StackViewList --------------------------------------------------
+export const StackViewList = ({ children }: { children: ReactNode }) => (
+  <>{children}</>
+);
 
-interface StackViewPanelProps {
+// --- StackViewPanel -------------------------------------------------
+interface PanelProps {
   children: ReactNode;
+  panelId: string;
   isActive?: boolean;
   direction?: Direction;
-  cmd?: "push" | "pop";
+  cmd?: StackCmdType.Pop | StackCmdType.Push | StackCmdType.None;
+  className?: string;
 }
 
 export function StackViewPanel({
   children,
-  isActive,
-  direction,
-  cmd = "push",
-}: StackViewPanelProps) {
-  const hiddenStyle = isActive ? "block" : "hidden";
-  if (direction === undefined) {
-    direction = "none";
-  }
-  const animationStyles: Record<typeof cmd, Record<Direction, string>> = {
-    push: {
-      up: "animate-push-up",
-      down: "animate-push-down",
-      left: "animate-push-left",
-      right: "animate-push-right",
-      none: "animate-push-none",
-    },
-    pop: {
-      up: "animate-pop-up",
-      down: "animate-pop-down",
-      left: "animate-pop-left",
-      right: "animate-pop-right",
-      none: "animate-pop-none",
-    },
-  } as const;
+  isActive = false,
+  direction = Direction.None,
+  cmd = StackCmdType.None,
+  className,
+}: PanelProps) {
+  const visibility = isActive ? "block" : "hidden";
+  const anim = cmd !== "none" ? animationMap[cmd][direction] : "";
 
   return (
     <div
       className={cn(
-        "absolute w-full transition-all duration-300",
-        animationStyles[cmd][direction],
-        hiddenStyle,
+        "absolute w-full fill-mode-forwards transition-all duration-300",
+        anim,
+        visibility,
+        className,
       )}
     >
       {children}

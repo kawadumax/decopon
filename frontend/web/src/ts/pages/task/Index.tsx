@@ -1,4 +1,6 @@
 import {
+  Direction,
+  StackCmdType,
   type StackCommand,
   StackView,
   StackViewList,
@@ -12,7 +14,6 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
-import {} from "@/components/ui/tabs";
 import { useDeviseSize } from "@/hooks/useDeviseSize";
 import { useState } from "react";
 import { TaskSideView } from "./partials/TaskSideView";
@@ -99,9 +100,9 @@ const TabletLayout = () => {
 
 const MobileLayout = () => {
   const [command, setCommand] = useState<StackCommand>({
+    type: StackCmdType.Push,
     to: "default",
-    direction: "none",
-    command: "push",
+    direction: Direction.None,
   });
 
   return (
@@ -110,9 +111,9 @@ const MobileLayout = () => {
         type="button"
         onClick={() => {
           setCommand({
+            type: StackCmdType.Push,
             to: "detail",
-            direction: "left",
-            command: "push",
+            direction: Direction.Left,
           });
         }}
       >
@@ -122,27 +123,25 @@ const MobileLayout = () => {
         type="button"
         onClick={() => {
           setCommand({
-            command: "pop",
+            type: StackCmdType.Pop,
           });
         }}
       >
         default
       </button>
-      <div className="flex flex-1 flex-col">
-        <div className="hidden-scrollbar max-h-full overflow-auto shadow-xs dark:bg-gray-800">
-          <StackView command={command}>
-            <StackViewList>
-              <StackViewPanel key="default">
-                <TaskTools />
-                <TagHeader />
-                <TaskTree />
-              </StackViewPanel>
-              <StackViewPanel key="detail">
-                <TaskSideView />
-              </StackViewPanel>
-            </StackViewList>
-          </StackView>
-        </div>
+      <div className="hidden-scrollbar flex max-h-full flex-1 flex-col overflow-auto shadow-xs dark:bg-gray-800">
+        <StackView command={command}>
+          <StackViewList>
+            <StackViewPanel panelId="default" className="size-full bg-white">
+              <TaskTools />
+              <TagHeader />
+              <TaskTree />
+            </StackViewPanel>
+            <StackViewPanel panelId="detail" className="size-full bg-white">
+              <TaskSideView />
+            </StackViewPanel>
+          </StackViewList>
+        </StackView>
       </div>
     </div>
   );
