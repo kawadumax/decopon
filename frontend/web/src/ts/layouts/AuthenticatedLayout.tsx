@@ -2,6 +2,7 @@ import ApplicationLogo from "@/components/ApplicationLogo";
 import Dropdown from "@/components/Dropdown";
 import NavLink from "@/components/NavLink";
 import ResponsiveNavLink from "@/components/ResponsiveNavLink";
+import { StackViewProvider, useStackView } from "@/components/StackView";
 import { TimerStateWidget } from "@/components/TimerStateWidget";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -11,9 +12,10 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Toaster } from "@/components/ui/sonner";
-import { useDeviseSize } from "@/hooks/useDeviseSize";
+import { useDeviceSize } from "@/hooks/useDeviceSize";
 import { useTimeEntryApi } from "@/hooks/useTimeEntryApi";
 import { breakTimeAtom, languageAtom, workTimeAtom } from "@/lib/atoms";
+import { cn } from "@/lib/utils";
 import { type Auth, Locale, type User } from "@/types/index.d";
 import {
   ActivitySquare,
@@ -218,8 +220,14 @@ const HeaderNavigationPC = ({ user }: { user: User }) => {
 };
 
 const BackButton = () => {
+  const [state, dispatch] = useStackView();
+  console.log("state", state);
   return (
-    <button type="button" className="p-2">
+    <button
+      type="button"
+      className={cn(["p-2", state.stack.length <= 1 && "invisible"])}
+      onClick={() => dispatch({ type: "pop" })}
+    >
       <ArrowLeft fill="currentColor" />
     </button>
   );
@@ -264,8 +272,6 @@ export default function Authenticated({
     throw new Error("User not found");
   }
 
-  const devise = useDeviseSize();
-
   const preference = user.preference;
   const lang = preference?.locale || Locale.ENGLISH;
   const setLang = useSetAtom(languageAtom);
@@ -286,14 +292,44 @@ export default function Authenticated({
 
   return (
     <div className="flex h-screen flex-col bg-gray-100 dark:bg-gray-900">
-      {devise !== "pc" ? (
-        <HeaderNavigation user={user} />
-      ) : (
-        <HeaderNavigationPC user={user} />
-      )}
-      <main className="h-[calc(100vh-8rem)] grow">{children}</main>
-      {devise !== "pc" && <FooterNavigation />}
+      <ResponsiveLayout user={user}>{children}</ResponsiveLayout>
       <Toaster richColors />
     </div>
   );
 }
+
+const ResponsiveLayout = ({
+  user,
+  children,
+}: {
+  user: User;
+  children: React.ReactNode;
+}) => {
+  const device = useDeviceSize();
+
+  switch (device) {
+    case "mobile":
+      return (
+        <StackViewProvider>
+          <HeaderNavigation user={user} />
+          <main className="h-[calc(100vh-8rem)] grow">{children}</main>
+          <FooterNavigation />
+        </StackViewProvider>
+      );
+    case "tablet":
+      return (
+        <>
+          <HeaderNavigation user={user} />
+          <main className="h-[calc(100vh-8rem)] grow">{children}</main>
+          <FooterNavigation />
+        </>
+      );
+    case "pc":
+      return (
+        <>
+          <HeaderNavigationPC user={user} />
+          <main className="h-[calc(100vh-8rem)] grow">{children}</main>
+        </>
+      );
+  }
+};

@@ -1,5 +1,7 @@
+import { Direction, StackCmdType, useStackView } from "@/components/StackView";
 import { Button } from "@/components/ui/button";
 import { useApi } from "@/hooks/useApi";
+import { useDeviceSize } from "@/hooks/useDeviceSize";
 import { taskSelectorAtom } from "@/lib/atoms";
 import type { Task } from "@/types";
 import { ChevronRight, PlusSquare, Trash } from "@mynaui/icons-react";
@@ -23,9 +25,11 @@ export const TaskItem = ({
   const task = useAtomValue(taskAtom);
   const [isExpanded, setIsExpanded] = useState(true);
   const setCurrentTaskAtom = useSetAtom(taskSelectorAtom);
+  const deviceSize = useDeviceSize();
+  const [_state, dispatch] = useStackView();
 
   const handleDelete = () => {
-    api.delete(route("api.tasks.destroy", task.id), undefined, (response) => {
+    api.delete(route("api.tasks.destroy", task.id), undefined, (_res) => {
       remove();
       setCurrentTaskAtom(atom(undefined));
     });
@@ -34,6 +38,17 @@ export const TaskItem = ({
   const handleItemClicked = (event: React.MouseEvent) => {
     event.stopPropagation();
     setCurrentTaskAtom(taskAtom);
+
+    if (deviceSize === "mobile") {
+      dispatch({
+        type: "push",
+        payload: {
+          type: StackCmdType.Push,
+          to: "detail",
+          direction: Direction.Left,
+        },
+      });
+    }
   };
 
   const handleItemKeyDowned = (event: React.KeyboardEvent) => {
@@ -47,7 +62,7 @@ export const TaskItem = ({
     setIsExpanded(!isExpanded);
   };
 
-  const handleAddChild = (event: React.MouseEvent) => {
+  const handleAddChild = (_event: React.MouseEvent) => {
     const taskTemplate = {
       title: "New Task",
       description: "New Task Description",

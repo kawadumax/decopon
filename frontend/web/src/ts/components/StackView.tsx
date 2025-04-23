@@ -22,6 +22,7 @@ export enum Direction {
 }
 
 export enum StackCmdType {
+  Init = "init",
   Push = "push",
   Pop = "pop",
   None = "none",
@@ -33,16 +34,20 @@ export type PushCommand = {
   direction?: Direction;
 };
 
+export type InitCommand = PushCommand;
+
 export type PopCommand = {
   type: StackCmdType.Pop;
+  to: string;
+  direction?: Direction;
 };
 
-export type StackCommand = PushCommand | PopCommand;
+export type StackCommand = PushCommand | PopCommand | InitCommand;
 
 interface State {
-  current?: PushCommand;
-  previous?: PushCommand;
-  stack: PushCommand[];
+  current?: StackCommand;
+  previous?: StackCommand;
+  stack: StackCommand[];
 }
 
 // --- Reducer --------------------------------------------------------
@@ -51,11 +56,18 @@ const initialState: State = { stack: [] };
 function reducer(
   state: State,
   action:
+    | { type: "init"; payload: InitCommand }
     | { type: "push"; payload: PushCommand }
-    | { type: "pop" }
+    | { type: "pop"; payload: PopCommand }
     | { type: "reset" },
 ): State {
   switch (action.type) {
+    case "init":
+      return {
+        previous: state.current,
+        current: action.payload,
+        stack: [action.payload],
+      };
     case "push":
       return {
         previous: state.current,
@@ -67,7 +79,7 @@ function reducer(
       const nextStack = [...state.stack];
       const popped = nextStack.pop();
       return {
-        previous: popped,
+        previous: popped ? { ...popped, type: StackCmdType.Pop } : undefined,
         current: nextStack.at(-1),
         stack: nextStack,
       };
@@ -108,85 +120,100 @@ const animationMap: Record<
 };
 
 // --- Context --------------------------------------------------------
-const StackContext = createContext<State | null>(null);
-export const useStack = () => {
+type StackContextType = [
+  State,
+  React.Dispatch<
+    | {
+        type: "init";
+        payload: InitCommand;
+      }
+    | {
+        type: "push";
+        payload: PushCommand;
+      }
+    | {
+        type: "pop";
+        payload: PopCommand;
+      }
+    | {
+        type: "reset";
+      }
+  >,
+];
+
+const StackContext = createContext<StackContextType | null>(null);
+
+export const useStackView = () => {
   const ctx = useContext(StackContext);
   if (!ctx) throw new Error("useStack must be used within <StackView>");
   return ctx;
 };
 
 // --- StackView ------------------------------------------------------
-export function StackView({
-  command,
-  children,
-}: { command?: StackCommand; children: ReactNode }) {
-  const [state, dispatch] = useReducer(reducer, initialState);
+export function StackViewProvider({ children }: { children: ReactNode }) {
+  const reducerCtx = useReducer(reducer, initialState);
+  return (
+    <StackContext.Provider value={reducerCtx}>{children}</StackContext.Provider>
+  );
+}
 
-  // コマンドを reducer に送信
+// --- StackViewList --------------------------------------------------
+export const StackViewList = ({
+  initialPanelId = "default",
+  children,
+}: { initialPanelId?: string; children: ReactNode }) => {
+  const [state, dispatch] = useStackView();
+
   useEffect(() => {
-    if (!command) return;
-    if (command.type === "push") {
-      dispatch({ type: "push", payload: command });
-    } else if (command.type === "pop") {
-      dispatch({ type: "pop" });
-    }
-  }, [command]);
+    dispatch({
+      type: "init",
+      payload: {
+        type: StackCmdType.Push,
+        to: initialPanelId,
+        direction: Direction.None,
+      },
+    });
+  }, [initialPanelId, dispatch]);
 
   // 描画対象パネルを計算
   const views = useMemo(() => {
     const nodes: ReactElement[] = [];
 
-    Children.forEach(children, (child) => {
-      // StackViewList 以外はそのまま描画
-      if (!isValidElement(child) || child.type !== StackViewList) {
-        nodes.push(child as ReactElement);
-        return;
-      }
+    // パネルを走査
+    const panels = Children.toArray(children) as ReactElement[];
+    for (const panel of panels) {
+      if (!isValidElement<PanelProps>(panel)) continue;
 
-      // パネルを走査
-      const panels = Children.toArray(child.props.children) as ReactElement[];
-      for (const panel of panels) {
-        if (!isValidElement<PanelProps>(panel)) return;
+      const key = panel.props.panelId;
+      const { current, previous } = state;
 
-        const key = panel.props.panelId;
-        const { current, previous } = state;
+      // 表示対象のパネルを判定
+      const isCurrent = current?.to === key;
+      const isPrev = previous?.to === key;
 
-        // 表示対象のパネルを判定
-        const isCurrent = current?.to === key;
-        const isPrev = previous?.to === key;
-        if (!isCurrent && !isPrev) return;
+      if (!isCurrent && !isPrev) continue;
 
-        const cmd = isCurrent
-          ? StackCmdType.Push
-          : (command?.type ?? StackCmdType.None);
-        const dir = isCurrent
-          ? (current?.direction ?? Direction.None)
-          : (previous?.direction ?? Direction.None);
+      const cmd = isCurrent
+        ? StackCmdType.Push
+        : (previous?.type ?? StackCmdType.None);
+      const dir = isCurrent
+        ? (current?.direction ?? Direction.None)
+        : (previous?.direction ?? Direction.None);
 
-        nodes.push(
-          cloneElement(panel, {
-            isActive: true,
-            cmd,
-            direction: dir,
-          }),
-        );
-      }
-    });
+      nodes.push(
+        cloneElement(panel, {
+          isActive: true,
+          cmd,
+          direction: dir,
+        }),
+      );
+    }
 
     return nodes;
-  }, [children, state, command]);
+  }, [children, state]);
 
-  return (
-    <StackContext.Provider value={state}>
-      <div className="relative flex-1 overflow-hidden">{views}</div>
-    </StackContext.Provider>
-  );
-}
-
-// --- StackViewList --------------------------------------------------
-export const StackViewList = ({ children }: { children: ReactNode }) => (
-  <>{children}</>
-);
+  return <div className="relative flex-1 overflow-hidden">{views}</div>;
+};
 
 // --- StackViewPanel -------------------------------------------------
 interface PanelProps {
