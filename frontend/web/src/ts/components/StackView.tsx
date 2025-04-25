@@ -58,7 +58,7 @@ function reducer(
   action:
     | { type: "init"; payload: InitCommand }
     | { type: "push"; payload: PushCommand }
-    | { type: "pop"; payload: PopCommand }
+    | { type: "pop"; payload?: PopCommand }
     | { type: "reset" },
 ): State {
   switch (action.type) {
@@ -133,7 +133,7 @@ type StackContextType = [
       }
     | {
         type: "pop";
-        payload: PopCommand;
+        payload?: PopCommand;
       }
     | {
         type: "reset";

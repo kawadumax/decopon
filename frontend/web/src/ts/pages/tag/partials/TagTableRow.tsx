@@ -1,3 +1,4 @@
+import { Direction, StackCmdType, useStackView } from "@/components/StackView";
 import { currentTagAtom } from "@/lib/atoms";
 import { formatISODate } from "@/lib/utils";
 import type { TagCheckable } from "@/types";
@@ -16,6 +17,8 @@ export const TagTableRow = ({
   onCheckedChange: (checked: CheckedState) => void;
 }) => {
   const [currentTag, setCurrentTag] = useAtom(currentTagAtom);
+  const [_state, dispatch] = useStackView();
+
   const onClicked = useCallback(() => {
     // tagをcurrentTagにsetする
     setCurrentTag(tag);
@@ -39,8 +42,21 @@ export const TagTableRow = ({
         <span className="mr-2 rounded border-1 border-primary bg-stone-100 px-1 font-thin">
           #
         </span>
-        {tag.name}
-        {` (${tag.tasks?.length || 0})`}
+        <button
+          type="button"
+          onClick={() => {
+            dispatch({
+              type: "push",
+              payload: {
+                type: StackCmdType.Push,
+                to: "detail",
+                direction: Direction.Left,
+              },
+            });
+          }}
+        >
+          {`${tag.name} (${tag.tasks?.length || 0})`}
+        </button>
       </TableCell>
       <TableCell className="font-mono">
         {formatISODate(tag.created_at)}

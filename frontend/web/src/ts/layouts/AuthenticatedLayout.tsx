@@ -221,7 +221,6 @@ const HeaderNavigationPC = ({ user }: { user: User }) => {
 
 const BackButton = () => {
   const [state, dispatch] = useStackView();
-  console.log("state", state);
   return (
     <button
       type="button"
@@ -292,7 +291,9 @@ export default function Authenticated({
 
   return (
     <div className="flex h-screen flex-col bg-gray-100 dark:bg-gray-900">
-      <ResponsiveLayout user={user}>{children}</ResponsiveLayout>
+      <StackViewProvider>
+        <ResponsiveLayout user={user}>{children}</ResponsiveLayout>
+      </StackViewProvider>
       <Toaster richColors />
     </div>
   );
@@ -309,13 +310,6 @@ const ResponsiveLayout = ({
 
   switch (device) {
     case "mobile":
-      return (
-        <StackViewProvider>
-          <HeaderNavigation user={user} />
-          <main className="h-[calc(100vh-8rem)] grow">{children}</main>
-          <FooterNavigation />
-        </StackViewProvider>
-      );
     case "tablet":
       return (
         <>
