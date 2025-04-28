@@ -3,6 +3,7 @@ import Dropdown from "@/components/Dropdown";
 import NavLink from "@/components/NavLink";
 import ResponsiveNavLink from "@/components/ResponsiveNavLink";
 import { StackViewProvider, useStackView } from "@/components/StackView";
+import { Timer } from "@/components/Timer";
 import { TimerStateWidget } from "@/components/TimerStateWidget";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -236,7 +237,14 @@ const HeaderNavigation = ({ user }: { user: User }) => {
   return (
     <nav className="flex flex-row justify-between border-gray-100 border-b bg-white dark:border-gray-700 dark:bg-gray-800">
       <BackButton />
-      <TimerStateWidget />
+      <Sheet>
+        <SheetTrigger>
+          <TimerStateWidget />
+        </SheetTrigger>
+        <SheetContent side={"top"} className="size-full p-0">
+          <Timer />
+        </SheetContent>
+      </Sheet>
       <Drawer user={user} />
     </nav>
   );
