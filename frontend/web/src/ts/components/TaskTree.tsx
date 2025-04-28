@@ -7,9 +7,9 @@ import { useMemo } from "react";
 import { TaskItem } from "../pages/task/partials/TaskItem";
 
 export const TaskTree = () => {
-  const currentTag = useAtomValue(currentTagAtom);
+  const _currentTag = useAtomValue(currentTagAtom);
   const [taskAtoms, dispatch] = useAtom(splitedTasksAtom);
-  const [tasks, setTasks] = useAtom(tasksAtom);
+  const [tasks, _setTasks] = useAtom(tasksAtom);
 
   const taskMap = useMemo(
     () => new Map(tasks.map((item, index) => [item.id, taskAtoms[index]])),
@@ -54,7 +54,7 @@ export const TaskTree = () => {
           .reverse(); // idの数値の大きいもの（より直近に作られたものを上に配置する）
         return createTaskItem(
           taskAtom,
-          <ul className="ml-[6px] flex border-collapse list-inside flex-col border-stone-400 border-l-2 border-dashed hover:border-solid hover:border-l-primary dark:text-gray-200">
+          <ul className="ml-[6px] flex border-collapse list-inside flex-col border-stone-400 border-l-2 border-dashed hover:border-l-primary hover:border-solid dark:text-gray-200">
             {items}
           </ul>,
         );

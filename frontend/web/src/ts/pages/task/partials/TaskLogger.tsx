@@ -77,8 +77,7 @@ export const TaskLogger = ({ taskAtom }: { taskAtom: PrimitiveAtom<Task> }) => {
       api.get(
         route("api.logs.task", task.id),
         (response) => {
-          const logs = response.data;
-          setLogs(logs);
+          setLogs(response.data ?? []);
         },
         (error) => {
           logger("Error fetching logs:", error);
