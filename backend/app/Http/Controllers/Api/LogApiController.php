@@ -29,9 +29,11 @@ class LogApiController extends ApiController
     public function getLogsTaskId($taskId)
     {
         $userId = Auth::id();
+        logger("userId", [$userId]);
         $logs = Log::where('user_id', $userId)
             ->where('task_id', $taskId)
             ->get();
+        logger("logs", [$logs]);
         return response()->json($logs);
     }
 

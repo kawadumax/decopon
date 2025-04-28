@@ -158,9 +158,6 @@ export const logsAtom = atom<Log[]>([]);
 
 // tags atom
 
-// export const tagsAtom = atom<Tag[]>([]);
-
-// const tagsQueryAtom = createFetchingListAtom<Tag>("tags");
 export const tagsAtom = createResourceListAtom<Tag>("tags");
 export const splitedTagsAtom = splitAtom(tagsAtom);
 export const currentTagAtom = atom<Tag | null>(null);
