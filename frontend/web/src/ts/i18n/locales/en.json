@@ -19,7 +19,6 @@
     "noTags": "No Tags",
     "placeholderInput": "New Tag Name",
     "table": {
-      "caption": "A list of your tags",
       "header": {
         "name": "Tag Name",
         "createdAt": "Created At",

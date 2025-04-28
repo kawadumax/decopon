@@ -19,7 +19,6 @@
     "noTags": "タグがありません",
     "placeholderInput": "新しいタグ名",
     "table": {
-      "caption": "あなたのタグ一覧",
       "header": {
         "name": "タグ名",
         "createdAt": "作成日時",

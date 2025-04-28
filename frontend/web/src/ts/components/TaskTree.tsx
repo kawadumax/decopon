@@ -10,16 +10,6 @@ export const TaskTree = () => {
   const currentTag = useAtomValue(currentTagAtom);
   const [taskAtoms, dispatch] = useAtom(splitedTasksAtom);
   const [tasks, setTasks] = useAtom(tasksAtom);
-  // const api = useApi();
-
-  // useEffect(() => {
-  //   // currentTagがある場合、そのTagに合わせてTasksを更新する
-  //   if (currentTag) {
-  //     api.get(route("api.tasks.tags.index", currentTag.id), (response) => {
-  //       setTasks(response.data.tasks || []);
-  //     });
-  //   }
-  // }, [currentTag, api, setTasks]);
 
   const taskMap = useMemo(
     () => new Map(tasks.map((item, index) => [item.id, taskAtoms[index]])),
@@ -64,7 +54,7 @@ export const TaskTree = () => {
           .reverse(); // idの数値の大きいもの（より直近に作られたものを上に配置する）
         return createTaskItem(
           taskAtom,
-          <ul className="ml-[6px] flex border-collapse list-inside flex-col border-stone-400 border-l-2 border-dashed dark:text-gray-200">
+          <ul className="ml-[6px] flex border-collapse list-inside flex-col border-stone-400 border-l-2 border-dashed hover:border-solid hover:border-l-primary dark:text-gray-200">
             {items}
           </ul>,
         );

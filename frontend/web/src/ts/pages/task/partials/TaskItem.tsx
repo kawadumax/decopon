@@ -88,7 +88,7 @@ export const TaskItem = ({
 
   return (
     <li
-      className={"list-none pl-4 hover:bg-stone-400 hover:bg-opacity-10"}
+      className={"list-none pl-4 hover:bg-primary/10"}
       onClick={handleItemClicked}
       onKeyDown={handleItemKeyDowned}
     >

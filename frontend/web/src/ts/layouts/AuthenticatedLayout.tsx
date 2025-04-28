@@ -10,6 +10,7 @@ import {
   Sheet,
   SheetContent,
   SheetHeader,
+  SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Toaster } from "@/components/ui/sonner";
@@ -242,6 +243,9 @@ const HeaderNavigation = ({ user }: { user: User }) => {
           <TimerStateWidget />
         </SheetTrigger>
         <SheetContent side={"top"} className="size-full p-0">
+          <SheetHeader className="hidden">
+            <SheetTitle>Timer</SheetTitle>
+          </SheetHeader>
           <Timer />
         </SheetContent>
       </Sheet>
