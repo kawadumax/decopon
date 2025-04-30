@@ -1,46 +1,64 @@
 import { LogItem } from "@/components/LogItem";
+import {} from "@/components/StackView";
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "@/components/ui/resizable";
+import { useDeviceSize } from "@/hooks/useDeviceSize";
 import { logsAtom } from "@/lib/atoms";
-import type { Log, PageProps } from "@/types";
-import { useAtom } from "jotai";
-import { useEffect, useRef } from "react";
-import Split from "react-split";
+import type { Log } from "@/types";
+import { useAtomValue } from "jotai";
+import { useRef } from "react";
 import { LogTagList } from "./partials/LogTagList";
 
-export default function Index(
-  props: PageProps<{
-    logs: Log[];
-  }>,
-) {
-  const logContainerRef = useRef<HTMLUListElement>(null);
-  const [logs, setLogs] = useAtom(logsAtom);
-  useEffect(() => {
-    setLogs(props.logs);
-  }, [props.logs, setLogs]);
-
+const LogList = ({
+  logs,
+  logContainerRef,
+}: { logs: Log[]; logContainerRef: React.RefObject<HTMLUListElement> }) => {
   return (
-    <Split
-      className="flex max-h-full min-h-full flex-row bg-white"
-      sizes={[17.2, 82.8]} // 白銀比を元にした比率
-      gutterSize={1}
-      gutter={() => {
-        const gutterElement = document.createElement("div");
-        gutterElement.className =
-          "w-2 bg-stone-50 hover:cursor-col-resize hover:w-2 hover:bg-amber-400 transition-all delay-100 duration-300 ease-in-out";
-        return gutterElement;
-      }}
-      // 元のgutterのスタイルを削除
-      gutterStyle={() => ({})}
-    >
-      <div>
-        <LogTagList />
-      </div>
-      <div>
-        <ul ref={logContainerRef} className="flex-1 overflow-y-auto">
-          {logs?.map((log) => (
-            <LogItem key={log.id} log={log} />
-          ))}
-        </ul>
-      </div>
-    </Split>
+    <ul ref={logContainerRef} className="flex-1 overflow-y-auto">
+      {logs?.map((log) => (
+        <LogItem key={log.id} log={log} />
+      ))}
+    </ul>
   );
+};
+
+const MobileLayout = ({
+  logs,
+  logContainerRef,
+}: { logs: Log[]; logContainerRef: React.RefObject<HTMLUListElement> }) => {
+  return <LogList logs={logs} logContainerRef={logContainerRef} />;
+};
+
+const PCLayout = ({
+  logs,
+  logContainerRef,
+}: { logs: Log[]; logContainerRef: React.RefObject<HTMLUListElement> }) => {
+  return (
+    <ResizablePanelGroup
+      direction="horizontal"
+      className="flex max-h-full min-h-full flex-row bg-white"
+    >
+      <ResizablePanel defaultSize={17.2}>
+        <LogTagList />
+      </ResizablePanel>
+      <ResizableHandle withHandle />
+      <ResizablePanel>
+        <LogList logs={logs} logContainerRef={logContainerRef} />
+      </ResizablePanel>
+    </ResizablePanelGroup>
+  );
+};
+
+export default function Index() {
+  const logContainerRef = useRef<HTMLUListElement>(null);
+  const logs = useAtomValue(logsAtom);
+  const deviceSize = useDeviceSize();
+  if (deviceSize === "mobile") {
+    return <MobileLayout logs={logs} logContainerRef={logContainerRef} />;
+  }
+
+  return <PCLayout logs={logs} logContainerRef={logContainerRef} />;
 }

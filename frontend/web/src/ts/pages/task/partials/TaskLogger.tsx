@@ -42,14 +42,14 @@ export const TaskLogger = ({ taskAtom }: { taskAtom: PrimitiveAtom<Task> }) => {
           content: content,
           task_id: task.id,
         } as Partial<Log>,
-        (response) => {
-          const storedLog = response.data;
+        (data) => {
+          const storedLog = data;
           setLogs((prev) =>
             prev.map((log) =>
               log.id === tempId ? { ...log, ...storedLog } : log,
             ),
           );
-          logger("success log storing", response);
+          logger("success log storing", data);
         },
       );
       setContent("");
@@ -76,9 +76,8 @@ export const TaskLogger = ({ taskAtom }: { taskAtom: PrimitiveAtom<Task> }) => {
     if (task) {
       api.get(
         route("api.logs.task", task.id),
-        (response) => {
-          const logs = response.data;
-          setLogs(logs);
+        (data) => {
+          setLogs(data ?? []);
         },
         (error) => {
           logger("Error fetching logs:", error);

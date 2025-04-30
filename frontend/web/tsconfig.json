@@ -13,6 +13,8 @@
     "noEmit": true,
     "paths": {
       "@/*": ["./src/ts/*"],
+      "@pages/*": ["./src/ts/pages/*"],
+      "@components/*": ["./src/ts/components/*"],
       "@public/*": ["../core/public/*"],
       "@core/*": ["../core/src/js/*"]
     },
@@ -23,6 +25,11 @@
     "src/**/*.tsx",
     "src/**/*.d.ts",
     "src/**/*.js",
-    "src/**/*.jsx"
+    "src/**/*.jsx",
+    ".storybook/*.ts",
+    ".storybook/**/*.tsx",
+    "stories/*.stories.tsx",
+    "stories/**/*.tsx",
+    "vite/*.ts"
   ]
 }
