@@ -18,5 +18,8 @@
   "[json]": {
     "editor.defaultFormatter": "biomejs.biome"
   },
-  "json.schemaDownload.enable": true
+  "json.schemaDownload.enable": true,
+  "files.associations": {
+    "*.css": "tailwindcss"
+  }
 }

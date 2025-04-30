@@ -154,13 +154,10 @@ export const breakTimeAtom = atom(
 
 // Logs atom
 
-export const logsAtom = atom<Log[]>([]);
+export const logsAtom = createResourceListAtom<Log>("logs");
 
 // tags atom
 
-// export const tagsAtom = atom<Tag[]>([]);
-
-// const tagsQueryAtom = createFetchingListAtom<Tag>("tags");
 export const tagsAtom = createResourceListAtom<Tag>("tags");
 export const splitedTagsAtom = splitAtom(tagsAtom);
 export const currentTagAtom = atom<Tag | null>(null);

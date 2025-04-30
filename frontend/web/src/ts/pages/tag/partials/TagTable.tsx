@@ -2,7 +2,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableHead,
   TableHeader,
   TableRow,
@@ -38,7 +37,6 @@ export const TagTable = ({ tags }: { tags: Tag[] }) => {
   );
   return (
     <Table>
-      <TableCaption>{t("tag.table.caption")}</TableCaption>
       <TableHeader>
         <TableRow>
           <TableHead>

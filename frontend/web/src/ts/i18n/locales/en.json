@@ -19,7 +19,6 @@
     "noTags": "No Tags",
     "placeholderInput": "New Tag Name",
     "table": {
-      "caption": "A list of your tags",
       "header": {
         "name": "Tag Name",
         "createdAt": "Created At",
@@ -57,9 +56,9 @@
   "header": {
     "menu": {
       "dashboard": "Dashboard",
-      "tasks": "All Tasks",
-      "tags": "All Tags",
-      "timeline": "Timeline",
+      "tasks": "Tasks",
+      "tags": "Tags",
+      "logs": "Logs",
       "profile": "Profile",
       "login": "Log in",
       "logout": "Log Out",
