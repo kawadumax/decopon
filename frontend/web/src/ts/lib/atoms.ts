@@ -154,7 +154,7 @@ export const breakTimeAtom = atom(
 
 // Logs atom
 
-export const logsAtom = atom<Log[]>([]);
+export const logsAtom = createResourceListAtom<Log>("logs");
 
 // tags atom
 

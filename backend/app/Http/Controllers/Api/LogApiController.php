@@ -20,7 +20,7 @@ class LogApiController extends ApiController
         // ログイン中のユーザの内容のみ見れる。
         $userId = Auth::id();
         $logs = Log::where('user_id', $userId)->get();
-        return response()->json($logs);
+        return response()->json(['logs' => $logs]);
     }
 
     /**

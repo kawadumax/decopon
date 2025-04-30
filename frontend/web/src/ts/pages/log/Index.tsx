@@ -7,10 +7,10 @@ import {
 } from "@/components/ui/resizable";
 import { useDeviceSize } from "@/hooks/useDeviceSize";
 import { logsAtom } from "@/lib/atoms";
-import type { Log, PageProps } from "@/types";
-import { useAtom } from "jotai";
-import { useEffect, useRef } from "react";
+import type { Log } from "@/types";
+import { useRef } from "react";
 import { LogTagList } from "./partials/LogTagList";
+import { useAtomValue } from "jotai";
 
 const LogList = ({
   logs,
@@ -52,19 +52,10 @@ const PCLayout = ({
   );
 };
 
-export default function Index(
-  props: PageProps<{
-    logs: Log[];
-  }>,
-) {
+export default function Index() {
   const logContainerRef = useRef<HTMLUListElement>(null);
-  const [logs, setLogs] = useAtom(logsAtom);
+  const logs = useAtomValue(logsAtom);
   const deviceSize = useDeviceSize();
-
-  useEffect(() => {
-    setLogs(props.logs);
-  }, [props.logs, setLogs]);
-
   if (deviceSize === "mobile") {
     return <MobileLayout logs={logs} logContainerRef={logContainerRef} />;
   }
