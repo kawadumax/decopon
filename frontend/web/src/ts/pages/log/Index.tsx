@@ -8,9 +8,9 @@ import {
 import { useDeviceSize } from "@/hooks/useDeviceSize";
 import { logsAtom } from "@/lib/atoms";
 import type { Log } from "@/types";
+import { useAtomValue } from "jotai";
 import { useRef } from "react";
 import { LogTagList } from "./partials/LogTagList";
-import { useAtomValue } from "jotai";
 
 const LogList = ({
   logs,

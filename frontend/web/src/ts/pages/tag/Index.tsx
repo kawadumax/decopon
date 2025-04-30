@@ -25,7 +25,7 @@ const MobileLayout = ({
     <div className="flex min-h-full flex-col bg-white">
       <div className="hidden-scrollbar flex max-h-full flex-1 flex-col overflow-auto shadow-xs dark:bg-gray-800">
         <StackViewList initialPanelId="default">
-          <StackViewPanel panelId="default" className="size-full bg-white">
+          <StackViewPanel panelId="default" className="size-full bg-white p-4">
             <TagTools />
             <TagTable tags={tags} />
           </StackViewPanel>

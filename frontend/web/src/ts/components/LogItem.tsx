@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 
 const DefaultItem = ({ log }: { log: Log }) => {
   return (
-    <li className="m-1 flex flex-row justify-between rounded p-1 hover:ring-1 hover:ring-amber-400">
+    <li className="flex flex-row justify-between border-1 border-hidden p-2 hover:border-amber-400 hover:border-solid">
       <p className="text-base">{log.content}</p>
       <p className="font-mono text-black text-xs text-opacity-50">
         {formatISODate(log.created_at)}
@@ -17,12 +17,12 @@ const DefaultItem = ({ log }: { log: Log }) => {
 const SystemItem = ({ log }: { log: Log }) => {
   const { t } = useTranslation();
   return (
-    <li className="m-1 flex flex-row justify-between bg-lime-100 p-1">
+    <li className="flex flex-row justify-between bg-lime-100 p-2">
       <span className="flex flex-row justify-start gap-1 text-black text-opacity-50">
         <InfoCircle />
         {log.content}
       </span>
-      <p className="font-mono text-black text-xs text-opacity-50">
+      <p className="whitespace-nowrap font-mono text-black text-xs text-opacity-50">
         {t("log.type.system")}, {formatISODate(log.created_at)}
       </p>
     </li>
