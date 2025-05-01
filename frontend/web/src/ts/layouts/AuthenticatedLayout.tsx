@@ -256,7 +256,7 @@ const HeaderNavigation = ({ user }: { user: User }) => {
 
 const FooterNavigation = () => {
   return (
-    <nav className="flex flex-row items-stretch justify-between divide-x border-gray-100 border-t border-b bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800">
+    <nav className="sticky bottom-0 flex flex-row items-stretch justify-between divide-x border-gray-100 border-t border-b bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800">
       {links.map((link) => (
         <Link
           key={link.name}
@@ -326,7 +326,7 @@ const ResponsiveLayout = ({
       return (
         <>
           <HeaderNavigation user={user} />
-          <main className="h-[calc(100vh-8rem)] grow">{children}</main>
+          <main className="grow overflow-auto">{children}</main>
           <FooterNavigation />
         </>
       );
