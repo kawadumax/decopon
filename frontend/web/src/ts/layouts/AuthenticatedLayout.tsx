@@ -27,7 +27,7 @@ import {
   Tag as TagIcon,
 } from "@mynaui/icons-react";
 import { useQueryClient } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
+import { Link, useMatchRoute } from "@tanstack/react-router";
 import { t } from "i18next";
 import { useSetAtom } from "jotai";
 import {
@@ -255,20 +255,31 @@ const HeaderNavigation = ({ user }: { user: User }) => {
 };
 
 const FooterNavigation = () => {
+  const matchRoute = useMatchRoute();
+
   return (
-    <nav className="flex flex-row items-stretch justify-between divide-x border-gray-100 border-t border-b bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800">
-      {links.map((link) => (
-        <Link
-          key={link.name}
-          to={link.href}
-          className="flex flex-1 flex-col items-center"
-        >
-          <span className="flex flex-col items-center text-center font-light text-slate-700 text-xs">
-            {<link.icon className="m-1 mb-0" />}
-            {link.name}
-          </span>
-        </Link>
-      ))}
+    <nav className="sticky bottom-0 flex flex-row items-stretch justify-between divide-x border-gray-100 border-t border-b bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800">
+      {links.map((link) => {
+        const isActive = !!matchRoute({ to: link.href, fuzzy: false });
+        const activeClassName = isActive ? "text-amber-400" : "text-slate-700";
+        return (
+          <Link
+            key={link.name}
+            to={link.href}
+            className="flex flex-1 flex-col items-center"
+          >
+            <span
+              className={cn([
+                "flex flex-col items-center text-center font-light text-xs",
+                activeClassName,
+              ])}
+            >
+              {<link.icon className="m-1 mb-0" />}
+              {link.name}
+            </span>
+          </Link>
+        );
+      })}
     </nav>
   );
 };
@@ -326,7 +337,7 @@ const ResponsiveLayout = ({
       return (
         <>
           <HeaderNavigation user={user} />
-          <main className="h-[calc(100vh-8rem)] grow">{children}</main>
+          <main className="grow overflow-auto">{children}</main>
           <FooterNavigation />
         </>
       );
@@ -334,7 +345,7 @@ const ResponsiveLayout = ({
       return (
         <>
           <HeaderNavigationPC user={user} />
-          <main className="h-[calc(100vh-8rem)] grow">{children}</main>
+          <main className="grow overflow-auto">{children}</main>
         </>
       );
   }
