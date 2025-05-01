@@ -329,9 +329,15 @@ const ResponsiveLayout = ({
   user: User;
   children: React.ReactNode;
 }) => {
-  const device = useDeviceSize();
+  const deviceSize = useDeviceSize();
 
-  switch (device) {
+  switch (deviceSize) {
+    case undefined:
+      return (
+        <div className="flex h-screen items-center justify-center">
+          <div className="animate-pulse">Loading...</div>
+        </div>
+      );
     case "mobile":
     case "tablet":
       return (

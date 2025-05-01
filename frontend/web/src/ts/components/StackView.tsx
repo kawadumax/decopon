@@ -97,18 +97,18 @@ const animationMap: Record<
   Record<Direction, string>
 > = {
   push: {
-    up: "animate-push-up",
-    down: "animate-push-down",
-    left: "animate-push-left",
-    right: "animate-push-right",
-    none: "animate-push-none",
+    up: "animate-push-up will-change-transform",
+    down: "animate-push-down will-change-transform",
+    left: "animate-push-left will-change-transform",
+    right: "animate-push-right will-change-transform",
+    none: "animate-push-none will-change-transform",
   },
   pop: {
-    up: "animate-pop-up",
-    down: "animate-pop-down",
-    left: "animate-pop-left",
-    right: "animate-pop-right",
-    none: "animate-pop-none",
+    up: "animate-pop-up will-change-transform",
+    down: "animate-pop-down will-change-transform",
+    left: "animate-pop-left will-change-transform",
+    right: "animate-pop-right will-change-transform",
+    none: "animate-pop-none will-change-transform",
   },
   none: {
     up: "",
@@ -232,7 +232,7 @@ export function StackViewPanel({
   cmd = StackCmdType.None,
   className,
 }: PanelProps) {
-  const visibility = isActive ? "block" : "hidden";
+  const visibility = isActive ? "block" : "hidden translate-x-full";
   const anim = cmd !== "none" ? animationMap[cmd][direction] : "";
 
   return (
