@@ -232,7 +232,7 @@ export function StackViewPanel({
   cmd = StackCmdType.None,
   className,
 }: PanelProps) {
-  const visibility = isActive ? "block" : "hidden translate-x-full";
+  const visibility = isActive ? "block" : "hidden";
   const anim = cmd !== "none" ? animationMap[cmd][direction] : "";
 
   return (
