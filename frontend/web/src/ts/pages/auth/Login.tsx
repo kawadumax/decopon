@@ -8,7 +8,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import type { AxiosError } from "axios";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { DemoCaution } from "./partials/DemoCaution";
+import { DemoCautionWithAccount } from "./partials/DemoCaution";
 
 type LoginData = {
   email: string;
@@ -81,7 +81,7 @@ export default function Login() {
           form.handleSubmit();
         }}
       >
-        <DemoCaution
+        <DemoCautionWithAccount
           header={t("auth.login.caution")}
           content={t("auth.login.demo")}
         />
