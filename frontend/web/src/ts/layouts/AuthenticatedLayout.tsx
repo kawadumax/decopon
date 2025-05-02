@@ -270,7 +270,7 @@ const FooterNavigation = () => {
           >
             <span
               className={cn([
-                "flex flex-col items-center text-center font-light text-xs",
+                "flex flex-col items-center text-center font-light text-xs focus:text-amber-400",
                 activeClassName,
               ])}
             >
