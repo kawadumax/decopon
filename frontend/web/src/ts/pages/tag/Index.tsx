@@ -4,6 +4,7 @@ import { tagsAtom } from "@/lib/atoms";
 import type { PageProps } from "@/types";
 import type { Tag } from "@/types";
 
+import { Loading } from "@/components/Loading";
 import { StackViewList, StackViewPanel } from "@/components/StackView";
 import {
   ResizableHandle,
@@ -72,7 +73,11 @@ export default function Index(
     setTags(props.tags);
   }, [props.tags, setTags]);
 
-  if (deviceSize === "mobile") {
+  if (deviceSize === undefined) {
+    return <Loading />;
+  }
+
+  if (deviceSize === "mobile" || deviceSize === "tablet") {
     return <MobileLayout tags={tags} />;
   }
 

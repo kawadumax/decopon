@@ -11,6 +11,7 @@ import type { Log } from "@/types";
 import { useAtomValue } from "jotai";
 import { useRef } from "react";
 import { LogTagList } from "./partials/LogTagList";
+import { Loading } from "@/components/Loading";
 
 const LogList = ({
   logs,
@@ -56,7 +57,12 @@ export default function Index() {
   const logContainerRef = useRef<HTMLUListElement>(null);
   const logs = useAtomValue(logsAtom);
   const deviceSize = useDeviceSize();
-  if (deviceSize === "mobile") {
+
+  if (deviceSize === undefined) {
+    return <Loading />;
+  }
+
+  if (deviceSize === "mobile" || deviceSize === "tablet") {
     return <MobileLayout logs={logs} logContainerRef={logContainerRef} />;
   }
 

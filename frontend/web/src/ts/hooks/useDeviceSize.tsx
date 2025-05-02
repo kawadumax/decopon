@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 
-export type DeviceSize = "mobile" | "tablet" | "pc";
+export type DeviceSize = "mobile" | "tablet" | "pc" | undefined;
 
 export const useDeviceSize = (): DeviceSize => {
-  const [deviceSize, setDeviceSize] = useState<DeviceSize>("pc");
+  const [deviceSize, setDeviceSize] = useState<DeviceSize>();
 
   useEffect(() => {
     const update = () => {

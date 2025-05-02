@@ -11,9 +11,13 @@ import { useDeviceSize } from "@/hooks/useDeviceSize";
 import { TaskSideView } from "./partials/TaskSideView";
 import { TaskTagList } from "./partials/TaskTagList";
 import { TaskTools } from "./partials/TaskTools";
+import { Loading } from "@/components/Loading";
 
 export default function Index() {
   const deviceSize = useDeviceSize();
+  if (deviceSize === undefined) {
+    return <Loading />;
+  }
   if (deviceSize === "mobile") {
     return <MobileLayout />;
   }
