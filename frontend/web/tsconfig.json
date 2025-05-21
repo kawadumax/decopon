@@ -12,11 +12,11 @@
     "skipLibCheck": true,
     "noEmit": true,
     "paths": {
-      "@/*": ["./src/*"],
+      "@/*": ["../core/src/*"],
       "@pages/*": ["../core/src/scripts/pages/*"],
       "@components/*": ["../core/src/scripts/components/*"],
-      "@public/*": ["../core/public/*"],
-      "@core/*": ["../core/src/*"]
+      "@public/*": ["../core/public/*"]
+      // "@core/*": ["../core/src/*"]
     },
     "typeRoots": ["./node_modules/@types", "../core/src/scripts/types"]
   },
@@ -26,10 +26,10 @@
     "../core/src/**/*.d.ts",
     "../core/src/**/*.js",
     "../core/src/**/*.jsx",
+    "../core/vite/*.ts",
     ".storybook/*.ts",
     ".storybook/**/*.tsx",
     "stories/*.stories.tsx",
-    "stories/**/*.tsx",
-    "vite/*.ts"
+    "stories/**/*.tsx"
   ]
 }
