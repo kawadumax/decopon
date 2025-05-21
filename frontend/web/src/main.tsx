@@ -1,4 +1,4 @@
-import { App } from "@/App";
+import { App } from "@core/App";
 import { StrictMode } from "react";
 import ReactDOM from "react-dom/client";
 
