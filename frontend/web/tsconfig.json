@@ -12,20 +12,20 @@
     "skipLibCheck": true,
     "noEmit": true,
     "paths": {
-      "@/*": ["./src/ts/*"],
-      "@pages/*": ["./src/ts/pages/*"],
-      "@components/*": ["./src/ts/components/*"],
+      "@/*": ["./src/*"],
+      "@pages/*": ["../core/src/scripts/pages/*"],
+      "@components/*": ["../core/src/scripts/components/*"],
       "@public/*": ["../core/public/*"],
-      "@core/*": ["../core/src/js/*"]
+      "@core/*": ["../core/src/*"]
     },
-    "typeRoots": ["./node_modules/@types", "src/ts/types"]
+    "typeRoots": ["./node_modules/@types", "../core/src/scripts/types"]
   },
   "include": [
-    "src/**/*.ts",
-    "src/**/*.tsx",
-    "src/**/*.d.ts",
-    "src/**/*.js",
-    "src/**/*.jsx",
+    "../core/src/**/*.ts",
+    "../core/src/**/*.tsx",
+    "../core/src/**/*.d.ts",
+    "../core/src/**/*.js",
+    "../core/src/**/*.jsx",
     ".storybook/*.ts",
     ".storybook/**/*.tsx",
     "stories/*.stories.tsx",
