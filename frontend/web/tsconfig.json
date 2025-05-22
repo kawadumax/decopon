@@ -1,24 +1,14 @@
+// /frontend/web/tsconfig.json
 {
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "allowJs": true,
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "jsx": "react-jsx",
-    "strict": true,
-    "isolatedModules": true,
-    "target": "ESNext",
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "skipLibCheck": true,
-    "noEmit": true,
+    "typeRoots": ["./node_modules/@types", "../core/src/scripts/types"],
     "paths": {
       "@/*": ["../core/src/*"],
       "@pages/*": ["../core/src/scripts/pages/*"],
       "@components/*": ["../core/src/scripts/components/*"],
       "@public/*": ["../core/public/*"]
-      // "@core/*": ["../core/src/*"]
-    },
-    "typeRoots": ["./node_modules/@types", "../core/src/scripts/types"]
+    }
   },
   "include": [
     "../core/src/**/*.ts",

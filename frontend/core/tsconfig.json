@@ -1,0 +1,14 @@
+// /frontend/core/tsconfig.json
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "composite": true, // 任意（将来的なts build最適化用）
+    "declaration": true, // 任意（型出力が必要なら）
+    "outDir": "dist", // 任意（ビルド出力先）
+    "baseUrl": ".", // 相対パス補完用
+    "paths": {
+      "@/*": ["src/*"]
+    }
+  },
+  "include": ["src"]
+}

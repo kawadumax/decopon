@@ -1,0 +1,7 @@
+packages:
+  - frontend/*
+onlyBuiltDependencies:
+  - '@biomejs/biome'
+  - '@tailwindcss/oxide'
+  - esbuild
+  - msw
