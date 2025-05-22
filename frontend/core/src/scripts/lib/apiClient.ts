@@ -1,5 +1,5 @@
-import axiosInstance from "@/lib/axios";
 import type { ApiData } from "@/types/index.d";
+import axiosInstance from "@lib/axios";
 import axios from "axios";
 import { NProgressManager } from "./nProgressManager";
 

@@ -1,5 +1,5 @@
-import { taskSelectorAtom } from "@/lib/atoms";
 import type { Task } from "@/types";
+import { taskSelectorAtom } from "@lib/atoms";
 import { useAtomValue } from "jotai";
 import type { PrimitiveAtom } from "jotai";
 import { useTranslation } from "react-i18next";

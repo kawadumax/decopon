@@ -16,9 +16,9 @@ import {
 import { Toaster } from "@/components/ui/sonner";
 import { useDeviceSize } from "@/hooks/useDeviceSize";
 import { useTimeEntryApi } from "@/hooks/useTimeEntryApi";
-import { breakTimeAtom, languageAtom, workTimeAtom } from "@/lib/atoms";
-import { cn } from "@/lib/utils";
 import { type Auth, Locale, type User } from "@/types/index.d";
+import { breakTimeAtom, languageAtom, workTimeAtom } from "@lib/atoms";
+import { cn } from "@lib/utils";
 import {
   ActivitySquare,
   ArrowLeft,

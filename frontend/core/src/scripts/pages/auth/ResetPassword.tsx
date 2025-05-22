@@ -1,7 +1,7 @@
 import InputLabel from "@/components/InputLabel";
 import PrimaryButton from "@/components/PrimaryButton";
 import TextInput from "@/components/TextInput";
-import { callApi } from "@/lib/apiClient";
+import { callApi } from "@lib/apiClient";
 import { useForm } from "@tanstack/react-form";
 import { getRouteApi } from "@tanstack/react-router";
 import { useState } from "react";

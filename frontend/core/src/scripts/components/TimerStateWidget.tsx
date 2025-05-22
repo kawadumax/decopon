@@ -1,5 +1,5 @@
-import { remainTimeAtom, timerStateAtom } from "@/lib/atoms";
-import { formatTime } from "@/lib/utils";
+import { remainTimeAtom, timerStateAtom } from "@lib/atoms";
+import { formatTime } from "@lib/utils";
 import { useAtomValue } from "jotai";
 import { useTranslation } from "react-i18next";
 

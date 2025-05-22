@@ -1,6 +1,6 @@
-import { timerStateAtom } from "@/lib/atoms";
-import { getToday, logger } from "@/lib/utils";
 import { type TimeEntry, TimeEntryStatus } from "@/types/index.d";
+import { timerStateAtom } from "@lib/atoms";
+import { getToday, logger } from "@lib/utils";
 import type { AxiosResponse } from "axios";
 import { useAtom } from "jotai";
 import { useCallback, useMemo } from "react";

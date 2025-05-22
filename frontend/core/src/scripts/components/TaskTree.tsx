@@ -1,5 +1,5 @@
-import { currentTagAtom, splitedTasksAtom, tasksAtom } from "@/lib/atoms";
 import type { Task } from "@/types";
+import { currentTagAtom, splitedTasksAtom, tasksAtom } from "@lib/atoms";
 import { t } from "i18next";
 import { type PrimitiveAtom, useAtom, useAtomValue } from "jotai";
 import type React from "react";

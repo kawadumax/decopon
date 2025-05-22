@@ -7,8 +7,18 @@
     "outDir": "dist", // 任意（ビルド出力先）
     "baseUrl": ".", // 相対パス補完用
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "@lib/*": ["src/scripts/lib/*"],
+      "@components/*": ["src/scripts/components/*"],
+      "@pages/*": ["src/scripts/pages/*"],
+      "@public/*": ["public/*"]
     }
   },
-  "include": ["src"]
+  "include": [
+    "src",
+    "public",
+    "src/scripts/lib",
+    "src/scripts/components",
+    "src/scripts/pages"
+  ]
 }

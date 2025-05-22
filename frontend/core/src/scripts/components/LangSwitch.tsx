@@ -5,8 +5,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { languageAtom } from "@/lib/atoms";
 import { Locale } from "@/types/index.d";
+import { languageAtom } from "@lib/atoms";
 import { t } from "i18next";
 import { useAtom } from "jotai";
 

@@ -6,9 +6,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { checkableTagsAtom } from "@/lib/atoms";
 import { TagTableRow } from "@/pages/tag/partials/TagTableRow";
 import type { Tag, TagWithCheck } from "@/types";
+import { checkableTagsAtom } from "@lib/atoms";
 import { useAtom } from "jotai";
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";

@@ -1,4 +1,4 @@
-import { queryClient } from "@/lib/queryClient";
+import { queryClient } from "@lib/queryClient";
 import type { Meta, StoryFn } from "@storybook/react";
 import { http, HttpResponse } from "msw";
 import { RouterDecorator } from "../../.storybook/lib/withRouterDecorator";

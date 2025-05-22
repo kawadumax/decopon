@@ -8,9 +8,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { callApi } from "@/lib/apiClient";
 import { type Auth, Locale } from "@/types/index.d";
 import { Transition } from "@headlessui/react";
+import { callApi } from "@lib/apiClient";
 import { useForm } from "@tanstack/react-form";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";

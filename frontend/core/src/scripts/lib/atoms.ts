@@ -1,4 +1,4 @@
-import { Locale, type Tag } from "@/types/index.d";
+import { Locale, type Tag } from "@/scripts/types/index.d";
 import { type PrimitiveAtom, atom } from "jotai";
 import { atomWithStorage, splitAtom } from "jotai/utils";
 import type {

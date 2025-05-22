@@ -4,8 +4,8 @@ import {
   AutosizeTextarea,
 } from "@/components/ui/autosize-textarea";
 import { useApi } from "@/hooks/useApi";
-import { logger } from "@/lib/utils";
 import type { Log, Task } from "@/types";
+import { logger } from "@lib/utils";
 import { useAtomValue } from "jotai";
 import type { PrimitiveAtom } from "jotai";
 import type React from "react";

@@ -1,7 +1,7 @@
 import { useTimeEntryApi } from "@/hooks/useTimeEntryApi";
-import { getSpanAtom, timerStateAtom } from "@/lib/atoms";
 import { type TimeEntry, TimeEntryStatus } from "@/types/index.d";
 import TimerWorker from "@/workers/TimerWorker.ts?worker";
+import { getSpanAtom, timerStateAtom } from "@lib/atoms";
 import { useAtom, useAtomValue } from "jotai";
 import { useCallback, useEffect, useState } from "react";
 

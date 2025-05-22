@@ -15,6 +15,7 @@
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
     "concurrently": "^9.1.2",
+    "depcheck": "^1.4.7",
     "msw": "^2.7.3",
     "typescript": "^5.8.2"
   }

@@ -1,4 +1,4 @@
-import { currentTagAtom } from "@/lib/atoms";
+import { currentTagAtom } from "@lib/atoms";
 import { useAtomValue } from "jotai";
 
 export const TagHeader = () => {

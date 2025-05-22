@@ -13,6 +13,7 @@ export default () => {
         target: "react",
         autoCodeSplitting: true,
         routesDirectory: "../core/src/routes",
+        generatedRouteTree: "../core/src/routeTree.gen.ts",
       }),
       react({
         babel: {

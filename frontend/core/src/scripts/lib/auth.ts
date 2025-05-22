@@ -1,6 +1,6 @@
-import { callApi } from "@/lib/apiClient";
-import { queryClient } from "@/lib/queryClient";
 import type { User } from "@/types";
+import { callApi } from "@lib/apiClient";
+import { queryClient } from "@lib/queryClient";
 import { redirect } from "@tanstack/react-router";
 
 export const fetchAuth = async (): Promise<{ user: User }> => {

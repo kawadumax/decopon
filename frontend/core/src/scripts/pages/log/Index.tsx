@@ -1,3 +1,4 @@
+import { Loading } from "@/components/Loading";
 import { LogItem } from "@/components/LogItem";
 import {} from "@/components/StackView";
 import {
@@ -6,12 +7,11 @@ import {
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
 import { useDeviceSize } from "@/hooks/useDeviceSize";
-import { logsAtom } from "@/lib/atoms";
 import type { Log } from "@/types";
+import { logsAtom } from "@lib/atoms";
 import { useAtomValue } from "jotai";
 import { useRef } from "react";
 import { LogTagList } from "./partials/LogTagList";
-import { Loading } from "@/components/Loading";
 
 const LogList = ({
   logs,

@@ -5,8 +5,8 @@ import {
   remainTimeAtom,
   resetRemainTimeAtom,
   timerStateAtom,
-} from "@/lib/atoms";
-import { formatTime } from "@/lib/utils";
+} from "@lib/atoms";
+import { formatTime } from "@lib/utils";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";

@@ -1,9 +1,9 @@
 import InputLabel from "@/components/InputLabel";
 import PrimaryButton from "@/components/PrimaryButton";
 import TextInput from "@/components/TextInput";
-import { callApi } from "@/lib/apiClient";
 import type { Auth } from "@/types";
 import { Transition } from "@headlessui/react";
+import { callApi } from "@lib/apiClient";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRef, useState } from "react";

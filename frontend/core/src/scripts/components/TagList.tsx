@@ -1,9 +1,8 @@
 import { useApi } from "@/hooks/useApi";
-import { currentTagAtom, tagsAtom } from "@/lib/atoms";
-import type { Tag } from "@/types";
+import { currentTagAtom, tagsAtom } from "@lib/atoms";
 
 import { useAtom } from "jotai";
-import { useCallback, useEffect } from "react";
+import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { TagItem } from "./TagItem";
 

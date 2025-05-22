@@ -1,6 +1,6 @@
-import { initializeI18n } from "@/i18n";
-import { languageAtom } from "@/lib/atoms";
-import { Locale } from "@/types/index.d";
+import { initializeI18n } from "@/scripts/i18n";
+import { Locale } from "@/scripts/types/index.d";
+import { languageAtom } from "@lib/atoms";
 import { useAtomValue } from "jotai";
 import { useEffect } from "react";
 

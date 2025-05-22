@@ -1,6 +1,6 @@
 import AddItemInput from "@/components/AddItemInput";
 import { useApi } from "@/hooks/useApi";
-import { tasksAtom } from "@/lib/atoms";
+import { tasksAtom } from "@lib/atoms";
 import { useAtom } from "jotai";
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";

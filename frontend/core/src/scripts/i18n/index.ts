@@ -1,4 +1,4 @@
-import { Locale } from "@/types/index.d";
+import { Locale } from "@/scripts/types/index.d";
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import en from "./locales/en.json";

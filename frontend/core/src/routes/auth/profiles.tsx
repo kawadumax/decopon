@@ -1,5 +1,5 @@
-import { callApi } from "@/lib/apiClient";
 import Edit from "@/pages/profile/Edit";
+import { callApi } from "@lib/apiClient";
 import { createFileRoute, useLoaderData } from "@tanstack/react-router";
 import { t } from "i18next";
 

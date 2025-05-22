@@ -1,5 +1,5 @@
-import type { RouterContext } from "@/lib/router";
-import { getLast } from "@/lib/utils";
+import type { RouterContext } from "@lib/router";
+import { getLast } from "@lib/utils";
 import {
   HeadContent,
   Outlet,

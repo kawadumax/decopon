@@ -1,8 +1,8 @@
 import { TagHeader } from "@/components/TagHeader";
 import { TaskTree } from "@/components/TaskTree";
-import { tagsAtom } from "@/lib/atoms";
 import type { PageProps } from "@/types";
 import type { Tag } from "@/types";
+import { tagsAtom } from "@lib/atoms";
 
 import { Loading } from "@/components/Loading";
 import { StackViewList, StackViewPanel } from "@/components/StackView";
