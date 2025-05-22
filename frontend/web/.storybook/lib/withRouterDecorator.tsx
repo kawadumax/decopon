@@ -1,7 +1,7 @@
 import { HydrateAtoms } from "@/App";
-import { LangManager } from "@/components/LangManager";
-import { TimeManager } from "@/components/TimeManager";
 import Authenticated from "@/layouts/AuthenticatedLayout";
+import { LangManager } from "@components/LangManager";
+import { TimeManager } from "@components/TimeManager";
 import { queryClient } from "@lib/queryClient";
 import type { Decorator } from "@storybook/react";
 import { QueryClientProvider } from "@tanstack/react-query";

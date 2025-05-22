@@ -1,4 +1,4 @@
-import type { DecoponLinkProps } from "@/types";
+import type { DecoponLinkProps } from "@/scripts/types";
 import { Link, useMatchRoute } from "@tanstack/react-router";
 
 export default function NavLink({

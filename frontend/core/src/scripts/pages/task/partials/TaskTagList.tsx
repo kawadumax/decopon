@@ -1,4 +1,4 @@
-import { TagList } from "@/components/TagList";
+import { TagList } from "@components/TagList";
 export const TaskTagList = () => {
   return <TagList />;
 };

@@ -1,5 +1,5 @@
 import { initializeI18n } from "@/i18n";
-import { Locale } from "@/types/index.d";
+import { Locale } from "@/scripts/types/index.d";
 import { Ziggy } from "@core/ziggy.js";
 import type { Preview } from "@storybook/react";
 import { initialize as initializeMsw, mswLoader } from "msw-storybook-addon";

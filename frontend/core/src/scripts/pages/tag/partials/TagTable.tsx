@@ -1,13 +1,13 @@
-import { Checkbox } from "@/components/ui/checkbox";
+import { TagTableRow } from "@/scripts/pages/tag/partials/TagTableRow";
+import type { Tag, TagWithCheck } from "@/scripts/types";
+import { Checkbox } from "@components/ui/checkbox";
 import {
   Table,
   TableBody,
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { TagTableRow } from "@/pages/tag/partials/TagTableRow";
-import type { Tag, TagWithCheck } from "@/types";
+} from "@components/ui/table";
 import { checkableTagsAtom } from "@lib/atoms";
 import { useAtom } from "jotai";
 import { useCallback } from "react";

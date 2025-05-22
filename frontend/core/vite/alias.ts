@@ -8,6 +8,7 @@ const alias = {
   "@components": path.resolve(root, "src/scripts/components"),
   "@pages": path.resolve(root, "src/scripts/pages"),
   "@public": path.resolve(root, "public"),
+  "@hooks": path.resolve(root, "src/scripts/hooks"),
 };
 
 console.log("alias", alias);

@@ -1,5 +1,5 @@
-import ApplicationLogo from "@/components/ApplicationLogo";
-import { Toaster } from "@/components/ui/sonner";
+import ApplicationLogo from "@components/ApplicationLogo";
+import { Toaster } from "@components/ui/sonner";
 import { Link } from "@tanstack/react-router";
 import type { PropsWithChildren } from "react";
 export default function Guest({ children }: PropsWithChildren) {

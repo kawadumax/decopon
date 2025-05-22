@@ -1,10 +1,10 @@
-import { LogItem } from "@/components/LogItem";
+import type { Log, Task } from "@/scripts/types";
+import { LogItem } from "@components/LogItem";
 import {
   type AutosizeTextAreaRef,
   AutosizeTextarea,
-} from "@/components/ui/autosize-textarea";
-import { useApi } from "@/hooks/useApi";
-import type { Log, Task } from "@/types";
+} from "@components/ui/autosize-textarea";
+import { useApi } from "@hooks/useApi";
 import { logger } from "@lib/utils";
 import { useAtomValue } from "jotai";
 import type { PrimitiveAtom } from "jotai";

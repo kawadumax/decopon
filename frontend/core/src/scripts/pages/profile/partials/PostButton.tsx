@@ -1,5 +1,5 @@
-import { Button } from "@/components/ui/button";
-import { useApi } from "@/hooks/useApi";
+import { Button } from "@components/ui/button";
+import { useApi } from "@hooks/useApi";
 import type { ReactNode } from "react";
 
 export const PostButton = ({

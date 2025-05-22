@@ -1,5 +1,5 @@
-import { useApi } from "@/hooks/useApi";
-import type { Task } from "@/types";
+import type { Task } from "@/scripts/types";
+import { useApi } from "@hooks/useApi";
 import { tagsAtom } from "@lib/atoms";
 import { toEmblorTags } from "@lib/utils";
 import { type Tag as EmblorTag, TagInput } from "emblor";

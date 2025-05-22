@@ -1,4 +1,4 @@
-import { type TimeEntry, TimeEntryStatus } from "@/types/index.d";
+import { type TimeEntry, TimeEntryStatus } from "@/scripts/types/index.d";
 import { timerStateAtom } from "@lib/atoms";
 import { getToday, logger } from "@lib/utils";
 import type { AxiosResponse } from "axios";

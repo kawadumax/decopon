@@ -1,13 +1,13 @@
-import { Loading } from "@/components/Loading";
-import { LogItem } from "@/components/LogItem";
-import {} from "@/components/StackView";
+import type { Log } from "@/scripts/types";
+import { Loading } from "@components/Loading";
+import { LogItem } from "@components/LogItem";
+import {} from "@components/StackView";
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
-} from "@/components/ui/resizable";
-import { useDeviceSize } from "@/hooks/useDeviceSize";
-import type { Log } from "@/types";
+} from "@components/ui/resizable";
+import { useDeviceSize } from "@hooks/useDeviceSize";
 import { logsAtom } from "@lib/atoms";
 import { useAtomValue } from "jotai";
 import { useRef } from "react";

@@ -1,14 +1,14 @@
-import InputLabel from "@/components/InputLabel";
-import PrimaryButton from "@/components/PrimaryButton";
-import TextInput from "@/components/TextInput";
+import { type Auth, Locale } from "@/scripts/types/index.d";
+import InputLabel from "@components/InputLabel";
+import PrimaryButton from "@components/PrimaryButton";
+import TextInput from "@components/TextInput";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { type Auth, Locale } from "@/types/index.d";
+} from "@components/ui/select";
 import { Transition } from "@headlessui/react";
 import { callApi } from "@lib/apiClient";
 import { useForm } from "@tanstack/react-form";

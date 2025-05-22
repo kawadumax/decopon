@@ -1,8 +1,8 @@
-import InputError from "@/components/InputError";
-import InputLabel from "@/components/InputLabel";
-import PrimaryButton from "@/components/PrimaryButton";
-import TextInput from "@/components/TextInput";
-import type { Auth } from "@/types";
+import type { Auth } from "@/scripts/types";
+import InputError from "@components/InputError";
+import InputLabel from "@components/InputLabel";
+import PrimaryButton from "@components/PrimaryButton";
+import TextInput from "@components/TextInput";
 import { Transition } from "@headlessui/react";
 import { callApi } from "@lib/apiClient";
 import { useForm } from "@tanstack/react-form";

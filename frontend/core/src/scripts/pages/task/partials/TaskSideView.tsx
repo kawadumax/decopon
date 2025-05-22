@@ -1,4 +1,4 @@
-import type { Task } from "@/types";
+import type { Task } from "@/scripts/types";
 import { taskSelectorAtom } from "@lib/atoms";
 import { useAtomValue } from "jotai";
 import type { PrimitiveAtom } from "jotai";

@@ -1,6 +1,6 @@
-import AddItemInput from "@/components/AddItemInput";
-import { Button } from "@/components/ui/button";
-import { useApi } from "@/hooks/useApi";
+import AddItemInput from "@components/AddItemInput";
+import { Button } from "@components/ui/button";
+import { useApi } from "@hooks/useApi";
 import { checkableTagsAtom, currentTagAtom, tagsAtom } from "@lib/atoms";
 import { Trash } from "@mynaui/icons-react";
 import { t } from "i18next";

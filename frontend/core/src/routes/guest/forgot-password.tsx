@@ -1,4 +1,4 @@
-import ForgotPassword from "@/pages/auth/ForgotPassword";
+import ForgotPassword from "@/scripts/pages/auth/ForgotPassword";
 import { createFileRoute } from "@tanstack/react-router";
 import { t } from "i18next";
 

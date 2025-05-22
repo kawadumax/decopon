@@ -1,17 +1,17 @@
-import { StackViewList, StackViewPanel } from "@/components/StackView";
-import { TagHeader } from "@/components/TagHeader";
-import { TaskTree } from "@/components/TaskTree";
-import { Timer } from "@/components/Timer";
+import { Loading } from "@components/Loading";
+import { StackViewList, StackViewPanel } from "@components/StackView";
+import { TagHeader } from "@components/TagHeader";
+import { TaskTree } from "@components/TaskTree";
+import { Timer } from "@components/Timer";
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
-} from "@/components/ui/resizable";
-import { useDeviceSize } from "@/hooks/useDeviceSize";
+} from "@components/ui/resizable";
+import { useDeviceSize } from "@hooks/useDeviceSize";
 import { TaskSideView } from "./partials/TaskSideView";
 import { TaskTagList } from "./partials/TaskTagList";
 import { TaskTools } from "./partials/TaskTools";
-import { Loading } from "@/components/Loading";
 
 export default function Index() {
   const deviceSize = useDeviceSize();

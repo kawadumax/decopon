@@ -1,4 +1,4 @@
-import { useApi } from "@/hooks/useApi";
+import { useApi } from "@hooks/useApi";
 import { currentTagAtom, tagsAtom } from "@lib/atoms";
 
 import { useAtom } from "jotai";

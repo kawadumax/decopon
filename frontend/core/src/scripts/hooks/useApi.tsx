@@ -1,4 +1,4 @@
-import type { ApiData } from "@/types";
+import type { ApiData } from "@/scripts/types";
 import { callApi } from "@lib/apiClient";
 import axios from "axios";
 import { useCallback, useMemo, useState } from "react";

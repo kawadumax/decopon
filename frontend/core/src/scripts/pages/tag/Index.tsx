@@ -1,17 +1,17 @@
-import { TagHeader } from "@/components/TagHeader";
-import { TaskTree } from "@/components/TaskTree";
-import type { PageProps } from "@/types";
-import type { Tag } from "@/types";
+import type { PageProps } from "@/scripts/types";
+import type { Tag } from "@/scripts/types";
+import { TagHeader } from "@components/TagHeader";
+import { TaskTree } from "@components/TaskTree";
 import { tagsAtom } from "@lib/atoms";
 
-import { Loading } from "@/components/Loading";
-import { StackViewList, StackViewPanel } from "@/components/StackView";
+import { Loading } from "@components/Loading";
+import { StackViewList, StackViewPanel } from "@components/StackView";
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
-} from "@/components/ui/resizable";
-import { useDeviceSize } from "@/hooks/useDeviceSize";
+} from "@components/ui/resizable";
+import { useDeviceSize } from "@hooks/useDeviceSize";
 import { useAtom } from "jotai";
 import { useEffect } from "react";
 import { TagTable } from "./partials/TagTable";

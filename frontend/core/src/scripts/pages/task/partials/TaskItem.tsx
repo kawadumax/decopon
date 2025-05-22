@@ -1,8 +1,8 @@
-import { Direction, StackCmdType, useStackView } from "@/components/StackView";
-import { Button } from "@/components/ui/button";
-import { useApi } from "@/hooks/useApi";
-import { useDeviceSize } from "@/hooks/useDeviceSize";
-import type { Task } from "@/types";
+import type { Task } from "@/scripts/types";
+import { Direction, StackCmdType, useStackView } from "@components/StackView";
+import { Button } from "@components/ui/button";
+import { useApi } from "@hooks/useApi";
+import { useDeviceSize } from "@hooks/useDeviceSize";
 import { taskSelectorAtom } from "@lib/atoms";
 import { ChevronRight, PlusSquare, Trash } from "@mynaui/icons-react";
 import { type PrimitiveAtom, atom, useAtomValue, useSetAtom } from "jotai";

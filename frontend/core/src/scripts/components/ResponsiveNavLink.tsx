@@ -1,5 +1,5 @@
-import { useLogout } from "@/hooks/useLogout";
-import type { DecoponLinkProps } from "@/types";
+import type { DecoponLinkProps } from "@/scripts/types";
+import { useLogout } from "@hooks/useLogout";
 import { Link, useMatchRoute } from "@tanstack/react-router";
 
 type NavLinkProps = DecoponLinkProps & {

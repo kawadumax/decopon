@@ -1,7 +1,7 @@
-import ApplicationLogo from "@/components/ApplicationLogo";
-import { LangSwitch } from "@/components/LangSwitch";
-import { ParticlesBackground } from "@/components/ParticlesBackground";
-import type { Auth } from "@/types";
+import type { Auth } from "@/scripts/types";
+import ApplicationLogo from "@components/ApplicationLogo";
+import { LangSwitch } from "@components/LangSwitch";
+import { ParticlesBackground } from "@components/ParticlesBackground";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";

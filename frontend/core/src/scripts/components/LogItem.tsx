@@ -1,4 +1,4 @@
-import { type Log, LogSource } from "@/types/index.d";
+import { type Log, LogSource } from "@/scripts/types/index.d";
 import { formatISODate } from "@lib/utils";
 import { InfoCircle } from "@mynaui/icons-react";
 import { useTranslation } from "react-i18next";

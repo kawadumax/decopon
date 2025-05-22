@@ -1,4 +1,4 @@
-import { Dashboard } from "@/pages/Dashboard";
+import { Dashboard } from "@/scripts/pages/Dashboard";
 import type { Meta, StoryObj } from "@storybook/react";
 import {
   pageDefaultBehavior,

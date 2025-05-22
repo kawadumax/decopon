@@ -1,4 +1,4 @@
-import { Dashboard } from "@/pages/Dashboard";
+import { Dashboard } from "@/scripts/pages/Dashboard";
 import { createFileRoute } from "@tanstack/react-router";
 import { t } from "i18next";
 

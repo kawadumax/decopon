@@ -1,11 +1,11 @@
+import { Locale } from "@/scripts/types/index.d";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Locale } from "@/types/index.d";
+} from "@components/ui/select";
 import { languageAtom } from "@lib/atoms";
 import { t } from "i18next";
 import { useAtom } from "jotai";

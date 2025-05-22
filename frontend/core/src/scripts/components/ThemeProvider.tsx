@@ -1,5 +1,5 @@
 // デプロイの為無効化
-// import { useColorScheme } from "@/Hooks/useColorScheme";
+// import { useColorScheme } from "@hooks/useColorScheme";
 // import {
 //     FluentProvider,
 //     webDarkTheme,

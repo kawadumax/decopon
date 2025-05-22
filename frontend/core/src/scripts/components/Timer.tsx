@@ -1,4 +1,4 @@
-import { useTimeEntryApi } from "@/hooks/useTimeEntryApi";
+import { useTimeEntryApi } from "@hooks/useTimeEntryApi";
 import {
   isRunningAtom,
   isWorkTimeAtom,

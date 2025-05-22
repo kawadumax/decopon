@@ -1,4 +1,4 @@
-import type { Tag } from "@/types";
+import type { Tag } from "@/scripts/types";
 import { type ClassValue, clsx } from "clsx";
 import { format } from "date-fns";
 import type { Tag as EmblorTag } from "emblor";

@@ -9,6 +9,7 @@
   },
   "peerDependencies": {
     "react": "^18.0.0",
+    "react-dom": "^18.0.0",
     "@tanstack/react-query": "^5.0.0",
     "@tanstack/react-query-devtools": "^5.0.0",
     "@tanstack/react-router": "^1.0.0",
@@ -42,8 +43,6 @@
   },
   "devDependencies": {
     "typescript": "^5.3.0",
-    "@types/react": "^18.0.0",
-    "@types/react-dom": "^18.0.0",
     "@chromatic-com/storybook": "^3",
     "@headlessui/react": "^2.2.0",
     "@tailwindcss/forms": "^0.5.10",
@@ -65,8 +64,8 @@
     "msw-storybook-addon": "^2.0.4",
     "playwright": "^1.51.0",
     "postcss": "^8.5.3",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
     "storybook": "^8.6.12",
     "tailwindcss": "^4.1.3",
     "tw-animate-css": "^1.2.5"

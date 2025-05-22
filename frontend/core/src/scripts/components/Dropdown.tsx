@@ -1,6 +1,6 @@
-import { useLogout } from "@/hooks/useLogout";
-import type { DecoponLinkProps } from "@/types";
+import type { DecoponLinkProps } from "@/scripts/types";
 import { Transition } from "@headlessui/react";
+import { useLogout } from "@hooks/useLogout";
 import { Link } from "@tanstack/react-router";
 import {
   type Dispatch,

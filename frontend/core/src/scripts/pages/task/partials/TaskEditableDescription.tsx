@@ -1,6 +1,6 @@
-import { Textarea } from "@/components/ui/textarea";
-import { useApi } from "@/hooks/useApi";
-import type { Task } from "@/types";
+import type { Task } from "@/scripts/types";
+import { Textarea } from "@components/ui/textarea";
+import { useApi } from "@hooks/useApi";
 import { type PrimitiveAtom, useAtom } from "jotai";
 import type React from "react";
 import { useEffect, useState } from "react";

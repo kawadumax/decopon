@@ -1,8 +1,8 @@
-import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
-import { Toggle } from "@/components/ui/toggle";
-import { useApi } from "@/hooks/useApi";
-import type { Task } from "@/types";
+import type { Task } from "@/scripts/types";
+import { Checkbox } from "@components/ui/checkbox";
+import { Input } from "@components/ui/input";
+import { Toggle } from "@components/ui/toggle";
+import { useApi } from "@hooks/useApi";
 import { tasksBatchAtom } from "@lib/atoms";
 import { Edit } from "@mynaui/icons-react";
 import { type PrimitiveAtom, useAtom, useSetAtom } from "jotai";

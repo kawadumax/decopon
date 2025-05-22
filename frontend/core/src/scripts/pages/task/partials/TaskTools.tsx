@@ -1,5 +1,5 @@
-import AddItemInput from "@/components/AddItemInput";
-import { useApi } from "@/hooks/useApi";
+import AddItemInput from "@components/AddItemInput";
+import { useApi } from "@hooks/useApi";
 import { tasksAtom } from "@lib/atoms";
 import { useAtom } from "jotai";
 import { useCallback } from "react";

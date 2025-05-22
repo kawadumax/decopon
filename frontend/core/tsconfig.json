@@ -11,7 +11,8 @@
       "@lib/*": ["src/scripts/lib/*"],
       "@components/*": ["src/scripts/components/*"],
       "@pages/*": ["src/scripts/pages/*"],
-      "@public/*": ["public/*"]
+      "@public/*": ["public/*"],
+      "@hooks/*": ["src/scripts/hooks/*"]
     }
   },
   "include": [

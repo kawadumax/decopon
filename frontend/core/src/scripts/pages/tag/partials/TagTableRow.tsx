@@ -1,5 +1,5 @@
-import { Direction, StackCmdType, useStackView } from "@/components/StackView";
-import type { TagCheckable } from "@/types";
+import type { TagCheckable } from "@/scripts/types";
+import { Direction, StackCmdType, useStackView } from "@components/StackView";
 import { currentTagAtom } from "@lib/atoms";
 import { formatISODate } from "@lib/utils";
 import type { CheckedState } from "@radix-ui/react-checkbox";

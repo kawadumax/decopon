@@ -1,22 +1,22 @@
-import ApplicationLogo from "@/components/ApplicationLogo";
-import Dropdown from "@/components/Dropdown";
-import NavLink from "@/components/NavLink";
-import ResponsiveNavLink from "@/components/ResponsiveNavLink";
-import { StackViewProvider, useStackView } from "@/components/StackView";
-import { Timer } from "@/components/Timer";
-import { TimerStateWidget } from "@/components/TimerStateWidget";
-import { Separator } from "@/components/ui/separator";
+import { type Auth, Locale, type User } from "@/scripts/types/index.d";
+import ApplicationLogo from "@components/ApplicationLogo";
+import Dropdown from "@components/Dropdown";
+import NavLink from "@components/NavLink";
+import ResponsiveNavLink from "@components/ResponsiveNavLink";
+import { StackViewProvider, useStackView } from "@components/StackView";
+import { Timer } from "@components/Timer";
+import { TimerStateWidget } from "@components/TimerStateWidget";
+import { Separator } from "@components/ui/separator";
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "@/components/ui/sheet";
-import { Toaster } from "@/components/ui/sonner";
-import { useDeviceSize } from "@/hooks/useDeviceSize";
-import { useTimeEntryApi } from "@/hooks/useTimeEntryApi";
-import { type Auth, Locale, type User } from "@/types/index.d";
+} from "@components/ui/sheet";
+import { Toaster } from "@components/ui/sonner";
+import { useDeviceSize } from "@hooks/useDeviceSize";
+import { useTimeEntryApi } from "@hooks/useTimeEntryApi";
 import { breakTimeAtom, languageAtom, workTimeAtom } from "@lib/atoms";
 import { cn } from "@lib/utils";
 import {

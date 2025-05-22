@@ -1,4 +1,4 @@
-import type { ApiData } from "@/types/index.d";
+import type { ApiData } from "@/scripts/types/index.d";
 import axiosInstance from "@lib/axios";
 import axios from "axios";
 import { NProgressManager } from "./nProgressManager";

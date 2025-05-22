@@ -1,4 +1,4 @@
-import Index from "@/pages/task/Index";
+import Index from "@/scripts/pages/task/Index";
 import { createFileRoute } from "@tanstack/react-router";
 import { t } from "i18next";
 
