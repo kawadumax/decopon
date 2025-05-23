@@ -44,8 +44,7 @@ export default () => {
       },
     },
     optimizeDeps: {
-      // include: ["@decopon/core"],
-      noDiscovery: true,
+      exclude: ["@decopon/core"],
     },
     publicDir: "../core/public",
     envDir: "../../",
