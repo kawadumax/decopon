@@ -1,4 +1,4 @@
-import Guest from "@/layouts/GuestLayout";
+import Guest from "@/scripts/layouts/GuestLayout";
 import { Outlet, createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/guest")({

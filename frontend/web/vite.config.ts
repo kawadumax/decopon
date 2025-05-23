@@ -1,3 +1,4 @@
+import path from "node:path";
 import tailwindcss from "@tailwindcss/vite";
 import { TanStackRouterVite } from "@tanstack/router-plugin/vite";
 import react from "@vitejs/plugin-react";
@@ -32,11 +33,19 @@ export default () => {
       port: 5173,
       watch: {
         usePolling: true,
+        ignored: ["!**/node_modules/@decopon/core/**"],
       },
       open: false,
     },
     resolve: {
-      alias,
+      alias: {
+        ...alias,
+        "@decopon/core": path.resolve(__dirname, "../core/src"),
+      },
+    },
+    optimizeDeps: {
+      // include: ["@decopon/core"],
+      noDiscovery: true,
     },
     publicDir: "../core/public",
     envDir: "../../",

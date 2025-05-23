@@ -1,4 +1,4 @@
-import Authenticated from "@/layouts/AuthenticatedLayout";
+import Authenticated from "@/scripts/layouts/AuthenticatedLayout";
 import { requireAuth } from "@lib/auth";
 import { Outlet, createFileRoute } from "@tanstack/react-router";
 

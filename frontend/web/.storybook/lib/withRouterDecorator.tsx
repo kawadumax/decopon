@@ -1,5 +1,5 @@
 import { HydrateAtoms } from "@/App";
-import Authenticated from "@/layouts/AuthenticatedLayout";
+import Authenticated from "@/scripts/layouts/AuthenticatedLayout";
 import { LangManager } from "@components/LangManager";
 import { TimeManager } from "@components/TimeManager";
 import { queryClient } from "@lib/queryClient";

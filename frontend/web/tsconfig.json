@@ -3,20 +3,17 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "typeRoots": ["./node_modules/@types", "../core/src/scripts/types"],
+    "baseUrl": ".",
     "paths": {
-      "@/*": ["../core/src/*"],
-      "@pages/*": ["../core/src/scripts/pages/*"],
-      "@components/*": ["../core/src/scripts/components/*"],
-      "@public/*": ["../core/public/*"]
+      "@/*": ["src/*"],
+      "@types/*": ["../core/src/scripts/types/*"]
+      // "@pages/*": ["../core/src/scripts/pages/*"],
+      // "@components/*": ["../core/src/scripts/components/*"],
+      // "@public/*": ["../core/public/*"]
     }
   },
   "include": [
-    "../core/src/**/*.ts",
-    "../core/src/**/*.tsx",
-    "../core/src/**/*.d.ts",
-    "../core/src/**/*.js",
-    "../core/src/**/*.jsx",
-    "../core/vite/*.ts",
+    "src",
     ".storybook/*.ts",
     ".storybook/**/*.tsx",
     "stories/*.stories.tsx",

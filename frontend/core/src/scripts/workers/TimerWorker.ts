@@ -1,5 +1,4 @@
-let startTime: number;
-let intervalId: NodeJS.Timeout;
+let intervalId: number;
 
 addEventListener("message", (e) => {
   switch (e.data.type) {

@@ -11,6 +11,4 @@ const alias = {
   "@hooks": path.resolve(root, "src/scripts/hooks"),
 };
 
-console.log("alias", alias);
-
 export default alias;
