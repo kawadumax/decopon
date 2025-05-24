@@ -1,3 +1,4 @@
+import "@decopon/core/styles/app.css";
 import { App, Ziggy } from "@decopon/core";
 import { StrictMode } from "react";
 import ReactDOM from "react-dom/client";
