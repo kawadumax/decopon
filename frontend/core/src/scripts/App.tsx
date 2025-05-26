@@ -10,6 +10,7 @@ import { LangManager } from "./components/LangManager";
 import { TimeManager } from "./components/TimeManager";
 import { queryClient } from "./lib/queryClient";
 import { router } from "./lib/router";
+import "../styles/app.css";
 
 export const HydrateAtoms: React.FC<{ children: React.ReactNode }> = ({
   children,
