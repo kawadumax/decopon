@@ -1,6 +1,6 @@
 import type { StorybookConfig } from "@storybook/react-vite";
 import { mergeConfig } from "vite";
-import alias from "../../core/vite/alias";
+import alias from "../vite/alias";
 const config: StorybookConfig = {
   stories: ["../stories/*.mdx", "../stories/*.stories.@(js|jsx|mjs|ts|tsx)"],
   addons: [

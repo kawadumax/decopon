@@ -17,14 +17,12 @@
     "react-dom": "^18.0.0"
   },
   "devDependencies": {
-    "vite": "^5.4.19",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
     "@types/node": "^22.15.21",
     "@biomejs/biome": "^1.9.4",
     "concurrently": "^9.1.2",
     "depcheck": "^1.4.7",
-    "msw": "^2.7.3",
     "typescript": "^5.8.2",
     "esbuild": "^0.25.2",
     "tailwindcss": "^4.1.3"

@@ -12,11 +12,5 @@
       // "@public/*": ["../core/public/*"]
     }
   },
-  "include": [
-    "src",
-    ".storybook/*.ts",
-    ".storybook/**/*.tsx",
-    "stories/*.stories.tsx",
-    "stories/**/*.tsx"
-  ]
+  "include": ["src"]
 }

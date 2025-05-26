@@ -1,10 +1,10 @@
-import { initializeI18n } from "@/i18n";
-import { Locale } from "@/scripts/types/index.d";
-import { Ziggy } from "@core/ziggy.js";
 import type { Preview } from "@storybook/react";
 import { initialize as initializeMsw, mswLoader } from "msw-storybook-addon";
 import { route } from "ziggy-js";
-import "@/../styles/app.css";
+import { initializeI18n } from "../src/scripts/i18n";
+import { Ziggy } from "../src/scripts/lib/ziggy";
+import { Locale } from "../src/scripts/types/index.d";
+import "../styles/app.css";
 
 initializeMsw({
   onUnhandledRequest: "bypass",
