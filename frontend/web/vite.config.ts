@@ -4,7 +4,7 @@ import { TanStackRouterVite } from "@tanstack/router-plugin/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 import svgr from "vite-plugin-svgr";
-import alias from "../core/vite/alias";
+import alias from "../core/buildSettings/alias";
 
 export default () => {
   return defineConfig({

@@ -8,22 +8,23 @@
     "web:build": "pnpm -F web build",
     "web:build:dry": "pnpm -F web build:dry",
     "web:dev": "pnpm -F web dev",
-    "web:storybook": "pnpm -F web storybook",
-    "web:build-storybook": "pnpm -F web build-storybook"
+    "core:storybook": "pnpm -F core storybook"
   },
   "packageManager": "pnpm@10.11.0",
+
   "dependencies": {
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0"
+    "react": "catalog:",
+    "react-dom": "catalog:"
   },
   "devDependencies": {
+    "vite": "catalog:",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
     "@types/node": "^22.15.21",
     "@biomejs/biome": "^1.9.4",
     "concurrently": "^9.1.2",
     "depcheck": "^1.4.7",
-    "typescript": "^5.8.2",
+    "typescript": "catalog:",
     "esbuild": "^0.25.2",
     "tailwindcss": "^4.1.3"
   }

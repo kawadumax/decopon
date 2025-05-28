@@ -1,4 +1,4 @@
-import { HydrateAtoms } from "@/App";
+import { HydrateAtoms } from "@/scripts/App";
 import Authenticated from "@/scripts/layouts/AuthenticatedLayout";
 import { LangManager } from "@components/LangManager";
 import { TimeManager } from "@components/TimeManager";

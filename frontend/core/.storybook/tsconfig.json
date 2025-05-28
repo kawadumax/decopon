@@ -1,13 +1,17 @@
 {
-  "extends": "../../tsconfig.json",
   "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "jsx": "react-jsx",
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "allowJs": true,
+    "allowImportingTsExtensions": true,
     "composite": true,
     "declaration": true,
-    "outDir": "dist",
-    "baseUrl": ".",
+    "noEmit": true,
+    "baseUrl": "../",
     "paths": {
       "@/*": ["src/*"],
       "@lib/*": ["src/scripts/lib/*"],
@@ -18,11 +22,17 @@
     }
   },
   "include": [
-    "src",
-    "public",
-    "src/index.ts",
+    "../src",
+    "../public",
+    "../src/index.ts",
     "vite-env.d.ts",
-    "buildSettings/*.ts"
+    "../.storybook/*.ts",
+    "../.storybook/**/*.tsx",
+    "../stories/*.stories.tsx",
+    "../stories/**/*.tsx",
+    "../buildSettings/*.ts"
   ],
-  "exclude": ["dist", "node_modules"]
+  "ts-node": {
+    "esm": true
+  }
 }
