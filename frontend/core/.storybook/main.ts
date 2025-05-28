@@ -1,9 +1,8 @@
 import type { StorybookConfig } from "@storybook/react-vite";
-import tailwindcss from "@tailwindcss/vite";
-import react from "@vitejs/plugin-react";
 import { mergeConfig } from "vite";
-import svgr from "vite-plugin-svgr";
+
 import alias from "../buildSettings/alias.ts";
+import plugins from "../buildSettings/plugins.ts";
 
 const config: StorybookConfig = {
   stories: ["../stories/*.stories.@(js|jsx|mjs|ts|tsx)"],
@@ -19,22 +18,9 @@ const config: StorybookConfig = {
   viteFinal: async (config) => {
     return mergeConfig(config, {
       resolve: {
-        alias: alias,
+        alias,
       },
-      plugins: [
-        tailwindcss(),
-        react({
-          babel: {
-            presets: ["jotai/babel/preset"],
-          },
-        }),
-        svgr({
-          svgrOptions: {
-            exportType: "named",
-            ref: true,
-          },
-        }),
-      ],
+      plugins,
       server: {
         port: 6006,
         host: "localhost",
