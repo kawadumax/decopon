@@ -18,8 +18,5 @@
   },
   "dependencies": {
     "@decopon/core": "workspace:*"
-  },
-  "msw": {
-    "workerDirectory": ["../core/public"]
   }
 }

@@ -1,7 +1,7 @@
 import path from "node:path";
+import { alias, plugins } from "@decopon/core";
 import { defineConfig } from "vite";
-import alias from "../core/buildSettings/alias";
-import plugins from "../core/buildSettings/plugins";
+
 export default () => {
   return defineConfig({
     plugins,

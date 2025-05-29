@@ -66,5 +66,8 @@
     "vite": "catalog:",
     "vite-plugin-svgr": "catalog:",
     "vitest": "^3.0.8"
+  },
+  "msw": {
+    "workerDirectory": ["public"]
   }
 }

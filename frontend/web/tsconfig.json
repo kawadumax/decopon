@@ -7,9 +7,6 @@
     "paths": {
       "@/*": ["src/*"],
       "@types/*": ["../core/src/scripts/types/*"]
-      // "@pages/*": ["../core/src/scripts/pages/*"],
-      // "@components/*": ["../core/src/scripts/components/*"],
-      // "@public/*": ["../core/public/*"]
     }
   },
   "include": ["src"]
