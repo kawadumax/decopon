@@ -4,9 +4,7 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "allowJs": true,
-    "composite": true,
-    "declaration": true,
-    "outDir": "dist",
+    "moduleResolution": "bundler",
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
@@ -17,12 +15,6 @@
       "@hooks/*": ["src/scripts/hooks/*"]
     }
   },
-  "include": [
-    "src",
-    "public",
-    "src/index.ts",
-    "vite-env.d.ts",
-    "buildSettings/*.ts"
-  ],
+  "include": ["src", "public", "vite-env.d.ts", "buildSettings/*.ts"],
   "exclude": ["dist", "node_modules"]
 }

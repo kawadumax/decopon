@@ -1,8 +1,46 @@
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import type { StorybookConfig } from "@storybook/react-vite";
+import tailwindcss from "@tailwindcss/vite";
+import { TanStackRouterVite } from "@tanstack/router-plugin/vite";
+import react from "@vitejs/plugin-react";
 import { mergeConfig } from "vite";
+import type { Plugin, PluginOption } from "vite";
+import svgr from "vite-plugin-svgr";
 
-import alias from "../buildSettings/alias.ts";
-import plugins from "../buildSettings/plugins.ts";
+const plugins: (Plugin<unknown> | PluginOption[])[] = [
+  tailwindcss(),
+  TanStackRouterVite({
+    target: "react",
+    autoCodeSplitting: true,
+    routesDirectory: "../core/src/routes",
+    generatedRouteTree: "../core/src/routeTree.gen.ts",
+  }),
+  react({
+    babel: {
+      presets: ["jotai/babel/preset"],
+    },
+  }),
+  svgr({
+    svgrOptions: {
+      exportType: "named",
+      ref: true,
+    },
+  }),
+];
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const coreRoot = path.resolve(__dirname, "../");
+
+const alias = {
+  "@": path.resolve(coreRoot, "src"),
+  "@lib": path.resolve(coreRoot, "src/scripts/lib"),
+  "@components": path.resolve(coreRoot, "src/scripts/components"),
+  "@pages": path.resolve(coreRoot, "src/scripts/pages"),
+  "@public": path.resolve(coreRoot, "public"),
+  "@hooks": path.resolve(coreRoot, "src/scripts/hooks"),
+};
 
 const config: StorybookConfig = {
   stories: ["../stories/*.stories.@(js|jsx|mjs|ts|tsx)"],

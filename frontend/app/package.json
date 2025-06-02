@@ -16,7 +16,10 @@
   },
   "devDependencies": {
     "@vitejs/plugin-react": "catalog:",
-    "vite": "^6.0.3",
+    "vite-plugin-svgr": "catalog:",
+    "@tailwindcss/vite": "catalog:",
+    "@tanstack/router-plugin": "catalog:",
+    "vite": "catalog:",
     "@tauri-apps/cli": "^2"
   }
 }

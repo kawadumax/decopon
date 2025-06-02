@@ -9,5 +9,5 @@
       "@types/*": ["../core/src/scripts/types/*"]
     }
   },
-  "include": ["src"]
+  "include": ["src", "vite.config.ts"]
 }
