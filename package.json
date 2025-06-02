@@ -9,8 +9,8 @@
     "web:build:dry": "pnpm -F web build:dry",
     "web:dev": "pnpm -F web dev",
     "core:storybook": "pnpm -F core storybook",
-    "app:dev": "pnpm -F app dev",
-    "app:tauri": "pnpm -F app tauri dev"
+    "app:build": "pnpm -F app tauri build",
+    "app:dev": "pnpm -F app tauri dev"
   },
   "packageManager": "pnpm@10.11.0",
   "dependencies": {
