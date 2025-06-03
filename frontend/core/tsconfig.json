@@ -15,6 +15,6 @@
       "@hooks/*": ["src/scripts/hooks/*"]
     }
   },
-  "include": ["src", "public", "vite-env.d.ts", "buildSettings/*.ts"],
+  "include": ["src", "public", "vite-env.d.ts"],
   "exclude": ["dist", "node_modules"]
 }

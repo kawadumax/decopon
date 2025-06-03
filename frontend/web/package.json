@@ -4,9 +4,8 @@
   "type": "module",
   "scripts": {
     "preinstall": "npx only-allow pnpm",
-    "generate:routes": "tsr generate",
-    "build": "pnpm run generate:routes && tsc && vite build",
-    "build:dry": "pnpm run generate:routes && tsc",
+    "build": "tsc && vite build",
+    "build:dry": "tsc",
     "dev": "vite"
   },
   "devDependencies": {
