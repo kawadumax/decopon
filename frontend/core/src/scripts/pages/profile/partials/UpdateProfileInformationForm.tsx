@@ -9,6 +9,7 @@ import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { PostButton } from "./PostButton";
+import { route } from "ziggy-js";
 
 type UpdateData = {
   name: string;

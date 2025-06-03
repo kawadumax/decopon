@@ -4,6 +4,7 @@ import { useForm } from "@tanstack/react-form";
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { route } from "ziggy-js";
 
 export default function VerifyEmail() {
   const { t } = useTranslation();

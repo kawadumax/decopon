@@ -14,6 +14,7 @@ import { callApi } from "@lib/apiClient";
 import { useForm } from "@tanstack/react-form";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
+import { route } from "ziggy-js";
 
 export default function UpdatePreferenceForm({
   className = "",

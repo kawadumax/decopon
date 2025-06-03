@@ -10,6 +10,8 @@ import { useAtomValue } from "jotai";
 import type { PrimitiveAtom } from "jotai";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
+import { route } from "ziggy-js";
+
 
 export const TaskLogger = ({ taskAtom }: { taskAtom: PrimitiveAtom<Task> }) => {
   const api = useApi();

@@ -5,7 +5,7 @@
   "scripts": {
     "preinstall": "npx only-allow pnpm",
     "build": "tsc && vite build",
-    "build:dry": "tsc",
+    "build:dry": "tsc --noEmit",
     "dev": "vite"
   },
   "devDependencies": {

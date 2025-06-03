@@ -8,6 +8,8 @@ import { Edit } from "@mynaui/icons-react";
 import { type PrimitiveAtom, useAtom, useSetAtom } from "jotai";
 import type React from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { route } from "ziggy-js";
+
 
 export const TaskEditableTitle = ({
   taskAtom,

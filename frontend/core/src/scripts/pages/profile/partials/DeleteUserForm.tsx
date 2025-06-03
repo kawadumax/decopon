@@ -7,6 +7,7 @@ import { callApi } from "@lib/apiClient";
 import { useForm } from "@tanstack/react-form";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { route } from "ziggy-js";
 
 export default function DeleteUserForm({
   className = "",

@@ -6,6 +6,7 @@ import { type Tag as EmblorTag, TagInput } from "emblor";
 import { useAtom, useSetAtom } from "jotai";
 import type { PrimitiveAtom } from "jotai";
 import { useCallback, useEffect, useState } from "react";
+import { route } from "ziggy-js";
 
 export const TaskEditableTagList = ({
   taskAtom,

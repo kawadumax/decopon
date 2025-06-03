@@ -9,6 +9,8 @@ import type { AxiosError } from "axios";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { DemoCautionWithAccount } from "./partials/DemoCaution";
+import { route } from "ziggy-js";
+
 
 type LoginData = {
   email: string;

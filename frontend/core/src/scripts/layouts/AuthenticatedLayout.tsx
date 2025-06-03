@@ -41,6 +41,7 @@ import {
 } from "react";
 import { useTranslation } from "react-i18next";
 
+
 const links = [
   {
     name: t("header.menu.dashboard"),
@@ -101,7 +102,7 @@ const Drawer = ({
             <ResponsiveNavLink to="/auth/profiles">
               {t("header.menu.profile")}
             </ResponsiveNavLink>
-            <ResponsiveNavLink to={route("logout")} variant="button">
+            <ResponsiveNavLink variant="button">
               {t("header.menu.logout")}
             </ResponsiveNavLink>
           </div>

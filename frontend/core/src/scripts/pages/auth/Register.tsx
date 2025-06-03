@@ -6,6 +6,7 @@ import { useForm } from "@tanstack/react-form";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { DemoCaution } from "./partials/DemoCaution";
+import { route } from "ziggy-js";
 
 export default function Register() {
   const { t } = useTranslation();

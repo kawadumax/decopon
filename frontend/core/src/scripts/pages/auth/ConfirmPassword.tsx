@@ -5,6 +5,7 @@ import { callApi } from "@lib/apiClient";
 import { useForm } from "@tanstack/react-form";
 import { useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
+import { route } from "ziggy-js";
 
 export default function ConfirmPassword() {
   const { t } = useTranslation();

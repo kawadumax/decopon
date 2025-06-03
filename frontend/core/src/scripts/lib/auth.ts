@@ -2,6 +2,7 @@ import type { User } from "@/scripts/types";
 import { callApi } from "@lib/apiClient";
 import { queryClient } from "@lib/queryClient";
 import { redirect } from "@tanstack/react-router";
+import { route } from "ziggy-js";
 
 export const fetchAuth = async (): Promise<{ user: User }> => {
   const user = await callApi("get", route("get-user"));

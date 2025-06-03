@@ -5,6 +5,10 @@
     "esModuleInterop": true,
     "allowJs": true,
     "moduleResolution": "bundler",
+    "types": [
+      "vite/client",
+    ],
+
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
@@ -13,8 +17,13 @@
       "@pages/*": ["src/scripts/pages/*"],
       "@public/*": ["public/*"],
       "@hooks/*": ["src/scripts/hooks/*"]
-    }
+    },
+
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "outDir": "dist",
   },
-  "include": ["src", "public", "vite-env.d.ts"],
+  "include": ["src", "public", "vite-env.d.ts", "src/scripts/i18n/locales/*.json"],
   "exclude": ["dist", "node_modules"]
 }

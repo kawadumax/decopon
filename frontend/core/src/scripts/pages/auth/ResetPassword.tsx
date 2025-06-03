@@ -6,6 +6,7 @@ import { useForm } from "@tanstack/react-form";
 import { getRouteApi } from "@tanstack/react-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { route } from "ziggy-js";
 
 export default function ResetPassword() {
   const { t } = useTranslation();

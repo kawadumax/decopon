@@ -4,7 +4,7 @@ import ReactDOM from "react-dom/client";
 
 // ziggy.js から生成されたルート名をグローバルに登録
 globalThis.Ziggy = Ziggy;
-globalThis.route = route;
+// globalThis.route = route;
 
 // ルート要素を探して React を描画
 const rootElement = document.getElementById("root");

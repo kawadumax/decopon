@@ -9,6 +9,7 @@ import { type PrimitiveAtom, atom, useAtomValue, useSetAtom } from "jotai";
 import type React from "react";
 import { useState } from "react";
 import { TaskEditableTitle } from "./TaskEditableTitle";
+import { route } from "ziggy-js";
 
 export const TaskItem = ({
   taskAtom,

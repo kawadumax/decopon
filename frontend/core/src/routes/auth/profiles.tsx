@@ -2,6 +2,7 @@ import Edit from "@/scripts/pages/profile/Edit";
 import { callApi } from "@lib/apiClient";
 import { createFileRoute, useLoaderData } from "@tanstack/react-router";
 import { t } from "i18next";
+import { route } from "ziggy-js";
 
 export const Route = createFileRoute("/auth/profiles")({
   loader: async () => {

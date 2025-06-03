@@ -8,6 +8,7 @@ import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { route } from "ziggy-js";
 
 type UpdatePasswordData = {
   current_password: string;

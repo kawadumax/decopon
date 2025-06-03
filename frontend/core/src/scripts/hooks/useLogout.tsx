@@ -2,6 +2,7 @@ import { callApi } from "@lib/apiClient";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
+import { route } from "ziggy-js";
 
 const logoutMutationFn = async (setLoading: (loading: boolean) => void) => {
   setLoading(true);

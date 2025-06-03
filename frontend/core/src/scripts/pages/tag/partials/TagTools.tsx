@@ -6,6 +6,7 @@ import { Trash } from "@mynaui/icons-react";
 import { t } from "i18next";
 import { useAtom, useSetAtom } from "jotai";
 import { useCallback } from "react";
+import { route } from "ziggy-js";
 
 export const TagTools = () => {
   const [, setTags] = useAtom(tagsAtom);
