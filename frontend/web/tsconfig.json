@@ -2,12 +2,14 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "typeRoots": ["./node_modules/@types", "../core/node_modules/@types","../core/src/scripts/types"],
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["src/*"],
-      "@types/*": ["../core/src/scripts/types/*"]
-    }
+    "typeRoots": [
+      "./node_modules/@types",
+      "../core/node_modules/@types",
+      "../core/src/scripts/types"
+    ],
+    "outDir": "dist"
   },
-  "include": ["src", "vite.config.ts"]
+  "include": ["src"],
+  "exclude": ["node_modules", "dist", "vite.config.ts"],
+  "references": [{ "path": "../core" }]
 }

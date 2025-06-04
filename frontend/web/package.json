@@ -4,8 +4,8 @@
   "type": "module",
   "scripts": {
     "preinstall": "npx only-allow pnpm",
-    "build": "tsc && vite build",
-    "build:dry": "tsc --noEmit",
+    "build": "tsc -b && vite build",
+    "build:dry": "tsc -b --noEmit",
     "dev": "vite"
   },
   "devDependencies": {
