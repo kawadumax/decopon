@@ -1,6 +1,8 @@
 /node_modules
 routeTree.gen.ts
 *storybook.log
+*.tsbuildinfo
+dist
 
 # Created by https://www.toptal.com/developers/gitignore/api/storybookjs
 # Edit at https://www.toptal.com/developers/gitignore?templates=storybookjs

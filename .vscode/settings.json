@@ -21,5 +21,6 @@
   "json.schemaDownload.enable": true,
   "files.associations": {
     "*.css": "tailwindcss"
-  }
+  },
+  "i18next.i18nPaths": "d:/dev/projects/node_projects/decopon/frontend/web/src/ts/i18n,d:/dev/projects/node_projects/decopon/frontend/web/src/ts/i18n/locales,d:/dev/projects/node_projects/decopon/backend/vendor/laravel/framework/src/Illuminate/Translation/lang"
 }

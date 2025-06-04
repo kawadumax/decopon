@@ -7,6 +7,9 @@ FRONTEND_DIR := 'frontend'
 # フロントエンドのWebディレクトリ
 FRONTEND_WEB_DIR := 'frontend/web'
 
+# フロントエンドのAppディレクトリ
+FRONTEND_APP_DIR := 'frontend/app'
+
 # バックエンドの起動
 backend:
     cd {{BACKEND_DIR}} && php artisan serve
@@ -38,6 +41,9 @@ storybook:
 
 web-run *args:
     cd {{FRONTEND_WEB_DIR}} && {{ args }}
+
+app:
+    cd {{FRONTEND_APP_DIR}} && pnpm tauri dev
 
 # バックエンドとフロントエンドの同時起動
 all:
