@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: frontend/web
+        working-directory: ./
 
     steps:
       # 1) リポジトリのチェックアウト
@@ -28,7 +28,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 10 # 好みのpnpmバージョン
+          version: 10.11.0 # 好みのpnpmバージョン
 
       # 4) 依存関係のインストール
       - name: Install dependencies
@@ -36,4 +36,4 @@ jobs:
 
       # 5) ビルド
       - name: Build
-        run: pnpm run build
+        run: pnpm web:build

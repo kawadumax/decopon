@@ -1,6 +1,6 @@
 <?php
 return [
     'output' => [
-        'path' => '../frontend/core/src/js',
+        'path' => '../frontend/core/src/scripts/lib',
     ],
 ];

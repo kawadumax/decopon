@@ -1,0 +1,38 @@
+{
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "jsx": "react-jsx",
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "allowJs": true,
+    "allowImportingTsExtensions": true,
+    "composite": true,
+    "declaration": true,
+    "noEmit": true,
+    "baseUrl": "../",
+    "paths": {
+      "@/*": ["src/*"],
+      "@lib/*": ["src/scripts/lib/*"],
+      "@components/*": ["src/scripts/components/*"],
+      "@pages/*": ["src/scripts/pages/*"],
+      "@public/*": ["public/*"],
+      "@hooks/*": ["src/scripts/hooks/*"]
+    }
+  },
+  "include": [
+    "../src",
+    "../public",
+    "../src/index.ts",
+    "vite-env.d.ts",
+    "../.storybook/*.ts",
+    "../.storybook/**/*.tsx",
+    "../stories/*.stories.tsx",
+    "../stories/**/*.tsx",
+    "../buildSettings/*.ts"
+  ],
+  "ts-node": {
+    "esm": true
+  }
+}
