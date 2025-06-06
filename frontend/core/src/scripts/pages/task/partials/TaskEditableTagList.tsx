@@ -1,7 +1,7 @@
 import type { Task } from "@/scripts/types";
 import { useApi } from "@hooks/useApi";
 import { tagsAtom } from "@lib/atoms";
-import { toEmblorTags } from "@lib/utils";
+import { logger, toEmblorTags } from "@lib/utils";
 import { type Tag as EmblorTag, TagInput } from "emblor";
 import { useAtom, useSetAtom } from "jotai";
 import type { PrimitiveAtom } from "jotai";
@@ -51,7 +51,7 @@ export const TaskEditableTagList = ({
 
   const handleTagRemoved = useCallback(
     (tagText: string) => {
-      console.log("tag removed", tagText, currentTask);
+      logger("tag removed", tagText, currentTask);
       api.delete(
         route("api.tags.relation.destroy"),
         {

@@ -12,18 +12,6 @@ export const TagList = () => {
   const [currentTag, setCurrentTag] = useAtom(currentTagAtom);
   const api = useApi();
 
-  // useEffect(() => {
-  //   if (_tags) {
-  //     setTags(_tags);
-  //     return;
-  //   }
-
-  //   api.get(route("api.tags.index"), (response) => {
-  //     console.log(response);
-  //     setTags(response.data.tags);
-  //   });
-  // }, [_tags, setTags, api]);
-
   const handleTagClicked = useCallback(
     (index: number) => {
       setCurrentTag(tags[index]);

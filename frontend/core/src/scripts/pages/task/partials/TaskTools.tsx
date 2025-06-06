@@ -1,3 +1,4 @@
+import { logger } from "@/scripts/lib/utils";
 import AddItemInput from "@components/AddItemInput";
 import { useApi } from "@hooks/useApi";
 import { tasksAtom } from "@lib/atoms";
@@ -21,7 +22,7 @@ export const TaskTools = () => {
       };
 
       api.post(route("api.tasks.store"), taskTemplate, (response) => {
-        console.log(response);
+        logger(response);
         setTasks((prev) => [...prev, response.task]);
       });
     },

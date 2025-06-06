@@ -1,3 +1,5 @@
+import { logger } from "@/scripts/lib/utils";
+
 const DemoCautionBase = ({
   header,
   content,
@@ -32,7 +34,7 @@ export const DemoCautionWithAccount = ({
   content,
 }: { header: string; content: string }) => {
   const env = import.meta.env;
-  console.log(env);
+  logger(env);
   return (
     <DemoCautionBase
       header={header}
