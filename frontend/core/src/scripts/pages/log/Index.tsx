@@ -18,7 +18,7 @@ const LogList = ({
   logContainerRef,
 }: { logs: Log[]; logContainerRef: React.RefObject<HTMLUListElement> }) => {
   return (
-    <ul ref={logContainerRef} className="flex-1 overflow-y-auto">
+    <ul ref={logContainerRef} className="flex-1 overflow-y-auto bg-white">
       {logs?.map((log) => (
         <LogItem key={log.id} log={log} />
       ))}

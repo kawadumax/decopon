@@ -1,72 +1,19 @@
+import { LogInput } from "@/scripts/components/LogInput";
 import type { Log, Task } from "@/scripts/types";
 import { LogItem } from "@components/LogItem";
-import {
-  type AutosizeTextAreaRef,
-  AutosizeTextarea,
-} from "@components/ui/autosize-textarea";
 import { useApi } from "@hooks/useApi";
 import { logger } from "@lib/utils";
 import { useAtomValue } from "jotai";
 import type { PrimitiveAtom } from "jotai";
-import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { route } from "ziggy-js";
-
 
 export const TaskLogger = ({ taskAtom }: { taskAtom: PrimitiveAtom<Task> }) => {
   const api = useApi();
   const task = useAtomValue(taskAtom);
   const [logs, setLogs] = useState<Log[]>([]);
-  const [content, setContent] = useState("");
-  const [tempIdCounter, setTempIdCounter] = useState(0);
 
   const logContainerRef = useRef<HTMLUListElement>(null);
-  const textareaRef = useRef<AutosizeTextAreaRef>(null);
-
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (!content.trim()) return;
-    if (event.key === "Enter" && !event.shiftKey) {
-      event.preventDefault();
-      const tempId = -1 - tempIdCounter; // 負の値を使用して一時的なIDを生成
-      setTempIdCounter((prev) => prev + 1);
-      const newLog = {
-        id: tempId,
-        content,
-        created_at: new Date().toISOString(),
-        user_id: null,
-        task_id: task.id,
-        updated_at: null,
-      } as unknown as Log;
-      setLogs((prev) => [...prev, newLog]);
-      api.post(
-        route("api.logs.store"),
-        {
-          content: content,
-          task_id: task.id,
-        } as Partial<Log>,
-        (data) => {
-          const storedLog = data;
-          setLogs((prev) =>
-            prev.map((log) =>
-              log.id === tempId ? { ...log, ...storedLog } : log,
-            ),
-          );
-          logger("success log storing", data);
-        },
-      );
-      setContent("");
-      event.currentTarget.value = "";
-
-      // トリガーリサイズを呼び出す
-      if (textareaRef.current) {
-        textareaRef.current.triggerResize();
-      }
-    }
-  };
-
-  const handleInput = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    setContent(event.currentTarget.value);
-  };
 
   useEffect(() => {
     if (logContainerRef.current) {
@@ -95,7 +42,7 @@ export const TaskLogger = ({ taskAtom }: { taskAtom: PrimitiveAtom<Task> }) => {
           <LogItem key={log.id} log={log} />
         ))}
       </ul>
-      <div className="pt-4">
+      {/* <div className="pt-4">
         <AutosizeTextarea
           ref={textareaRef}
           onKeyDown={handleKeyDown}
@@ -104,7 +51,8 @@ export const TaskLogger = ({ taskAtom }: { taskAtom: PrimitiveAtom<Task> }) => {
           maxHeight={200}
           minHeight={0}
         />
-      </div>
+      </div> */}
+      <LogInput />
     </div>
   );
 };
