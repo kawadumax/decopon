@@ -1,3 +1,4 @@
+import { LogInput } from "@/scripts/components/LogInput";
 import type { Log } from "@/scripts/types";
 import { Loading } from "@components/Loading";
 import { LogItem } from "@components/LogItem";
@@ -46,8 +47,11 @@ const PCLayout = ({
         <LogTagList />
       </ResizablePanel>
       <ResizableHandle withHandle />
-      <ResizablePanel>
-        <LogList logs={logs} logContainerRef={logContainerRef} />
+      <ResizablePanel className="h-full p-4">
+        <div className="flex h-full flex-1 flex-col">
+          <LogList logs={logs} logContainerRef={logContainerRef} />
+          <LogInput task={undefined} />
+        </div>
       </ResizablePanel>
     </ResizablePanelGroup>
   );

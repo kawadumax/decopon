@@ -1,18 +1,37 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRef, useState } from "react";
 import { route } from "ziggy-js";
 import { useApi } from "../hooks/useApi";
 import { logger } from "../lib/utils";
-import type { Log } from "../types";
+import type { Log, Task } from "../types";
 import {
   type AutosizeTextAreaRef,
   AutosizeTextarea,
 } from "./ui/autosize-textarea";
 
-export const LogInput = () => {
+export const LogInput = ({ task }: { task: Task | undefined }) => {
+  const taskId = task?.id ?? "undefined";
+  const queryKey = task ? ["logs", taskId] : ["logs"];
   const api = useApi();
   const [tempIdCounter, setTempIdCounter] = useState(0);
   const [content, setContent] = useState("");
   const textareaRef = useRef<AutosizeTextAreaRef>(null);
+  const queryClient = useQueryClient();
+
+  // useMutationでPOSTリクエストを管理
+  const mutation = useMutation({
+    mutationFn: (data: Partial<Log>) => api.post(route("api.logs.store"), data),
+    onSuccess: (storedLog) => {
+      logger("success log storing", storedLog);
+      // ログ一覧のキャッシュを無効化（必要に応じて）
+      queryClient.invalidateQueries({
+        queryKey,
+      });
+    },
+    onError: (error) => {
+      logger("error log storing", error);
+    },
+  });
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (!content.trim()) return;
@@ -25,26 +44,21 @@ export const LogInput = () => {
         content,
         created_at: new Date().toISOString(),
         user_id: null,
-        task_id: task.id,
+        task_id: taskId,
         updated_at: null,
       } as unknown as Log;
-      setLogs((prev) => [...prev, newLog]);
-      api.post(
-        route("api.logs.store"),
-        {
-          content: content,
-          task_id: task.id,
-        } as Partial<Log>,
-        (data) => {
-          const storedLog = data;
-          setLogs((prev) =>
-            prev.map((log) =>
-              log.id === tempId ? { ...log, ...storedLog } : log,
-            ),
-          );
-          logger("success log storing", data);
-        },
-      );
+
+      queryClient.setQueryData<Log[]>(queryKey, (oldLogs) => [
+        ...(oldLogs ?? []),
+        newLog,
+      ]);
+
+      // ここでAPIにPOSTリクエストを送信
+      mutation.mutate({
+        content: content,
+        task_id: taskId ?? null,
+      } as Partial<Log>);
+
       setContent("");
       event.currentTarget.value = "";
 

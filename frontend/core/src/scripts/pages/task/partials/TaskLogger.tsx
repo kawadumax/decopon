@@ -1,17 +1,25 @@
-import { LogInput } from "@/scripts/components/LogInput";
 import type { Log, Task } from "@/scripts/types";
+import { LogInput } from "@components/LogInput";
 import { LogItem } from "@components/LogItem";
 import { useApi } from "@hooks/useApi";
-import { logger } from "@lib/utils";
+import { useQuery } from "@tanstack/react-query";
 import { useAtomValue } from "jotai";
 import type { PrimitiveAtom } from "jotai";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { route } from "ziggy-js";
 
 export const TaskLogger = ({ taskAtom }: { taskAtom: PrimitiveAtom<Task> }) => {
   const api = useApi();
   const task = useAtomValue(taskAtom);
-  const [logs, setLogs] = useState<Log[]>([]);
+  const { data, isLoading } = useQuery<Log[]>({
+    queryKey: ["logs", task?.id],
+    queryFn: async () => {
+      if (!task) return [];
+      const response = await api.get(route("api.logs.task", task.id));
+      return response ?? [];
+    },
+    enabled: !!task,
+  });
 
   const logContainerRef = useRef<HTMLUListElement>(null);
 
@@ -21,38 +29,20 @@ export const TaskLogger = ({ taskAtom }: { taskAtom: PrimitiveAtom<Task> }) => {
     }
   }, []);
 
-  useEffect(() => {
-    if (task) {
-      api.get(
-        route("api.logs.task", task.id),
-        (data) => {
-          setLogs(data ?? []);
-        },
-        (error) => {
-          logger("Error fetching logs:", error);
-        },
-      );
-    }
-  }, [task, api]);
+  if (isLoading) {
+    return (
+      <div className="flex flex-1 items-center justify-center">Loading...</div>
+    );
+  }
 
   return (
     <div className="flex flex-1 flex-col">
       <ul ref={logContainerRef} className="flex-1 overflow-y-auto">
-        {logs?.map((log) => (
+        {data?.map((log) => (
           <LogItem key={log.id} log={log} />
         ))}
       </ul>
-      {/* <div className="pt-4">
-        <AutosizeTextarea
-          ref={textareaRef}
-          onKeyDown={handleKeyDown}
-          onInput={handleInput}
-          defaultValue={content}
-          maxHeight={200}
-          minHeight={0}
-        />
-      </div> */}
-      <LogInput />
+      <LogInput task={task} />
     </div>
   );
 };
