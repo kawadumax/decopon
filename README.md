@@ -1,9 +1,11 @@
 # Decopon - The Task Manager for ADHD
 
-![focus](videos/focus.gif)
-![logging](videos/logging.gif)
-![nested](videos/nested.gif)
-![organize](videos/organize.gif)
+<div style="display: flex; flex-wrap: wrap; gap: 10px;">
+    <img src="documents/videos/focus.gif" alt="Focus GIF" width="200">
+    <img src="documents/videos/logging.gif" alt="Loggiing GIF" width="200">
+    <img src="documents/videos/nested.gif" alt="Nested GIF" width="200">
+    <img src="documents/videos/organize.gif" alt="Organize GIF" width="200">
+</div>
 
 **Naming**
 

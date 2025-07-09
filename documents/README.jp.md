@@ -1,13 +1,15 @@
 # Decopon - ADHDのためのタスクマネージャー
 
-![focus](videos/focus.gif)
-![logging](videos/logging.gif)
-![nested](videos/nested.gif)
-![organize](videos/organize.gif)
+<div style="display: flex; flex-wrap: wrap; gap: 10px;">
+    <img src="videos/focus.gif" alt="Focus GIF" width="200">
+    <img src="videos/logging.gif" alt="Loggiing GIF" width="200">
+    <img src="videos/nested.gif" alt="Nested GIF" width="200">
+    <img src="videos/organize.gif" alt="Organize GIF" width="200">
+ </div>
 
 **命名**
 
-*Deco*mpose Task（タスクを分解）と *Po*modoro（ポモドーロ）で、やり遂げる（get it do*n*e）。
+*Deco*mpose Task and *Po*modoro and get it do*n*e.
 
 [EN](../README.md)
 
