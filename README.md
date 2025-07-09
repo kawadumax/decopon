@@ -7,11 +7,13 @@
     <img src="documents/videos/organize.gif" alt="Organize GIF" width="200">
 </div>
 
+**Other language**
+
+[JP](documents/README.jp.md)
+
 **Naming**
 
 *Deco*mpose Task and *Po*modoro and get it do*n*e.
-
-[JP](documents/README.jp.md)
 
 **Overview**
 
