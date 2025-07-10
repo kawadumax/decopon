@@ -9,10 +9,10 @@ export const fetchAuth = async (): Promise<{ user: User }> => {
   return { user };
 };
 
-// 「失敗するかもしれないけど、まずは取得してみる」用
-export const tryAuth = async (): Promise<{ user: User | undefined }> => {
+export const checkAuth = async (): Promise<{ user: User | undefined }> => {
   try {
-    const auth = await queryClient.fetchQuery({
+    // ensureQueryDataは、クエリが存在しない場合はフェッチを行い、存在する場合はキャッシュされたデータを返す
+    const auth = await queryClient.ensureQueryData({
       queryKey: ["auth"],
       queryFn: fetchAuth,
     });
@@ -26,7 +26,7 @@ export const tryAuth = async (): Promise<{ user: User | undefined }> => {
 
 // 「失敗時にはリダイレクト」用
 export const requireAuth = async () => {
-  const auth = await tryAuth();
+  const auth = await checkAuth();
   if (!auth.user) {
     queryClient.removeQueries({ queryKey: ["auth"] });
     throw redirect({ to: "/guest/login" });

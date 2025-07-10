@@ -1,11 +1,11 @@
-import type { Auth } from "@/scripts/types";
 import ApplicationLogo from "@components/ApplicationLogo";
 import { LangSwitch } from "@components/LangSwitch";
 import { ParticlesBackground } from "@components/ParticlesBackground";
 import { BrandGithub, BrandX } from "@mynaui/icons-react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
+import { fetchAuth } from "../lib/auth";
 
 const WelcomeCard = ({
   variable = "right",
@@ -40,9 +40,10 @@ const WelcomeCard = ({
 
 export default function Welcome() {
   const { t } = useTranslation();
-
-  const queryClient = useQueryClient();
-  const auth = queryClient.getQueryData(["auth"]) as Auth;
+  const { data: auth } = useQuery({
+    queryKey: ["auth"],
+    queryFn: fetchAuth,
+  });
 
   return (
     <>
@@ -59,9 +60,7 @@ export default function Welcome() {
                   >
                     <BrandGithub className="text-black dark:text-white" />
                   </a>
-                  <LangSwitch />
-
-                  {auth.user ? (
+                  {auth?.user?.id ? (
                     <Link
                       to="/auth/dashboard"
                       className="rounded-md px-3 py-2 ring-1 ring-transparent transition hover:text-black/70 focus:outline-hidden focus-visible:ring-[#FF2D20] dark:text-white dark:focus-visible:ring-white dark:hover:text-white/80"
@@ -70,6 +69,7 @@ export default function Welcome() {
                     </Link>
                   ) : (
                     <>
+                      <LangSwitch />
                       <Link
                         to="/guest/login"
                         className="rounded-md px-3 py-2 ring-1 ring-transparent transition hover:text-black/70 focus:outline-hidden focus-visible:ring-[#FF2D20] dark:text-white dark:focus-visible:ring-white dark:hover:text-white/80"
@@ -134,7 +134,7 @@ export default function Welcome() {
                 </div>
 
                 <Link
-                  to={auth.user ? "/auth/dashboard" : "/guest/register"}
+                  to={auth?.user?.id ? "/auth/dashboard" : "/guest/register"}
                   className="rounded-full bg-amber-400 px-6 py-3 font-semibold text-white transition duration-300 hover:bg-amber-500"
                 >
                   {t("welcome.getStarted")}

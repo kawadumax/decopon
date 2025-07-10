@@ -1,4 +1,4 @@
-import { type Auth, Locale, type User } from "@/scripts/types/index.d";
+import type { Auth, User } from "@/scripts/types";
 import ApplicationLogo from "@components/ApplicationLogo";
 import Dropdown from "@components/Dropdown";
 import NavLink from "@components/NavLink";
@@ -17,7 +17,7 @@ import {
 import { Toaster } from "@components/ui/sonner";
 import { useDeviceSize } from "@hooks/useDeviceSize";
 import { useTimeEntryApi } from "@hooks/useTimeEntryApi";
-import { breakTimeAtom, languageAtom, workTimeAtom } from "@lib/atoms";
+import { breakTimeAtom, workTimeAtom } from "@lib/atoms";
 import { cn } from "@lib/utils";
 import {
   ActivitySquare,
@@ -40,7 +40,6 @@ import {
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
-
 
 const links = [
   {
@@ -296,13 +295,7 @@ export default function Authenticated({
   }
 
   const preference = user.preference;
-  const lang = preference?.locale || Locale.ENGLISH;
-  const setLang = useSetAtom(languageAtom);
   const { initCyclesOfTimeEntry } = useTimeEntryApi();
-
-  useEffect(() => {
-    setLang(lang);
-  }, [lang, setLang]);
 
   const setWorkTime = useSetAtom(workTimeAtom);
   const setBreakTime = useSetAtom(breakTimeAtom);
