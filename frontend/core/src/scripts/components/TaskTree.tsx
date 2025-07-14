@@ -70,7 +70,7 @@ export const TaskTree = () => {
 
   // タグに基づくタスクの取得
   const { data: filteredTasks } = useQuery({
-    queryKey: ["tasks", currentTag],
+    queryKey: ["tasks", currentTag?.id],
     queryFn: async () => {
       const data = await callApi(
         "get",

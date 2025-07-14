@@ -43,6 +43,7 @@ class TaskApiController extends ApiController
         },
       ],
       'tags' => 'nullable|array',
+      'tags.*' => 'integer|exists:tags,id', // タグIDのバリデーションを追加
     ]);
 
     $task = new Task($validated);
