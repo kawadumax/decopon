@@ -14,6 +14,7 @@ export const TagList = () => {
 
   const handleTagClicked = useCallback(
     (index: number) => {
+      console.log("Tag clicked:", tags[index]);
       setCurrentTag(tags[index]);
     },
     [tags, setCurrentTag],

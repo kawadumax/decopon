@@ -1,7 +1,7 @@
 import { atom } from "jotai";
 import { atomWithQuery, queryClientAtom } from "jotai-tanstack-query";
-import { callApi } from "./apiClient";
 import { route } from "ziggy-js";
+import { callApi } from "./apiClient";
 
 const createAtomWithQueryList = <T>(endpoint: string) => {
   return atomWithQuery<T[]>(() => ({
@@ -9,7 +9,6 @@ const createAtomWithQueryList = <T>(endpoint: string) => {
     queryFn: async (): Promise<T[]> => {
       try {
         const data = await callApi("get", route(`api.${endpoint}.index`));
-        console.log(data);
         return data[endpoint] ?? [];
       } catch (error) {
         console.log(error);

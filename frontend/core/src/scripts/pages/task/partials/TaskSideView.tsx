@@ -1,5 +1,5 @@
+import { currentTaskAtom } from "@/scripts/lib/atoms";
 import type { Task } from "@/scripts/types";
-import { taskSelectorAtom } from "@lib/atoms";
 import { useAtomValue } from "jotai";
 import type { PrimitiveAtom } from "jotai";
 import { useTranslation } from "react-i18next";
@@ -8,7 +8,7 @@ import { TaskEditableTagList } from "./TaskEditableTagList";
 import { TaskEditableTitle } from "./TaskEditableTitle";
 import { TaskLogger } from "./TaskLogger";
 export const TaskSideView = () => {
-  const currentTaskAtom = useAtomValue(taskSelectorAtom);
+  // const currentTaskAtom = useAtomValue(taskSelectorAtom);
   const currentTask = useAtomValue(currentTaskAtom);
   const { t } = useTranslation();
   const renderTaskContent = () => {
@@ -17,10 +17,7 @@ export const TaskSideView = () => {
     }
     return (
       <>
-        <TaskEditableTitle
-          taskAtom={currentTaskAtom as PrimitiveAtom<Task>}
-          variant="lg"
-        />
+        <TaskEditableTitle task={currentTask} variant="lg" />
         <TaskEditableTagList
           taskAtom={currentTaskAtom as PrimitiveAtom<Task>}
         />

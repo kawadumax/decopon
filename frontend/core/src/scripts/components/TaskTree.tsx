@@ -1,81 +1,101 @@
 import type { Task } from "@/scripts/types";
-import { currentTagAtom, splitedTasksAtom, tasksAtom } from "@lib/atoms";
+import { currentTagAtom } from "@lib/atoms";
+import { useQuery } from "@tanstack/react-query";
 import { t } from "i18next";
-import { type PrimitiveAtom, useAtom, useAtomValue } from "jotai";
+import { useAtomValue } from "jotai";
 import type React from "react";
-import { useMemo } from "react";
+import {} from "react";
+import { route } from "ziggy-js";
+import { callApi } from "../lib/apiClient";
 import { TaskItem } from "../pages/task/partials/TaskItem";
 
-export const TaskTree = () => {
-  const _currentTag = useAtomValue(currentTagAtom);
-  const [taskAtoms, dispatch] = useAtom(splitedTasksAtom);
-  const [tasks, _setTasks] = useAtom(tasksAtom);
-
-  const taskMap = useMemo(
-    () => new Map(tasks.map((item, index) => [item.id, taskAtoms[index]])),
-    [tasks, taskAtoms],
+const createTaskItem = (task: Task, children?: React.ReactNode) => {
+  return (
+    <TaskItem
+      task={task}
+      // remove={() =>
+      //   // dispatch({ type: "remove", atom: taskAtom })
+      //   console.log("remove task", task)
+      // }
+      // insert={(newTask: Task) =>
+      //   // dispatch({
+      //   //   type: "insert",
+      //   //   value: newTask,
+      //   // })
+      //   console.log("insert task", newTask)
+      // }
+      key={task.id.toString()}
+    >
+      {children}
+    </TaskItem>
   );
+};
 
-  const createTaskItem = (
-    taskAtom: PrimitiveAtom<Task>,
-    children?: React.ReactNode,
-  ) => {
-    return (
-      <TaskItem
-        taskAtom={taskAtom}
-        remove={() => dispatch({ type: "remove", atom: taskAtom })}
-        insert={(newTask: Task) =>
-          dispatch({
-            type: "insert",
-            value: newTask,
-          })
-        }
-        key={taskAtom.toString()}
-      >
-        {children}
-      </TaskItem>
+const createTaskList = (tasks: Task[]) => {
+  // ルート要素を取得し、HTML文字列を生成する関数
+  const createRecursiveTask = (task: Task) => {
+    const children = tasks.filter((child) => child.parent_task_id === task.id);
+
+    //サブタスクを持たないタスクの生成
+    if (children.length === 0) {
+      return createTaskItem(task);
+    }
+
+    // サブタスクを持つタスクの生成
+    const items = children.map((child) => createRecursiveTask(child)).reverse(); // idの数値の大きいもの（より直近に作られたものを上に配置する）
+    return createTaskItem(
+      task,
+      <ul className="ml-[6px] flex border-collapse list-inside flex-col border-stone-400 border-l-2 border-dashed hover:border-l-primary hover:border-solid dark:text-gray-200">
+        {items}
+      </ul>,
     );
   };
 
-  const createTaskList = () => {
-    // ルート要素を取得し、HTML文字列を生成する関数
-    const createRecursiveTask = (task_id: number) => {
-      const taskAtom = taskMap.get(task_id);
-      if (!taskAtom) return;
+  const rootTasks = tasks.filter((item) => item.parent_task_id === null);
+  const taskItems = rootTasks.map((root) => createRecursiveTask(root));
+  return <>{taskItems}</>;
+};
 
-      const children = tasks.filter(
-        (child) => child.parent_task_id === task_id,
+export const TaskTree = () => {
+  const currentTag = useAtomValue(currentTagAtom);
+
+  // 全タスクの取得
+  const { data: allTasks } = useQuery({
+    queryKey: ["tasks"],
+    queryFn: async () => {
+      const data = await callApi("get", route("api.tasks.index"));
+      return data.tasks ?? [];
+    },
+  });
+
+  // タグに基づくタスクの取得
+  const { data: filteredTasks } = useQuery({
+    queryKey: ["tasks", currentTag],
+    queryFn: async () => {
+      const data = await callApi(
+        "get",
+        route("api.tasks.tags.index", currentTag?.id),
       );
+      return data.tasks ?? [];
+    },
+    enabled: !!currentTag,
+  });
 
-      if (children.length > 0) {
-        // サブタスクを持つタスクの生成
-        const items = children
-          .map((child) => createRecursiveTask(child.id))
-          .reverse(); // idの数値の大きいもの（より直近に作られたものを上に配置する）
-        return createTaskItem(
-          taskAtom,
-          <ul className="ml-[6px] flex border-collapse list-inside flex-col border-stone-400 border-l-2 border-dashed hover:border-l-primary hover:border-solid dark:text-gray-200">
-            {items}
-          </ul>,
-        );
-      }
+  const tasks: Task[] = currentTag ? filteredTasks : allTasks;
 
-      //サブタスクを持たないタスクの生成
-      return createTaskItem(taskAtom);
-    };
+  console.log("TaskTree tasks:", tasks);
 
-    const rootTasks = tasks.filter((item) => item.parent_task_id === null);
-    const taskItems = rootTasks.map((root) => createRecursiveTask(root.id));
-    return <>{taskItems}</>;
-  };
+  if (!tasks) {
+    return <li className="list-none pl-4">Loading...</li>;
+  }
+
+  if (tasks.length === 0) {
+    return <li className="list-none pl-4">{t("task.noTasks")}</li>;
+  }
 
   return (
     <ul className="flex list-inside flex-col dark:text-gray-200">
-      {tasks.length ? (
-        createTaskList()
-      ) : (
-        <li className="list-none pl-4">{t("task.noTasks")}</li>
-      )}
+      {createTaskList(tasks)}
     </ul>
   );
 };

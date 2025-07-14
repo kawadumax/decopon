@@ -7,6 +7,7 @@
     "windows:dev": "pnpm dlx concurrently -c \"#93c5fd,#c4b5fd,#fb7185,#fdba74\" \"pnpm backend:dev\" \"pnpm web:dev\" --names=backend,web",
     "backend:dev": "cd backend && php artisan serve --host=0.0.0.0 --port=8000",
     "backend:fresh": "cd backend && php artisan migrate:fresh --seed",
+    "backend:routes": "cd backend && php artisan route:list",
     "web:generate:routes": "pnpm -F web generate:routes",
     "web:build": "pnpm -F core gen-routes && pnpm -F web build",
     "web:build:dry": "pnpm -F core gen-routes && pnpm -F web build:dry",

@@ -29,21 +29,23 @@ export const tasksBatchAtom = atom(null, (get, set, newTasks: Task[]) => {
   set(tasksAtom, updatedTasks);
 });
 
-const currentTaskAtom: PrimitiveAtom<Task> | PrimitiveAtom<undefined> =
-  atom(undefined);
-const currentTaskBaseAtom = atom<
-  PrimitiveAtom<Task> | PrimitiveAtom<undefined>
->(currentTaskAtom);
-export const taskSelectorAtom = atom(
-  (get) => get(currentTaskBaseAtom),
-  (
-    _get,
-    set,
-    newCurrentTaskAtom: PrimitiveAtom<Task> | PrimitiveAtom<undefined>,
-  ) => {
-    set(currentTaskBaseAtom, newCurrentTaskAtom);
-  },
-);
+export const currentTaskAtom = atom<Task | undefined>(undefined);
+
+// const currentTaskAtom: PrimitiveAtom<Task> | PrimitiveAtom<undefined> =
+//   atom(undefined);
+// const currentTaskBaseAtom = atom<
+//   PrimitiveAtom<Task> | PrimitiveAtom<undefined>
+// >(currentTaskAtom);
+// export const taskSelectorAtom = atom(
+//   (get) => get(currentTaskBaseAtom),
+//   (
+//     _get,
+//     set,
+//     newCurrentTaskAtom: PrimitiveAtom<Task> | PrimitiveAtom<undefined>,
+//   ) => {
+//     set(currentTaskBaseAtom, newCurrentTaskAtom);
+//   },
+// );
 
 // TimerAtom
 
