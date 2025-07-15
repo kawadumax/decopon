@@ -32,6 +32,10 @@ export interface Task {
   tags: Tag[];
 }
 
+export type TaskStoreRequest = Omit<Partial<Task>, "tags"> & {
+  tags?: number[];
+};
+
 export enum LogSource {
   User = "User",
   System = "System",

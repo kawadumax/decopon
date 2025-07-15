@@ -1,5 +1,5 @@
 import { callApi } from "@/scripts/lib/apiClient";
-import type { Task } from "@/scripts/types";
+import type { Task, TaskStoreRequest } from "@/scripts/types";
 import { Direction, StackCmdType, useStackView } from "@components/StackView";
 import { Button } from "@components/ui/button";
 import { useDeviceSize } from "@hooks/useDeviceSize";
@@ -11,8 +11,6 @@ import type React from "react";
 import { useState } from "react";
 import { route } from "ziggy-js";
 import { TaskEditableTitle } from "./TaskEditableTitle";
-
-type ReqAddChildTask = Omit<Partial<Task>, "tags"> & { tags?: number[] };
 
 export const TaskItem = ({
   task,
@@ -46,14 +44,14 @@ export const TaskItem = ({
     },
     onSettled: () => {
       // 3. 成功/失敗後にリフェッチ
-      queryClient.invalidateQueries({ queryKey });
+      // queryClient.invalidateQueries({ queryKey });
       setCurrentTask(undefined); // 現在のタスクをクリア
     },
   });
 
   const addChildTask = useMutation({
     mutationFn: async (newTask: Partial<Task>) => {
-      const newTaskWithTag: ReqAddChildTask = {
+      const newTaskWithTag: TaskStoreRequest = {
         ...newTask,
         tags: currentTag ? [currentTag.id] : [], // 現在のタグを設定
       };
@@ -78,7 +76,7 @@ export const TaskItem = ({
       queryClient.setQueryData(queryKey, (old: Task[]) =>
         old.map((task) => (task.id === -1 ? result.task : task)),
       ),
-    onSettled: () => queryClient.invalidateQueries({ queryKey }),
+    // onSettled: () => queryClient.invalidateQueries({ queryKey }),
   });
 
   const [isExpanded, setIsExpanded] = useState(true);

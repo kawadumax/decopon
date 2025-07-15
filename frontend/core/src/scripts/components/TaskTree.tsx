@@ -1,10 +1,10 @@
 import type { Task } from "@/scripts/types";
 import { currentTagAtom } from "@lib/atoms";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { t } from "i18next";
 import { useAtomValue } from "jotai";
 import type React from "react";
-import {} from "react";
+import { useEffect } from "react";
 import { route } from "ziggy-js";
 import { callApi } from "../lib/apiClient";
 import { TaskItem } from "../pages/task/partials/TaskItem";
@@ -37,13 +37,20 @@ const createTaskList = (tasks: Task[]) => {
     );
   };
 
-  const rootTasks = tasks.filter((item) => item.parent_task_id === null);
+  const rootTasks = tasks.filter((item) => item.parent_task_id == null); // nullとundefinedの両方を考慮
   const taskItems = rootTasks.map((root) => createRecursiveTask(root));
   return <>{taskItems}</>;
 };
 
 export const TaskTree = () => {
   const currentTag = useAtomValue(currentTagAtom);
+  const queryKey = currentTag ? ["tasks", currentTag.id] : ["tasks"];
+  const queryClient = useQueryClient();
+
+  // CurrentTagが変更されたときに、タスクのキャッシュを無効化
+  useEffect(() => {
+    queryClient.invalidateQueries({ queryKey });
+  }, [queryClient, queryKey]);
 
   // 全タスクの取得
   const { data: allTasks } = useQuery({
