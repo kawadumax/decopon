@@ -6,13 +6,13 @@ import { useDeviceSize } from "@hooks/useDeviceSize";
 import { currentTagAtom, currentTaskAtom } from "@lib/atoms";
 import { ChevronRight, PlusSquare, Trash } from "@mynaui/icons-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useAtom, useAtomValue } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import type React from "react";
 import { useState } from "react";
 import { route } from "ziggy-js";
 import { TaskEditableTitle } from "./TaskEditableTitle";
 
-type TaskAddChild = Omit<Partial<Task>, "tags"> & { tags?: number[] };
+type ReqAddChildTask = Omit<Partial<Task>, "tags"> & { tags?: number[] };
 
 export const TaskItem = ({
   task,
@@ -35,13 +35,12 @@ export const TaskItem = ({
       const previousTasks: Task[] | undefined = queryClient.getQueryData([
         "tasks",
       ]); // 現在のキャッシュ取得
-      console.log("Deleting task:", id, previousTasks);
       queryClient.setQueryData(queryKey, (old: Task[]) =>
         old.filter((t) => t.id !== id),
       ); // 一時更新
       return { previousTasks }; // ロールバック用に保存
     },
-    onError: (err, id, context) => {
+    onError: (_err, _id, context) => {
       // 失敗時ロールバック
       queryClient.setQueryData(queryKey, context?.previousTasks);
     },
@@ -53,8 +52,13 @@ export const TaskItem = ({
   });
 
   const addChildTask = useMutation({
-    mutationFn: (newTask: TaskAddChild) =>
-      callApi("post", route("api.tasks.store"), newTask),
+    mutationFn: async (newTask: Partial<Task>) => {
+      const newTaskWithTag: ReqAddChildTask = {
+        ...newTask,
+        tags: currentTag ? [currentTag.id] : [], // 現在のタグを設定
+      };
+      return await callApi("post", route("api.tasks.store"), newTaskWithTag);
+    },
     onMutate: async (newTask) => {
       console.log("Adding child task:", newTask);
       await queryClient.cancelQueries({ queryKey });
@@ -65,24 +69,21 @@ export const TaskItem = ({
       ]); // 仮IDで追加
       return { previousTasks };
     },
-    onError: (err, id, context) => {
+    onError: (_err, _newTask, context) => {
       // 失敗時ロールバック
-      console.error("Error adding child task:", err);
       queryClient.setQueryData(queryKey, context?.previousTasks);
     },
-    onSuccess: (result) => {
-      console.log("Child task added successfully:", result);
+    onSuccess: (result) =>
       // 成功時、サーバーから返されたデータをキャッシュに置き換え（仮IDを本物に）
       queryClient.setQueryData(queryKey, (old: Task[]) =>
         old.map((task) => (task.id === -1 ? result.task : task)),
-      );
-    },
+      ),
     onSettled: () => queryClient.invalidateQueries({ queryKey }),
   });
 
   const [isExpanded, setIsExpanded] = useState(true);
 
-  const [currentTask, setCurrentTask] = useAtom(currentTaskAtom);
+  const setCurrentTask = useSetAtom(currentTaskAtom);
   const deviceSize = useDeviceSize();
   const [_state, dispatch] = useStackView();
 
@@ -123,7 +124,7 @@ export const TaskItem = ({
       description: "New Task Description",
       completed: false,
       parent_task_id: task.id,
-      tags: currentTag ? [currentTag.id] : [],
+      tags: currentTag ? [currentTag] : [],
     };
     console.log("Adding child task:", taskTemplate, task.id);
     addChildTask.mutate(taskTemplate); // ミューテーションを呼び出して子タスクを追加

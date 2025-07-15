@@ -11,21 +11,7 @@ import { TaskItem } from "../pages/task/partials/TaskItem";
 
 const createTaskItem = (task: Task, children?: React.ReactNode) => {
   return (
-    <TaskItem
-      task={task}
-      // remove={() =>
-      //   // dispatch({ type: "remove", atom: taskAtom })
-      //   console.log("remove task", task)
-      // }
-      // insert={(newTask: Task) =>
-      //   // dispatch({
-      //   //   type: "insert",
-      //   //   value: newTask,
-      //   // })
-      //   console.log("insert task", newTask)
-      // }
-      key={task.id.toString()}
-    >
+    <TaskItem task={task} key={task.id.toString()}>
       {children}
     </TaskItem>
   );
