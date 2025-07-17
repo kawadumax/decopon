@@ -1,5 +1,5 @@
-// src/queryClient.ts
 import { QueryClient } from "@tanstack/react-query";
+import { fetchAuth } from "./apiClient";
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -12,3 +12,8 @@ export const queryClient = new QueryClient({
     },
   },
 });
+
+export const fetchAuthQueryOptions = {
+  queryKey: ["auth"],
+  queryFn: fetchAuth,
+};

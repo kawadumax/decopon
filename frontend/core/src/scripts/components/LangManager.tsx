@@ -4,17 +4,14 @@ import { languageAtom } from "@lib/atoms";
 import { useQuery } from "@tanstack/react-query";
 import { useAtomValue } from "jotai";
 import { useEffect } from "react";
-import { fetchAuth } from "../queries/auth";
+import { fetchAuthQueryOptions } from "../queries";
 
 // 多言語化初期化
 initializeI18n(Locale.ENGLISH);
 
 export const LangManager = () => {
   const langAtomValue = useAtomValue(languageAtom);
-  const { data: auth } = useQuery({
-    queryKey: ["auth"],
-    queryFn: fetchAuth,
-  });
+  const { data: auth } = useQuery(fetchAuthQueryOptions);
 
   useEffect(() => {
     const lang =

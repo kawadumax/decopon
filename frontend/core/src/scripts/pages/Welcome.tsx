@@ -5,7 +5,7 @@ import { BrandGithub, BrandX } from "@mynaui/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
-import { fetchAuth } from "../queries/auth";
+import { fetchAuthQueryOptions } from "../queries";
 
 const WelcomeCard = ({
   variable = "right",
@@ -40,10 +40,7 @@ const WelcomeCard = ({
 
 export default function Welcome() {
   const { t } = useTranslation();
-  const { data: auth } = useQuery({
-    queryKey: ["auth"],
-    queryFn: fetchAuth,
-  });
+  const { data: auth } = useQuery(fetchAuthQueryOptions);
 
   return (
     <>

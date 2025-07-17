@@ -10,7 +10,7 @@ import {
   createRouter,
 } from "@tanstack/react-router";
 import { Provider as JotaiProvider } from "jotai";
-import { queryClient } from "../../src/scripts/queries/queryClient";
+import { queryClient } from "../../src/scripts/queries";
 
 export const RouterDecorator: Decorator = (Story) => {
   const routeTree = createRootRoute({
