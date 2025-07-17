@@ -1,5 +1,5 @@
 import Edit from "@/scripts/pages/profile/Edit";
-import { callApi } from "@lib/apiClient";
+import { callApi } from "@/scripts/queries/apiClient";
 import { createFileRoute, useLoaderData } from "@tanstack/react-router";
 import { t } from "i18next";
 import { route } from "ziggy-js";

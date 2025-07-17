@@ -1,5 +1,5 @@
+import { callApi } from "@/scripts/queries/apiClient";
 import PrimaryButton from "@components/PrimaryButton";
-import { callApi } from "@lib/apiClient";
 import { useForm } from "@tanstack/react-form";
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";

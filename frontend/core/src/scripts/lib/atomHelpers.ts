@@ -1,7 +1,7 @@
 import { atom } from "jotai";
 import { atomWithQuery, queryClientAtom } from "jotai-tanstack-query";
 import { route } from "ziggy-js";
-import { callApi } from "./apiClient";
+import { callApi } from "../queries/apiClient";
 
 const createAtomWithQueryList = <T>(endpoint: string) => {
   return atomWithQuery<T[]>(() => ({

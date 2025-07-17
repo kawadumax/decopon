@@ -1,4 +1,4 @@
-import { callApi } from "@/scripts/lib/apiClient";
+import { callApi } from "@/scripts/queries/apiClient";
 import type { Task } from "@/scripts/types";
 import { Checkbox } from "@components/ui/checkbox";
 import { Input } from "@components/ui/input";
@@ -97,17 +97,6 @@ export const TaskEditableTitle = ({
     if (inputChanged && !editable) {
       // フィールドが変化している時
       // editableがfalseになったときにupdateを呼び出す
-      // api.put(
-      //   route("api.tasks.update", task.id),
-      //   { title: task.title },
-      //   (data) => {
-      //     setTask((prev) => ({ ...prev, title: data.task.title }));
-      //   },
-      //   undefined,
-      //   () => {
-      //     setInputChanged(false);
-      //   },
-      // );
       updateTaskTitle.mutate(task.title);
     }
   }, [editable, task, inputChanged, updateTaskTitle.mutate]);

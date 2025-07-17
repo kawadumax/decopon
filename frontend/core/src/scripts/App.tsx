@@ -8,8 +8,8 @@ import { useHydrateAtoms } from "jotai/utils";
 import type React from "react";
 import { LangManager } from "./components/LangManager";
 import { TimeManager } from "./components/TimeManager";
-import { queryClient } from "./lib/queryClient";
 import { router } from "./lib/router";
+import { queryClient } from "./queries/queryClient";
 import "../styles/app.css";
 
 export const HydrateAtoms: React.FC<{ children: React.ReactNode }> = ({

@@ -1,7 +1,7 @@
 import type { ApiData } from "@/scripts/types/index.d";
-import axiosInstance from "@lib/axios";
+import { NProgressManager } from "@lib/nProgressManager";
 import axios from "axios";
-import { NProgressManager } from "./nProgressManager";
+import axiosInstance from "./axios";
 
 const progressManager = NProgressManager.getInstance();
 

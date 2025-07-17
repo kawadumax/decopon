@@ -1,4 +1,4 @@
-import { callApi } from "@lib/apiClient";
+import { callApi } from "@/scripts/queries/apiClient";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";

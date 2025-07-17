@@ -4,7 +4,7 @@ import { languageAtom } from "@lib/atoms";
 import { useQuery } from "@tanstack/react-query";
 import { useAtomValue } from "jotai";
 import { useEffect } from "react";
-import { fetchAuth } from "../lib/auth";
+import { fetchAuth } from "../queries/auth";
 
 // 多言語化初期化
 initializeI18n(Locale.ENGLISH);

@@ -42,7 +42,7 @@ export const TagTools = () => {
       });
       // checkedTagをリセットする
       setCheckableTags({ action: "reset", tags: [] });
-      setCurrentTag(null);
+      setCurrentTag(undefined);
     });
   }, [checkableTags, api, setCheckableTags, setTags, setCurrentTag]);
 

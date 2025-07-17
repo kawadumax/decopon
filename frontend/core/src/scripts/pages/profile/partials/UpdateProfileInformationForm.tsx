@@ -1,15 +1,15 @@
+import { callApi } from "@/scripts/queries/apiClient";
 import type { Auth } from "@/scripts/types";
 import InputError from "@components/InputError";
 import InputLabel from "@components/InputLabel";
 import PrimaryButton from "@components/PrimaryButton";
 import TextInput from "@components/TextInput";
 import { Transition } from "@headlessui/react";
-import { callApi } from "@lib/apiClient";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { PostButton } from "./PostButton";
 import { route } from "ziggy-js";
+import { PostButton } from "./PostButton";
 
 type UpdateData = {
   name: string;

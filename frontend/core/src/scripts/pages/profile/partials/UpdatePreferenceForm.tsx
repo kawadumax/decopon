@@ -1,3 +1,4 @@
+import { callApi } from "@/scripts/queries/apiClient";
 import { type Auth, Locale } from "@/scripts/types/index.d";
 import InputLabel from "@components/InputLabel";
 import PrimaryButton from "@components/PrimaryButton";
@@ -10,7 +11,6 @@ import {
   SelectValue,
 } from "@components/ui/select";
 import { Transition } from "@headlessui/react";
-import { callApi } from "@lib/apiClient";
 import { useForm } from "@tanstack/react-form";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";

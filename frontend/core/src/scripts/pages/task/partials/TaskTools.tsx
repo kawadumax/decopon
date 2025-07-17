@@ -1,5 +1,5 @@
-import { callApi } from "@/scripts/lib/apiClient";
 import { logger } from "@/scripts/lib/utils";
+import { callApi } from "@/scripts/queries/apiClient";
 import type { Task } from "@/scripts/types";
 import AddItemInput from "@components/AddItemInput";
 import { currentTagAtom } from "@lib/atoms";

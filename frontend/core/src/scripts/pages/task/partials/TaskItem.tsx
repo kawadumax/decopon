@@ -1,4 +1,4 @@
-import { callApi } from "@/scripts/lib/apiClient";
+import { callApi } from "@/scripts/queries/apiClient";
 import type { Task, TaskStoreRequest } from "@/scripts/types";
 import { Direction, StackCmdType, useStackView } from "@components/StackView";
 import { Button } from "@components/ui/button";

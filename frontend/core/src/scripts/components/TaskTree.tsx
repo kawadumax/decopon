@@ -6,8 +6,8 @@ import { useAtomValue } from "jotai";
 import type React from "react";
 import { useEffect } from "react";
 import { route } from "ziggy-js";
-import { callApi } from "../lib/apiClient";
 import { TaskItem } from "../pages/task/partials/TaskItem";
+import { callApi } from "../queries/apiClient";
 
 const createTaskItem = (task: Task, children?: React.ReactNode) => {
   return (

@@ -1,5 +1,5 @@
+import { callApi } from "@/scripts/queries/apiClient";
 import type { ApiData } from "@/scripts/types";
-import { callApi } from "@lib/apiClient";
 import axios from "axios";
 import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";

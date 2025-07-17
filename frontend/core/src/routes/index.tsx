@@ -1,6 +1,6 @@
-import { fetchAuth } from "@/scripts/lib/auth";
-import { queryClient } from "@/scripts/lib/queryClient";
 import Welcome from "@/scripts/pages/Welcome";
+import { fetchAuth } from "@/scripts/queries/auth";
+import { queryClient } from "@/scripts/queries/queryClient";
 import { createFileRoute } from "@tanstack/react-router";
 import { t } from "i18next";
 

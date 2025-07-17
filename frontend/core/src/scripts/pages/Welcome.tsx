@@ -5,7 +5,7 @@ import { BrandGithub, BrandX } from "@mynaui/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
-import { fetchAuth } from "../lib/auth";
+import { fetchAuth } from "../queries/auth";
 
 const WelcomeCard = ({
   variable = "right",

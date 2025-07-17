@@ -27,7 +27,7 @@ export const TagList = () => {
       <ul
         className="flex-1 font-bold text-primary"
         onClick={() => {
-          setCurrentTag(null);
+          setCurrentTag(undefined);
         }}
         onKeyDown={() => {
           // setCurrentTag(null)
