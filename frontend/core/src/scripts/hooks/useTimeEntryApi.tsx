@@ -4,13 +4,14 @@ import { getToday, logger } from "@lib/utils";
 import type { AxiosResponse } from "axios";
 import { useAtom } from "jotai";
 import { useCallback, useMemo } from "react";
-import { type ResponseData, useApi } from "./useApi";
 import { route } from "ziggy-js";
+import { callApi } from "../queries/apiClient";
+
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+type ResponseData = any;
 
 export const useTimeEntryApi = () => {
   const [timerState, setTimerState] = useAtom(timerStateAtom);
-  const api = useApi();
-
   const activeTimeEntry = useMemo(
     () => timerState.timeEntry || null,
     [timerState.timeEntry],
@@ -30,19 +31,16 @@ export const useTimeEntryApi = () => {
       data: Partial<TimeEntry>,
       onSuccess: (response: AxiosResponse) => void,
     ) => {
-      api.put(
-        route("api.time-entries-id.update", id),
-        data,
-        (response) => {
+      callApi("put", route("api.time-entries-id.update", id), data)
+        .then((response) => {
           logger("Time entry updated:", response);
           onSuccess(response);
-        },
-        (error) => {
+        })
+        .catch((error) => {
           logger("Error updating time entry:", error);
-        },
-      );
+        });
     },
-    [api],
+    [],
   );
 
   const setResponseToAtom = useCallback(
@@ -73,10 +71,12 @@ export const useTimeEntryApi = () => {
       updateTimeEntry(activeTimeEntry.id, data, setResponseToAtom);
     } else {
       // TimeEntryレコード作成
-      api.post(route("api.time-entries.store"), data, setResponseToAtom);
+      // api.post(route("api.time-entries.store"), data, setResponseToAtom);
+      callApi("post", route("api.time-entries.store"), data).then((res) =>
+        setResponseToAtom(res),
+      );
     }
   }, [
-    api,
     timerState.isWorkTime,
     updateTimeEntry,
     setResponseToAtom,
@@ -115,10 +115,7 @@ export const useTimeEntryApi = () => {
   const initCyclesOfTimeEntry = useCallback(() => {
     const today = getToday();
     if (timerState.cycles.date === today) return;
-    api.get(
-      route("api.time-entries.cycles", {
-        date: today,
-      }),
+    callApi("get", route("api.time-entries.cycles", { date: today })).then(
       (data: ResponseData) => {
         setTimerState((prev) => ({
           ...prev,
@@ -129,7 +126,7 @@ export const useTimeEntryApi = () => {
         }));
       },
     );
-  }, [api, setTimerState, timerState.cycles.date]);
+  }, [setTimerState, timerState.cycles.date]);
 
   return {
     initCyclesOfTimeEntry,

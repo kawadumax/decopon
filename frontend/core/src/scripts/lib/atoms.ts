@@ -1,5 +1,5 @@
 import { Locale, type Tag } from "@/scripts/types/index.d";
-import { type PrimitiveAtom, atom } from "jotai";
+import { atom } from "jotai";
 import { atomWithStorage, splitAtom } from "jotai/utils";
 import type {
   Log,
@@ -29,21 +29,7 @@ export const tasksBatchAtom = atom(null, (get, set, newTasks: Task[]) => {
   set(tasksAtom, updatedTasks);
 });
 
-const currentTaskAtom: PrimitiveAtom<Task> | PrimitiveAtom<undefined> =
-  atom(undefined);
-const currentTaskBaseAtom = atom<
-  PrimitiveAtom<Task> | PrimitiveAtom<undefined>
->(currentTaskAtom);
-export const taskSelectorAtom = atom(
-  (get) => get(currentTaskBaseAtom),
-  (
-    _get,
-    set,
-    newCurrentTaskAtom: PrimitiveAtom<Task> | PrimitiveAtom<undefined>,
-  ) => {
-    set(currentTaskBaseAtom, newCurrentTaskAtom);
-  },
-);
+export const currentTaskAtom = atom<Task | undefined>(undefined);
 
 // TimerAtom
 
@@ -160,7 +146,7 @@ export const logsAtom = createResourceListAtom<Log>("logs");
 
 export const tagsAtom = createResourceListAtom<Tag>("tags");
 export const splitedTagsAtom = splitAtom(tagsAtom);
-export const currentTagAtom = atom<Tag | null>(null);
+export const currentTagAtom = atom<Tag | undefined>(undefined);
 const tagChecksAtom = atom<TagWithCheck[]>([]);
 export const checkableTagsAtom = atom(
   (get): TagCheckable[] => {

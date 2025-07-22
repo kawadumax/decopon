@@ -1,9 +1,9 @@
+import { callApi } from "@/scripts/queries/apiClient";
 import DangerButton from "@components/DangerButton";
 import InputLabel from "@components/InputLabel";
 import Modal from "@components/Modal";
 import SecondaryButton from "@components/SecondaryButton";
 import TextInput from "@components/TextInput";
-import { callApi } from "@lib/apiClient";
 import { useForm } from "@tanstack/react-form";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";

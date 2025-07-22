@@ -32,6 +32,10 @@ export interface Task {
   tags: Tag[];
 }
 
+export type TaskStoreRequest = Omit<Partial<Task>, "tags"> & {
+  tags?: number[];
+};
+
 export enum LogSource {
   User = "User",
   System = "System",
@@ -99,4 +103,4 @@ export type DecoponLinkProps = Pick<LinkProps<RegisteredRouter>, "to"> & {
 };
 
 // Axios層
-export type ApiData = Record<string, unknown> | FormData | undefined;
+export type ApiRequestData = Record<string, unknown> | FormData | undefined;

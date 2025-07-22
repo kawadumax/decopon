@@ -1,16 +1,15 @@
+import { callApi } from "@/scripts/queries/apiClient";
 import InputLabel from "@components/InputLabel";
 import PrimaryButton from "@components/PrimaryButton";
 import TextInput from "@components/TextInput";
-import { callApi } from "@lib/apiClient";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
 import type { AxiosError } from "axios";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { DemoCautionWithAccount } from "./partials/DemoCaution";
 import { route } from "ziggy-js";
-
+import { DemoCautionWithAccount } from "./partials/DemoCaution";
 
 type LoginData = {
   email: string;

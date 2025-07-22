@@ -1,5 +1,16 @@
 # Decopon - The Task Manager for ADHD
 
+<div style="display: flex; flex-wrap: wrap; gap: 10px;">
+    <img src="documents/videos/focus.gif" alt="Focus GIF" width="200">
+    <img src="documents/videos/logging.gif" alt="Loggiing GIF" width="200">
+    <img src="documents/videos/nested.gif" alt="Nested GIF" width="200">
+    <img src="documents/videos/organize.gif" alt="Organize GIF" width="200">
+</div>
+
+**Other language**
+
+[JP](documents/README.jp.md)
+
 **Naming**
 
 *Deco*mpose Task and *Po*modoro and get it do*n*e.
@@ -79,18 +90,18 @@ By structuring work as **a sequence of small "hunts" (short focus sessions)**, D
 ## **Summary**
 Decopon addresses common ADHD productivity struggles through three core mechanisms:
 
-| Challenge | How Decopon Helps |
-|-----------|------------------|
-| **Difficulty with self-monitoring** | Tracks behavior and progress automatically |
-| **Limited working memory** | Infinite subtask nesting & chat-style notes |
+| Challenge                                 | How Decopon Helps                                  |
+| ----------------------------------------- | -------------------------------------------------- |
+| **Difficulty with self-monitoring**       | Tracks behavior and progress automatically         |
+| **Limited working memory**                | Infinite subtask nesting & chat-style notes        |
 | **Lack of motivation (dopamine deficit)** | Pomodoro sessions turn tasks into a "hunting game" |
 
 I hope this tool helps make task management easier and more engaging for you. 🚀
 
 ## Roadmap
 
+- Mobile (Pertially done by responsive web and tauri)
 - Endless Dog-fooding and bugfix (Current)
-- Mobile
 - Darktheme
 - Native Notification
 - Selfhost Guide

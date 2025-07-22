@@ -1,10 +1,11 @@
-import type { Auth } from "@/scripts/types";
 import ApplicationLogo from "@components/ApplicationLogo";
 import { LangSwitch } from "@components/LangSwitch";
 import { ParticlesBackground } from "@components/ParticlesBackground";
-import { useQueryClient } from "@tanstack/react-query";
+import { BrandGithub, BrandX } from "@mynaui/icons-react";
+import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
+import { fetchAuthQueryOptions } from "../queries";
 
 const WelcomeCard = ({
   variable = "right",
@@ -39,9 +40,7 @@ const WelcomeCard = ({
 
 export default function Welcome() {
   const { t } = useTranslation();
-
-  const queryClient = useQueryClient();
-  const auth = queryClient.getQueryData(["auth"]) as Auth;
+  const { data: auth } = useQuery(fetchAuthQueryOptions);
 
   return (
     <>
@@ -52,32 +51,37 @@ export default function Welcome() {
             <header className="items-center py-10">
               <nav className="-mx-3 flex justify-end">
                 <div className="flex flex-row">
-                  <LangSwitch />
-                </div>
-
-                {auth.user ? (
-                  <Link
-                    to="/auth/dashboard"
-                    className="rounded-md px-3 py-2 ring-1 ring-transparent transition hover:text-black/70 focus:outline-hidden focus-visible:ring-[#FF2D20] dark:text-white dark:focus-visible:ring-white dark:hover:text-white/80"
+                  <a
+                    className="h-10 p-2"
+                    href="https://github.com/kawadumax/decopon"
                   >
-                    {t("header.menu.dashboard")}
-                  </Link>
-                ) : (
-                  <>
+                    <BrandGithub className="text-black dark:text-white" />
+                  </a>
+                  {auth?.user?.id ? (
                     <Link
-                      to="/guest/login"
+                      to="/auth/dashboard"
                       className="rounded-md px-3 py-2 ring-1 ring-transparent transition hover:text-black/70 focus:outline-hidden focus-visible:ring-[#FF2D20] dark:text-white dark:focus-visible:ring-white dark:hover:text-white/80"
                     >
-                      {t("header.menu.login")}
+                      {t("header.menu.dashboard")}
                     </Link>
-                    <Link
-                      to="/guest/register"
-                      className="rounded-md py-2 ring-1 ring-transparent transition hover:text-black/70 focus:outline-hidden focus-visible:ring-[#FF2D20] dark:text-white dark:focus-visible:ring-white dark:hover:text-white/80"
-                    >
-                      {t("header.menu.register")}
-                    </Link>
-                  </>
-                )}
+                  ) : (
+                    <>
+                      <LangSwitch />
+                      <Link
+                        to="/guest/login"
+                        className="rounded-md px-3 py-2 ring-1 ring-transparent transition hover:text-black/70 focus:outline-hidden focus-visible:ring-[#FF2D20] dark:text-white dark:focus-visible:ring-white dark:hover:text-white/80"
+                      >
+                        {t("header.menu.login")}
+                      </Link>
+                      <Link
+                        to="/guest/register"
+                        className="rounded-md py-2 ring-1 ring-transparent transition hover:text-black/70 focus:outline-hidden focus-visible:ring-[#FF2D20] dark:text-white dark:focus-visible:ring-white dark:hover:text-white/80"
+                      >
+                        {t("header.menu.register")}
+                      </Link>
+                    </>
+                  )}
+                </div>
               </nav>
             </header>
 
@@ -127,7 +131,7 @@ export default function Welcome() {
                 </div>
 
                 <Link
-                  to={auth.user ? "/auth/dashboard" : "/guest/register"}
+                  to={auth?.user?.id ? "/auth/dashboard" : "/guest/register"}
                   className="rounded-full bg-amber-400 px-6 py-3 font-semibold text-white transition duration-300 hover:bg-amber-500"
                 >
                   {t("welcome.getStarted")}
@@ -136,6 +140,14 @@ export default function Welcome() {
             </main>
 
             <footer className="py-16 text-center text-black text-sm dark:text-white/70">
+              <div className="mb-2 flex items-center justify-center gap-4">
+                <a href="https://x.com/kawadumax">
+                  <BrandX className="h-6 w-6 text-black dark:text-white" />
+                </a>
+                <a href="https://github.com/kawadumax/decopon">
+                  <BrandGithub className="h-6 w-6 text-black dark:text-white" />
+                </a>
+              </div>
               <small>
                 This software is originally made by kawadumax. Licensed under
                 the MPL 2.0 License.

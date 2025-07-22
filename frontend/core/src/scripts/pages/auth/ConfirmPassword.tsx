@@ -1,7 +1,7 @@
+import { callApi } from "@/scripts/queries/apiClient";
 import InputLabel from "@components/InputLabel";
 import PrimaryButton from "@components/PrimaryButton";
 import TextInput from "@components/TextInput";
-import { callApi } from "@lib/apiClient";
 import { useForm } from "@tanstack/react-form";
 import { useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";

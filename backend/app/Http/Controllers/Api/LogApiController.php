@@ -50,12 +50,17 @@ class LogApiController extends ApiController
      */
     public function store(Request $request)
     {
+        // 'task_id'が文字列の"undefined"として送られてきた場合、nullに変換する
+        if ($request->input('task_id') === 'undefined') {
+            $request->merge(['task_id' => null]);
+        }
+
         $validated = $request->validate([
             'content' => 'required|string|max:255',
             'task_id' => [
-                'nullable',
+                'nullable', // これでnullを許可
                 'integer',
-                Rule::exists('tasks', 'id')->whereNotNull('id'),
+                Rule::exists('tasks', 'id'),
             ],
         ]);
 

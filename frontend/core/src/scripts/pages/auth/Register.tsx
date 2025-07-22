@@ -1,12 +1,12 @@
+import { callApi } from "@/scripts/queries/apiClient";
 import InputLabel from "@components/InputLabel";
 import PrimaryButton from "@components/PrimaryButton";
 import TextInput from "@components/TextInput";
-import { callApi } from "@lib/apiClient";
 import { useForm } from "@tanstack/react-form";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
-import { DemoCaution } from "./partials/DemoCaution";
 import { route } from "ziggy-js";
+import { DemoCaution } from "./partials/DemoCaution";
 
 export default function Register() {
   const { t } = useTranslation();

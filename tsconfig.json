@@ -1,4 +1,3 @@
-// /tsconfig.json
 {
   "compilerOptions": {
     "target": "ESNext",
@@ -9,6 +8,6 @@
     "isolatedModules": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "skipLibCheck": true,
+    "skipLibCheck": true
   }
 }

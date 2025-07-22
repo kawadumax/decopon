@@ -1,4 +1,3 @@
-import { useApi } from "@hooks/useApi";
 import { currentTagAtom, tagsAtom } from "@lib/atoms";
 
 import { useAtom } from "jotai";
@@ -10,19 +9,6 @@ export const TagList = () => {
   const { t } = useTranslation();
   const [tags, setTags] = useAtom(tagsAtom);
   const [currentTag, setCurrentTag] = useAtom(currentTagAtom);
-  const api = useApi();
-
-  // useEffect(() => {
-  //   if (_tags) {
-  //     setTags(_tags);
-  //     return;
-  //   }
-
-  //   api.get(route("api.tags.index"), (response) => {
-  //     console.log(response);
-  //     setTags(response.data.tags);
-  //   });
-  // }, [_tags, setTags, api]);
 
   const handleTagClicked = useCallback(
     (index: number) => {
@@ -38,7 +24,7 @@ export const TagList = () => {
       <ul
         className="flex-1 font-bold text-primary"
         onClick={() => {
-          setCurrentTag(null);
+          setCurrentTag(undefined);
         }}
         onKeyDown={() => {
           // setCurrentTag(null)

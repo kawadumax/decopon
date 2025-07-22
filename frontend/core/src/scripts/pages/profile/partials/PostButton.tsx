@@ -1,5 +1,5 @@
+import { callApi } from "@/scripts/queries/apiClient";
 import { Button } from "@components/ui/button";
-import { useApi } from "@hooks/useApi";
 import type { ReactNode } from "react";
 
 export const PostButton = ({
@@ -7,9 +7,8 @@ export const PostButton = ({
   className,
   children,
 }: { to: string; className: string; children: ReactNode }) => {
-  const api = useApi();
   const handleOnClick = () => {
-    api.post(to, {});
+    callApi("post", to);
   };
   return (
     <Button onClick={handleOnClick} className={className}>
