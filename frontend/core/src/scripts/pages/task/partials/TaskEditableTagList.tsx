@@ -1,5 +1,5 @@
+import { callApi } from "@/scripts/queries/apiClient";
 import type { Task } from "@/scripts/types";
-import { useApi } from "@hooks/useApi";
 import { tagsAtom } from "@lib/atoms";
 import { logger, toEmblorTags } from "@lib/utils";
 import { type Tag as EmblorTag, TagInput } from "emblor";
@@ -19,59 +19,50 @@ export const TaskEditableTagList = ({
     toEmblorTags(currentTask.tags),
   );
   const setTags = useSetAtom(tagsAtom);
-  const api = useApi();
 
   const handleTagAdded = useCallback(
     (tagText: string) => {
-      api.post(
-        route("api.tags.relation.post"),
-        {
-          task_id: currentTask.id,
-          name: tagText,
-        },
-        (data) => {
-          const newTag = data.tag;
-          setTags((prev) => {
-            // タグの名前で重複をチェック
-            const isDuplicate = prev.some((tag) => tag.name === newTag.name);
-            if (isDuplicate) {
-              return prev; // 重複がある場合は既存の配列をそのまま返す
-            }
-            return [newTag, ...prev]; // 重複がない場合のみ新しいタグを追加
-          });
-          setCurrentTask((prev) => ({
-            ...prev,
-            tags: [...prev.tags, newTag],
-          }));
-        },
-      );
+      callApi("post", route("api.tasks.update.tags", currentTask.id), {
+        task_id: currentTask.id,
+        name: tagText,
+      }).then((data) => {
+        const newTag = data.tag;
+        setTags((prev) => {
+          // タグの名前で重複をチェック
+          const isDuplicate = prev.some((tag) => tag.name === newTag.name);
+          if (isDuplicate) {
+            return prev; // 重複がある場合は既存の配列をそのまま返す
+          }
+          return [newTag, ...prev]; // 重複がない場合のみ新しいタグを追加
+        });
+        setCurrentTask((prev) => ({
+          ...prev,
+          tags: [...prev.tags, newTag],
+        }));
+      });
     },
-    [api, currentTask, setCurrentTask, setTags],
+    [currentTask, setCurrentTask, setTags],
   );
 
   const handleTagRemoved = useCallback(
     (tagText: string) => {
       logger("tag removed", tagText, currentTask);
-      api.delete(
-        route("api.tags.relation.destroy"),
-        {
-          task_id: currentTask.id,
-          name: tagText,
-        },
-        (data) => {
-          setCurrentTask((prev) => {
-            const newTags = prev.tags
-              ? prev.tags.filter((tag) => tag.name !== data.tag.name)
-              : [];
-            return {
-              ...prev,
-              tags: [...newTags],
-            };
-          });
-        },
-      );
+      callApi("delete", route("api.tags.relation.destroy"), {
+        task_id: currentTask.id,
+        name: tagText,
+      }).then((data) => {
+        setCurrentTask((prev) => {
+          const newTags = prev.tags
+            ? prev.tags.filter((tag) => tag.name !== data.tag.name)
+            : [];
+          return {
+            ...prev,
+            tags: [...newTags],
+          };
+        });
+      });
     },
-    [currentTask, api, setCurrentTask],
+    [currentTask, setCurrentTask],
   );
 
   useEffect(() => {

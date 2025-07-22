@@ -103,4 +103,4 @@ export type DecoponLinkProps = Pick<LinkProps<RegisteredRouter>, "to"> & {
 };
 
 // Axios層
-export type ApiData = Record<string, unknown> | FormData | undefined;
+export type ApiRequestData = Record<string, unknown> | FormData | undefined;

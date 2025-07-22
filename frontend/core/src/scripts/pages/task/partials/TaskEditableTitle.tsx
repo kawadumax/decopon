@@ -3,7 +3,6 @@ import type { Task } from "@/scripts/types";
 import { Checkbox } from "@components/ui/checkbox";
 import { Input } from "@components/ui/input";
 import { Toggle } from "@components/ui/toggle";
-import { useApi } from "@hooks/useApi";
 import { tasksBatchAtom } from "@lib/atoms";
 import { Edit } from "@mynaui/icons-react";
 import {
@@ -35,8 +34,6 @@ export const TaskEditableTitle = ({
   task: Task;
   variant?: "default" | "lg";
 }) => {
-  const api = useApi();
-  // const [task, setTask] = useAtom(taskAtom);
   const queryClient = useQueryClient();
   const batchTasks = useSetAtom(tasksBatchAtom);
   const [editable, setEditable] = useState(false);
@@ -78,15 +75,13 @@ export const TaskEditableTitle = ({
 
   const handleCheckboxChange = useCallback(
     (checked: boolean) => {
-      api.put(
-        route("api.tasks.update.complete", task.id),
-        { completed: checked },
-        (data) => {
-          batchTasks(data.tasks);
-        },
-      );
+      callApi("put", route("api.tasks.update.complete", task.id), {
+        completed: checked,
+      }).then((data) => {
+        batchTasks(data.tasks);
+      });
     },
-    [api, batchTasks, task.id],
+    [batchTasks, task.id],
   );
 
   useEffect(() => {

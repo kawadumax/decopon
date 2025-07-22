@@ -1,8 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRef, useState } from "react";
-import { route } from "ziggy-js";
-import { useApi } from "../hooks/useApi";
-import { logger } from "../lib/utils";
+import { storeLogMutationOptions } from "../queries";
 import type { Log, Task } from "../types";
 import {
   type AutosizeTextAreaRef,
@@ -12,26 +10,13 @@ import {
 export const LogInput = ({ task }: { task: Task | undefined }) => {
   const taskId = task?.id ?? "undefined";
   const queryKey = task ? ["logs", taskId] : ["logs"];
-  const api = useApi();
   const [tempIdCounter, setTempIdCounter] = useState(0);
   const [content, setContent] = useState("");
   const textareaRef = useRef<AutosizeTextAreaRef>(null);
   const queryClient = useQueryClient();
 
   // useMutationでPOSTリクエストを管理
-  const mutation = useMutation({
-    mutationFn: (data: Partial<Log>) => api.post(route("api.logs.store"), data),
-    onSuccess: (storedLog) => {
-      logger("success log storing", storedLog);
-      // ログ一覧のキャッシュを無効化（必要に応じて）
-      queryClient.invalidateQueries({
-        queryKey,
-      });
-    },
-    onError: (error) => {
-      logger("error log storing", error);
-    },
-  });
+  const storeLogMutation = useMutation(storeLogMutationOptions);
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (!content.trim()) return;
@@ -54,7 +39,7 @@ export const LogInput = ({ task }: { task: Task | undefined }) => {
       ]);
 
       // ここでAPIにPOSTリクエストを送信
-      mutation.mutate({
+      storeLogMutation.mutate({
         content: content,
         task_id: taskId ?? null,
       } as Partial<Log>);

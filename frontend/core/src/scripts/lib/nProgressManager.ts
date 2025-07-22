@@ -19,6 +19,7 @@ export class NProgressManager {
   incrementRequests(): void {
     if (this.activeRequests === 0) {
       nProgress.start();
+      console.log("NProgress started");
     }
     this.activeRequests++;
   }
@@ -27,6 +28,7 @@ export class NProgressManager {
     this.activeRequests--;
     if (this.activeRequests === 0) {
       nProgress.done();
+      console.log("NProgress completed");
     }
   }
 }

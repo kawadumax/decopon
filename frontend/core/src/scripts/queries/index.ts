@@ -1,5 +1,7 @@
-import { QueryClient } from "@tanstack/react-query";
-import { fetchAuth } from "./apiClient";
+import { type MutationOptions, QueryClient } from "@tanstack/react-query";
+import { logger } from "../lib/utils";
+import type { Log } from "../types";
+import { fetchAuth, storeLog } from "./apiClient";
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -16,4 +18,16 @@ export const queryClient = new QueryClient({
 export const fetchAuthQueryOptions = {
   queryKey: ["auth"],
   queryFn: fetchAuth,
+};
+
+export const storeLogMutationOptions: MutationOptions<
+  Log,
+  unknown,
+  Partial<Log>
+> = {
+  mutationFn: storeLog,
+  mutationKey: ["logs"],
+  onError: (error: unknown) => {
+    logger("error log storing", error);
+  },
 };

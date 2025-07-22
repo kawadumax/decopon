@@ -1,7 +1,7 @@
+import { callApi } from "@/scripts/queries/apiClient";
 import type { Log, Task } from "@/scripts/types";
 import { LogInput } from "@components/LogInput";
 import { LogItem } from "@components/LogItem";
-import { useApi } from "@hooks/useApi";
 import { useQuery } from "@tanstack/react-query";
 import { useAtomValue } from "jotai";
 import type { PrimitiveAtom } from "jotai";
@@ -9,13 +9,13 @@ import { useEffect, useRef } from "react";
 import { route } from "ziggy-js";
 
 export const TaskLogger = ({ taskAtom }: { taskAtom: PrimitiveAtom<Task> }) => {
-  const api = useApi();
   const task = useAtomValue(taskAtom);
   const { data, isLoading } = useQuery<Log[]>({
     queryKey: ["logs", task?.id],
     queryFn: async () => {
       if (!task) return [];
-      const response = await api.get(route("api.logs.task", task.id));
+      // const response = await api.get(route("api.logs.task", task.id));
+      const response = await callApi("get", route("api.logs.task", task.id));
       return response ?? [];
     },
     enabled: !!task,

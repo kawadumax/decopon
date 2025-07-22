@@ -1,4 +1,3 @@
-import { useApi } from "@hooks/useApi";
 import { currentTagAtom, tagsAtom } from "@lib/atoms";
 
 import { useAtom } from "jotai";
@@ -10,11 +9,9 @@ export const TagList = () => {
   const { t } = useTranslation();
   const [tags, setTags] = useAtom(tagsAtom);
   const [currentTag, setCurrentTag] = useAtom(currentTagAtom);
-  const api = useApi();
 
   const handleTagClicked = useCallback(
     (index: number) => {
-      console.log("Tag clicked:", tags[index]);
       setCurrentTag(tags[index]);
     },
     [tags, setCurrentTag],
