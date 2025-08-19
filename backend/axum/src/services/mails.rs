@@ -1,55 +1,65 @@
 use lettre::message::{Mailbox, header::ContentType};
-use lettre::transport::smtp::authentication::Credentials;
+use lettre::transport::smtp::response::Response;
 use lettre::{Message, SmtpTransport, Transport};
+use std::env;
+use std::sync::Arc;
 
-pub fn setup_mailer() {
-    // This function would typically set up the mailer configuration.
-    // For now, we will just print a message indicating that the mailer is set up.
-    println!("Mailer setup complete.");
+pub fn setup_mailer() -> Result<Arc<SmtpTransport>, Box<dyn std::error::Error>> {
+    // Load SMTP server credentials from environment variables
+    let smtp_server = std::env::var("AXUM_SMTP_SERVER")
+        .expect("Environment variable 'AXUM_SMTP_SERVER' is not set. Check your '.env' file.");
+    let smtp_username = std::env::var("AXUM_SMTP_USERNAME")
+        .expect("Environment variable 'AXUM_SMTP_USERNAME' is not set. Check your '.env' file.");
+    let smtp_password = std::env::var("AXUM_SMTP_PASSWORD")
+        .expect("Environment variable 'AXUM_SMTP_PASSWORD' is not set. Check your '.env' file.");
+
+    // Create SMTP transport
+    let creds =
+        lettre::transport::smtp::authentication::Credentials::new(smtp_username, smtp_password);
+    let mailer = SmtpTransport::relay(&smtp_server)?
+        .credentials(creds)
+        .build();
+
+    Ok(Arc::new(mailer))
 }
 
-pub fn send(email: &str, subject: &str, body: &str) -> Result<(), String> {
-    // Here you would implement the actual email sending logic.
-    // For now, we will just simulate a successful send.
-
-    println!("Sending email to: {}", email);
-    println!("Subject: {}", subject);
-    println!("Body: {}", body);
-
-    // Simulate success
-    Ok(())
+fn get_from() -> Mailbox {
+    let name = env::var("AXUM_MAIL_FROM_NAME").unwrap_or_else(|_| "Default Name".to_string());
+    let email = env::var("AXUM_MAIL_FROM_EMAIL")
+        .expect("Environment variable 'AXUM_MAIL_FROM_EMAIL' is not set. Check your '.env' file.");
+    Mailbox::new(
+        Some(name),
+        email
+            .parse()
+            .expect("Invalid email format for AXUM_MAIL_FROM_EMAIL"),
+    )
 }
 
-// サンプルコード
+pub fn send(
+    mailer: Arc<SmtpTransport>,
+    email: &str,
+    subject: &str,
+    body: &str,
+) -> Result<Response, Box<dyn std::error::Error>> {
+    let to = Mailbox::new(subject.to_owned().into(), email.parse().unwrap());
+    let from = get_from();
 
-// let email = Message::builder()
-//     .from(Mailbox::new("NoBody".to_owned(), "nobody@domain.tld".parse().unwrap()))
-//     .reply_to(Mailbox::new("Yuin".to_owned(), "yuin@domain.tld".parse().unwrap()))
-//     .to(Mailbox::new("Hei".to_owned(), "hei@domain.tld".parse().unwrap()))
-//     .subject("Happy new year")
-//     .header(ContentType::TEXT_PLAIN)
-//     .body(String::from("Be happy!"))
-//     .unwrap();
+    let email = Message::builder()
+        .from(from)
+        .to(to)
+        .subject(subject)
+        .header(ContentType::TEXT_PLAIN)
+        .body(String::from(body))
+        .unwrap();
 
-// let creds = Credentials::new("smtp_username".to_owned(), "smtp_password".to_owned());
-
-// // Open a remote connection to gmail
-// let mailer = SmtpTransport::relay("smtp.gmail.com")
-//     .unwrap()
-//     .credentials(creds)
-//     .build();
-
-// // Send the email
-// match mailer.send(&email) {
-//     Ok(_) => println!("Email sent successfully!"),
-//     Err(e) => panic!("Could not send email: {e:?}"),
-// }
+    // Send the email
+    Ok(mailer.send(&email)?)
+}
 
 // test
 
 #[cfg(test)]
 mod tests {
-    use std::env;
 
     use dotenvy::dotenv;
 
@@ -64,44 +74,27 @@ mod tests {
     }
 
     #[test]
-    fn test_send_email() {
-        let email = "test@example.com"; // Replace with a valid email for testing
-        let subject = "Test Subject"; // Replace with a valid subject for testing     
-        let body = "Test Body"; // Replace with a valid body for testing
-        assert!(send(email, subject, body).is_ok());
-    }
-
-    #[test]
+    #[ignore = "外部サービスにメール送信するため通常はスキップ"]
+    // Ignore this test by default
+    // #[serial] // Uncomment if using serial testing
+    // TODO: 将来的にxtaskへ移行
+    /// This test sends a one-shot email using the configured SMTP server.
+    /// It requires the environment variables to be set up correctly.
+    /// To run this test, set the environment variables in your `.env` file.
     fn one_shot() {
         dotenv().ok();
-        let from_email = env::var("AXUM_MAIL_FROM_EMAIL").unwrap();
-        println!("From email: {}", from_email);
+
+        let from = get_from();
 
         let email = Message::builder()
-            .from(Mailbox::new(
-                env::var("AXUM_MAIL_FROM_NAME").ok(),
-                from_email.parse().unwrap(),
-            ))
-            // .reply_to(Mailbox::new(
-            //     "Yuin".to_owned(),
-            //     "yuin@domain.tld".parse().unwrap(),
-            // ))
+            .from(from)
             .to(Mailbox::new(None, mock_address().parse().unwrap()))
             .subject("Happy new year")
             .header(ContentType::TEXT_PLAIN)
             .body(String::from("Be happy!"))
             .unwrap();
 
-        let username = env::var("AXUM_SMTP_USERNAME").unwrap_or("CENSORED".to_string());
-        let password = env::var("AXUM_SMTP_PASSWORD").unwrap_or("CENSORED".to_string());
-        let creds = Credentials::new(username, password);
-
-        let domain = env::var("AXUM_SMTP_SERVER").unwrap_or("CENSORED".to_string());
-        // Open a remote connection to gmail
-        let mailer = SmtpTransport::relay(&domain)
-            .unwrap()
-            .credentials(creds)
-            .build();
+        let mailer = setup_mailer().expect("Failed to set up mailer");
 
         // Send the email
         match mailer.send(&email) {

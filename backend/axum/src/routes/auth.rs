@@ -53,6 +53,7 @@ async fn register_user(
     State(AppState {
         db,
         password_worker,
+        mailer: _,
     }): State<AppState>,
     Json(payload): Json<RegisterUserDto>,
 ) -> Result<impl IntoResponse, StatusCode> {
@@ -102,6 +103,7 @@ async fn login(
     State(AppState {
         db,
         password_worker,
+        mailer: _,
     }): State<AppState>,
     Json(payload): Json<LoginRequestDto>,
 ) -> Result<impl IntoResponse, StatusCode> {

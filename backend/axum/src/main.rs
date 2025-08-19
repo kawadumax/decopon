@@ -13,6 +13,7 @@ use std::sync::Arc;
 pub struct AppState {
     db: Arc<DatabaseConnection>,
     password_worker: Arc<PasswordWorker<Bcrypt>>,
+    mailer: Arc<lettre::SmtpTransport>,
 }
 
 // FromRefの実装
@@ -25,6 +26,12 @@ impl FromRef<AppState> for Arc<DatabaseConnection> {
 impl FromRef<AppState> for Arc<PasswordWorker<Bcrypt>> {
     fn from_ref(state: &AppState) -> Self {
         state.password_worker.clone()
+    }
+}
+
+impl FromRef<AppState> for Arc<lettre::SmtpTransport> {
+    fn from_ref(state: &AppState) -> Self {
+        state.mailer.clone()
     }
 }
 
@@ -57,11 +64,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // PasswordWorker初期化（一度だけ）
     let password_worker = setup_password_worker()?;
 
+    // メール送信の設定
+    let mailer = services::mails::setup_mailer()?;
+
     // build our application with routes
     let routes: Router<AppState> = routes::create_routes();
     let app = routes.with_state(AppState {
         db: db.clone(),
         password_worker: password_worker.clone(),
+        mailer: mailer.clone(),
     });
     // run our app with hyper, listening globally on port 3000
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
