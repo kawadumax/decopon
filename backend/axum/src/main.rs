@@ -1,4 +1,5 @@
 mod entities;
+mod errors;
 mod routes;
 mod services;
 use axum::Router;
