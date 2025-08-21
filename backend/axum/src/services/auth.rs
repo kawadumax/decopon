@@ -5,12 +5,12 @@ use crate::{
 };
 use axum_password_worker::{Bcrypt, BcryptConfig, PasswordWorker};
 use chrono::Utc;
-use jsonwebtoken::{encode, EncodingKey, Header};
-use rand::{distributions::Alphanumeric, Rng};
+use jsonwebtoken::{EncodingKey, Header, encode};
+use lettre::SmtpTransport;
+use rand::{Rng, distributions::Alphanumeric};
 use sea_orm::{ActiveModelTrait, ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter, Set};
 use sha2::{Digest, Sha256};
 use std::sync::Arc;
-use lettre::SmtpTransport;
 
 type AppError = Box<dyn std::error::Error + Send + Sync>;
 
@@ -39,8 +39,7 @@ pub async fn register_user(
     //     ));
     // }
 
-    // ステップ2: パスワードハッシュ & ユーザー作成
-    let hashed_password = hash_password(password, password_worker).await?; // argon2でハッシュ
+    let hashed_password = hash_password(password, password_worker).await?;
     let raw_token: String = rand::thread_rng()
         .sample_iter(&Alphanumeric)
         .take(32)

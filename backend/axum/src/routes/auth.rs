@@ -10,13 +10,15 @@ use sea_orm::DatabaseConnection;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
+use crate::routes::AppState;
 use crate::services;
-use crate::{routes::AppState};
 
 #[derive(Deserialize, Serialize)]
 pub struct RegisterUserDto {
+    pub name: String,
     pub email: String,
     pub password: String,
+    pub password_confirmation: String,
 }
 
 #[derive(Serialize)]
@@ -30,7 +32,8 @@ pub struct UserFullDto {
     pub name: String,
     pub email: String,
     pub email_verified_at: Option<chrono::DateTime<chrono::Utc>>,
-    pub password: String, // ハッシュ化されたパスワード
+    pub verification_token: Option<String>, // ユーザーの検証トークン
+    pub password: String,                   // ハッシュ化されたパスワード
     pub work_time: i32,
     pub break_time: i32,
     pub locale: String,
@@ -149,10 +152,10 @@ async fn notify_email() -> StatusCode {
 
 pub fn routes() -> Router<AppState> {
     Router::<AppState>::new()
-        .route("users", post(register_user).get(get_auth_user))
-        .route("sessions", post(login).delete(logout))
-        .route("password/forgot", post(forgot_password))
-        .route("password/reset", post(reset_password))
-        .route("email/verify/:token", get(verify_email))
-        .route("email/notify", post(notify_email))
+        .route("/users", post(register_user).get(get_auth_user))
+        .route("/sessions", post(login).delete(logout))
+        .route("/password/forgot", post(forgot_password))
+        .route("/password/reset", post(reset_password))
+        .route("/email/verify/:token", get(verify_email))
+        .route("/email/notify", post(notify_email))
 }

@@ -2,13 +2,18 @@ mod entities;
 mod errors;
 mod routes;
 mod services;
-use axum::Router;
 use axum::extract::FromRef;
 use axum_password_worker::{Bcrypt, PasswordWorker};
 use dotenvy::dotenv;
 use sea_orm::{Database, DatabaseConnection};
 use std::env;
+use std::net::SocketAddr;
 use std::sync::Arc;
+use tower_http::trace::TraceLayer;
+use tracing::info;
+use tracing_subscriber::layer::SubscriberExt;
+use tracing_subscriber::util::SubscriberInitExt;
+use tracing_subscriber::{EnvFilter, fmt};
 
 #[derive(Clone)]
 pub struct AppState {
@@ -54,10 +59,25 @@ fn setup_password_worker() -> Result<Arc<PasswordWorker<Bcrypt>>, Box<dyn std::e
     Ok(Arc::new(worker))
 }
 
+fn setup_tracing_subscriber() -> Result<(), Box<dyn std::error::Error>> {
+    let filter = EnvFilter::builder()
+        .with_default_directive(tracing::level_filters::LevelFilter::INFO.into())
+        .from_env_lossy(); // RUST_LOG があれば上書き
+
+    tracing_subscriber::registry()
+        .with(filter)
+        .with(fmt::layer())
+        .init();
+    Ok(())
+}
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Load environment variables from .env file
     dotenv().ok();
+
+    // Set up tracing subscriber for logging
+    setup_tracing_subscriber()?;
 
     // Set up the database connection
     let db = setup_database().await?;
@@ -69,14 +89,19 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mailer = services::mails::setup_mailer()?;
 
     // build our application with routes
-    let routes: Router<AppState> = routes::create_routes();
-    let app = routes.with_state(AppState {
-        db: db.clone(),
-        password_worker: password_worker.clone(),
-        mailer: mailer.clone(),
-    });
+    let app = routes::create_routes()
+        .with_state(AppState {
+            db: db.clone(),
+            password_worker: password_worker.clone(),
+            mailer: mailer.clone(),
+        })
+        .layer(TraceLayer::new_for_http());
+
+    let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
+    info!("Starting server on {}", addr);
+
     // run our app with hyper, listening globally on port 3000
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
+    let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
     axum::serve(listener, app).await?;
     Ok(())
 }
