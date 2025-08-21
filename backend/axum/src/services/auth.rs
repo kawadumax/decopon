@@ -1,12 +1,16 @@
 use crate::{
-    entities::{prelude::*, users},
-    routes::auth::{LoginRequestDto, LoginResultDto, RegisterUserResultDto, UserDto},
+    entities::users,
+    routes::auth::{AuthResponse, RegisterUserResultDto, UserDto},
     services,
 };
 use axum_password_worker::{Bcrypt, BcryptConfig, PasswordWorker};
 use chrono::Utc;
-use jsonwebtoken::{EncodingKey, Header, encode};
-use sea_orm::{ActiveModelTrait, DatabaseConnection, EntityTrait, Set};
+use jsonwebtoken::{encode, EncodingKey, Header};
+use rand::{distributions::Alphanumeric, Rng};
+use sea_orm::{ActiveModelTrait, ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter, Set};
+use sha2::{Digest, Sha256};
+use std::sync::Arc;
+use lettre::SmtpTransport;
 
 type AppError = Box<dyn std::error::Error + Send + Sync>;
 
@@ -20,6 +24,7 @@ pub struct Claims {
 pub async fn register_user(
     db: &DatabaseConnection,
     password_worker: &PasswordWorker<Bcrypt>,
+    mailer: &Arc<SmtpTransport>,
     email: &str,
     password: &str,
 ) -> Result<RegisterUserResultDto, AppError> {
@@ -36,20 +41,22 @@ pub async fn register_user(
 
     // ステップ2: パスワードハッシュ & ユーザー作成
     let hashed_password = hash_password(password, password_worker).await?; // argon2でハッシュ
+    let raw_token: String = rand::thread_rng()
+        .sample_iter(&Alphanumeric)
+        .take(32)
+        .map(char::from)
+        .collect();
+    let hashed_token = hash_token(&raw_token);
     let user_active = users::ActiveModel {
         email: Set(email.to_string()),
         password: Set(hashed_password),
+        verification_token: Set(Some(hashed_token)),
         ..Default::default()
     };
     let user = user_active.insert(db).await?;
+    services::mails::send_verification_email(mailer.clone(), email, &raw_token)?;
 
-    // ステップ3: JWT生成
-    let token = create_jwt(user.id).map_err(|e| AppError::from(e))?;
-
-    Ok(RegisterUserResultDto {
-        user: user.into(),
-        token,
-    })
+    Ok(RegisterUserResultDto { user: user.into() })
 }
 
 pub async fn get_auth_user_from_token(
@@ -82,11 +89,15 @@ pub async fn login_user(
     password_worker: &PasswordWorker<Bcrypt>,
     email: &str,
     password: &str,
-) -> Result<LoginResultDto, AppError> {
+) -> Result<AuthResponse, AppError> {
     // ユーザーをメールアドレスで取得
     let user = services::users::get_user_by_email(db, &email.to_string())
         .await
         .map_err(|e| AppError::from(e))?;
+
+    if user.email_verified_at.is_none() {
+        return Err(AppError::from("Email not verified"));
+    }
 
     // パスワードを検証
     if !verify_password(password, &user.password, password_worker).await? {
@@ -96,10 +107,36 @@ pub async fn login_user(
     // JWTトークンを生成
     let token = create_jwt(user.id).map_err(|e| AppError::from(e))?;
 
-    Ok(LoginResultDto {
+    Ok(AuthResponse {
         token,
         user: user.into(),
     })
+}
+
+pub async fn verify_email(
+    db: &DatabaseConnection,
+    token: String,
+) -> Result<AuthResponse, AppError> {
+    let hashed = hash_token(&token);
+    let user = users::Entity::find()
+        .filter(users::Column::VerificationToken.eq(hashed.clone()))
+        .one(db)
+        .await?
+        .ok_or_else(|| AppError::from("Invalid token"))?;
+
+    let mut user_active: users::ActiveModel = user.into();
+    user_active.email_verified_at = Set(Some(Utc::now()));
+    user_active.verification_token = Set(None);
+    let user = user_active.update(db).await?;
+    let jwt = create_jwt(user.id)?;
+    Ok(AuthResponse {
+        token: jwt,
+        user: user.into(),
+    })
+}
+
+fn hash_token(token: &str) -> String {
+    format!("{:x}", Sha256::digest(token.as_bytes()))
 }
 
 pub async fn verify_password(

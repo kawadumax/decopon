@@ -10,7 +10,8 @@ pub struct Model {
     pub name: String,
     #[sea_orm(unique)]
     pub email: String,
-    pub email_verified_at: DateTimeUtc,
+    pub email_verified_at: Option<DateTimeUtc>,
+    pub verification_token: Option<String>,
     pub password: String,
     pub work_time: i32,
     pub break_time: i32,

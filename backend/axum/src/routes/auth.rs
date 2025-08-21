@@ -3,16 +3,15 @@ use axum::{
     extract::{Path, State},
     http::StatusCode,
     response::{IntoResponse, Json},
-    routing::{delete, get, post},
+    routing::{get, post},
 };
 use axum_macros::debug_handler;
-use axum_password_worker::{Bcrypt, PasswordWorker};
 use sea_orm::DatabaseConnection;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
 use crate::services;
-use crate::{entities, routes::AppState};
+use crate::{routes::AppState};
 
 #[derive(Deserialize, Serialize)]
 pub struct RegisterUserDto {
@@ -22,7 +21,6 @@ pub struct RegisterUserDto {
 
 #[derive(Serialize)]
 pub struct RegisterUserResultDto {
-    pub token: String,
     pub user: UserDto, // シンプルなユーザーDTO（id, emailなど）
 }
 
@@ -31,7 +29,7 @@ pub struct UserFullDto {
     pub id: i32,
     pub name: String,
     pub email: String,
-    pub email_verified_at: chrono::DateTime<chrono::Utc>,
+    pub email_verified_at: Option<chrono::DateTime<chrono::Utc>>,
     pub password: String, // ハッシュ化されたパスワード
     pub work_time: i32,
     pub break_time: i32,
@@ -53,15 +51,20 @@ async fn register_user(
     State(AppState {
         db,
         password_worker,
-        mailer: _,
+        mailer,
     }): State<AppState>,
     Json(payload): Json<RegisterUserDto>,
 ) -> Result<impl IntoResponse, StatusCode> {
     // サービス関数呼び出し
-    let result =
-        services::auth::register_user(&db, &password_worker, &payload.email, &payload.password)
-            .await
-            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    let result = services::auth::register_user(
+        &db,
+        &password_worker,
+        &mailer,
+        &payload.email,
+        &payload.password,
+    )
+    .await
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
     Ok((StatusCode::CREATED, Json(result)))
 }
 
@@ -93,7 +96,7 @@ pub struct LoginRequestDto {
 }
 
 #[derive(Serialize)]
-pub struct LoginResultDto {
+pub struct AuthResponse {
     pub token: String,
     pub user: UserDto,
 }
@@ -129,9 +132,15 @@ async fn reset_password() -> StatusCode {
     // Reset password logic here
     StatusCode::OK
 }
-async fn verify_email(Path((id, hash)): Path<(i32, String)>) -> StatusCode {
-    // Email verification logic here
-    StatusCode::OK
+#[debug_handler]
+async fn verify_email(
+    State(AppState { db, .. }): State<AppState>,
+    Path(token): Path<String>,
+) -> Result<impl IntoResponse, StatusCode> {
+    let result = services::auth::verify_email(&db, token)
+        .await
+        .map_err(|_| StatusCode::BAD_REQUEST)?;
+    Ok((StatusCode::OK, Json(result)))
 }
 async fn notify_email() -> StatusCode {
     // Notify email logic here
@@ -144,6 +153,6 @@ pub fn routes() -> Router<AppState> {
         .route("sessions", post(login).delete(logout))
         .route("password/forgot", post(forgot_password))
         .route("password/reset", post(reset_password))
-        .route("email/verify/{id}/{hash}", get(verify_email))
+        .route("email/verify/:token", get(verify_email))
         .route("email/notify", post(notify_email))
 }

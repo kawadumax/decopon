@@ -40,7 +40,7 @@ pub fn send(
     email: &str,
     subject: &str,
     body: &str,
-) -> Result<Response, Box<dyn std::error::Error>> {
+) -> Result<Response, Box<dyn std::error::Error + Send + Sync>> {
     let to = Mailbox::new(subject.to_owned().into(), email.parse().unwrap());
     let from = get_from();
 
@@ -54,6 +54,16 @@ pub fn send(
 
     // Send the email
     Ok(mailer.send(&email)?)
+}
+
+pub fn send_verification_email(
+    mailer: Arc<SmtpTransport>,
+    email: &str,
+    token: &str,
+) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    let body = format!("Verification token: {}", token);
+    send(mailer, email, "Verify your email", &body)?;
+    Ok(())
 }
 
 // test

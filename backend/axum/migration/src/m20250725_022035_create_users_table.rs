@@ -15,6 +15,7 @@ impl MigrationTrait for Migration {
                     .col(string(Users::Name).not_null())
                     .col(string(Users::Email).unique_key().not_null())
                     .col(timestamp(Users::EmailVerifiedAt).null())
+                    .col(string(Users::VerificationToken).null())
                     .col(string(Users::Password).not_null())
                     .col(integer(Users::WorkTime).default(25))
                     .col(integer(Users::BreakTime).default(5))
@@ -41,6 +42,7 @@ pub enum Users {
     Name,
     Email,
     EmailVerifiedAt,
+    VerificationToken,
     Password,
     WorkTime,
     BreakTime,
