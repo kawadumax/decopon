@@ -10,6 +10,7 @@ use sea_orm::DatabaseConnection;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
+use crate::errors::ApiError;
 use crate::routes::AppState;
 use crate::services;
 
@@ -57,7 +58,7 @@ async fn register_user(
         mailer,
     }): State<AppState>,
     Json(payload): Json<RegisterUserDto>,
-) -> Result<impl IntoResponse, StatusCode> {
+) -> Result<impl IntoResponse, ApiError> {
     // サービス関数呼び出し
     let result = services::auth::register_user(
         &db,
@@ -66,8 +67,7 @@ async fn register_user(
         &payload.email,
         &payload.password,
     )
-    .await
-    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    .await?;
     Ok((StatusCode::CREATED, Json(result)))
 }
 
@@ -85,10 +85,8 @@ pub struct GetAuthUserResultDto {
 async fn get_auth_user(
     State(db): State<Arc<DatabaseConnection>>,
     Json(payload): Json<GetAuthUserDto>,
-) -> Result<impl IntoResponse, StatusCode> {
-    let user = services::auth::get_auth_user_from_token(&db, payload.token)
-        .await
-        .map_err(|_| StatusCode::UNAUTHORIZED)?;
+) -> Result<impl IntoResponse, ApiError> {
+    let user = services::auth::get_auth_user_from_token(&db, payload.token).await?;
     Ok((StatusCode::OK, Json(GetAuthUserResultDto { user })))
 }
 
@@ -112,11 +110,10 @@ async fn login(
         mailer: _,
     }): State<AppState>,
     Json(payload): Json<LoginRequestDto>,
-) -> Result<impl IntoResponse, StatusCode> {
+) -> Result<impl IntoResponse, ApiError> {
     let result =
         services::auth::login_user(&db, &password_worker, &payload.email, &payload.password)
-            .await
-            .map_err(|_| StatusCode::UNAUTHORIZED)?;
+            .await?;
 
     Ok((StatusCode::OK, Json(result)))
 }
@@ -139,10 +136,8 @@ async fn reset_password() -> StatusCode {
 async fn verify_email(
     State(AppState { db, .. }): State<AppState>,
     Path(token): Path<String>,
-) -> Result<impl IntoResponse, StatusCode> {
-    let result = services::auth::verify_email(&db, token)
-        .await
-        .map_err(|_| StatusCode::BAD_REQUEST)?;
+) -> Result<impl IntoResponse, ApiError> {
+    let result = services::auth::verify_email(&db, token).await?;
     Ok((StatusCode::OK, Json(result)))
 }
 async fn notify_email() -> StatusCode {

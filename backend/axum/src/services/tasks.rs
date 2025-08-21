@@ -1,12 +1,12 @@
 use crate::{
     entities::{prelude::*, *},
+    errors::ApiError,
     routes::tasks::{StoreTaskDto, TaskDto, UpdateTaskDto},
     services,
 };
 
 use sea_orm::{
-    ActiveModelTrait, ActiveValue, DatabaseConnection, DbErr, DeleteResult, EntityTrait,
-    InsertResult,
+    ActiveModelTrait, ActiveValue, DatabaseConnection, DeleteResult, EntityTrait, InsertResult,
 };
 
 impl From<tasks::Model> for TaskDto {
@@ -23,11 +23,7 @@ impl From<tasks::Model> for TaskDto {
     }
 }
 
-fn not_found_error(id: i32) -> DbErr {
-    DbErr::RecordNotFound(format!("Task with ID {} not found", id))
-}
-
-pub async fn get_tasks(db: &DatabaseConnection) -> Result<Vec<TaskDto>, DbErr> {
+pub async fn get_tasks(db: &DatabaseConnection) -> Result<Vec<TaskDto>, ApiError> {
     // TODO: Implement filer by user_id
     // For now, we just fetch all tasks
     let tasks = Tasks::find().all(db).await?;
@@ -40,7 +36,7 @@ pub async fn get_tasks(db: &DatabaseConnection) -> Result<Vec<TaskDto>, DbErr> {
 pub async fn insert_task(
     db: &DatabaseConnection,
     request: StoreTaskDto,
-) -> Result<InsertResult<tasks::ActiveModel>, DbErr> {
+) -> Result<InsertResult<tasks::ActiveModel>, ApiError> {
     let new_task = tasks::ActiveModel {
         title: ActiveValue::Set(request.title),
         description: ActiveValue::Set(request.description),
@@ -58,21 +54,21 @@ pub async fn insert_task(
     Ok(inserted_result)
 }
 
-pub async fn get_task_by_id(db: &DatabaseConnection, id: i32) -> Result<TaskDto, DbErr> {
+pub async fn get_task_by_id(db: &DatabaseConnection, id: i32) -> Result<TaskDto, ApiError> {
     let task = Tasks::find_by_id(id).one(db).await?;
-    let task = task.ok_or(not_found_error(id))?;
+    let task = task.ok_or(ApiError::NotFound("task"))?;
     Ok(task.into())
 }
 
 pub async fn update_task(
     db: &DatabaseConnection,
     request: UpdateTaskDto,
-) -> Result<TaskDto, DbErr> {
+) -> Result<TaskDto, ApiError> {
     let id = request.id;
     let mut task: tasks::ActiveModel = Tasks::find_by_id(id)
         .one(db)
         .await?
-        .ok_or(not_found_error(id))?
+        .ok_or(ApiError::NotFound("task"))?
         .into();
 
     if let Some(title) = request.title {
@@ -102,6 +98,6 @@ pub async fn update_task(
     Ok(task.into())
 }
 
-pub async fn delete_task(db: &DatabaseConnection, id: i32) -> Result<DeleteResult, DbErr> {
-    Tasks::delete_by_id(id).exec(db).await
+pub async fn delete_task(db: &DatabaseConnection, id: i32) -> Result<DeleteResult, ApiError> {
+    Tasks::delete_by_id(id).exec(db).await.map_err(Into::into)
 }

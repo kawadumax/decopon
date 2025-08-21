@@ -1,17 +1,16 @@
-use lettre::message::{Mailbox, header::ContentType};
+use lettre::message::{header::ContentType, Mailbox};
 use lettre::transport::smtp::response::Response;
 use lettre::{Message, SmtpTransport, Transport};
 use std::env;
 use std::sync::Arc;
 
-pub fn setup_mailer() -> Result<Arc<SmtpTransport>, Box<dyn std::error::Error>> {
+use crate::errors::ApiError;
+
+pub fn setup_mailer() -> Result<Arc<SmtpTransport>, ApiError> {
     // Load SMTP server credentials from environment variables
-    let smtp_server = std::env::var("AXUM_SMTP_SERVER")
-        .expect("Environment variable 'AXUM_SMTP_SERVER' is not set. Check your '.env' file.");
-    let smtp_username = std::env::var("AXUM_SMTP_USERNAME")
-        .expect("Environment variable 'AXUM_SMTP_USERNAME' is not set. Check your '.env' file.");
-    let smtp_password = std::env::var("AXUM_SMTP_PASSWORD")
-        .expect("Environment variable 'AXUM_SMTP_PASSWORD' is not set. Check your '.env' file.");
+    let smtp_server = env::var("AXUM_SMTP_SERVER")?;
+    let smtp_username = env::var("AXUM_SMTP_USERNAME")?;
+    let smtp_password = env::var("AXUM_SMTP_PASSWORD")?;
 
     // Create SMTP transport
     let creds =
@@ -23,16 +22,13 @@ pub fn setup_mailer() -> Result<Arc<SmtpTransport>, Box<dyn std::error::Error>> 
     Ok(Arc::new(mailer))
 }
 
-fn get_from() -> Mailbox {
+fn get_from() -> Result<Mailbox, ApiError> {
     let name = env::var("AXUM_MAIL_FROM_NAME").unwrap_or_else(|_| "Default Name".to_string());
-    let email = env::var("AXUM_MAIL_FROM_EMAIL")
-        .expect("Environment variable 'AXUM_MAIL_FROM_EMAIL' is not set. Check your '.env' file.");
-    Mailbox::new(
-        Some(name),
-        email
-            .parse()
-            .expect("Invalid email format for AXUM_MAIL_FROM_EMAIL"),
-    )
+    let email = env::var("AXUM_MAIL_FROM_EMAIL")?;
+    let address = email
+        .parse()
+        .map_err(|e| ApiError::Internal(Box::new(e)))?;
+    Ok(Mailbox::new(Some(name), address))
 }
 
 pub fn send(
@@ -40,9 +36,14 @@ pub fn send(
     email: &str,
     subject: &str,
     body: &str,
-) -> Result<Response, Box<dyn std::error::Error + Send + Sync>> {
-    let to = Mailbox::new(subject.to_owned().into(), email.parse().unwrap());
-    let from = get_from();
+) -> Result<Response, ApiError> {
+    let to = Mailbox::new(
+        Some(subject.to_owned()),
+        email
+            .parse()
+            .map_err(|e| ApiError::Internal(Box::new(e)))?,
+    );
+    let from = get_from()?;
 
     let email = Message::builder()
         .from(from)
@@ -50,7 +51,7 @@ pub fn send(
         .subject(subject)
         .header(ContentType::TEXT_PLAIN)
         .body(String::from(body))
-        .unwrap();
+        .map_err(|e| ApiError::Internal(Box::new(e)))?;
 
     // Send the email
     Ok(mailer.send(&email)?)
@@ -60,7 +61,7 @@ pub fn send_verification_email(
     mailer: Arc<SmtpTransport>,
     email: &str,
     token: &str,
-) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+) -> Result<(), ApiError> {
     let body = format!("Verification token: {}", token);
     send(mailer, email, "Verify your email", &body)?;
     Ok(())
@@ -70,14 +71,10 @@ pub fn send_verification_email(
 
 #[cfg(test)]
 mod tests {
-
+    use super::*;
     use dotenvy::dotenv;
 
-    use super::*;
-
     fn mock_address() -> String {
-        // This function returns a mock email address for testing purposes.
-        // In a real application, you would use a valid email address.
         let address = env::var("AXUM_MOCK_EMAIL").unwrap_or("test@example.com".to_string());
         println!("Using mock email address: {}", address);
         address
@@ -85,16 +82,10 @@ mod tests {
 
     #[test]
     #[ignore = "外部サービスにメール送信するため通常はスキップ"]
-    // Ignore this test by default
-    // #[serial] // Uncomment if using serial testing
-    // TODO: 将来的にxtaskへ移行
-    /// This test sends a one-shot email using the configured SMTP server.
-    /// It requires the environment variables to be set up correctly.
-    /// To run this test, set the environment variables in your `.env` file.
     fn one_shot() {
         dotenv().ok();
 
-        let from = get_from();
+        let from = get_from().expect("from address");
 
         let email = Message::builder()
             .from(from)
@@ -106,7 +97,6 @@ mod tests {
 
         let mailer = setup_mailer().expect("Failed to set up mailer");
 
-        // Send the email
         match mailer.send(&email) {
             Ok(_) => println!("Email sent successfully!"),
             Err(e) => panic!("Could not send email: {e:?}"),

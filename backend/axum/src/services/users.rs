@@ -1,4 +1,5 @@
 use crate::entities::users;
+use crate::errors::ApiError;
 use crate::routes::auth::{UserDto, UserFullDto};
 use sea_orm::{ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter};
 
@@ -26,6 +27,7 @@ impl From<users::Model> for UserFullDto {
             work_time: model.work_time,
             break_time: model.break_time,
             locale: model.locale,
+            verification_token: model.verification_token,
         }
     }
 }
@@ -43,33 +45,19 @@ impl From<UserFullDto> for UserDto {
     }
 }
 
-pub async fn get_user_by_id(
-    db: &DatabaseConnection,
-    user_id: i32,
-) -> Result<UserDto, sea_orm::DbErr> {
+pub async fn get_user_by_id(db: &DatabaseConnection, user_id: i32) -> Result<UserDto, ApiError> {
     let user = users::Entity::find_by_id(user_id).one(db).await?;
-    match user {
-        Some(user) => Ok(UserDto::from(user)),
-        None => Err(sea_orm::DbErr::RecordNotFound(format!(
-            "User with ID {} not found",
-            user_id
-        ))),
-    }
+    user.map(UserDto::from).ok_or(ApiError::NotFound("user"))
 }
 
 pub async fn get_user_by_email(
     db: &DatabaseConnection,
     email: &String,
-) -> Result<UserFullDto, sea_orm::DbErr> {
+) -> Result<UserFullDto, ApiError> {
     let user = users::Entity::find()
         .filter(users::Column::Email.eq(email))
         .one(db)
         .await?;
-    match user {
-        Some(user) => Ok(UserFullDto::from(user)),
-        None => Err(sea_orm::DbErr::RecordNotFound(format!(
-            "User with Email {} not found",
-            email
-        ))),
-    }
+    user.map(UserFullDto::from)
+        .ok_or(ApiError::NotFound("user"))
 }

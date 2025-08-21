@@ -1,9 +1,8 @@
 use axum::{
-    Router,
     extract::{Path, State},
-    http::StatusCode,
     response::Json,
     routing::get,
+    Router,
 };
 
 use sea_orm::DatabaseConnection;
@@ -11,8 +10,7 @@ use sea_orm::prelude::DateTimeUtc;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
-use crate::AppState;
-use crate::services::tasks;
+use crate::{errors::ApiError, services::tasks, AppState};
 
 #[derive(Serialize)]
 pub struct TaskDto {
@@ -27,22 +25,17 @@ pub struct TaskDto {
 
 async fn index(
     State(db): State<Arc<DatabaseConnection>>,
-) -> Result<Json<Vec<TaskDto>>, StatusCode> {
-    let tasks = tasks::get_tasks(&db)
-        .await
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-    let tasks: Vec<TaskDto> = tasks.into_iter().map(Into::into).collect();
+) -> Result<Json<Vec<TaskDto>>, ApiError> {
+    let tasks = tasks::get_tasks(&db).await?;
     Ok(Json(tasks))
 }
 
 async fn show(
     Path(id): Path<i32>,
     State(db): State<Arc<DatabaseConnection>>,
-) -> Result<Json<TaskDto>, StatusCode> {
-    let task = tasks::get_task_by_id(&db, id)
-        .await
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-    Ok(Json(task.into()))
+) -> Result<Json<TaskDto>, ApiError> {
+    let task = tasks::get_task_by_id(&db, id).await?;
+    Ok(Json(task))
 }
 
 #[derive(Serialize, Deserialize)]
@@ -56,15 +49,9 @@ pub struct StoreTaskDto {
 async fn store(
     State(db): State<Arc<DatabaseConnection>>,
     Json(payload): Json<StoreTaskDto>,
-) -> Result<Json<TaskDto>, StatusCode> {
-    let insert_result = tasks::insert_task(&db, payload)
-        .await
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-
-    let inserted_task = tasks::get_task_by_id(&db, insert_result.last_insert_id)
-        .await
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-
+) -> Result<Json<TaskDto>, ApiError> {
+    let insert_result = tasks::insert_task(&db, payload).await?;
+    let inserted_task = tasks::get_task_by_id(&db, insert_result.last_insert_id).await?;
     Ok(Json(inserted_task))
 }
 
@@ -81,10 +68,8 @@ pub struct UpdateTaskDto {
 async fn update(
     State(db): State<Arc<DatabaseConnection>>,
     Json(payload): Json<UpdateTaskDto>,
-) -> Result<Json<TaskDto>, StatusCode> {
-    let updated_task = tasks::update_task(&db, payload)
-        .await
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+) -> Result<Json<TaskDto>, ApiError> {
+    let updated_task = tasks::update_task(&db, payload).await?;
     Ok(Json(updated_task))
 }
 
@@ -96,10 +81,8 @@ pub struct DeleteTaskDto {
 async fn destroy(
     State(db): State<Arc<DatabaseConnection>>,
     Json(payload): Json<DeleteTaskDto>,
-) -> Result<(), StatusCode> {
-    tasks::delete_task(&db, payload.id)
-        .await
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+) -> Result<(), ApiError> {
+    tasks::delete_task(&db, payload.id).await?;
     Ok(())
 }
 
