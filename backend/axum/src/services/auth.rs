@@ -133,6 +133,55 @@ pub async fn verify_email(
     })
 }
 
+pub async fn forgot_password(
+    db: &DatabaseConnection,
+    mailer: &Arc<SmtpTransport>,
+    email: &str,
+) -> Result<(), ApiError> {
+    let user = users::Entity::find()
+        .filter(users::Column::Email.eq(email))
+        .one(db)
+        .await?
+        .ok_or(ApiError::NotFound("user"))?;
+
+    let raw_token: String = rand::thread_rng()
+        .sample_iter(&Alphanumeric)
+        .take(32)
+        .map(char::from)
+        .collect();
+    let hashed = hash_token(&raw_token);
+    let mut user_active: users::ActiveModel = user.into();
+    user_active.verification_token = Set(Some(hashed));
+    user_active.update(db).await?;
+
+    let body = format!("Reset token: {}", raw_token);
+    services::mails::send(mailer.clone(), email, "Reset your password", &body)?;
+    Ok(())
+}
+
+pub async fn reset_password(
+    db: &DatabaseConnection,
+    password_worker: &PasswordWorker<Bcrypt>,
+    token: &str,
+    email: &str,
+    password: &str,
+) -> Result<(), ApiError> {
+    let hashed = hash_token(token);
+    let user = users::Entity::find()
+        .filter(users::Column::Email.eq(email))
+        .filter(users::Column::VerificationToken.eq(hashed))
+        .one(db)
+        .await?
+        .ok_or(ApiError::BadRequest("Invalid token".into()))?;
+
+    let hashed_password = hash_password(password, password_worker).await?;
+    let mut user_active: users::ActiveModel = user.into();
+    user_active.password = Set(hashed_password);
+    user_active.verification_token = Set(None);
+    user_active.update(db).await?;
+    Ok(())
+}
+
 fn hash_token(token: &str) -> String {
     format!("{:x}", Sha256::digest(token.as_bytes()))
 }

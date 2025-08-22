@@ -124,13 +124,41 @@ async fn logout() -> StatusCode {
     StatusCode::OK
 }
 
-async fn forgot_password() -> StatusCode {
-    // Forgot password logic here
-    StatusCode::OK
+#[derive(Deserialize, Serialize)]
+pub struct ForgotPasswordDto {
+    pub email: String,
 }
-async fn reset_password() -> StatusCode {
-    // Reset password logic here
-    StatusCode::OK
+
+#[debug_handler]
+async fn forgot_password(
+    State(AppState { db, mailer, .. }): State<AppState>,
+    Json(payload): Json<ForgotPasswordDto>,
+) -> Result<StatusCode, ApiError> {
+    services::auth::forgot_password(&db, &mailer, &payload.email).await?;
+    Ok(StatusCode::OK)
+}
+
+#[derive(Deserialize, Serialize)]
+pub struct ResetPasswordDto {
+    pub token: String,
+    pub email: String,
+    pub password: String,
+}
+
+#[debug_handler]
+async fn reset_password(
+    State(AppState { db, password_worker, .. }): State<AppState>,
+    Json(payload): Json<ResetPasswordDto>,
+) -> Result<StatusCode, ApiError> {
+    services::auth::reset_password(
+        &db,
+        &password_worker,
+        &payload.token,
+        &payload.email,
+        &payload.password,
+    )
+    .await?;
+    Ok(StatusCode::OK)
 }
 #[debug_handler]
 async fn verify_email(
