@@ -1,8 +1,7 @@
 use crate::{
     entities::users,
     errors::ApiError,
-    routes::auth::{AuthResponse, RegisterUserResultDto, UserDto},
-    services,
+    services::{self, users::User},
 };
 use axum_password_worker::{Bcrypt, BcryptConfig, PasswordWorker};
 use chrono::Utc;
@@ -20,13 +19,22 @@ pub struct Claims {
     exp: usize, // 有効期限 (Unix timestamp)
 }
 
+pub struct RegisterUserResult {
+    pub user: User,
+}
+
+pub struct AuthResponse {
+    pub token: String,
+    pub user: User,
+}
+
 pub async fn register_user(
     db: &DatabaseConnection,
     password_worker: &PasswordWorker<Bcrypt>,
     mailer: &Arc<SmtpTransport>,
     email: &str,
     password: &str,
-) -> Result<RegisterUserResultDto, ApiError> {
+) -> Result<RegisterUserResult, ApiError> {
     // ステップ1: ユニーク性検証（DBで既存ユーザー確認）
     // if let Some(_) = users::find()
     //     .filter(users::Column::Email.eq(email))
@@ -54,13 +62,13 @@ pub async fn register_user(
     let user = user_active.insert(db).await?;
     services::mails::send_verification_email(mailer.clone(), email, &raw_token)?;
 
-    Ok(RegisterUserResultDto { user: user.into() })
+    Ok(RegisterUserResult { user: user.into() })
 }
 
 pub async fn get_auth_user_from_token(
     db: &DatabaseConnection,
     token: String,
-) -> Result<UserDto, ApiError> {
+) -> Result<User, ApiError> {
     // jwtを検証して、ユーザーIDを取得する必要があります。
     let claims = decode_jwt(token)?;
     if !verify_jwt(&claims)? {
@@ -87,28 +95,26 @@ pub async fn login_user(
     password: &str,
 ) -> Result<AuthResponse, ApiError> {
     // ユーザーをメールアドレスで取得
-    let user = match services::users::get_user_by_email(db, &email.to_string()).await {
+    let user_full = match services::users::get_user_by_email(db, &email.to_string()).await {
         Ok(u) => u,
         Err(ApiError::NotFound(_)) => return Err(ApiError::Unauthorized),
         Err(e) => return Err(e),
     };
 
-    if user.email_verified_at.is_none() {
+    if user_full.email_verified_at.is_none() {
         return Err(ApiError::Unauthorized);
     }
 
     // パスワードを検証
-    if !verify_password(password, &user.password, password_worker).await? {
+    if !verify_password(password, &user_full.password, password_worker).await? {
         return Err(ApiError::Unauthorized);
     }
 
     // JWTトークンを生成
-    let token = create_jwt(user.id)?;
+    let token = create_jwt(user_full.id)?;
+    let user: User = user_full.into();
 
-    Ok(AuthResponse {
-        token,
-        user: user.into(),
-    })
+    Ok(AuthResponse { token, user })
 }
 
 pub async fn verify_email(

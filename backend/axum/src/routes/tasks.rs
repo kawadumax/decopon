@@ -6,81 +6,60 @@ use axum::{
 };
 
 use sea_orm::DatabaseConnection;
-use sea_orm::prelude::DateTimeUtc;
-use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
+use crate::dto::tasks::*;
 use crate::{errors::ApiError, services::tasks, AppState};
-
-#[derive(Serialize)]
-pub struct TaskDto {
-    pub id: i32,
-    pub title: String,
-    pub description: String,
-    pub completed: bool,
-    pub created_at: DateTimeUtc,
-    pub updated_at: DateTimeUtc,
-    pub parent_task_id: Option<i32>,
-}
 
 async fn index(
     State(db): State<Arc<DatabaseConnection>>,
-) -> Result<Json<Vec<TaskDto>>, ApiError> {
+) -> Result<Json<Vec<TaskResponseDto>>, ApiError> {
     let tasks = tasks::get_tasks(&db).await?;
+    let tasks = tasks.into_iter().map(TaskResponseDto::from).collect();
     Ok(Json(tasks))
 }
 
 async fn show(
     Path(id): Path<i32>,
     State(db): State<Arc<DatabaseConnection>>,
-) -> Result<Json<TaskDto>, ApiError> {
+) -> Result<Json<TaskResponseDto>, ApiError> {
     let task = tasks::get_task_by_id(&db, id).await?;
-    Ok(Json(task))
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct StoreTaskDto {
-    pub title: String,
-    pub description: String,
-    pub parent_task_id: Option<i32>,
-    pub tag_ids: Option<Vec<i32>>,
+    Ok(Json(TaskResponseDto::from(task)))
 }
 
 async fn store(
     State(db): State<Arc<DatabaseConnection>>,
-    Json(payload): Json<StoreTaskDto>,
-) -> Result<Json<TaskDto>, ApiError> {
-    let insert_result = tasks::insert_task(&db, payload).await?;
-    let inserted_task = tasks::get_task_by_id(&db, insert_result.last_insert_id).await?;
-    Ok(Json(inserted_task))
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct UpdateTaskDto {
-    pub id: i32,
-    pub title: Option<String>,
-    pub description: Option<String>,
-    pub completed: Option<bool>,
-    pub parent_task_id: Option<i32>,
-    pub tag_ids: Option<Vec<i32>>,
+    Json(payload): Json<StoreTaskRequestDto>,
+) -> Result<Json<TaskResponseDto>, ApiError> {
+    let params = tasks::NewTask {
+        title: payload.title,
+        description: payload.description,
+        parent_task_id: payload.parent_task_id,
+        tag_ids: payload.tag_ids,
+    };
+    let task = tasks::insert_task(&db, params).await?;
+    Ok(Json(TaskResponseDto::from(task)))
 }
 
 async fn update(
     State(db): State<Arc<DatabaseConnection>>,
-    Json(payload): Json<UpdateTaskDto>,
-) -> Result<Json<TaskDto>, ApiError> {
-    let updated_task = tasks::update_task(&db, payload).await?;
-    Ok(Json(updated_task))
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct DeleteTaskDto {
-    pub id: i32,
+    Json(payload): Json<UpdateTaskRequestDto>,
+) -> Result<Json<TaskResponseDto>, ApiError> {
+    let params = tasks::TaskUpdate {
+        id: payload.id,
+        title: payload.title,
+        description: payload.description,
+        completed: payload.completed,
+        parent_task_id: payload.parent_task_id,
+        tag_ids: payload.tag_ids,
+    };
+    let task = tasks::update_task(&db, params).await?;
+    Ok(Json(TaskResponseDto::from(task)))
 }
 
 async fn destroy(
     State(db): State<Arc<DatabaseConnection>>,
-    Json(payload): Json<DeleteTaskDto>,
+    Json(payload): Json<DeleteTaskRequestDto>,
 ) -> Result<(), ApiError> {
     tasks::delete_task(&db, payload.id).await?;
     Ok(())

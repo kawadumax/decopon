@@ -7,48 +7,12 @@ use axum::{
 };
 use axum_macros::debug_handler;
 use sea_orm::DatabaseConnection;
-use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
+use crate::dto::auth::*;
 use crate::errors::ApiError;
 use crate::routes::AppState;
 use crate::services;
-
-#[derive(Deserialize, Serialize)]
-pub struct RegisterUserDto {
-    pub name: String,
-    pub email: String,
-    pub password: String,
-    pub password_confirmation: String,
-}
-
-#[derive(Serialize)]
-pub struct RegisterUserResultDto {
-    pub user: UserDto, // シンプルなユーザーDTO（id, emailなど）
-}
-
-#[derive(Serialize)]
-pub struct UserFullDto {
-    pub id: i32,
-    pub name: String,
-    pub email: String,
-    pub email_verified_at: Option<chrono::DateTime<chrono::Utc>>,
-    pub verification_token: Option<String>, // ユーザーの検証トークン
-    pub password: String,                   // ハッシュ化されたパスワード
-    pub work_time: i32,
-    pub break_time: i32,
-    pub locale: String,
-}
-
-#[derive(Serialize)]
-pub struct UserDto {
-    pub id: i32,
-    pub name: String,
-    pub email: String,
-    pub work_time: i32,
-    pub break_time: i32,
-    pub locale: String,
-}
 
 #[debug_handler]
 async fn register_user(
@@ -57,9 +21,8 @@ async fn register_user(
         password_worker,
         mailer,
     }): State<AppState>,
-    Json(payload): Json<RegisterUserDto>,
+    Json(payload): Json<RegisterUserRequestDto>,
 ) -> Result<impl IntoResponse, ApiError> {
-    // サービス関数呼び出し
     let result = services::auth::register_user(
         &db,
         &password_worker,
@@ -68,38 +31,19 @@ async fn register_user(
         &payload.password,
     )
     .await?;
-    Ok((StatusCode::CREATED, Json(result)))
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct GetAuthUserDto {
-    pub token: String,
-}
-
-#[derive(Serialize)]
-pub struct GetAuthUserResultDto {
-    pub user: UserDto,
+    Ok((
+        StatusCode::CREATED,
+        Json(RegisterUserResponseDto { user: result.user.into() }),
+    ))
 }
 
 #[debug_handler]
 async fn get_auth_user(
     State(db): State<Arc<DatabaseConnection>>,
-    Json(payload): Json<GetAuthUserDto>,
+    Json(payload): Json<GetAuthUserRequestDto>,
 ) -> Result<impl IntoResponse, ApiError> {
     let user = services::auth::get_auth_user_from_token(&db, payload.token).await?;
-    Ok((StatusCode::OK, Json(GetAuthUserResultDto { user })))
-}
-
-#[derive(Deserialize, Serialize)]
-pub struct LoginRequestDto {
-    pub email: String,
-    pub password: String,
-}
-
-#[derive(Serialize)]
-pub struct AuthResponse {
-    pub token: String,
-    pub user: UserDto,
+    Ok((StatusCode::OK, Json(GetAuthUserResponseDto { user: user.into() })))
 }
 
 #[debug_handler]
@@ -115,7 +59,10 @@ async fn login(
         services::auth::login_user(&db, &password_worker, &payload.email, &payload.password)
             .await?;
 
-    Ok((StatusCode::OK, Json(result)))
+    Ok((
+        StatusCode::OK,
+        Json(AuthResponseDto { token: result.token, user: result.user.into() }),
+    ))
 }
 
 async fn logout() -> StatusCode {
@@ -124,31 +71,19 @@ async fn logout() -> StatusCode {
     StatusCode::OK
 }
 
-#[derive(Deserialize, Serialize)]
-pub struct ForgotPasswordDto {
-    pub email: String,
-}
-
 #[debug_handler]
 async fn forgot_password(
     State(AppState { db, mailer, .. }): State<AppState>,
-    Json(payload): Json<ForgotPasswordDto>,
+    Json(payload): Json<ForgotPasswordRequestDto>,
 ) -> Result<StatusCode, ApiError> {
     services::auth::forgot_password(&db, &mailer, &payload.email).await?;
     Ok(StatusCode::OK)
 }
 
-#[derive(Deserialize, Serialize)]
-pub struct ResetPasswordDto {
-    pub token: String,
-    pub email: String,
-    pub password: String,
-}
-
 #[debug_handler]
 async fn reset_password(
     State(AppState { db, password_worker, .. }): State<AppState>,
-    Json(payload): Json<ResetPasswordDto>,
+    Json(payload): Json<ResetPasswordRequestDto>,
 ) -> Result<StatusCode, ApiError> {
     services::auth::reset_password(
         &db,
@@ -166,7 +101,10 @@ async fn verify_email(
     Path(token): Path<String>,
 ) -> Result<impl IntoResponse, ApiError> {
     let result = services::auth::verify_email(&db, token).await?;
-    Ok((StatusCode::OK, Json(result)))
+    Ok((
+        StatusCode::OK,
+        Json(AuthResponseDto { token: result.token, user: result.user.into() }),
+    ))
 }
 async fn notify_email() -> StatusCode {
     // Notify email logic here

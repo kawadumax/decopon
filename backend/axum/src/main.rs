@@ -2,6 +2,7 @@ mod entities;
 mod errors;
 mod routes;
 mod services;
+mod dto;
 use axum::extract::FromRef;
 use axum_password_worker::{Bcrypt, PasswordWorker};
 use dotenvy::dotenv;
