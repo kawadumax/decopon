@@ -1,5 +1,10 @@
 pub mod auth;
 pub mod mails;
+pub mod preferences;
+pub mod profiles;
 pub mod tag_task;
+pub mod tags;
 pub mod tasks;
 pub mod users;
+pub mod decopon_sessions;
+pub mod logs;
