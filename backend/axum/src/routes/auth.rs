@@ -1,9 +1,9 @@
 use axum::{
-    Router,
     extract::{Path, State},
     http::StatusCode,
     response::{IntoResponse, Json},
     routing::{get, post},
+    Router,
 };
 use axum_macros::debug_handler;
 use sea_orm::DatabaseConnection;
@@ -33,7 +33,9 @@ async fn register_user(
     .await?;
     Ok((
         StatusCode::CREATED,
-        Json(RegisterUserResponseDto { user: result.user.into() }),
+        Json(RegisterUserResponseDto {
+            user: result.user.into(),
+        }),
     ))
 }
 
@@ -43,7 +45,10 @@ async fn get_auth_user(
     Json(payload): Json<GetAuthUserRequestDto>,
 ) -> Result<impl IntoResponse, ApiError> {
     let user = services::auth::get_auth_user_from_token(&db, payload.token).await?;
-    Ok((StatusCode::OK, Json(GetAuthUserResponseDto { user: user.into() })))
+    Ok((
+        StatusCode::OK,
+        Json(GetAuthUserResponseDto { user: user.into() }),
+    ))
 }
 
 #[debug_handler]
@@ -61,7 +66,10 @@ async fn login(
 
     Ok((
         StatusCode::OK,
-        Json(AuthResponseDto { token: result.token, user: result.user.into() }),
+        Json(AuthResponseDto {
+            token: result.token,
+            user: result.user.into(),
+        }),
     ))
 }
 
@@ -82,7 +90,11 @@ async fn forgot_password(
 
 #[debug_handler]
 async fn reset_password(
-    State(AppState { db, password_worker, .. }): State<AppState>,
+    State(AppState {
+        db,
+        password_worker,
+        ..
+    }): State<AppState>,
     Json(payload): Json<ResetPasswordRequestDto>,
 ) -> Result<StatusCode, ApiError> {
     services::auth::reset_password(
@@ -103,12 +115,11 @@ async fn verify_email(
     let result = services::auth::verify_email(&db, token).await?;
     Ok((
         StatusCode::OK,
-        Json(AuthResponseDto { token: result.token, user: result.user.into() }),
+        Json(AuthResponseDto {
+            token: result.token,
+            user: result.user.into(),
+        }),
     ))
-}
-async fn notify_email() -> StatusCode {
-    // Notify email logic here
-    StatusCode::OK
 }
 
 pub fn routes() -> Router<AppState> {
@@ -118,5 +129,4 @@ pub fn routes() -> Router<AppState> {
         .route("/password/forgot", post(forgot_password))
         .route("/password/reset", post(reset_password))
         .route("/email/verify/:token", get(verify_email))
-        .route("/email/notify", post(notify_email))
 }

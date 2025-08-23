@@ -202,7 +202,7 @@ pub async fn verify_password(
 }
 
 pub fn create_jwt(user_id: i32) -> Result<String, ApiError> {
-    let secret = std::env::var("JWT_SECRET")?; // JWTシークレットを環境変数から取得
+    let secret = std::env::var("AXUM_JWT_SECRET")?; // JWTシークレットを環境変数から取得
     let claims = Claims {
         sub: user_id,
         exp: (Utc::now() + chrono::Duration::days(30)).timestamp() as usize, // 30日間有効
@@ -217,7 +217,7 @@ pub fn create_jwt(user_id: i32) -> Result<String, ApiError> {
 }
 
 pub fn decode_jwt(token: String) -> Result<Claims, ApiError> {
-    let secret = std::env::var("JWT_SECRET")?;
+    let secret = std::env::var("AXUM_JWT_SECRET")?;
     let token_data = jsonwebtoken::decode::<Claims>(
         &token,
         &jsonwebtoken::DecodingKey::from_secret(secret.as_ref()),
