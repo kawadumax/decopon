@@ -4,6 +4,7 @@
 //! ビジネスロジックや永続化処理に限定して使用します。
 
 pub mod auth;
+pub mod common;
 pub mod preferences;
 pub mod profiles;
 pub mod tags;

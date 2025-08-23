@@ -1,25 +1,26 @@
 use axum::{
+    Json, Router,
     extract::{Path, Query, State},
     routing::get,
-    Router, Json,
 };
-use std::sync::Arc;
-use sea_orm::DatabaseConnection;
 use axum_macros::debug_handler;
 use chrono::NaiveDate;
+use sea_orm::DatabaseConnection;
+use std::sync::Arc;
 
-use crate::{dto::decopon_sessions::*, errors::ApiError, services::decopon_sessions, AppState};
-
-#[derive(serde::Deserialize)]
-struct UserQuery { user_id: i32 }
+use crate::dto::common::UserQueryDto;
+use crate::{AppState, dto::decopon_sessions::*, errors::ApiError, services::decopon_sessions};
 
 #[debug_handler]
 async fn index(
     State(db): State<Arc<DatabaseConnection>>,
-    Query(user): Query<UserQuery>,
+    Query(user): Query<UserQueryDto>,
 ) -> Result<Json<Vec<DecoponSessionResponseDto>>, ApiError> {
     let sessions = decopon_sessions::get_sessions(&db, user.user_id).await?;
-    let sessions = sessions.into_iter().map(DecoponSessionResponseDto::from).collect();
+    let sessions = sessions
+        .into_iter()
+        .map(DecoponSessionResponseDto::from)
+        .collect();
     Ok(Json(sessions))
 }
 
@@ -27,7 +28,7 @@ async fn index(
 async fn show(
     Path(id): Path<i32>,
     State(db): State<Arc<DatabaseConnection>>,
-    Query(user): Query<UserQuery>,
+    Query(user): Query<UserQueryDto>,
 ) -> Result<Json<DecoponSessionResponseDto>, ApiError> {
     let session = decopon_sessions::get_session_by_id(&db, id, user.user_id).await?;
     Ok(Json(DecoponSessionResponseDto::from(session)))
@@ -68,24 +69,30 @@ async fn update(
 async fn destroy(
     Path(id): Path<i32>,
     State(db): State<Arc<DatabaseConnection>>,
-    Query(user): Query<UserQuery>,
+    Query(user): Query<UserQueryDto>,
 ) -> Result<(), ApiError> {
     decopon_sessions::delete_session(&db, id, user.user_id).await?;
     Ok(())
 }
 
 #[derive(serde::Deserialize)]
-struct CycleQuery { date: String, user_id: i32 }
+struct CycleQueryDto {
+    date: String,
+    user_id: i32,
+}
 
 #[debug_handler]
 async fn cycles(
     State(db): State<Arc<DatabaseConnection>>,
-    Query(q): Query<CycleQuery>,
+    Query(q): Query<CycleQueryDto>,
 ) -> Result<Json<CycleCountResponseDto>, ApiError> {
     let date = NaiveDate::parse_from_str(&q.date, "%Y-%m-%d")
         .map_err(|e| ApiError::BadRequest(e.to_string()))?;
     let count = decopon_sessions::count_completed_sessions_on(&db, q.user_id, date).await?;
-    Ok(Json(CycleCountResponseDto { date: q.date, count }))
+    Ok(Json(CycleCountResponseDto {
+        date: q.date,
+        count,
+    }))
 }
 
 pub fn routes() -> Router<AppState> {
