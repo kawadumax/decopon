@@ -15,8 +15,8 @@ use std::sync::Arc;
 // JWT claims構造体
 #[derive(serde::Serialize, serde::Deserialize)]
 pub struct Claims {
-    sub: i32,   // user_id
-    exp: usize, // 有効期限 (Unix timestamp)
+    pub sub: i32,   // user_id
+    pub exp: usize, // 有効期限 (Unix timestamp)
 }
 
 pub struct RegisterUserResult {

@@ -1,0 +1,42 @@
+use axum::{
+    body::Body,
+    http::{Request, StatusCode, header::AUTHORIZATION},
+    middleware::Next,
+    response::Response,
+};
+
+use crate::services::auth::{decode_jwt, verify_jwt};
+
+#[derive(Clone, Debug)]
+pub struct AuthenticatedUser {
+    pub user_id: i32,
+    pub exp: usize,
+}
+
+pub async fn auth_middleware(mut req: Request<Body>, next: Next) -> Result<Response, StatusCode> {
+    // AuthorizationヘッダからBearerトークンを取得
+    let token = req
+        .headers()
+        .get(AUTHORIZATION)
+        .and_then(|h| h.to_str().ok())
+        .and_then(|s| s.strip_prefix("Bearer "))
+        .map(|s| s.to_string())
+        .ok_or(StatusCode::UNAUTHORIZED)?;
+
+    // JWTをデコード
+    let claims = decode_jwt(token).map_err(|_| StatusCode::UNAUTHORIZED)?;
+    if !verify_jwt(&claims).map_err(|_| StatusCode::UNAUTHORIZED)? {
+        return Err(StatusCode::UNAUTHORIZED);
+    }
+
+    let user = AuthenticatedUser {
+        user_id: claims.sub,
+        exp: claims.exp,
+    };
+
+    // 認証済みユーザー情報をリクエストに保存
+    req.extensions_mut().insert(user);
+
+    // 次のハンドラへ
+    Ok(next.run(req).await)
+}

@@ -6,16 +6,20 @@ pub mod profiles;
 pub mod tags;
 pub mod tasks;
 
-use crate::AppState;
-use axum::Router;
+use crate::{AppState, middleware::auth::auth_middleware};
+use axum::{Router, middleware};
 
 pub fn create_routes() -> Router<AppState> {
-    Router::<AppState>::new()
-        .nest("/auth", auth::routes())
+    let protected = Router::<AppState>::new()
         .nest("/decopon_sessions", decopon_sessions::routes())
         .nest("/logs", logs::routes())
         .nest("/profiles", profiles::routes())
         .nest("/preferences", preferences::routes())
         .nest("/tags", tags::routes())
         .nest("/tasks", tasks::routes())
+        .layer(middleware::from_fn(auth_middleware));
+
+    Router::<AppState>::new()
+        .nest("/auth", auth::routes())
+        .merge(protected)
 }
