@@ -33,5 +33,4 @@ pub struct StoreLogRequestDto {
     pub content: String,
     pub source: String,
     pub task_id: Option<i32>,
-    pub user_id: i32,
 }

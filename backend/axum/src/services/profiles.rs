@@ -4,36 +4,34 @@ use chrono::Utc;
 use sea_orm::{ActiveModelTrait, ActiveValue, DatabaseConnection, EntityTrait};
 
 pub struct UpdateProfile {
-    pub id: i32,
     pub name: Option<String>,
     pub email: Option<String>,
 }
 
 pub struct UpdatePassword {
-    pub id: i32,
     pub current_password: String,
     pub password: String,
 }
 
 pub struct DeleteProfile {
-    pub id: i32,
     pub password: String,
 }
 
 pub async fn get_profile(
     db: &DatabaseConnection,
-    id: i32,
+    user_id: i32,
 ) -> Result<services::users::User, ApiError> {
-    let user = users::Entity::find_by_id(id).one(db).await?;
+    let user = users::Entity::find_by_id(user_id).one(db).await?;
     let user = user.ok_or(ApiError::NotFound("user"))?;
     Ok(user.into())
 }
 
 pub async fn update_profile(
     db: &DatabaseConnection,
+    user_id: i32,
     params: UpdateProfile,
 ) -> Result<services::users::User, ApiError> {
-    let mut user: users::ActiveModel = users::Entity::find_by_id(params.id)
+    let mut user: users::ActiveModel = users::Entity::find_by_id(user_id)
         .one(db)
         .await?
         .ok_or(ApiError::NotFound("user"))?
@@ -57,9 +55,10 @@ pub async fn update_profile(
 pub async fn update_password(
     db: &DatabaseConnection,
     password_worker: &PasswordWorker<Bcrypt>,
+    user_id: i32,
     params: UpdatePassword,
 ) -> Result<(), ApiError> {
-    let user = users::Entity::find_by_id(params.id)
+    let user = users::Entity::find_by_id(user_id)
         .one(db)
         .await?
         .ok_or(ApiError::NotFound("user"))?;
@@ -84,9 +83,10 @@ pub async fn update_password(
 pub async fn delete_profile(
     db: &DatabaseConnection,
     password_worker: &PasswordWorker<Bcrypt>,
+    user_id: i32,
     params: DeleteProfile,
 ) -> Result<(), ApiError> {
-    let user = users::Entity::find_by_id(params.id)
+    let user = users::Entity::find_by_id(user_id)
         .one(db)
         .await?
         .ok_or(ApiError::NotFound("user"))?;

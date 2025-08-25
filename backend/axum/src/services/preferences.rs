@@ -3,7 +3,6 @@ use chrono::Utc;
 use sea_orm::{ActiveModelTrait, ActiveValue, DatabaseConnection, EntityTrait};
 
 pub struct UpdatePreference {
-    pub id: i32,
     pub work_time: i32,
     pub break_time: i32,
     pub locale: String,
@@ -11,9 +10,10 @@ pub struct UpdatePreference {
 
 pub async fn update_preference(
     db: &DatabaseConnection,
+    user_id: i32,
     params: UpdatePreference,
 ) -> Result<User, ApiError> {
-    let mut user: users::ActiveModel = users::Entity::find_by_id(params.id)
+    let mut user: users::ActiveModel = users::Entity::find_by_id(user_id)
         .one(db)
         .await?
         .ok_or(ApiError::NotFound("user"))?

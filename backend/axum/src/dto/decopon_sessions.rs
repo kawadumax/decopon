@@ -33,14 +33,12 @@ pub struct StoreDecoponSessionRequestDto {
     pub status: String,
     pub started_at: DateTimeUtc,
     pub ended_at: Option<DateTimeUtc>,
-    pub user_id: i32,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct UpdateDecoponSessionRequestDto {
     pub status: Option<String>,
     pub ended_at: Option<DateTimeUtc>,
-    pub user_id: i32,
 }
 
 #[derive(Serialize)]

@@ -9,7 +9,7 @@ use crate::services::auth::{decode_jwt, verify_jwt};
 
 #[derive(Clone, Debug)]
 pub struct AuthenticatedUser {
-    pub user_id: i32,
+    pub id: i32,
     pub exp: usize,
 }
 
@@ -30,7 +30,7 @@ pub async fn auth_middleware(mut req: Request<Body>, next: Next) -> Result<Respo
     }
 
     let user = AuthenticatedUser {
-        user_id: claims.sub,
+        id: claims.sub,
         exp: claims.exp,
     };
 

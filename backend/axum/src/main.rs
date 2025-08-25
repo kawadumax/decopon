@@ -1,6 +1,7 @@
 mod dto;
 mod entities;
 mod errors;
+mod extractors;
 mod middleware;
 mod routes;
 mod services;

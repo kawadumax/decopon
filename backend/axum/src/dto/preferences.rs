@@ -21,7 +21,6 @@ impl From<User> for PreferenceResponseDto {
 
 #[derive(Serialize, Deserialize)]
 pub struct UpdatePreferenceRequestDto {
-    pub id: i32,
     pub work_time: i32,
     pub break_time: i32,
     pub locale: String,

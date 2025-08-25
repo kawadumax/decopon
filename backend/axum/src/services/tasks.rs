@@ -4,16 +4,18 @@ use crate::{
     services,
 };
 
-use sea_orm::{
-    ActiveModelTrait, ActiveValue, DatabaseConnection, DeleteResult, EntityTrait,
-};
 use sea_orm::prelude::DateTimeUtc;
+use sea_orm::{
+    ActiveModelTrait, ActiveValue, ColumnTrait, DatabaseConnection, DeleteResult, EntityTrait,
+    QueryFilter,
+};
 
 pub struct NewTask {
     pub title: String,
     pub description: String,
     pub parent_task_id: Option<i32>,
     pub tag_ids: Option<Vec<i32>>,
+    pub user_id: i32,
 }
 
 pub struct TaskUpdate {
@@ -23,6 +25,7 @@ pub struct TaskUpdate {
     pub completed: Option<bool>,
     pub parent_task_id: Option<i32>,
     pub tag_ids: Option<Vec<i32>>,
+    pub user_id: i32,
 }
 
 pub struct Task {
@@ -49,25 +52,30 @@ impl From<tasks::Model> for Task {
     }
 }
 
-pub async fn get_tasks(db: &DatabaseConnection) -> Result<Vec<Task>, ApiError> {
-    // TODO: Implement filer by user_id
-    // For now, we just fetch all tasks
-    let tasks = Tasks::find().all(db).await?;
+pub async fn get_tasks(db: &DatabaseConnection, user_id: i32) -> Result<Vec<Task>, ApiError> {
+    let tasks = Tasks::find()
+        .filter(tasks::Column::UserId.eq(user_id))
+        .all(db)
+        .await?;
 
     let tasks = tasks.into_iter().map(Into::into).collect::<Vec<Task>>();
 
     Ok(tasks)
 }
 
-pub async fn insert_task(
-    db: &DatabaseConnection,
-    params: NewTask,
-) -> Result<Task, ApiError> {
-    let NewTask { title, description, parent_task_id, tag_ids } = params;
+pub async fn insert_task(db: &DatabaseConnection, params: NewTask) -> Result<Task, ApiError> {
+    let NewTask {
+        title,
+        description,
+        parent_task_id,
+        tag_ids,
+        user_id,
+    } = params;
     let new_task = tasks::ActiveModel {
         title: ActiveValue::Set(title),
         description: ActiveValue::Set(description),
         parent_task_id: ActiveValue::Set(parent_task_id),
+        user_id: ActiveValue::Set(user_id),
         ..Default::default()
     };
 
@@ -86,18 +94,25 @@ pub async fn insert_task(
     Ok(task.into())
 }
 
-pub async fn get_task_by_id(db: &DatabaseConnection, id: i32) -> Result<Task, ApiError> {
-    let task = Tasks::find_by_id(id).one(db).await?;
+pub async fn get_task_by_id(
+    db: &DatabaseConnection,
+    user_id: i32,
+    id: i32,
+) -> Result<Task, ApiError> {
+    let task = Tasks::find()
+        .filter(tasks::Column::Id.eq(id))
+        .filter(tasks::Column::UserId.eq(user_id))
+        .one(db)
+        .await?;
     let task = task.ok_or(ApiError::NotFound("task"))?;
     Ok(task.into())
 }
 
-pub async fn update_task(
-    db: &DatabaseConnection,
-    params: TaskUpdate,
-) -> Result<Task, ApiError> {
+pub async fn update_task(db: &DatabaseConnection, params: TaskUpdate) -> Result<Task, ApiError> {
     let id = params.id;
-    let mut task: tasks::ActiveModel = Tasks::find_by_id(id)
+    let mut task: tasks::ActiveModel = Tasks::find()
+        .filter(tasks::Column::Id.eq(id))
+        .filter(tasks::Column::UserId.eq(params.user_id))
         .one(db)
         .await?
         .ok_or(ApiError::NotFound("task"))?
@@ -130,6 +145,15 @@ pub async fn update_task(
     Ok(task.into())
 }
 
-pub async fn delete_task(db: &DatabaseConnection, id: i32) -> Result<DeleteResult, ApiError> {
-    Tasks::delete_by_id(id).exec(db).await.map_err(Into::into)
+pub async fn delete_task(
+    db: &DatabaseConnection,
+    id: i32,
+    user_id: i32,
+) -> Result<DeleteResult, ApiError> {
+    Tasks::delete_many()
+        .filter(tasks::Column::Id.eq(id))
+        .filter(tasks::Column::UserId.eq(user_id))
+        .exec(db)
+        .await
+        .map_err(Into::into)
 }

@@ -6,11 +6,12 @@ use crate::{
 
 use sea_orm::prelude::DateTimeUtc;
 use sea_orm::{
-    ActiveModelTrait, ActiveValue, ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter,
+    ActiveValue, ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter,
 };
 
 pub struct NewTag {
     pub name: String,
+    pub user_id: i32,
 }
 
 pub struct Tag {
@@ -33,14 +34,18 @@ impl From<tags::Model> for Tag {
     }
 }
 
-pub async fn get_tags(db: &DatabaseConnection) -> Result<Vec<Tag>, ApiError> {
-    let tags = Tags::find().all(db).await?;
+pub async fn get_tags(db: &DatabaseConnection, user_id: i32) -> Result<Vec<Tag>, ApiError> {
+    let tags = Tags::find()
+        .filter(tags::Column::UserId.eq(user_id))
+        .all(db)
+        .await?;
     Ok(tags.into_iter().map(Into::into).collect())
 }
 
 pub async fn insert_tag(db: &DatabaseConnection, params: NewTag) -> Result<Tag, ApiError> {
     let new_tag = tags::ActiveModel {
         name: ActiveValue::Set(params.name),
+        user_id: ActiveValue::Set(params.user_id),
         ..Default::default()
     };
     let res = Tags::insert(new_tag).exec(db).await?;
@@ -53,11 +58,13 @@ pub async fn insert_tag(db: &DatabaseConnection, params: NewTag) -> Result<Tag, 
 
 pub async fn attach_tag_to_task(
     db: &DatabaseConnection,
+    user_id: i32,
     task_id: i32,
     name: String,
 ) -> Result<Tag, ApiError> {
     let tag = Tags::find()
         .filter(tags::Column::Name.eq(name.clone()))
+        .filter(tags::Column::UserId.eq(user_id))
         .one(db)
         .await?;
 
@@ -66,6 +73,7 @@ pub async fn attach_tag_to_task(
         None => {
             let new_tag = tags::ActiveModel {
                 name: ActiveValue::Set(name),
+                user_id: ActiveValue::Set(user_id),
                 ..Default::default()
             };
             let res = Tags::insert(new_tag).exec(db).await?;
@@ -82,11 +90,13 @@ pub async fn attach_tag_to_task(
 
 pub async fn detach_tag_from_task(
     db: &DatabaseConnection,
+    user_id: i32,
     task_id: i32,
     name: String,
 ) -> Result<Option<Tag>, ApiError> {
     let tag = Tags::find()
         .filter(tags::Column::Name.eq(name))
+        .filter(tags::Column::UserId.eq(user_id))
         .one(db)
         .await?;
 
@@ -97,9 +107,14 @@ pub async fn detach_tag_from_task(
     Ok(tag.map(Into::into))
 }
 
-pub async fn delete_tags(db: &DatabaseConnection, tag_ids: Vec<i32>) -> Result<(), ApiError> {
+pub async fn delete_tags(
+    db: &DatabaseConnection,
+    user_id: i32,
+    tag_ids: Vec<i32>,
+) -> Result<(), ApiError> {
     Tags::delete_many()
         .filter(tags::Column::Id.is_in(tag_ids))
+        .filter(tags::Column::UserId.eq(user_id))
         .exec(db)
         .await?;
     Ok(())
