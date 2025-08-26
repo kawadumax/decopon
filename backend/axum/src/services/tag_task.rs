@@ -36,19 +36,17 @@ pub async fn attach_tags(
 }
 
 pub async fn sync_tags(
-    db: &DatabaseConnection,
+    db: &impl ConnectionTrait,
     task_id: i32,
     new_tag_ids: Vec<i32>,
 ) -> Result<(), ApiError> {
-    let txn = db.begin().await?;
     // 既存のリレーションを全て削除
     TagTask::delete_many()
         .filter(tag_task::Column::TaskId.eq(task_id))
-        .exec(&txn)
+        .exec(db)
         .await?;
     // 新しいリレーションを追加
-    attach_tags_inner(&txn, task_id, new_tag_ids).await?;
-    txn.commit().await.map_err(Into::into)
+    attach_tags_inner(db, task_id, new_tag_ids).await
 }
 
 async fn detach_tags_inner(

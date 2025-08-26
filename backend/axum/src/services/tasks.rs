@@ -7,7 +7,7 @@ use crate::{
 use sea_orm::prelude::DateTimeUtc;
 use sea_orm::{
     ActiveModelTrait, ActiveValue, ColumnTrait, DatabaseConnection, DeleteResult, EntityTrait,
-    QueryFilter,
+    QueryFilter, TransactionTrait,
 };
 
 pub struct NewTask {
@@ -136,11 +136,12 @@ pub async fn update_task(db: &DatabaseConnection, params: TaskUpdate) -> Result<
     task.parent_task_id = ActiveValue::Set(params.parent_task_id);
     task.updated_at = ActiveValue::Set(chrono::Utc::now());
 
-    // TODO: add transaction to ensure atomicity
-    let task = task.update(db).await?;
+    let txn = db.begin().await?;
+    let task = task.update(&txn).await?;
     if let Some(tag_ids) = params.tag_ids {
-        services::tag_task::sync_tags(db, id, tag_ids).await?;
+        services::tag_task::sync_tags(&txn, id, tag_ids).await?;
     }
+    txn.commit().await?;
 
     Ok(task.into())
 }

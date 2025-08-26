@@ -10,7 +10,7 @@ pub struct Model {
     #[sea_orm(column_type = "custom(\"enum_text\")")]
     pub status: String,
     pub started_at: DateTimeUtc,
-    pub ended_at: DateTimeUtc,
+    pub ended_at: Option<DateTimeUtc>,
     pub created_at: DateTimeUtc,
     pub updated_at: DateTimeUtc,
     pub user_id: i32,

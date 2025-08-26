@@ -21,7 +21,7 @@ impl MigrationTrait for Migration {
                         SessionStatus::iter(),
                     ))
                     .col(timestamp(DecoponSessions::StartedAt).default(Expr::current_timestamp()))
-                    .col(timestamp(DecoponSessions::EndedAt).null())
+                    .col(timestamp_null(DecoponSessions::EndedAt))
                     .col(timestamp(DecoponSessions::CreatedAt).default(Expr::current_timestamp()))
                     .col(timestamp(DecoponSessions::UpdatedAt).default(Expr::current_timestamp()))
                     .col(integer(DecoponSessions::UserId))

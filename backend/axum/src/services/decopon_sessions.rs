@@ -37,7 +37,7 @@ impl From<decopon_sessions::Model> for DecoponSession {
             id: model.id,
             status: model.status,
             started_at: model.started_at,
-            ended_at: Some(model.ended_at),
+            ended_at: model.ended_at,
             created_at: model.created_at,
             updated_at: model.updated_at,
             user_id: model.user_id,
@@ -76,7 +76,7 @@ pub async fn insert_session(
     let new_session = decopon_sessions::ActiveModel {
         status: ActiveValue::Set(params.status),
         started_at: ActiveValue::Set(params.started_at),
-        ended_at: ActiveValue::Set(params.ended_at.unwrap_or_else(|| Utc::now())),
+        ended_at: ActiveValue::Set(params.ended_at),
         user_id: ActiveValue::Set(params.user_id),
         ..Default::default()
     };
@@ -101,7 +101,7 @@ pub async fn update_session(
         .into();
 
     if let Some(status) = status { session.status = ActiveValue::Set(status); }
-    if let Some(ended_at) = ended_at { session.ended_at = ActiveValue::Set(ended_at); }
+    if let Some(ended_at) = ended_at { session.ended_at = ActiveValue::Set(Some(ended_at)); }
     session.updated_at = ActiveValue::Set(Utc::now());
     let session = session.update(db).await?;
     Ok(session.into())
