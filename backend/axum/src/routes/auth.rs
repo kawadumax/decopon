@@ -1,9 +1,9 @@
 use axum::{
+    Router,
     extract::{Path, State},
     http::StatusCode,
     response::{IntoResponse, Json},
     routing::{get, post},
-    Router,
 };
 use axum_macros::debug_handler;
 use sea_orm::DatabaseConnection;
@@ -27,6 +27,7 @@ async fn register_user(
         &db,
         &password_worker,
         &mailer,
+        &payload.name,
         &payload.email,
         &payload.password,
     )

@@ -32,19 +32,19 @@ pub async fn register_user(
     db: &DatabaseConnection,
     password_worker: &PasswordWorker<Bcrypt>,
     mailer: &Arc<SmtpTransport>,
+    name: &str,
     email: &str,
     password: &str,
 ) -> Result<RegisterUserResult, ApiError> {
     // ステップ1: ユニーク性検証（DBで既存ユーザー確認）
-    // if let Some(_) = users::find()
-    //     .filter(users::Column::Email.eq(email))
-    //     .one(db)
-    //     .await?
-    // {
-    //     return Err(AppError::ValidationError(
-    //         "Email already exists".to_string(),
-    //     ));
-    // }
+    if users::Entity::find()
+        .filter(users::Column::Email.eq(email))
+        .one(db)
+        .await?
+        .is_some()
+    {
+        return Err(ApiError::Conflict("user"));
+    }
 
     let hashed_password = hash_password(password, password_worker).await?;
     let raw_token: String = rand::thread_rng()
@@ -54,6 +54,7 @@ pub async fn register_user(
         .collect();
     let hashed_token = hash_token(&raw_token);
     let user_active = users::ActiveModel {
+        name: Set(name.to_string()),
         email: Set(email.to_string()),
         password: Set(hashed_password),
         verification_token: Set(Some(hashed_token)),
@@ -231,4 +232,81 @@ pub fn decode_jwt(token: String) -> Result<Claims, ApiError> {
 pub fn verify_jwt(claims: &Claims) -> Result<bool, ApiError> {
     // JWTの検証ロジックを実装
     Ok(claims.exp > Utc::now().timestamp() as usize)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use migration::{Migrator, MigratorTrait};
+    use sea_orm::Database;
+    use std::process::{Child, Command};
+    use std::sync::Arc;
+    use tokio::time::{sleep, Duration};
+
+    async fn setup(port: u16) -> (
+        DatabaseConnection,
+        PasswordWorker<Bcrypt>,
+        Arc<SmtpTransport>,
+        Child,
+    ) {
+        // 環境変数設定（メール送信元）
+        unsafe {
+            std::env::set_var("AXUM_MAIL_FROM_EMAIL", "from@example.com");
+        }
+
+        // SMTPデバッグサーバ起動
+        let child = Command::new("python")
+            .args([
+                "-m",
+                "smtpd",
+                "-c",
+                "DebuggingServer",
+                "-n",
+                &format!("127.0.0.1:{}", port),
+            ])
+            .spawn()
+            .expect("failed to start smtp server");
+        // サーバ起動待ち
+        sleep(Duration::from_millis(100)).await;
+
+        let mailer = Arc::new(
+            SmtpTransport::builder_dangerous("127.0.0.1")
+                .port(port)
+                .build(),
+        );
+
+        let password_worker = PasswordWorker::new_bcrypt(4).unwrap();
+
+        // メモリDBを作成しマイグレーション
+        let db = Database::connect("sqlite::memory:")
+            .await
+            .expect("connect db");
+        Migrator::up(&db, None).await.expect("run migrations");
+
+        (db, password_worker, mailer, child)
+    }
+
+    #[tokio::test]
+    async fn register_user_success() {
+        let (db, pw, mailer, mut child) = setup(2525).await;
+
+        let res = register_user(&db, &pw, &mailer, "Alice", "user@example.com", "password").await;
+        assert_eq!(res.unwrap().user.name, "Alice");
+
+        child.kill().ok();
+    }
+
+    #[tokio::test]
+    async fn register_user_conflict() {
+        let (db, pw, mailer, mut child) = setup(2626).await;
+
+        register_user(&db, &pw, &mailer, "Bob", "user@example.com", "password")
+            .await
+            .expect("initial insert");
+
+        let res = register_user(&db, &pw, &mailer, "Tom", "user@example.com", "password").await;
+        assert!(matches!(res, Err(ApiError::Conflict("user"))));
+
+        child.kill().ok();
+    }
 }
