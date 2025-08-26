@@ -1,45 +1,10 @@
-use axum_password_worker::{Bcrypt, PasswordWorker};
-use decopon_axum::{routes, services, AppState};
+use decopon_axum::{
+    AppState, routes, services, setup_database, setup_password_worker, setup_tracing_subscriber,
+};
 use dotenvy::dotenv;
-use sea_orm::{Database, DatabaseConnection};
-use std::env;
 use std::net::SocketAddr;
-use std::sync::Arc;
 use tower_http::trace::TraceLayer;
 use tracing::info;
-use tracing_subscriber::layer::SubscriberExt;
-use tracing_subscriber::util::SubscriberInitExt;
-use tracing_subscriber::{EnvFilter, fmt};
-
-async fn setup_database() -> Result<Arc<DatabaseConnection>, sea_orm::DbErr> {
-    // Load the database URL from the environment variable
-    let database_url: String = env::var("AXUM_DATABASE_URL").expect(
-        "環境変数 'AXUM_DATABASE_URL' が設定されていません。'.env'ファイルを確認してください。",
-    );
-
-    // Initialize the database connection
-    let conn = Database::connect(database_url).await?;
-    Ok(Arc::new(conn))
-}
-
-fn setup_password_worker() -> Result<Arc<PasswordWorker<Bcrypt>>, Box<dyn std::error::Error>> {
-    // PasswordWorkerの初期化
-    let max_threads = 4; // 調整可能
-    let worker = PasswordWorker::new_bcrypt(max_threads)?;
-    Ok(Arc::new(worker))
-}
-
-fn setup_tracing_subscriber() -> Result<(), Box<dyn std::error::Error>> {
-    let filter = EnvFilter::builder()
-        .with_default_directive(tracing::level_filters::LevelFilter::INFO.into())
-        .from_env_lossy(); // RUST_LOG があれば上書き
-
-    tracing_subscriber::registry()
-        .with(filter)
-        .with(fmt::layer())
-        .init();
-    Ok(())
-}
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -80,6 +45,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::env;
 
     #[tokio::test]
     async fn test_load_env() {
