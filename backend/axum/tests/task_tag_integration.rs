@@ -9,12 +9,12 @@ use lettre::SmtpTransport;
 use migration::{Migrator, MigratorTrait};
 use sea_orm::{
     ActiveModelTrait, Database, DbBackend, EntityTrait, Set, Statement, ColumnTrait, QueryFilter,
+    ConnectionTrait,
 };
 use tower::ServiceExt;
 
 use decopon_axum::{
     AppState,
-    dto::tasks::TaskResponseDto,
     entities::{prelude::*, tag_task, users},
     middleware::auth::AuthenticatedUser,
     routes,
@@ -98,10 +98,11 @@ async fn task_creation_attaches_tags() {
 
     assert_eq!(response.status(), StatusCode::OK);
     let body = to_bytes(response.into_body(), usize::MAX).await.unwrap();
-    let task: TaskResponseDto = serde_json::from_slice(&body).unwrap();
+    let task: serde_json::Value = serde_json::from_slice(&body).unwrap();
+    let task_id = task["id"].as_i64().unwrap() as i32;
 
     let relations = TagTask::find()
-        .filter(tag_task::Column::TaskId.eq(task.id))
+        .filter(tag_task::Column::TaskId.eq(task_id))
         .all(db.as_ref())
         .await
         .unwrap();
