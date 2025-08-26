@@ -1,12 +1,5 @@
-mod dto;
-mod entities;
-mod errors;
-mod extractors;
-mod middleware;
-mod routes;
-mod services;
-use axum::extract::FromRef;
 use axum_password_worker::{Bcrypt, PasswordWorker};
+use decopon_axum::{routes, services, AppState};
 use dotenvy::dotenv;
 use sea_orm::{Database, DatabaseConnection};
 use std::env;
@@ -17,32 +10,6 @@ use tracing::info;
 use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::util::SubscriberInitExt;
 use tracing_subscriber::{EnvFilter, fmt};
-
-#[derive(Clone)]
-pub struct AppState {
-    db: Arc<DatabaseConnection>,
-    password_worker: Arc<PasswordWorker<Bcrypt>>,
-    mailer: Arc<lettre::SmtpTransport>,
-}
-
-// FromRefの実装
-impl FromRef<AppState> for Arc<DatabaseConnection> {
-    fn from_ref(state: &AppState) -> Self {
-        state.db.clone()
-    }
-}
-
-impl FromRef<AppState> for Arc<PasswordWorker<Bcrypt>> {
-    fn from_ref(state: &AppState) -> Self {
-        state.password_worker.clone()
-    }
-}
-
-impl FromRef<AppState> for Arc<lettre::SmtpTransport> {
-    fn from_ref(state: &AppState) -> Self {
-        state.mailer.clone()
-    }
-}
 
 async fn setup_database() -> Result<Arc<DatabaseConnection>, sea_orm::DbErr> {
     // Load the database URL from the environment variable
