@@ -1,5 +1,6 @@
 use decopon_axum::{
     AppState, routes, services, setup_database, setup_password_worker, setup_tracing_subscriber,
+    setup_jwt_secret,
 };
 use dotenvy::dotenv;
 use std::net::SocketAddr;
@@ -23,12 +24,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // メール送信の設定
     let mailer = services::mails::setup_mailer()?;
 
+    let jwt_secret = setup_jwt_secret()?;
+
     // build our application with routes
     let app = routes::create_routes()
         .with_state(AppState {
             db: db.clone(),
             password_worker: password_worker.clone(),
             mailer: mailer.clone(),
+            jwt_secret: jwt_secret.clone(),
         })
         .layer(TraceLayer::new_for_http());
 

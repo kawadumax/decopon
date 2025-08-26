@@ -69,9 +69,10 @@ pub async fn register_user(
 pub async fn get_auth_user_from_token(
     db: &DatabaseConnection,
     token: String,
+    jwt_secret: &str,
 ) -> Result<User, ApiError> {
     // jwtを検証して、ユーザーIDを取得する必要があります。
-    let claims = decode_jwt(token)?;
+    let claims = decode_jwt(token, jwt_secret)?;
     if !verify_jwt(&claims)? {
         return Err(ApiError::Unauthorized);
     }
@@ -92,6 +93,7 @@ pub async fn hash_password(
 pub async fn login_user(
     db: &DatabaseConnection,
     password_worker: &PasswordWorker<Bcrypt>,
+    jwt_secret: &str,
     email: &str,
     password: &str,
 ) -> Result<AuthResponse, ApiError> {
@@ -112,7 +114,7 @@ pub async fn login_user(
     }
 
     // JWTトークンを生成
-    let token = create_jwt(user_full.id)?;
+    let token = create_jwt(user_full.id, jwt_secret)?;
     let user: User = user_full.into();
 
     Ok(AuthResponse { token, user })
@@ -121,6 +123,7 @@ pub async fn login_user(
 pub async fn verify_email(
     db: &DatabaseConnection,
     token: String,
+    jwt_secret: &str,
 ) -> Result<AuthResponse, ApiError> {
     let hashed = hash_token(&token);
     let user = users::Entity::find()
@@ -133,7 +136,7 @@ pub async fn verify_email(
     user_active.email_verified_at = Set(Some(Utc::now()));
     user_active.verification_token = Set(None);
     let user = user_active.update(db).await?;
-    let jwt = create_jwt(user.id)?;
+    let jwt = create_jwt(user.id, jwt_secret)?;
     Ok(AuthResponse {
         token: jwt,
         user: user.into(),
@@ -202,8 +205,7 @@ pub async fn verify_password(
     Ok(is_valid)
 }
 
-pub fn create_jwt(user_id: i32) -> Result<String, ApiError> {
-    let secret = std::env::var("AXUM_JWT_SECRET")?; // JWTシークレットを環境変数から取得
+pub fn create_jwt(user_id: i32, secret: &str) -> Result<String, ApiError> {
     let claims = Claims {
         sub: user_id,
         exp: (Utc::now() + chrono::Duration::days(30)).timestamp() as usize, // 30日間有効
@@ -217,8 +219,7 @@ pub fn create_jwt(user_id: i32) -> Result<String, ApiError> {
     Ok(token)
 }
 
-pub fn decode_jwt(token: String) -> Result<Claims, ApiError> {
-    let secret = std::env::var("AXUM_JWT_SECRET")?;
+pub fn decode_jwt(token: String, secret: &str) -> Result<Claims, ApiError> {
     let token_data = jsonwebtoken::decode::<Claims>(
         &token,
         &jsonwebtoken::DecodingKey::from_secret(secret.as_ref()),
@@ -308,5 +309,14 @@ mod tests {
         assert!(matches!(res, Err(ApiError::Conflict("user"))));
 
         child.kill().ok();
+    }
+
+    #[test]
+    fn jwt_generate_and_verify() {
+        let secret = "secret";
+        let token = create_jwt(1, secret).unwrap();
+        let claims = decode_jwt(token, secret).unwrap();
+        assert!(verify_jwt(&claims).unwrap());
+        assert_eq!(claims.sub, 1);
     }
 }

@@ -32,8 +32,8 @@ async fn get_auth_user_via_header() {
     .insert(db.as_ref())
     .await
     .unwrap();
-
-    let token = services::auth::create_jwt(user.id).unwrap();
+    let jwt_secret = "test_secret".to_string();
+    let token = services::auth::create_jwt(user.id, &jwt_secret).unwrap();
 
     let password_worker = Arc::new(PasswordWorker::new_bcrypt(1).unwrap());
     let mailer = Arc::new(SmtpTransport::builder_dangerous("localhost").build());
@@ -42,6 +42,7 @@ async fn get_auth_user_via_header() {
         db: db.clone(),
         password_worker,
         mailer,
+        jwt_secret: jwt_secret.clone(),
     });
 
     let response = app

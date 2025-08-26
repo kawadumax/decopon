@@ -5,7 +5,7 @@ use axum::{
     response::Response,
 };
 
-use crate::services::auth::{decode_jwt, verify_jwt};
+use crate::{AppState, services::auth::{decode_jwt, verify_jwt}};
 
 #[derive(Clone, Debug)]
 pub struct AuthenticatedUser {
@@ -23,8 +23,15 @@ pub async fn auth_middleware(mut req: Request<Body>, next: Next) -> Result<Respo
         .map(|s| s.to_string())
         .ok_or(StatusCode::UNAUTHORIZED)?;
 
+    // AppStateからシークレットを取得
+    let secret = req
+        .extensions()
+        .get::<AppState>()
+        .map(|state| state.jwt_secret.clone())
+        .ok_or(StatusCode::INTERNAL_SERVER_ERROR)?;
+
     // JWTをデコード
-    let claims = decode_jwt(token).map_err(|_| StatusCode::UNAUTHORIZED)?;
+    let claims = decode_jwt(token, &secret).map_err(|_| StatusCode::UNAUTHORIZED)?;
     if !verify_jwt(&claims).map_err(|_| StatusCode::UNAUTHORIZED)? {
         return Err(StatusCode::UNAUTHORIZED);
     }

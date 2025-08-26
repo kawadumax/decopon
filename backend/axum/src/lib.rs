@@ -18,6 +18,7 @@ pub struct AppState {
     pub db: Arc<DatabaseConnection>,
     pub password_worker: Arc<PasswordWorker<Bcrypt>>,
     pub mailer: Arc<lettre::SmtpTransport>,
+    pub jwt_secret: String,
 }
 
 impl FromRef<AppState> for Arc<DatabaseConnection> {
@@ -50,6 +51,10 @@ pub fn setup_password_worker() -> Result<Arc<PasswordWorker<Bcrypt>>, Box<dyn st
     let max_threads = 4;
     let worker = PasswordWorker::new_bcrypt(max_threads)?;
     Ok(Arc::new(worker))
+}
+
+pub fn setup_jwt_secret() -> Result<String, env::VarError> {
+    env::var("AXUM_JWT_SECRET")
 }
 
 pub fn setup_tracing_subscriber() -> Result<(), Box<dyn std::error::Error>> {

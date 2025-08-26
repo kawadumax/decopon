@@ -6,8 +6,6 @@ use axum::{
     routing::{get, post},
 };
 use axum_macros::debug_handler;
-use sea_orm::DatabaseConnection;
-use std::sync::Arc;
 
 use crate::AppState;
 use crate::dto::auth::*;
@@ -20,6 +18,7 @@ async fn register_user(
         db,
         password_worker,
         mailer,
+        ..
     }): State<AppState>,
     Json(payload): Json<RegisterUserRequestDto>,
 ) -> Result<impl IntoResponse, ApiError> {
@@ -42,7 +41,7 @@ async fn register_user(
 
 #[debug_handler]
 async fn get_auth_user(
-    State(db): State<Arc<DatabaseConnection>>,
+    State(AppState { db, jwt_secret, .. }): State<AppState>,
     headers: HeaderMap,
 ) -> Result<impl IntoResponse, ApiError> {
     let token = headers
@@ -52,7 +51,7 @@ async fn get_auth_user(
         .map(|s| s.to_string())
         .ok_or(ApiError::Unauthorized)?;
 
-    let user = services::auth::get_auth_user_from_token(&db, token).await?;
+    let user = services::auth::get_auth_user_from_token(&db, token, &jwt_secret).await?;
     Ok((
         StatusCode::OK,
         Json(GetAuthUserResponseDto { user: user.into() }),
@@ -65,11 +64,12 @@ async fn login(
         db,
         password_worker,
         mailer: _,
+        jwt_secret,
     }): State<AppState>,
     Json(payload): Json<LoginRequestDto>,
 ) -> Result<impl IntoResponse, ApiError> {
     let result =
-        services::auth::login_user(&db, &password_worker, &payload.email, &payload.password)
+        services::auth::login_user(&db, &password_worker, &jwt_secret, &payload.email, &payload.password)
             .await?;
 
     Ok((
@@ -117,10 +117,10 @@ async fn reset_password(
 }
 #[debug_handler]
 async fn verify_email(
-    State(AppState { db, .. }): State<AppState>,
+    State(AppState { db, jwt_secret, .. }): State<AppState>,
     Path(token): Path<String>,
 ) -> Result<impl IntoResponse, ApiError> {
-    let result = services::auth::verify_email(&db, token).await?;
+    let result = services::auth::verify_email(&db, token, &jwt_secret).await?;
     Ok((
         StatusCode::OK,
         Json(AuthResponseDto {
