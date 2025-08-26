@@ -236,6 +236,63 @@ pub fn verify_jwt(claims: &Claims) -> Result<bool, ApiError> {
 }
 
 #[cfg(test)]
+mod auth_tests {
+    use super::*;
+    use axum_password_worker::PasswordWorker;
+    use chrono::Utc;
+    use jsonwebtoken::{EncodingKey, Header};
+
+    #[tokio::test]
+    async fn hash_password_and_verify_success() {
+        let worker = PasswordWorker::new_bcrypt(4).unwrap();
+        let password = "secret";
+        let hashed = hash_password(password, &worker).await.unwrap();
+        assert_ne!(password, hashed);
+        assert!(verify_password(password, &hashed, &worker).await.unwrap());
+    }
+
+    #[tokio::test]
+    async fn verify_password_mismatch() {
+        let worker = PasswordWorker::new_bcrypt(4).unwrap();
+        let hashed = hash_password("secret", &worker).await.unwrap();
+        assert!(!verify_password("wrong", &hashed, &worker).await.unwrap());
+    }
+
+    #[test]
+    fn create_and_decode_jwt_success() {
+        let secret = "secret";
+        let token = create_jwt(1, secret).unwrap();
+        let claims = decode_jwt(token, secret).unwrap();
+        assert_eq!(claims.sub, 1);
+        assert!(verify_jwt(&claims).unwrap());
+    }
+
+    #[test]
+    fn verify_jwt_expired() {
+        let secret = "secret";
+        let expired_claims = Claims {
+            sub: 1,
+            exp: (Utc::now() - chrono::Duration::seconds(1)).timestamp() as usize,
+        };
+        let token = jsonwebtoken::encode(
+            &Header::default(),
+            &expired_claims,
+            &EncodingKey::from_secret(secret.as_ref()),
+        )
+        .unwrap();
+        let claims = decode_jwt(token, secret).unwrap();
+        assert!(!verify_jwt(&claims).unwrap());
+    }
+
+    #[test]
+    fn decode_jwt_invalid_secret() {
+        let token = create_jwt(1, "secret").unwrap();
+        let res = decode_jwt(token, "wrong");
+        assert!(matches!(res, Err(ApiError::Unauthorized)));
+    }
+}
+
+#[cfg(test)]
 mod tests {
     use super::*;
     use migration::{Migrator, MigratorTrait};
