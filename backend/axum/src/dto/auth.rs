@@ -29,7 +29,7 @@ pub struct UserFullDto {
     pub locale: String,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize)]
 pub struct UserDto {
     pub id: i32,
     pub name: String,
@@ -82,11 +82,6 @@ impl From<UserFull> for UserDto {
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct GetAuthUserRequestDto {
-    pub token: String,
-}
-
-#[derive(Serialize)]
 pub struct GetAuthUserResponseDto {
     pub user: UserDto,
 }

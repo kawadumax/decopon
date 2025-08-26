@@ -1,7 +1,7 @@
 use axum::{
     Router,
     extract::{Path, State},
-    http::StatusCode,
+    http::{HeaderMap, StatusCode, header::AUTHORIZATION},
     response::{IntoResponse, Json},
     routing::{get, post},
 };
@@ -9,9 +9,9 @@ use axum_macros::debug_handler;
 use sea_orm::DatabaseConnection;
 use std::sync::Arc;
 
+use crate::AppState;
 use crate::dto::auth::*;
 use crate::errors::ApiError;
-use crate::routes::AppState;
 use crate::services;
 
 #[debug_handler]
@@ -43,9 +43,16 @@ async fn register_user(
 #[debug_handler]
 async fn get_auth_user(
     State(db): State<Arc<DatabaseConnection>>,
-    Json(payload): Json<GetAuthUserRequestDto>,
+    headers: HeaderMap,
 ) -> Result<impl IntoResponse, ApiError> {
-    let user = services::auth::get_auth_user_from_token(&db, payload.token).await?;
+    let token = headers
+        .get(AUTHORIZATION)
+        .and_then(|h| h.to_str().ok())
+        .and_then(|s| s.strip_prefix("Bearer "))
+        .map(|s| s.to_string())
+        .ok_or(ApiError::Unauthorized)?;
+
+    let user = services::auth::get_auth_user_from_token(&db, token).await?;
     Ok((
         StatusCode::OK,
         Json(GetAuthUserResponseDto { user: user.into() }),
@@ -129,5 +136,5 @@ pub fn routes() -> Router<AppState> {
         .route("/sessions", post(login).delete(logout))
         .route("/password/forgot", post(forgot_password))
         .route("/password/reset", post(reset_password))
-        .route("/email/verify/:token", get(verify_email))
+        .route("/email/verify/{token}", get(verify_email))
 }
