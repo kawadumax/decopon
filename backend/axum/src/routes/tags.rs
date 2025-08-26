@@ -1,6 +1,7 @@
 use axum::{
     Extension, Router,
     extract::State,
+    http::StatusCode,
     response::Json,
     routing::{delete, get, post},
 };
@@ -55,9 +56,9 @@ async fn destroy_multiple(
     State(db): State<Arc<DatabaseConnection>>,
     Extension(user): Extension<AuthenticatedUser>,
     Json(payload): Json<DeleteTagsRequestDto>,
-) -> Result<(), ApiError> {
+) -> Result<StatusCode, ApiError> {
     tags::delete_tags(&db, user.id, payload.tag_ids).await?;
-    Ok(())
+    Ok(StatusCode::NO_CONTENT)
 }
 
 pub fn routes() -> Router<AppState> {

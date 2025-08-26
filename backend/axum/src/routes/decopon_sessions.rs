@@ -1,6 +1,7 @@
 use axum::{
     Extension, Json, Router,
     extract::{Path, Query, State},
+    http::StatusCode,
     routing::get,
 };
 use axum_macros::debug_handler;
@@ -74,9 +75,9 @@ async fn destroy(
     Path(id): Path<i32>,
     State(db): State<Arc<DatabaseConnection>>,
     Extension(user): Extension<AuthenticatedUser>,
-) -> Result<(), ApiError> {
+) -> Result<StatusCode, ApiError> {
     decopon_sessions::delete_session(&db, id, user.id).await?;
-    Ok(())
+    Ok(StatusCode::NO_CONTENT)
 }
 
 #[derive(serde::Deserialize)]

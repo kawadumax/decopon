@@ -1,6 +1,7 @@
 use axum::{
     Extension, Router,
     extract::{Path, State},
+    http::StatusCode,
     response::Json,
     routing::get,
 };
@@ -69,9 +70,9 @@ async fn destroy(
     State(db): State<Arc<DatabaseConnection>>,
     Extension(user): Extension<AuthenticatedUser>,
     Json(payload): Json<DeleteTaskRequestDto>,
-) -> Result<(), ApiError> {
+) -> Result<StatusCode, ApiError> {
     tasks::delete_task(&db, payload.id, user.id).await?;
-    Ok(())
+    Ok(StatusCode::NO_CONTENT)
 }
 
 pub fn routes() -> Router<AppState> {

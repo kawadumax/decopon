@@ -65,7 +65,7 @@ async fn destroy(
         password: payload.password,
     };
     profiles::delete_profile(&db, &password_worker, user.id, params).await?;
-    Ok(StatusCode::OK)
+    Ok(StatusCode::NO_CONTENT)
 }
 
 pub fn routes() -> Router<AppState> {

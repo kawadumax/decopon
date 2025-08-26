@@ -68,9 +68,14 @@ async fn login(
     }): State<AppState>,
     Json(payload): Json<LoginRequestDto>,
 ) -> Result<impl IntoResponse, ApiError> {
-    let result =
-        services::auth::login_user(&db, &password_worker, &jwt_secret, &payload.email, &payload.password)
-            .await?;
+    let result = services::auth::login_user(
+        &db,
+        &password_worker,
+        &jwt_secret,
+        &payload.email,
+        &payload.password,
+    )
+    .await?;
 
     Ok((
         StatusCode::OK,
@@ -84,7 +89,7 @@ async fn login(
 async fn logout() -> StatusCode {
     // No-op for logout, as JWTs are stateless
     // In a real application, you might want to handle token invalidation or session management
-    StatusCode::OK
+    StatusCode::NO_CONTENT
 }
 
 #[debug_handler]
