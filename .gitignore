@@ -4,6 +4,7 @@
 .env.production
 .phpactor.json
 .phpunit.result.cache
+*.patch
 Homestead.json
 Homestead.yaml
 auth.json
@@ -15,3 +16,4 @@ yarn-error.log
 # /.vscode
 /.zed
 node_modules
+/tmp

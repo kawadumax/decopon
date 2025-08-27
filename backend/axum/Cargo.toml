@@ -1,0 +1,31 @@
+[workspace]
+members = [".", "migration"]
+
+[package]
+name = "decopon-axum"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+migration = { path = "migration" } # depends on your needs
+
+axum = "~0.8.4"
+axum-macros = "0.5.0" 
+axum-password-worker = "0.4.1"
+chrono = { version = "0.4.41", features = ["serde"] }
+dotenvy = "0.15.7"
+tokio = { version = "~1.47.1", features = ["macros", "rt-multi-thread"] }
+sea-orm = { version = "~1.1.14", features = [ "sqlx-sqlite", "runtime-tokio-rustls", "macros" ] }
+serde = { version = "~1.0.219", features = ["derive"] }
+serde_json = "~1.0.141"
+jsonwebtoken = "~9.3.1"
+lettre = "0.11.18"
+thiserror = "2"
+rand = "0.8"
+sha2 = "0.10"
+tower-http = {version = "0.6.6", features = ["trace"] }
+tracing = "0.1.41"
+tracing-subscriber = { version = "0.3.19", features=["env-filter"] }
+
+[dev-dependencies]
+tower = { version = "0.5", features = ["util"] }

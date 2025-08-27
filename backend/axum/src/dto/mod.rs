@@ -1,0 +1,13 @@
+//! HTTP の境界 (リクエスト/レスポンス) で JSON にシリアライズ/デシリアライズする型を集約するモジュール。
+//! これらの型には `Dto` サフィックスを付け、ハンドラ層での入出力専用として利用します。
+//! 一方、サービス層で扱う `NewTask` や `Task`、`User` などのドメインモデルには `Dto` を付けず、
+//! ビジネスロジックや永続化処理に限定して使用します。
+
+pub mod auth;
+pub mod common;
+pub mod preferences;
+pub mod profiles;
+pub mod tags;
+pub mod tasks;
+pub mod decopon_sessions;
+pub mod logs;
