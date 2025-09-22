@@ -51,5 +51,7 @@ jobs:
         run: cargo build --manifest-path backend/axum/migration/Cargo.toml --release
 
       # 8) フロントエンドのビルド
+      - name: gen routes
+        run: pnpm web:generate:routes
       - name: Build
         run: pnpm web:build
