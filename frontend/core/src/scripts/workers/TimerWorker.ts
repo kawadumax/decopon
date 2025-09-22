@@ -1,4 +1,4 @@
-let intervalId: number;
+let intervalId: ReturnType<typeof setInterval>;
 
 addEventListener("message", (e) => {
   switch (e.data.type) {

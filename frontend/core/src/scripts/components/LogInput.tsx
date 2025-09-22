@@ -1,15 +1,15 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRef, useState } from "react";
 import { storeLogMutationOptions } from "../queries";
-import type { Log, Task } from "../types";
+import { LogSource, type Log, type Task } from "../types";
 import {
   type AutosizeTextAreaRef,
   AutosizeTextarea,
 } from "./ui/autosize-textarea";
 
 export const LogInput = ({ task }: { task: Task | undefined }) => {
-  const taskId = task?.id ?? "undefined";
-  const queryKey = task ? ["logs", taskId] : ["logs"];
+  const taskId = task?.id;
+  const queryKey = taskId ? ["logs", taskId] : ["logs"];
   const [tempIdCounter, setTempIdCounter] = useState(0);
   const [content, setContent] = useState("");
   const textareaRef = useRef<AutosizeTextAreaRef>(null);
@@ -24,14 +24,15 @@ export const LogInput = ({ task }: { task: Task | undefined }) => {
       event.preventDefault();
       const tempId = -1 - tempIdCounter; // 負の値を使用して一時的なIDを生成
       setTempIdCounter((prev) => prev + 1);
-      const newLog = {
+      const newLog: Log = {
         id: tempId,
         content,
+        source: LogSource.User,
         created_at: new Date().toISOString(),
-        user_id: null,
+        updated_at: new Date().toISOString(),
+        user_id: 0,
         task_id: taskId,
-        updated_at: null,
-      } as unknown as Log;
+      };
 
       queryClient.setQueryData<Log[]>(queryKey, (oldLogs) => [
         ...(oldLogs ?? []),
@@ -41,7 +42,8 @@ export const LogInput = ({ task }: { task: Task | undefined }) => {
       // ここでAPIにPOSTリクエストを送信
       storeLogMutation.mutate({
         content: content,
-        task_id: taskId ?? null,
+        task_id: taskId,
+        source: LogSource.User,
       } as Partial<Log>);
 
       setContent("");

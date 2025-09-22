@@ -1,9 +1,10 @@
 import type { Meta, StoryFn } from "@storybook/react";
 import { http, HttpResponse } from "msw";
 import { RouterDecorator } from "../../.storybook/lib/withRouterDecorator";
+import { baseURL } from "../../src/scripts/api/httpClient";
 import { queryClient } from "../../src/scripts/queries";
 
-const baseUrl = "http://localhost:8000/api";
+const baseUrl = baseURL.endsWith("/api") ? baseURL : `${baseURL}/api`;
 const testUser = {
   user: {
     id: 1,

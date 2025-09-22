@@ -62,7 +62,13 @@ pub fn send_verification_email(
     email: &str,
     token: &str,
 ) -> Result<(), ApiError> {
-    let body = format!("Verification token: {}", token);
+    let frontend_url = env::var("FRONTEND_URL").unwrap_or_else(|_| "http://localhost:5173".to_string());
+    let url = format!(
+        "{}/guest/verify-email/{}",
+        frontend_url.trim_end_matches('/'),
+        token
+    );
+    let body = format!("Verify your email by visiting: {}", url);
     send(mailer, email, "Verify your email", &body)?;
     Ok(())
 }

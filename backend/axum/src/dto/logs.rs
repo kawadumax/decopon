@@ -1,13 +1,13 @@
 use sea_orm::prelude::DateTimeUtc;
 use serde::{Deserialize, Serialize};
 
-use crate::services::logs::Log;
+use crate::services::logs::{Log, LogSource};
 
 #[derive(Serialize)]
 pub struct LogResponseDto {
     pub id: i32,
     pub content: String,
-    pub source: String,
+    pub source: LogSource,
     pub created_at: DateTimeUtc,
     pub updated_at: DateTimeUtc,
     pub user_id: i32,
@@ -28,9 +28,9 @@ impl From<Log> for LogResponseDto {
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct StoreLogRequestDto {
     pub content: String,
-    pub source: String,
+    pub source: LogSource,
     pub task_id: Option<i32>,
 }

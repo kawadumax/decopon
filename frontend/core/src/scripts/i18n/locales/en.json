@@ -21,19 +21,24 @@
     "table": {
       "header": {
         "name": "Tag Name",
+        "taskCount": "Task Count",
         "createdAt": "Created At",
         "updatedAt": "Updated At"
       }
     }
   },
-  "timeEntry": {
+  "decoponSession": {
     "status": {
       "notStarted": "Not Started",
       "completed": "Completed",
-      "inProgress": "In Progress"
+      "inProgress": "In Progress",
+      "interrupted": "Interrupted",
+      "abandoned": "Abandoned",
+      "extended": "Extended"
     }
   },
   "timer": {
+    "break": "Break",
     "workTime": "Work Time",
     "breakTime": "Break Time",
     "cycles": "Cycles",
@@ -125,7 +130,8 @@
     "confirmPassword": {
       "title": "Confirm Password",
       "description": "This is a secure area of the application. Please confirm your password before continuing.",
-      "submit": "Confirm"
+      "submit": "Confirm",
+      "success": "Your password has been confirmed."
     },
     "verifyEmail": {
       "title": "Email Verification",
@@ -171,25 +177,39 @@
   },
   "api": {
     "log": {},
-    "preference": {},
-    "profile": {},
+    "preference": {
+      "update": {
+        "200": "Preferences updated successfully."
+      }
+    },
+    "profile": {
+      "update": {
+        "200": "Profile updated successfully."
+      },
+      "updatePassword": {
+        "200": "Password updated successfully."
+      },
+      "destroy": {
+        "204": "Account deleted successfully."
+      }
+    },
     "tag": {
-      "store": { "201": "Tag created successfully." },
+      "store": { "200": "Tag created successfully." },
       "storeRelation": {
         "403": "Permission denied: You cannot add tags to this task.",
-        "201": "Successfully created tag and associated it with the task."
+        "200": "Successfully created tag and associated it with the task."
       },
       "destroyRelation": {
         "403": "Permission denied: You cannot remove tags to this task.",
-        "201": "Successfully removed tag from the task."
+        "200": "Successfully removed tag from the task."
       },
       "destroyMultiple": {
-        "200": "Successfully removed tag"
+        "204": "Selected tags removed successfully."
       }
     },
     "task": {
       "store": {
-        "201": "Task created successfully.",
+        "200": "Task created successfully.",
         "422": "Unprocessable Entity"
       },
       "update": {
@@ -197,7 +217,7 @@
         "403": "Permission denied: You cannot update this task."
       },
       "destroy": {
-        "200": "Task deleted successfully.",
+        "204": "Task deleted successfully.",
         "403": "Permission denied: You cannot delete this task.",
         "404": "Task not found."
       },
@@ -209,26 +229,33 @@
         "200": "Tasks retrieved successfully based on tag."
       }
     },
-    "time_entry": {
+    "decopon_session": {
       "store": {
-        "201": "Focus time recording started."
+        "200": "Focus session recording started."
       },
       "update": {
-        "200": "Time entry updated successfully.",
-        "403": "Permission denied: You cannot update this time entry.",
-        "404": "Time entry not found."
+        "200": "Decopon session updated successfully.",
+        "403": "Permission denied: You cannot update this decopon session.",
+        "404": "Decopon session not found."
       },
       "destroy": {
-        "204": "Time entry deleted successfully.",
-        "403": "Permission denied: You cannot delete this time entry."
+        "204": "Decopon session deleted successfully.",
+        "403": "Permission denied: You cannot delete this decopon session."
       },
       "getCycles": {
         "200": "Cycles retrieved successfully."
       }
     },
     "unknown": {
+      "default": "An unexpected error occurred.",
       "200": "Success.",
-      "403": "Permission denied"
+      "400": "Bad request.",
+      "401": "Unauthorized.",
+      "403": "Permission denied.",
+      "404": "Resource not found.",
+      "409": "Conflict detected.",
+      "422": "Validation failed.",
+      "500": "Internal server error."
     }
   }
 }

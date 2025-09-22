@@ -1,4 +1,4 @@
-import { callApi } from "@/scripts/queries/apiClient";
+import { ProfileService } from "@/scripts/api/services/ProfileService";
 import DangerButton from "@components/DangerButton";
 import InputLabel from "@components/InputLabel";
 import Modal from "@components/Modal";
@@ -7,7 +7,8 @@ import TextInput from "@components/TextInput";
 import { useForm } from "@tanstack/react-form";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { route } from "ziggy-js";
+import { cn } from "@/scripts/lib/utils";
+
 
 export default function DeleteUserForm({
   className = "",
@@ -24,48 +25,26 @@ export default function DeleteUserForm({
     },
     onSubmit: async ({ value, formApi }) => {
       try {
-        await callApi("delete", route("profile.destroy"), value);
+          await ProfileService.deleteUser(value);
       } catch (error) {
         console.error("API error:", error);
         formApi.reset();
       }
     },
   });
-  // const {
-  //   data,
-  //   setData,
-  //   delete: destroy,
-  //   processing,
-  //   reset,
-  //   errors,
-  //   clearErrors,
-  // } = useForm({
-  //   password: "",
-  // });
 
   const confirmUserDeletion = () => {
     setConfirmingUserDeletion(true);
   };
 
-  // const deleteUser: FormEventHandler = (e) => {
-  //   e.preventDefault();
 
-  //   destroy(route("profile.destroy"), {
-  //     preserveScroll: true,
-  //     onSuccess: () => closeModal(),
-  //     onError: () => passwordInput.current?.focus(),
-  //     onFinish: () => reset(),
-  //   });
-  // };
-
-  const closeModal = () => {
-    setConfirmingUserDeletion(false);
-    // clearErrors();
-    form.reset();
-  };
+    const closeModal = () => {
+      setConfirmingUserDeletion(false);
+      form.reset();
+    };
 
   return (
-    <section className={`space-y-6 ${className}`}>
+    <section className={cn("space-y-6", className)}>
       <header>
         <h2 className="font-medium text-gray-900 text-lg dark:text-gray-100">
           {t("profile.deleteAccount.title")}
@@ -119,7 +98,6 @@ export default function DeleteUserForm({
                     placeholder="Password"
                   />
 
-                  {/* <InputError message={errors.password} className="mt-2" /> */}
                 </>
               )}
             </form.Field>

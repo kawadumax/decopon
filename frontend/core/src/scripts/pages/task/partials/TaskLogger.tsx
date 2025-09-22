@@ -1,21 +1,18 @@
-import { callApi } from "@/scripts/queries/apiClient";
-import type { Log, Task } from "@/scripts/types";
+import { LogService } from "@/scripts/api/services/LogService";
+import type { Log } from "@/scripts/types";
 import { LogInput } from "@components/LogInput";
 import { LogItem } from "@components/LogItem";
 import { useQuery } from "@tanstack/react-query";
-import { useAtomValue } from "jotai";
-import type { PrimitiveAtom } from "jotai";
 import { useEffect, useRef } from "react";
-import { route } from "ziggy-js";
+import { useTaskStore } from "@store/task";
 
-export const TaskLogger = ({ taskAtom }: { taskAtom: PrimitiveAtom<Task> }) => {
-  const task = useAtomValue(taskAtom);
+export const TaskLogger = () => {
+  const task = useTaskStore((s) => s.currentTask);
   const { data, isLoading } = useQuery<Log[]>({
     queryKey: ["logs", task?.id],
     queryFn: async () => {
       if (!task) return [];
-      // const response = await api.get(route("api.logs.task", task.id));
-      const response = await callApi("get", route("api.logs.task", task.id));
+      const response = await LogService.task(task.id);
       return response ?? [];
     },
     enabled: !!task,
@@ -25,9 +22,10 @@ export const TaskLogger = ({ taskAtom }: { taskAtom: PrimitiveAtom<Task> }) => {
 
   useEffect(() => {
     if (logContainerRef.current) {
-      logContainerRef.current.scrollTop = logContainerRef.current.scrollHeight;
+      logContainerRef.current.scrollTop =
+        logContainerRef.current.scrollHeight;
     }
-  }, []);
+  }, [data]);
 
   if (isLoading) {
     return (
@@ -38,7 +36,7 @@ export const TaskLogger = ({ taskAtom }: { taskAtom: PrimitiveAtom<Task> }) => {
   return (
     <div className="flex flex-1 flex-col">
       <ul ref={logContainerRef} className="flex-1 overflow-y-auto">
-        {data?.map((log) => (
+        {data?.map((log: Log) => (
           <LogItem key={log.id} log={log} />
         ))}
       </ul>

@@ -1,16 +1,12 @@
 import Edit from "@/scripts/pages/profile/Edit";
-import { callApi } from "@/scripts/queries/apiClient";
+import { ProfileService } from "@/scripts/api/services/ProfileService";
 import { createFileRoute, useLoaderData } from "@tanstack/react-router";
 import { t } from "i18next";
-import { route } from "ziggy-js";
+import type { ProfileResponse } from "@/scripts/types";
 
 export const Route = createFileRoute("/auth/profiles")({
-  loader: async () => {
-    const { status, mustVerifyEmail } = await callApi(
-      "get",
-      route("api.profile.edit"),
-    );
-    return { status, mustVerifyEmail };
+  loader: async (): Promise<ProfileResponse> => {
+    return await ProfileService.getProfile();
   },
   component: () => {
     const { status, mustVerifyEmail } = useLoaderData({

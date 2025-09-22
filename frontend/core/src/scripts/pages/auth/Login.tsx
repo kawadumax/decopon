@@ -1,4 +1,6 @@
-import { callApi } from "@/scripts/queries/apiClient";
+import { AuthService } from "@/scripts/api/services/AuthService";
+import { authStorage } from "@/scripts/lib/authStorage";
+import type { AuthResponse } from "@/scripts/types";
 import InputLabel from "@components/InputLabel";
 import PrimaryButton from "@components/PrimaryButton";
 import TextInput from "@components/TextInput";
@@ -8,8 +10,8 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import type { AxiosError } from "axios";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { route } from "ziggy-js";
 import { DemoCautionWithAccount } from "./partials/DemoCaution";
+
 
 type LoginData = {
   email: string;
@@ -22,9 +24,10 @@ interface ErrorResponse {
   };
 }
 
-const loginMutationFn = async (loginData: LoginData) => {
-  await callApi("get", route("sanctum.csrf-cookie"));
-  const res = await callApi("post", route("login"), loginData);
+const loginMutationFn = async (
+  loginData: LoginData,
+): Promise<AuthResponse> => {
+  const res = await AuthService.login(loginData);
   if (!res.user) {
     throw new Error("Login failed");
   }
@@ -41,7 +44,8 @@ export default function Login() {
   const mutation = useMutation({
     mutationFn: loginMutationFn,
     onSuccess: (data) => {
-      queryClient.setQueryData(["auth"], data);
+      queryClient.setQueryData(["auth"], { user: data.user });
+      authStorage.set({ user: data.user });
     },
     onError: (error: AxiosError) => {
       console.error("Login Error:", error);
@@ -101,10 +105,6 @@ export default function Login() {
                   isFocused={true}
                   onChange={(e) => field.handleChange(e.target.value)}
                 />
-                {/* エラーメッセージ表示例: */}
-                {/* {field.state.errors.length > 0 && (
-                  <div className="mt-2 text-red-600">{field.state.errors.join(', ')}</div>
-                )} */}
               </>
             )}
           </form.Field>
@@ -123,7 +123,6 @@ export default function Login() {
                   autoComplete="current-password"
                   onChange={(e) => field.handleChange(e.target.value)}
                 />
-                {/* エラーメッセージ表示例 */}
               </>
             )}
           </form.Field>

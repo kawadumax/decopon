@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "vite build",
     "preview": "vite preview",
     "tauri": "tauri"
   },
@@ -15,10 +15,9 @@
     "@tauri-apps/plugin-opener": "^2"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "catalog:",
+    "@vitejs/plugin-react-swc": "catalog:",
     "vite-plugin-svgr": "catalog:",
     "@tailwindcss/vite": "catalog:",
-    "@tanstack/router-plugin": "catalog:",
     "vite": "catalog:",
     "@tauri-apps/cli": "^2"
   }

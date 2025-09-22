@@ -1,4 +1,7 @@
-import { Locale } from "@/scripts/types/index.d";
+import type { Locale } from "@/scripts/types";
+import { cn } from "@/scripts/lib/utils";
+
+const locales = { ENGLISH: "en", JAPANESE: "ja" } as const;
 import {
   Select,
   SelectContent,
@@ -6,12 +9,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@components/ui/select";
-import { languageAtom } from "@lib/atoms";
 import { t } from "i18next";
-import { useAtom } from "jotai";
+import { useLangStore } from "@store/lang";
 
 export const LangSwitchMulti = () => {
-  const [lang, setLang] = useAtom(languageAtom);
+  const [lang, setLang] = [
+    useLangStore((s) => s.language),
+    useLangStore((s) => s.setLanguage),
+  ];
   return (
     <Select
       defaultValue={lang}
@@ -23,7 +28,7 @@ export const LangSwitchMulti = () => {
         <SelectValue placeholder={t("profile.updatePreference.locale")} />
       </SelectTrigger>
       <SelectContent>
-        {Object.entries(Locale).map(([key, value]) => {
+        {Object.entries(locales).map(([key, value]) => {
           return (
             <SelectItem key={key} value={value}>
               {key}
@@ -36,12 +41,15 @@ export const LangSwitchMulti = () => {
 };
 
 export const LangSwitch = () => {
-  const [lang, setLang] = useAtom(languageAtom);
+  const [lang, setLang] = [
+    useLangStore((s) => s.language),
+    useLangStore((s) => s.setLanguage),
+  ];
 
   const Span = ({ locale }: { locale: Locale }) => {
     const underlineClass = "underline decoration-1";
     const isSelected = lang === locale;
-    const label = locale === Locale.ENGLISH ? "EN" : "JP";
+    const label = locale === locales.ENGLISH ? "EN" : "JP";
     const ariaLabel = `Switch to ${label === "EN" ? "English" : "Japanese"}`;
 
     return (
@@ -52,7 +60,7 @@ export const LangSwitch = () => {
             setLang(locale);
           }
         }}
-        className={`cursor-pointer px-2 ${isSelected && underlineClass}`}
+        className={cn("cursor-pointer px-2", isSelected && underlineClass)}
         aria-label={ariaLabel}
       >
         {label}
@@ -62,9 +70,9 @@ export const LangSwitch = () => {
 
   return (
     <div className="h-10 py-2">
-      <Span locale={Locale.ENGLISH} />
+      <Span locale={locales.ENGLISH as Locale} />
       {" / "}
-      <Span locale={Locale.JAPANESE} />
+      <Span locale={locales.JAPANESE as Locale} />
     </div>
   );
 };

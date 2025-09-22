@@ -19,16 +19,14 @@ export class NProgressManager {
   incrementRequests(): void {
     if (this.activeRequests === 0) {
       nProgress.start();
-      console.log("NProgress started");
     }
     this.activeRequests++;
   }
 
   decrementRequests(): void {
-    this.activeRequests--;
+    this.activeRequests = Math.max(this.activeRequests - 1, 0);
     if (this.activeRequests === 0) {
       nProgress.done();
-      console.log("NProgress completed");
     }
   }
 }

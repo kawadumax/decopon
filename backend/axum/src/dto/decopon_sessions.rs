@@ -28,14 +28,14 @@ impl From<DecoponSession> for DecoponSessionResponseDto {
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct StoreDecoponSessionRequestDto {
     pub status: String,
     pub started_at: DateTimeUtc,
     pub ended_at: Option<DateTimeUtc>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct UpdateDecoponSessionRequestDto {
     pub status: Option<String>,
     pub ended_at: Option<DateTimeUtc>,

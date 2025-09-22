@@ -9,13 +9,17 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 /**
- * ローカルでのみ表示されるconsole.log
+ * ログレベルに応じてログを出力する logger
+ * VITE_LOG_LEVEL が `debug` のとき、または VITE_APP_ENV が `local` のときにのみ出力する。
  * @param args ログに表示したいもの
  */
 export const logger = (...args: unknown[]) => {
-  const viteAppEnv = import.meta.env.VITE_APP_ENV;
-  if (viteAppEnv === "local") {
-    console.log(...args);
+  const logLevel =
+    import.meta.env.VITE_LOG_LEVEL ??
+    (import.meta.env.VITE_APP_ENV === "local" ? "debug" : "info");
+
+  if (logLevel === "debug") {
+    console.debug(...args);
   }
 };
 

@@ -1,6 +1,3 @@
-@import 'nprogress/nprogress.css' layer(base);
-@import 'jotai-devtools/styles.css' layer(base);
-
 @import 'tailwindcss';
 @import "tw-animate-css";
 @plugin '@tailwindcss/forms';
@@ -258,16 +255,6 @@
     font-style: normal;
     font-display: swap;
   }
-
-  #nprogress {
-    .bar {
-      background-color: oklch(var(--primary));
-      height: 3px;
-    }
-    .peg {
-      box-shadow: 0 0 10px oklch(var(--primary)), 0 0 5px oklch(var(--primary));
-    }
-  }
 }
 
 @utility hidden-scrollbar {
@@ -276,5 +263,15 @@
   &::-webkit-scrollbar {
     /* Chrome, Safari 対応 */
     display: none;
+  }
+}
+
+div#nprogress {
+  .bar {
+    background-color: var(--primary);
+    height: 3px;
+  }
+  .peg {
+    box-shadow: 0 0 10px var(--primary), 0 0 5px var(--primary);
   }
 }

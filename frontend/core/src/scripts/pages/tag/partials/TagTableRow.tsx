@@ -1,22 +1,27 @@
 import type { TagCheckable } from "@/scripts/types";
 import { Direction, StackCmdType, useStackView } from "@components/StackView";
-import { currentTagAtom } from "@lib/atoms";
 import { formatISODate } from "@lib/utils";
 import type { CheckedState } from "@radix-ui/react-checkbox";
-import { useAtom } from "jotai";
 import { useCallback, useMemo } from "react";
+import { useTagStore } from "@store/tag";
 import { Checkbox } from "../../../components/ui/checkbox";
 import { TableCell, TableRow } from "../../../components/ui/table";
+import { cn } from "@/scripts/lib/utils";
 export const TagTableRow = ({
   tag,
   // onClick,
+  taskCount,
   onCheckedChange,
 }: {
   tag: TagCheckable;
   // onClick: React.MouseEventHandler<HTMLTableRowElement>;
+  taskCount: number;
   onCheckedChange: (checked: CheckedState) => void;
 }) => {
-  const [currentTag, setCurrentTag] = useAtom(currentTagAtom);
+  const [currentTag, setCurrentTag] = [
+    useTagStore((s) => s.currentTag),
+    useTagStore((s) => s.setCurrentTag),
+  ];
   const [_state, dispatch] = useStackView();
 
   const onClicked = useCallback(() => {
@@ -25,14 +30,17 @@ export const TagTableRow = ({
   }, [tag, setCurrentTag]);
 
   const currentBgColor = useMemo(() => {
-    if (currentTag === tag) {
+    if (currentTag?.id === tag.id) {
       return "bg-stone-200";
     }
     return "";
-  }, [currentTag, tag]);
+  }, [currentTag?.id, tag.id]);
   return (
     <TableRow
-      className={`cursor-pointer px-2 hover:bg-stone-100 ${currentBgColor}`}
+      className={cn(
+        "cursor-pointer px-2 hover:bg-stone-100",
+        currentBgColor,
+      )}
       onClick={onClicked}
     >
       <TableCell>
@@ -55,9 +63,10 @@ export const TagTableRow = ({
             });
           }}
         >
-          {`${tag.name} (${tag.tasks?.length || 0})`}
+          {tag.name}
         </button>
       </TableCell>
+      <TableCell>{taskCount}</TableCell>
       <TableCell className="font-mono">
         {formatISODate(tag.created_at)}
       </TableCell>

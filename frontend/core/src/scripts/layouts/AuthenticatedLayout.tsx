@@ -16,8 +16,6 @@ import {
 } from "@components/ui/sheet";
 import { Toaster } from "@components/ui/sonner";
 import { useDeviceSize } from "@hooks/useDeviceSize";
-import { useTimeEntryApi } from "@hooks/useTimeEntryApi";
-import { breakTimeAtom, workTimeAtom } from "@lib/atoms";
 import { cn } from "@lib/utils";
 import {
   ActivitySquare,
@@ -26,39 +24,37 @@ import {
   ListCheck,
   Tag as TagIcon,
 } from "@mynaui/icons-react";
+import { useTimerStore } from "@store/timer";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link, useMatchRoute } from "@tanstack/react-router";
-import { t } from "i18next";
-import { useSetAtom } from "jotai";
 import {
   type Dispatch,
   type PropsWithChildren,
   type ReactNode,
   type SetStateAction,
   forwardRef,
-  useEffect,
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
 
 const links = [
   {
-    name: t("header.menu.dashboard"),
+    key: "dashboard",
     href: "/auth/dashboard",
     icon: ActivitySquare,
   },
   {
-    name: t("header.menu.tasks"),
+    key: "tasks",
     href: "/auth/tasks",
     icon: ListCheck,
   },
   {
-    name: t("header.menu.tags"),
+    key: "tags",
     href: "/auth/tags",
     icon: TagIcon,
   },
   {
-    name: t("header.menu.logs"),
+    key: "logs",
     href: "/auth/logs",
     icon: Book,
   },
@@ -70,6 +66,7 @@ const Drawer = ({
   user: User;
 }) => {
   const [open, setOpen] = useState(false);
+  const { t } = useTranslation();
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -90,8 +87,8 @@ const Drawer = ({
         <Separator className="my-4" />
         <div className="space-y-1">
           {links.map((link) => (
-            <ResponsiveNavLink key={link.name} to={link.href}>
-              {link.name}
+            <ResponsiveNavLink key={link.href} to={link.href}>
+              {t(`header.menu.${link.key}`)}
             </ResponsiveNavLink>
           ))}
         </div>
@@ -170,8 +167,8 @@ const HeaderNavigationPC = ({ user }: { user: User }) => {
 
             <div className="sm:-my-px hidden space-x-8 sm:ms-10 sm:flex">
               {links.map((link) => (
-                <NavLink key={link.name} to={link.href}>
-                  {link.name}
+                <NavLink key={link.href} to={link.href}>
+                  {t(`header.menu.${link.key}`)}
                 </NavLink>
               ))}
             </div>
@@ -256,6 +253,7 @@ const HeaderNavigation = ({ user }: { user: User }) => {
 
 const FooterNavigation = () => {
   const matchRoute = useMatchRoute();
+  const { t } = useTranslation();
 
   return (
     <nav className="sticky bottom-0 flex flex-row items-stretch justify-between divide-x border-gray-100 border-t border-b bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800">
@@ -264,7 +262,7 @@ const FooterNavigation = () => {
         const activeClassName = isActive ? "text-amber-400" : "text-slate-700";
         return (
           <Link
-            key={link.name}
+            key={link.href}
             to={link.href}
             className="flex flex-1 flex-col items-center"
           >
@@ -275,7 +273,7 @@ const FooterNavigation = () => {
               ])}
             >
               {<link.icon className="m-1 mb-0" />}
-              {link.name}
+              {t(`header.menu.${link.key}`)}
             </span>
           </Link>
         );
@@ -294,17 +292,10 @@ export default function Authenticated({
     throw new Error("User not found");
   }
 
-  const preference = user.preference;
-  const { initCyclesOfTimeEntry } = useTimeEntryApi();
-
-  const setWorkTime = useSetAtom(workTimeAtom);
-  const setBreakTime = useSetAtom(breakTimeAtom);
-  setWorkTime(preference?.work_time || 25);
-  setBreakTime(preference?.break_time || 5);
-
-  useEffect(() => {
-    initCyclesOfTimeEntry();
-  }, [initCyclesOfTimeEntry]);
+  const setWorkTime = useTimerStore((s) => s.setWorkTime);
+  const setBreakTime = useTimerStore((s) => s.setBreakTime);
+  setWorkTime(user?.work_time || 25);
+  setBreakTime(user?.break_time || 5);
 
   return (
     <div className="flex h-screen flex-col bg-gray-100 dark:bg-gray-900">

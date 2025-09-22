@@ -7,13 +7,23 @@ use sea_orm::{
     ActiveModelTrait, ColumnTrait, ConnectionTrait, DatabaseConnection, EntityTrait, QueryFilter,
     Set, TransactionTrait,
 };
+use std::collections::HashSet;
 
 async fn attach_tags_inner(
     db: &impl ConnectionTrait, // DB connection or transaction
     task_id: i32,
     tag_ids: Vec<i32>,
 ) -> Result<(), ApiError> {
-    for tag_id in tag_ids {
+    let unique_tag_ids: HashSet<i32> = tag_ids.into_iter().collect();
+    for tag_id in unique_tag_ids {
+        let exists = TagTask::find()
+            .filter(tag_task::Column::TaskId.eq(task_id))
+            .filter(tag_task::Column::TagId.eq(tag_id))
+            .one(db)
+            .await?;
+        if exists.is_some() {
+            continue;
+        }
         let tag_task = tag_task::ActiveModel {
             task_id: Set(task_id),
             tag_id: Set(tag_id),

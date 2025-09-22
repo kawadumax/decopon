@@ -1,11 +1,11 @@
 use std::sync::Arc;
 
 use axum::{
+    Router,
     body::Body,
     http::{Request, StatusCode, header::AUTHORIZATION},
-    middleware::from_fn,
+    middleware::from_fn_with_state,
     routing::get,
-    Router,
 };
 use axum_password_worker::PasswordWorker;
 use lettre::SmtpTransport;
@@ -14,7 +14,7 @@ use tower::ServiceExt;
 
 use decopon_axum::{
     AppState,
-    middleware::auth::{auth_middleware, AuthenticatedUser},
+    middleware::auth::{AuthenticatedUser, auth_middleware},
     services,
 };
 
@@ -34,10 +34,10 @@ async fn reject_without_token() {
 
     let app = Router::new()
         .route("/", get(handler))
-        .layer(from_fn(auth_middleware));
+        .with_state(state.clone())
+        .layer(from_fn_with_state(state, auth_middleware));
 
-    let mut req = Request::builder().uri("/").body(Body::empty()).unwrap();
-    req.extensions_mut().insert(state);
+    let req = Request::builder().uri("/").body(Body::empty()).unwrap();
     let res = app.oneshot(req).await.unwrap();
     assert_eq!(res.status(), StatusCode::UNAUTHORIZED);
 }
@@ -54,14 +54,14 @@ async fn reject_invalid_token() {
 
     let app = Router::new()
         .route("/", get(handler))
-        .layer(from_fn(auth_middleware));
+        .with_state(state.clone())
+        .layer(from_fn_with_state(state, auth_middleware));
 
-    let mut req = Request::builder()
+    let req = Request::builder()
         .uri("/")
         .header(AUTHORIZATION, "Bearer invalid")
         .body(Body::empty())
         .unwrap();
-    req.extensions_mut().insert(state);
     let res = app.oneshot(req).await.unwrap();
     assert_eq!(res.status(), StatusCode::UNAUTHORIZED);
 }
@@ -79,19 +79,23 @@ async fn accept_valid_token() {
     };
 
     let app = Router::new()
-        .route("/", get(|axum::Extension(user): axum::Extension<AuthenticatedUser>| async move {
-            assert_eq!(user.id, 1);
-            StatusCode::OK
-        }))
-        .layer(from_fn(auth_middleware));
+        .route(
+            "/",
+            get(
+                |axum::Extension(user): axum::Extension<AuthenticatedUser>| async move {
+                    assert_eq!(user.id, 1);
+                    StatusCode::OK
+                },
+            ),
+        )
+        .with_state(state.clone())
+        .layer(from_fn_with_state(state, auth_middleware));
 
-    let mut req = Request::builder()
+    let req = Request::builder()
         .uri("/")
         .header(AUTHORIZATION, format!("Bearer {}", token))
         .body(Body::empty())
         .unwrap();
-    req.extensions_mut().insert(state);
     let res = app.oneshot(req).await.unwrap();
     assert_eq!(res.status(), StatusCode::OK);
 }
-
