@@ -1,4 +1,4 @@
-import { callApi } from "@/scripts/queries/apiClient";
+import { ProfileService } from "@/scripts/api/services/ProfileService";
 import type { Auth } from "@/scripts/types";
 import InputLabel from "@components/InputLabel";
 import PrimaryButton from "@components/PrimaryButton";
@@ -8,7 +8,7 @@ import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { route } from "ziggy-js";
+
 
 type UpdatePasswordData = {
   current_password: string;
@@ -18,7 +18,7 @@ type UpdatePasswordData = {
 
 const updatePassword = async (updateData: UpdatePasswordData) => {
   try {
-    await callApi("put", route("api.profile.password.update"), updateData);
+      await ProfileService.updatePassword(updateData);
   } catch (e) {
     throw new Error(String(e));
   }
@@ -114,7 +114,6 @@ export default function UpdatePasswordForm({
                   autoComplete="current-password"
                 />
 
-                {/* <InputError message={errors.current_password} className="mt-2" /> */}
               </>
             )}
           </form.Field>
@@ -136,7 +135,6 @@ export default function UpdatePasswordForm({
                   autoComplete="new-password"
                 />
 
-                {/* <InputError message={errors.password} className="mt-2" /> */}
               </>
             )}
           </form.Field>
@@ -157,10 +155,6 @@ export default function UpdatePasswordForm({
                   autoComplete="new-password"
                 />
 
-                {/* <InputError
-                  message={errors.password_confirmation}
-                  className="mt-2"
-                /> */}
               </>
             )}
           </form.Field>

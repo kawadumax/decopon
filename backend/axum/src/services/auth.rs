@@ -120,12 +120,15 @@ pub async fn login_user(
     Ok(AuthResponse { token, user })
 }
 
+#[tracing::instrument(skip(db, jwt_secret, token))]
 pub async fn verify_email(
     db: &DatabaseConnection,
     token: String,
     jwt_secret: &str,
 ) -> Result<AuthResponse, ApiError> {
     let hashed = hash_token(&token);
+    tracing::trace!(%hashed, "hashed verification token");
+
     let user = users::Entity::find()
         .filter(users::Column::VerificationToken.eq(hashed.clone()))
         .one(db)
@@ -136,7 +139,14 @@ pub async fn verify_email(
     user_active.email_verified_at = Set(Some(Utc::now()));
     user_active.verification_token = Set(None);
     let user = user_active.update(db).await?;
-    let jwt = create_jwt(user.id, jwt_secret)?;
+
+    tracing::info!(user_id = user.id, "creating JWT");
+    let jwt = create_jwt(user.id, jwt_secret).map_err(|e| {
+        tracing::error!(error = %e, user_id = user.id, "failed to create JWT");
+        ApiError::Internal(Box::new(e))
+    })?;
+    tracing::info!(user_id = user.id, "JWT created");
+
     Ok(AuthResponse {
         token: jwt,
         user: user.into(),
@@ -189,6 +199,62 @@ pub async fn reset_password(
     user_active.password = Set(hashed_password);
     user_active.verification_token = Set(None);
     user_active.update(db).await?;
+    Ok(())
+}
+
+pub async fn confirm_password(
+    db: &DatabaseConnection,
+    password_worker: &PasswordWorker<Bcrypt>,
+    jwt_secret: &str,
+    token: &str,
+    password: &str,
+) -> Result<(), ApiError> {
+    let claims = decode_jwt(token.to_string(), jwt_secret)?;
+    if !verify_jwt(&claims)? {
+        return Err(ApiError::Unauthorized);
+    }
+
+    let user = users::Entity::find_by_id(claims.sub)
+        .one(db)
+        .await?
+        .ok_or(ApiError::Unauthorized)?;
+
+    let is_valid = verify_password(password, &user.password, password_worker).await?;
+    if !is_valid {
+        return Err(ApiError::Unauthorized);
+    }
+
+    Ok(())
+}
+
+pub async fn resend_verification(
+    db: &DatabaseConnection,
+    mailer: &Arc<SmtpTransport>,
+    email: &str,
+) -> Result<(), ApiError> {
+    let user = users::Entity::find()
+        .filter(users::Column::Email.eq(email))
+        .one(db)
+        .await?
+        .ok_or(ApiError::NotFound("user"))?;
+
+    if user.email_verified_at.is_some() {
+        return Err(ApiError::BadRequest("Email already verified".into()));
+    }
+
+    let raw_token: String = rand::thread_rng()
+        .sample_iter(&Alphanumeric)
+        .take(32)
+        .map(char::from)
+        .collect();
+    let hashed = hash_token(&raw_token);
+
+    let mut user_active: users::ActiveModel = user.into();
+    user_active.verification_token = Set(Some(hashed));
+    let user = user_active.update(db).await?;
+
+    services::mails::send_verification_email(mailer.clone(), &user.email, &raw_token)?;
+
     Ok(())
 }
 
@@ -295,13 +361,16 @@ mod auth_tests {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use chrono::Utc;
     use migration::{Migrator, MigratorTrait};
-    use sea_orm::Database;
+    use sea_orm::{ActiveModelTrait, Database, Set};
     use std::process::{Child, Command};
     use std::sync::Arc;
-    use tokio::time::{sleep, Duration};
+    use tokio::time::{Duration, sleep};
 
-    async fn setup(port: u16) -> (
+    async fn setup(
+        port: u16,
+    ) -> (
         DatabaseConnection,
         PasswordWorker<Bcrypt>,
         Arc<SmtpTransport>,
@@ -325,7 +394,8 @@ mod tests {
             .spawn()
             .expect("failed to start smtp server");
         // サーバ起動待ち
-        sleep(Duration::from_millis(100)).await;
+        // サーバ起動に時間がかかる環境があるため待ち時間を延長
+        sleep(Duration::from_millis(500)).await;
 
         let mailer = Arc::new(
             SmtpTransport::builder_dangerous("127.0.0.1")
@@ -364,6 +434,118 @@ mod tests {
 
         let res = register_user(&db, &pw, &mailer, "Tom", "user@example.com", "password").await;
         assert!(matches!(res, Err(ApiError::Conflict("user"))));
+
+        child.kill().ok();
+    }
+
+    #[tokio::test]
+    async fn confirm_password_success() {
+        let (db, pw, _mailer, mut child) = setup(2727).await;
+
+        let hashed_password = hash_password("password", &pw).await.unwrap();
+        let user = users::ActiveModel {
+            name: Set("Alice".into()),
+            email: Set("alice@example.com".into()),
+            password: Set(hashed_password),
+            work_time: Set(25),
+            break_time: Set(5),
+            locale: Set("en".into()),
+            ..Default::default()
+        }
+        .insert(&db)
+        .await
+        .unwrap();
+
+        let secret = "secret";
+        let jwt = create_jwt(user.id, secret).unwrap();
+
+        confirm_password(&db, &pw, secret, &jwt, "password")
+            .await
+            .expect("password should be confirmed");
+
+        child.kill().ok();
+    }
+
+    #[tokio::test]
+    async fn confirm_password_invalid_password() {
+        let (db, pw, _mailer, mut child) = setup(2828).await;
+
+        let hashed_password = hash_password("password", &pw).await.unwrap();
+        let user = users::ActiveModel {
+            name: Set("Bob".into()),
+            email: Set("bob@example.com".into()),
+            password: Set(hashed_password),
+            work_time: Set(25),
+            break_time: Set(5),
+            locale: Set("en".into()),
+            ..Default::default()
+        }
+        .insert(&db)
+        .await
+        .unwrap();
+
+        let secret = "secret";
+        let jwt = create_jwt(user.id, secret).unwrap();
+
+        let res = confirm_password(&db, &pw, secret, &jwt, "wrong").await;
+        assert!(matches!(res, Err(ApiError::Unauthorized)));
+
+        child.kill().ok();
+    }
+
+    #[tokio::test]
+    async fn resend_verification_success() {
+        let (db, pw, mailer, mut child) = setup(2929).await;
+
+        let hashed_password = hash_password("password", &pw).await.unwrap();
+        let user = users::ActiveModel {
+            name: Set("Carol".into()),
+            email: Set("carol@example.com".into()),
+            password: Set(hashed_password),
+            work_time: Set(25),
+            break_time: Set(5),
+            locale: Set("en".into()),
+            ..Default::default()
+        }
+        .insert(&db)
+        .await
+        .unwrap();
+
+        resend_verification(&db, &mailer, "carol@example.com")
+            .await
+            .expect("resend should succeed");
+
+        let updated = users::Entity::find_by_id(user.id)
+            .one(&db)
+            .await
+            .unwrap()
+            .unwrap();
+        assert!(updated.verification_token.is_some());
+
+        child.kill().ok();
+    }
+
+    #[tokio::test]
+    async fn resend_verification_already_verified() {
+        let (db, pw, mailer, mut child) = setup(3030).await;
+
+        let hashed_password = hash_password("password", &pw).await.unwrap();
+        let _user = users::ActiveModel {
+            name: Set("Dave".into()),
+            email: Set("dave@example.com".into()),
+            password: Set(hashed_password),
+            email_verified_at: Set(Some(Utc::now())),
+            work_time: Set(25),
+            break_time: Set(5),
+            locale: Set("en".into()),
+            ..Default::default()
+        }
+        .insert(&db)
+        .await
+        .unwrap();
+
+        let res = resend_verification(&db, &mailer, "dave@example.com").await;
+        assert!(matches!(res, Err(ApiError::BadRequest(_))));
 
         child.kill().ok();
     }

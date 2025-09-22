@@ -19,7 +19,7 @@ impl From<User> for PreferenceResponseDto {
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct UpdatePreferenceRequestDto {
     pub work_time: i32,
     pub break_time: i32,

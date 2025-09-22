@@ -1,13 +1,10 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "allowJs": true,
     "moduleResolution": "bundler",
-    "types": [
-      "vite/client",
-    ],
 
     "baseUrl": ".",
     "paths": {
@@ -16,14 +13,16 @@
       "@components/*": ["src/scripts/components/*"],
       "@pages/*": ["src/scripts/pages/*"],
       "@public/*": ["public/*"],
-      "@hooks/*": ["src/scripts/hooks/*"]
+      "@hooks/*": ["src/scripts/hooks/*"],
+      "@store/*": ["src/scripts/store/*"]
     },
 
     "composite": true,
     "declaration": true,
     "declarationMap": true,
+    "rootDir": "src",
     "outDir": "dist",
   },
-  "include": ["src", "public", "vite-env.d.ts", "src/scripts/i18n/locales/*.json"],
+  "include": ["src", "src/scripts/i18n/locales/*.json"],
   "exclude": ["dist", "node_modules"]
 }

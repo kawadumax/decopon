@@ -46,7 +46,10 @@ struct ErrorBody<'a> {
 impl IntoResponse for ApiError {
     fn into_response(self) -> axum::response::Response {
         // 内部原因はログにだけ出す
-        // tracing::error!(error = ?self, "request failed");
+        match &self {
+            ApiError::Db(e) => tracing::error!(?e, "database error"),
+            _ => tracing::error!(?self, "request failed"),
+        }
 
         let (status, msg): (StatusCode, &str) = match &self {
             // 業務系

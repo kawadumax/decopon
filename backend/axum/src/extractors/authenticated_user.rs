@@ -1,8 +1,8 @@
 use axum::{
     extract::FromRequestParts,
-    http::{request::Parts, StatusCode},
+    http::{StatusCode, request::Parts},
 };
-use std::future::{ready, Ready};
+use std::future::ready;
 
 // ミドルウェアで付与された認証済みユーザ情報をそのまま再利用する
 pub use crate::middleware::auth::AuthenticatedUser;
@@ -16,9 +16,9 @@ where
     fn from_request_parts(
         parts: &mut Parts,
         _state: &S,
-    ) -> Ready<Result<Self, Self::Rejection>> {
+    ) -> impl std::future::Future<Output = Result<Self, <Self as FromRequestParts<S>>::Rejection>> + Send
+    {
         let user = parts.extensions.get::<AuthenticatedUser>().cloned();
         ready(user.ok_or(StatusCode::UNAUTHORIZED))
     }
 }
-

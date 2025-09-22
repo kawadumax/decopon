@@ -4,16 +4,15 @@
   "type": "module",
   "scripts": {
     "preinstall": "npx only-allow pnpm",
-    "build": "tsc -b && vite build",
-    "build:dry": "tsc -b --noEmit",
-    "dev": "vite"
+    "build": "vite build",
+    "dev": "vite",
+    "preview": "vite preview"
   },
   "devDependencies": {
     "vite": "catalog:",
     "vite-plugin-svgr": "catalog:",
     "@tailwindcss/vite": "catalog:",
-    "@vitejs/plugin-react": "catalog:",
-    "@tanstack/router-plugin": "catalog:"
+    "@vitejs/plugin-react-swc": "catalog:"
   },
   "dependencies": {
     "@decopon/core": "workspace:*"

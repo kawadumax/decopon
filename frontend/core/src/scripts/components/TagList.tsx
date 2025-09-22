@@ -1,20 +1,24 @@
-import { currentTagAtom, tagsAtom } from "@lib/atoms";
-
-import { useAtom } from "jotai";
+import { useQuery } from "@tanstack/react-query";
+import { fetchTagsQueryOptions } from "@/scripts/queries";
 import { useCallback } from "react";
+import { useTagStore } from "@store/tag";
 import { useTranslation } from "react-i18next";
 import { TagItem } from "./TagItem";
+import type { Tag } from "@/scripts/types";
 
 export const TagList = () => {
   const { t } = useTranslation();
-  const [tags, setTags] = useAtom(tagsAtom);
-  const [currentTag, setCurrentTag] = useAtom(currentTagAtom);
+  const { data: tags = [] } = useQuery(fetchTagsQueryOptions);
+  const [currentTag, setCurrentTag] = [
+    useTagStore((s) => s.currentTag),
+    useTagStore((s) => s.setCurrentTag),
+  ];
 
   const handleTagClicked = useCallback(
-    (index: number) => {
-      setCurrentTag(tags[index]);
+    (tag: Tag) => {
+      setCurrentTag(tag);
     },
-    [tags, setCurrentTag],
+    [setCurrentTag],
   );
   return (
     <>
@@ -31,14 +35,14 @@ export const TagList = () => {
         }}
       >
         {tags.length ? (
-          tags.map((tag, index) => {
+          tags.map((tag) => {
             return (
               <TagItem
                 tag={tag}
                 key={tag.id}
                 onClick={(event) => {
                   event.stopPropagation();
-                  handleTagClicked(index);
+                  handleTagClicked(tag);
                 }}
               />
             );

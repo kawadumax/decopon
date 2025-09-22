@@ -1,13 +1,13 @@
-import { callApi } from "@/scripts/queries/apiClient";
+import { AuthService } from "@/scripts/api/services/AuthService";
+import { authStorage } from "@/scripts/lib/authStorage";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { route } from "ziggy-js";
 
 const logoutMutationFn = async (setLoading: (loading: boolean) => void) => {
   setLoading(true);
   try {
-    await callApi("post", route("logout"));
+    await AuthService.logout();
   } catch (e) {
     console.error(e);
   } finally {
@@ -23,6 +23,7 @@ export function useLogout() {
     mutationFn: () => logoutMutationFn(setLoading),
     onSuccess: () => {
       queryClient.setQueryData(["auth"], { user: undefined });
+      authStorage.clear();
       navigate({ to: "/" });
     },
     onError: (error) => {

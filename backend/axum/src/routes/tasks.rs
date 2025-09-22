@@ -1,6 +1,6 @@
 use axum::{
+    extract::{Path, Query, State},
     Extension, Router,
-    extract::{Path, State},
     http::StatusCode,
     response::Json,
     routing::get,
@@ -14,15 +14,24 @@ use crate::{
     AppState, errors::ApiError, extractors::authenticated_user::AuthenticatedUser, services::tasks,
 };
 
+#[tracing::instrument(skip(db, user))]
 async fn index(
     State(db): State<Arc<DatabaseConnection>>,
     Extension(user): Extension<AuthenticatedUser>,
+    Query(params): Query<Vec<(String, String)>>,
 ) -> Result<Json<Vec<TaskResponseDto>>, ApiError> {
-    let tasks = tasks::get_tasks(&db, user.id).await?;
+    let tag_ids: Vec<i32> = params
+        .into_iter()
+        .filter(|(k, _)| k == "tag_ids")
+        .filter_map(|(_, v)| v.parse::<i32>().ok())
+        .collect();
+    let tag_ids = if tag_ids.is_empty() { None } else { Some(tag_ids) };
+    let tasks = tasks::get_tasks(&db, user.id, tag_ids).await?;
     let tasks = tasks.into_iter().map(TaskResponseDto::from).collect();
     Ok(Json(tasks))
 }
 
+#[tracing::instrument(skip(db, user))]
 async fn show(
     Path(id): Path<i32>,
     State(db): State<Arc<DatabaseConnection>>,
@@ -32,6 +41,7 @@ async fn show(
     Ok(Json(TaskResponseDto::from(task)))
 }
 
+#[tracing::instrument(skip(db, user))]
 async fn store(
     State(db): State<Arc<DatabaseConnection>>,
     Extension(user): Extension<AuthenticatedUser>,
@@ -48,13 +58,15 @@ async fn store(
     Ok(Json(TaskResponseDto::from(task)))
 }
 
+#[tracing::instrument(skip(db, user))]
 async fn update(
+    Path(id): Path<i32>,
     State(db): State<Arc<DatabaseConnection>>,
     Extension(user): Extension<AuthenticatedUser>,
     Json(payload): Json<UpdateTaskRequestDto>,
 ) -> Result<Json<TaskResponseDto>, ApiError> {
     let params = tasks::TaskUpdate {
-        id: payload.id,
+        id,
         title: payload.title,
         description: payload.description,
         completed: payload.completed,
@@ -66,12 +78,13 @@ async fn update(
     Ok(Json(TaskResponseDto::from(task)))
 }
 
+#[tracing::instrument(skip(db, user))]
 async fn destroy(
+    Path(id): Path<i32>,
     State(db): State<Arc<DatabaseConnection>>,
     Extension(user): Extension<AuthenticatedUser>,
-    Json(payload): Json<DeleteTaskRequestDto>,
 ) -> Result<StatusCode, ApiError> {
-    tasks::delete_task(&db, payload.id, user.id).await?;
+    tasks::delete_task(&db, id, user.id).await?;
     Ok(StatusCode::NO_CONTENT)
 }
 

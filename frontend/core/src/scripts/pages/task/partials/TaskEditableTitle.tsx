@@ -1,120 +1,89 @@
-import { callApi } from "@/scripts/queries/apiClient";
 import type { Task } from "@/scripts/types";
 import { Checkbox } from "@components/ui/checkbox";
 import { Input } from "@components/ui/input";
 import { Toggle } from "@components/ui/toggle";
-import { tasksBatchAtom } from "@lib/atoms";
 import { Edit } from "@mynaui/icons-react";
-import {
-  type QueryClient,
-  useMutation,
-  useQueryClient,
-} from "@tanstack/react-query";
-import { useSetAtom } from "jotai";
 import type React from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { route } from "ziggy-js";
-
-const updateTaskTitleCache = (
-  queryClient: QueryClient,
-  id: number,
-  title: string,
-) => {
-  queryClient.setQueryData(["tasks"], (old: Task[]) => {
-    return old.map((oldTask) =>
-      oldTask.id === id ? { ...oldTask, title } : oldTask,
-    );
-  });
-};
+import { useTaskMutations } from "@/scripts/queries";
 
 export const TaskEditableTitle = ({
   task,
   variant = "default",
-}: {
-  task: Task;
-  variant?: "default" | "lg";
-}) => {
-  const queryClient = useQueryClient();
-  const batchTasks = useSetAtom(tasksBatchAtom);
+  }: {
+    task: Task;
+    variant?: "default" | "lg";
+  }) => {
+  const [title, setTitle] = useState(task.title);
   const [editable, setEditable] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const [inputChanged, setInputChanged] = useState<boolean>(false);
+  const { updateTask, toggleComplete } = useTaskMutations();
+  const updateTaskMutate = updateTask.mutate;
+  const toggleCompleteMutate = toggleComplete.mutate;
+  const isTogglePending = toggleComplete.isPending;
 
-  const updateTaskTitle = useMutation({
-    mutationFn: (newTitle: string) =>
-      callApi("put", route("api.tasks.update", task.id), { title: newTitle }),
-    onSuccess: (data) => {
-      setInputChanged(false);
-      // タスクのタイトルを更新
-      updateTaskTitleCache(queryClient, task.id, data.task.title);
-    },
-    onError: () => {
-      // エラー処理
-      console.error("Failed to update task title");
-    },
-  });
+  useEffect(() => {
+    setTitle(task.title);
+  }, [task.title]);
+
+  const handleCompleteEdit = useCallback(() => {
+    setEditable(false);
+    if (title !== task.title) {
+      updateTaskMutate({ id: task.id, data: { title } });
+    }
+  }, [title, task.id, task.title, updateTaskMutate]);
 
   const handleEditToggle = useCallback(() => {
-    setEditable((prev) => !prev);
-  }, []);
-
-  const handleInputChange = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      setInputChanged(true);
-      updateTaskTitleCache(queryClient, task.id, event.target.value);
-    },
-    [queryClient, task.id],
-  );
-
-  const handleKeyDown = useCallback((event: React.KeyboardEvent) => {
-    if (event.key === "Enter") {
-      // 入力状態を終了する。
-      setEditable(false);
+    if (editable) {
+      handleCompleteEdit();
+    } else {
+      setEditable(true);
     }
-  }, []);
+  }, [editable, handleCompleteEdit]);
+
+  const handleKeyDown = useCallback(
+    (event: React.KeyboardEvent) => {
+      if (event.key === "Enter") {
+        handleCompleteEdit();
+      }
+    },
+    [handleCompleteEdit],
+  );
 
   const handleCheckboxChange = useCallback(
     (checked: boolean) => {
-      callApi("put", route("api.tasks.update.complete", task.id), {
-        completed: checked,
-      }).then((data) => {
-        batchTasks(data.tasks);
-      });
+      toggleCompleteMutate({ id: task.id, completed: checked });
     },
-    [batchTasks, task.id],
+    [task.id, toggleCompleteMutate],
   );
 
   useEffect(() => {
     if (editable) {
       inputRef.current?.focus();
     }
-
-    if (inputChanged && !editable) {
-      // フィールドが変化している時
-      // editableがfalseになったときにupdateを呼び出す
-      updateTaskTitle.mutate(task.title);
-    }
-  }, [editable, task, inputChanged, updateTaskTitle.mutate]);
+  }, [editable]);
 
   const titleElement = useMemo(() => {
     if (variant === "lg") {
-      return <h2 className="font-bold text-lg">{task.title}</h2>;
+      return <h2 className="font-bold text-lg">{title}</h2>;
     }
-    return <span className="break-keep">{task.title}</span>;
-  }, [variant, task.title]);
+    return <span className="break-keep">{title}</span>;
+  }, [variant, title]);
 
   return (
     <span className="my-1 flex flex-row items-center gap-2">
       <Checkbox
         onCheckedChange={handleCheckboxChange}
         checked={task.completed}
+        disabled={isTogglePending}
       />
       {editable ? (
         <Input
           ref={inputRef}
-          defaultValue={task.title}
-          onInput={handleInputChange}
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
           onKeyDown={handleKeyDown}
+          onBlur={handleCompleteEdit}
         />
       ) : (
         titleElement

@@ -1,58 +1,67 @@
-import { useTimeEntryApi } from "@hooks/useTimeEntryApi";
 import {
-  isRunningAtom,
-  isWorkTimeAtom,
-  remainTimeAtom,
-  resetRemainTimeAtom,
-  timerStateAtom,
-} from "@lib/atoms";
+  abandonDecoponSessionMutationOptions,
+  interruptDecoponSessionMutationOptions,
+  progressDecoponSessionMutationOptions,
+} from "@/scripts/queries/decoponSession";
 import { formatTime } from "@lib/utils";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { useTimerStore } from "@store/timer";
+import { useMutation } from "@tanstack/react-query";
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
+import { cn } from "@/scripts/lib/utils";
 
 export const Timer = () => {
   const { t } = useTranslation();
-  const [isRunning, setIsRunning] = useAtom(isRunningAtom);
-  const remainTime = useAtomValue(remainTimeAtom);
-  const resetRemainTime = useSetAtom(resetRemainTimeAtom);
-  const timeState = useAtomValue(timerStateAtom);
-  const [isWorkTime, setIsWorkTime] = useAtom(isWorkTimeAtom);
+  const isRunning = useTimerStore((s) => s.timerState.isRunning);
+  const setIsRunning = useTimerStore((s) => s.setIsRunning);
+  const remainTime = useTimerStore((s) => s.remainTime());
+  const timeState = useTimerStore((s) => s.timerState);
+  const isWorkTime = useTimerStore((s) => s.timerState.isWorkTime);
+  const setIsWorkTime = useTimerStore((s) => s.setIsWorkTime);
 
-  const {
-    abandoneTimeEntry,
-    progressTimeEntry,
-    interruptTimeEntry,
-    completeTimeEntry,
-  } = useTimeEntryApi();
+  const { mutate: progressDecoponSession } = useMutation(
+    progressDecoponSessionMutationOptions,
+  );
+  const { mutate: interruptDecoponSession } = useMutation(
+    interruptDecoponSessionMutationOptions,
+  );
+  const { mutate: abandonDecoponSession } = useMutation(
+    abandonDecoponSessionMutationOptions,
+  );
 
   const startTimer = useCallback(() => {
-    setIsRunning(true);
-    progressTimeEntry();
-  }, [setIsRunning, progressTimeEntry]);
+    if (isWorkTime) {
+      // progressミューテーション -> onSuccessで setIsRunning(true)
+      progressDecoponSession();
+    } else {
+      // BreakTime開始: ミューテーション無しで即時開始
+      setIsRunning(true);
+    }
+  }, [isWorkTime, progressDecoponSession, setIsRunning]);
 
   const stopTimer = useCallback(() => {
-    setIsRunning(false);
-    interruptTimeEntry();
-  }, [setIsRunning, interruptTimeEntry]);
+    // interruptミューテーション -> onSuccessで setIsRunning(false)
+    interruptDecoponSession();
+  }, [interruptDecoponSession]);
 
   const resetTimer = useCallback(() => {
-    setIsRunning(false);
-    resetRemainTime("RESET");
-    abandoneTimeEntry();
-  }, [setIsRunning, resetRemainTime, abandoneTimeEntry]);
+    // abandonミューテーション -> onSuccessで停止・時間リセット
+    abandonDecoponSession();
+  }, [abandonDecoponSession]);
 
   const toggleWorkOrBreak = useCallback(() => {
     if (isRunning) return;
     setIsWorkTime(!isWorkTime);
+    // isWorkTime切り替え -> abandonミューテーション
     resetTimer();
   }, [isRunning, isWorkTime, setIsWorkTime, resetTimer]);
 
   const completeTimer = useCallback(() => {
-    resetRemainTime("ZERO");
-  }, [resetRemainTime]);
+    // 開発用: 完了状態にするため経過時間を強制設定
+    useTimerStore.getState().resetRemainTime("ZERO");
+  }, []);
 
   return (
     <div className="flex h-full flex-col justify-center gap-2 bg-[url(/images/decopon-icon-300x300.png)] bg-center bg-white/50 bg-no-repeat bg-blend-lighten">
@@ -61,7 +70,10 @@ export const Timer = () => {
       </div>
       <div className="flex flex-row justify-center gap-2">
         <Badge
-          className={`bg-white text-center text-black ${isRunning ? "cursor-not-allowed" : "cursor-pointer"}`}
+          className={cn(
+            "bg-white text-center text-black",
+            isRunning ? "cursor-not-allowed" : "cursor-pointer",
+          )}
           onClick={toggleWorkOrBreak}
         >
           {isWorkTime ? t("timer.workTime") : t("timer.breakTime")}

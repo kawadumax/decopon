@@ -1,14 +1,39 @@
 use crate::{
-    entities::{prelude::*, logs},
+    entities::{logs, prelude::*},
     errors::ApiError,
 };
 
-use sea_orm::{ActiveValue, DatabaseConnection, EntityTrait, QueryFilter, ColumnTrait};
 use sea_orm::prelude::DateTimeUtc;
+use sea_orm::{ActiveValue, ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter};
+use serde::{Deserialize, Serialize};
+
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
+pub enum LogSource {
+    System,
+    User,
+}
+
+impl LogSource {
+    fn as_str(&self) -> &'static str {
+        match self {
+            LogSource::System => "System",
+            LogSource::User => "User",
+        }
+    }
+}
+
+impl From<String> for LogSource {
+    fn from(value: String) -> Self {
+        match value.as_str() {
+            "System" => LogSource::System,
+            _ => LogSource::User,
+        }
+    }
+}
 
 pub struct NewLog {
     pub content: String,
-    pub source: String,
+    pub source: LogSource,
     pub task_id: Option<i32>,
     pub user_id: i32,
 }
@@ -16,7 +41,7 @@ pub struct NewLog {
 pub struct Log {
     pub id: i32,
     pub content: String,
-    pub source: String,
+    pub source: LogSource,
     pub created_at: DateTimeUtc,
     pub updated_at: DateTimeUtc,
     pub user_id: i32,
@@ -28,7 +53,7 @@ impl From<logs::Model> for Log {
         Self {
             id: model.id,
             content: model.content,
-            source: model.source,
+            source: LogSource::from(model.source),
             created_at: model.created_at,
             updated_at: model.updated_at,
             user_id: model.user_id,
@@ -61,7 +86,7 @@ pub async fn get_logs_by_task(
 pub async fn insert_log(db: &DatabaseConnection, params: NewLog) -> Result<Log, ApiError> {
     let new_log = logs::ActiveModel {
         content: ActiveValue::Set(params.content),
-        source: ActiveValue::Set(params.source),
+        source: ActiveValue::Set(params.source.as_str().to_owned()),
         task_id: ActiveValue::Set(params.task_id),
         user_id: ActiveValue::Set(params.user_id),
         ..Default::default()

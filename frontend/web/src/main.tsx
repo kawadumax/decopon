@@ -1,21 +1,4 @@
-import { App, Ziggy } from "@decopon/core";
-import { StrictMode } from "react";
-import ReactDOM from "react-dom/client";
+import "@decopon/core/styles/app.css";
+import { bootstrap } from "@decopon/core";
 
-// ziggy.js から生成されたルート名をグローバルに登録
-globalThis.Ziggy = Ziggy;
-
-// ルート要素を探して React を描画
-const rootElement = document.getElementById("root");
-
-if (!rootElement) {
-  throw new Error("Root element not found");
-}
-
-const root = ReactDOM.createRoot(rootElement);
-
-root.render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-);
+bootstrap();

@@ -7,7 +7,7 @@ use crate::{
 use sea_orm::prelude::DateTimeUtc;
 use sea_orm::{
     ActiveModelTrait, ActiveValue, ColumnTrait, DatabaseConnection, DeleteResult, EntityTrait,
-    QueryFilter, TransactionTrait,
+    QueryFilter, QuerySelect, QueryTrait, TransactionTrait,
 };
 
 pub struct NewTask {
@@ -33,32 +33,66 @@ pub struct Task {
     pub title: String,
     pub description: String,
     pub completed: bool,
+    pub parent_task_id: Option<i32>,
     pub created_at: DateTimeUtc,
     pub updated_at: DateTimeUtc,
-    pub parent_task_id: Option<i32>,
+    pub tags: Vec<TaskTag>,
 }
 
-impl From<tasks::Model> for Task {
-    fn from(task: tasks::Model) -> Self {
+pub struct TaskTag {
+    pub id: i32,
+    pub name: String,
+    pub created_at: DateTimeUtc,
+    pub updated_at: DateTimeUtc,
+}
+
+impl Task {
+    fn from_model(task: tasks::Model, tags: Vec<tags::Model>) -> Self {
+        let tags = tags
+            .into_iter()
+            .map(|tag| TaskTag {
+                id: tag.id,
+                name: tag.name,
+                created_at: tag.created_at,
+                updated_at: tag.updated_at,
+            })
+            .collect();
+
         Self {
             id: task.id,
             title: task.title,
             description: task.description,
             completed: task.completed,
+            parent_task_id: task.parent_task_id,
             created_at: task.created_at,
             updated_at: task.updated_at,
-            parent_task_id: task.parent_task_id,
+            tags,
         }
     }
 }
 
-pub async fn get_tasks(db: &DatabaseConnection, user_id: i32) -> Result<Vec<Task>, ApiError> {
-    let tasks = Tasks::find()
-        .filter(tasks::Column::UserId.eq(user_id))
-        .all(db)
-        .await?;
+pub async fn get_tasks(
+    db: &DatabaseConnection,
+    user_id: i32,
+    tag_ids: Option<Vec<i32>>,
+) -> Result<Vec<Task>, ApiError> {
+    let mut query = Tasks::find().filter(tasks::Column::UserId.eq(user_id));
+    if let Some(tag_ids) = tag_ids {
+        let subquery = tag_task::Entity::find()
+            .select_only()
+            .column(tag_task::Column::TaskId)
+            .filter(tag_task::Column::TagId.is_in(tag_ids))
+            .into_query();
 
-    let tasks = tasks.into_iter().map(Into::into).collect::<Vec<Task>>();
+        query = query.filter(tasks::Column::Id.in_subquery(subquery));
+    }
+    let tasks = query
+        .find_with_related(Tags)
+        .all(db)
+        .await?
+        .into_iter()
+        .map(|(task, tags)| Task::from_model(task, tags))
+        .collect::<Vec<Task>>();
 
     Ok(tasks)
 }
@@ -86,12 +120,15 @@ pub async fn insert_task(db: &DatabaseConnection, params: NewTask) -> Result<Tas
         services::tag_task::attach_tags(db, inserted_result.last_insert_id, tag_ids).await?;
     }
 
-    let task = Tasks::find_by_id(inserted_result.last_insert_id)
-        .one(db)
+    let (task, tags) = Tasks::find_by_id(inserted_result.last_insert_id)
+        .find_with_related(Tags)
+        .all(db)
         .await?
+        .into_iter()
+        .next()
         .ok_or(ApiError::NotFound("task"))?;
 
-    Ok(task.into())
+    Ok(Task::from_model(task, tags))
 }
 
 pub async fn get_task_by_id(
@@ -99,13 +136,16 @@ pub async fn get_task_by_id(
     user_id: i32,
     id: i32,
 ) -> Result<Task, ApiError> {
-    let task = Tasks::find()
+    let (task, tags) = Tasks::find()
         .filter(tasks::Column::Id.eq(id))
         .filter(tasks::Column::UserId.eq(user_id))
-        .one(db)
-        .await?;
-    let task = task.ok_or(ApiError::NotFound("task"))?;
-    Ok(task.into())
+        .find_with_related(Tags)
+        .all(db)
+        .await?
+        .into_iter()
+        .next()
+        .ok_or(ApiError::NotFound("task"))?;
+    Ok(Task::from_model(task, tags))
 }
 
 pub async fn update_task(db: &DatabaseConnection, params: TaskUpdate) -> Result<Task, ApiError> {
@@ -131,9 +171,11 @@ pub async fn update_task(db: &DatabaseConnection, params: TaskUpdate) -> Result<
     }
 
     // TODO: recursive update for parent task
-    // For now, we just update the parent_task_id if it is provided
-
-    task.parent_task_id = ActiveValue::Set(params.parent_task_id);
+    // Update the parent only when a new value is provided; otherwise keep the current value.
+    task.parent_task_id = match params.parent_task_id {
+        Some(parent_id) => ActiveValue::Set(Some(parent_id)),
+        None => ActiveValue::NotSet,
+    };
     task.updated_at = ActiveValue::Set(chrono::Utc::now());
 
     let txn = db.begin().await?;
@@ -143,7 +185,28 @@ pub async fn update_task(db: &DatabaseConnection, params: TaskUpdate) -> Result<
     }
     txn.commit().await?;
 
-    Ok(task.into())
+    if params.completed == Some(true) {
+        services::logs::insert_log(
+            db,
+            services::logs::NewLog {
+                content: format!("Task \"{}\" completed.", task.title),
+                source: services::logs::LogSource::System,
+                task_id: Some(id),
+                user_id: params.user_id,
+            },
+        )
+        .await?;
+    }
+
+    let (task, tags) = Tasks::find_by_id(id)
+        .find_with_related(Tags)
+        .all(db)
+        .await?
+        .into_iter()
+        .next()
+        .ok_or(ApiError::NotFound("task"))?;
+
+    Ok(Task::from_model(task, tags))
 }
 
 pub async fn delete_task(

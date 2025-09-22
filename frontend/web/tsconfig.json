@@ -1,13 +1,11 @@
 // /frontend/web/tsconfig.json
 {
-  "extends": "../../tsconfig.json",
+  "extends": ["../../tsconfig.base.json", "../tsconfig.paths.json"],
   "compilerOptions": {
-    "typeRoots": [
-      "./node_modules/@types",
-      "../core/node_modules/@types",
-      "../core/src/scripts/types"
-    ],
-    "outDir": "dist"
+    "typeRoots": ["./node_modules/@types"],
+    "outDir": "dist",
+    "composite": true,
+    "baseUrl": "."
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist", "vite.config.ts"],

@@ -1,12 +1,12 @@
-import { callApi } from "@/scripts/queries/apiClient";
+import { AuthService } from "@/scripts/api/services/AuthService";
 import InputLabel from "@components/InputLabel";
 import PrimaryButton from "@components/PrimaryButton";
 import TextInput from "@components/TextInput";
 import { useForm } from "@tanstack/react-form";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
-import { route } from "ziggy-js";
 import { DemoCaution } from "./partials/DemoCaution";
+
 
 export default function Register() {
   const { t } = useTranslation();
@@ -19,17 +19,16 @@ export default function Register() {
       password_confirmation: "",
     },
     onSubmit: async ({ value, formApi }) => {
-      try {
-        await callApi("post", route("register"), value);
-        navigate({ to: "/auth/dashboard" });
-      } catch (error) {
-        // エラーメッセージ表示例
-        // formApi.setError("email", "Email already exists");
-        // formApi.setError("password", "Password is too short");
-        // formApi.setError("password_confirmation", "Password confirmation does not match");
-        console.error("API error:", error);
-        formApi.reset();
-      }
+        try {
+          await AuthService.register(value);
+          navigate({
+            to: "/guest/verify-email/",
+            search: { email: value.email },
+          });
+        } catch (error) {
+          console.error("API error:", error);
+          formApi.reset();
+        }
     },
   });
 
@@ -61,12 +60,6 @@ export default function Register() {
                 onChange={(e) => field.handleChange(e.target.value)}
                 required
               />
-              {/* エラーメッセージ表示例 */}
-              {/* {field.state.errors.length > 0 && (
-              <div className="mt-2 text-red-600">
-                {field.state.errors.join(", ")}
-              </div>
-            )} */}
             </>
           )}
         </form.Field>

@@ -1,49 +1,49 @@
 ## 必要なコマンドなど
 
-```
+```shell
 # nodeとphp
 # 略
-brew install just # just（タスクランナ）のインストール
 ```
 
 ## プロジェクト初期化
 
-```
+```shell
 git clone git@github.com:kawadumax/decopon.git
 cp .env.example .env # git から落としてきた後、.env をコピーする。
-just backend-run composer install # phpの依存ファイルを入れる
-just web-run pnpm install # jsの依存ファイルを入れる
+# just backend-run composer install # phpの依存ファイルを入れる
+# just web-run pnpm install # jsの依存ファイルを入れる
 ```
+
+`AXUM_ALLOWED_ORIGINS` にカンマ区切りで許可するオリジンを設定します。
+例: `AXUM_ALLOWED_ORIGINS=http://localhost:5173`
 
 DB の初期化
 
-```
-php artisan migrate --seed
+```shell
+php artisan migrate --seed # laravel
+pnpm axum:fresh # axum
 ```
 
-暗号化キーの生成がいるかも
+# 暗号化キーの生成がいるかも
 
-```
+```shell
 php artisan key:generate
 ```
 
 ## コマンドのメモ書き
 マイクロサービス化して、ルートディレクトリにコマンドを置いておく
-タスクランナとしてjustを使っているのでjustを入れてください
+タスクランナとしてconcurrentlyを使ってます。
 
-```
-brew install just # just（タスクランナ）のインストール
-just backend # バックエンド起動
-just web # webのフロントエンド起動
-just web-run *args
-just backend-run *args
-just all # 全部起動
+```shell
+pnpm install
+pnpm windows:dev # webとaxumの起動
 ```
 
 DB リセットして Seeder 実行
 
 ```
-php artisan migrate:fresh --seed
+php artisan migrate:fresh --seed # laravel
+pnpm axum:fresh
 ```
 
 ## Git hooksのフォルダを指定

@@ -1,5 +1,8 @@
-import { callApi } from "@/scripts/queries/apiClient";
-import { type Auth, Locale } from "@/scripts/types/index.d";
+import { ProfileService } from "@/scripts/api/services/ProfileService";
+import { authStorage } from "@/scripts/lib/authStorage";
+import type { Auth, Locale } from "@/scripts/types";
+
+const locales = { ENGLISH: "en", JAPANESE: "ja" } as const;
 import InputLabel from "@components/InputLabel";
 import PrimaryButton from "@components/PrimaryButton";
 import TextInput from "@components/TextInput";
@@ -14,7 +17,7 @@ import { Transition } from "@headlessui/react";
 import { useForm } from "@tanstack/react-form";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { route } from "ziggy-js";
+
 
 export default function UpdatePreferenceForm({
   className = "",
@@ -27,31 +30,29 @@ export default function UpdatePreferenceForm({
   const user = auth.user;
   const form = useForm({
     defaultValues: {
-      work_time: user?.preference?.work_time || 25,
-      break_time: user?.preference?.break_time || 5,
-      locale: user?.preference?.locale || Locale.ENGLISH,
+      work_time: user?.work_time || 25,
+      break_time: user?.break_time || 5,
+      locale: (user?.locale || "en") as Locale,
     },
     onSubmit: async ({ value, formApi }) => {
       try {
-        const res = await callApi("put", route("api.preference.update"), value);
-
-        if (res.preference) {
-          queryClient.setQueryData(["auth"], (auth: Auth) => {
+        const res = (await ProfileService.updatePreference(value)) as any;
+        if (res) {
+          const updatedAuth = queryClient.setQueryData(["auth"], (auth: Auth) => {
             if (!auth || !auth.user) return auth;
             return {
               ...auth,
               user: {
                 ...auth.user,
-                preference: res.preference,
+                ...res,
               },
             };
           });
+          if (updatedAuth) {
+            authStorage.set(updatedAuth as Auth);
+          }
         }
       } catch (error) {
-        // エラーメッセージ表示例
-        // formApi.setError("email", "Email already exists");
-        // formApi.setError("password", "Password is too short");
-        // formApi.setError("password_confirmation", "Password confirmation does not match");
         console.error("API error:", error);
         formApi.reset();
       }
@@ -99,7 +100,6 @@ export default function UpdatePreferenceForm({
                   min="1"
                 />
 
-                {/* <InputError className="mt-2" message={errors.work_time} /> */}
               </>
             )}
           </form.Field>
@@ -124,7 +124,6 @@ export default function UpdatePreferenceForm({
                   required
                   min="1"
                 />
-                {/* <InputError className="mt-2" message={errors.break_time} /> */}
               </>
             )}
           </form.Field>
@@ -150,7 +149,7 @@ export default function UpdatePreferenceForm({
                     />
                   </SelectTrigger>
                   <SelectContent>
-                    {Object.entries(Locale).map(([key, value]) => {
+                    {Object.entries(locales).map(([key, value]) => {
                       return (
                         <SelectItem key={key} value={value}>
                           {key}
@@ -159,7 +158,6 @@ export default function UpdatePreferenceForm({
                     })}
                   </SelectContent>
                 </Select>
-                {/* <InputError className="mt-2" message={errors.locale} /> */}
               </>
             )}
           </form.Field>

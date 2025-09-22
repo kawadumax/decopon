@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { fetchAuthQueryOptions } from "../queries";
+import { cn } from "@/scripts/lib/utils";
 
 const WelcomeCard = ({
   variable = "right",
@@ -20,7 +21,10 @@ const WelcomeCard = ({
 }) => {
   return (
     <div
-      className={`flex rounded-lg bg-stone-200 p-6 ${variable === "left" ? "flex-row" : "flex-row-reverse"} gap-6`}
+      className={cn(
+        "flex rounded-lg bg-stone-200 p-6 gap-6",
+        variable === "left" ? "flex-row" : "flex-row-reverse",
+      )}
     >
       <video
         className="w-1/2 rounded-lg object-cover"

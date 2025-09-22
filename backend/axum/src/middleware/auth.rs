@@ -1,11 +1,15 @@
 use axum::{
     body::Body,
+    extract::State,
     http::{Request, StatusCode, header::AUTHORIZATION},
     middleware::Next,
     response::Response,
 };
 
-use crate::{AppState, services::auth::{decode_jwt, verify_jwt}};
+use crate::{
+    AppState,
+    services::auth::{decode_jwt, verify_jwt},
+};
 
 #[derive(Clone, Debug)]
 pub struct AuthenticatedUser {
@@ -13,7 +17,11 @@ pub struct AuthenticatedUser {
     pub exp: usize,
 }
 
-pub async fn auth_middleware(mut req: Request<Body>, next: Next) -> Result<Response, StatusCode> {
+pub async fn auth_middleware(
+    State(app_state): State<AppState>,
+    mut req: Request<Body>,
+    next: Next,
+) -> Result<Response, StatusCode> {
     // AuthorizationヘッダからBearerトークンを取得
     let token = req
         .headers()
@@ -24,11 +32,7 @@ pub async fn auth_middleware(mut req: Request<Body>, next: Next) -> Result<Respo
         .ok_or(StatusCode::UNAUTHORIZED)?;
 
     // AppStateからシークレットを取得
-    let secret = req
-        .extensions()
-        .get::<AppState>()
-        .map(|state| state.jwt_secret.clone())
-        .ok_or(StatusCode::INTERNAL_SERVER_ERROR)?;
+    let secret = app_state.jwt_secret.clone();
 
     // JWTをデコード
     let claims = decode_jwt(token, &secret).map_err(|_| StatusCode::UNAUTHORIZED)?;

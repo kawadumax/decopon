@@ -1,25 +1,37 @@
-import { callApi } from "@/scripts/queries/apiClient";
+import { AuthService } from "@/scripts/api/services/AuthService";
 import InputLabel from "@components/InputLabel";
 import PrimaryButton from "@components/PrimaryButton";
 import TextInput from "@components/TextInput";
 import { useForm } from "@tanstack/react-form";
-import { useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
-import { route } from "ziggy-js";
+import type { AxiosError } from "axios";
+import { useState } from "react";
+
+interface ErrorResponse {
+  message?: string;
+}
 
 export default function ConfirmPassword() {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const [status, setStatus] = useState<string>("");
+  const [error, setError] = useState<string>("");
   const form = useForm({
     defaultValues: {
       password: "",
     },
     onSubmit: async ({ value, formApi }) => {
+      setStatus("");
+      setError("");
+
       try {
-        await callApi("post", route("password.confirm"), value);
-        navigate({ to: "/auth/dashboard" });
-      } catch (error) {
-        console.error("API error:", error);
+        const res = await AuthService.confirmPassword(value);
+        setStatus(res.status ?? "");
+        formApi.reset();
+      } catch (err) {
+        const axiosError = err as AxiosError<ErrorResponse>;
+        const message =
+          axiosError.response?.data?.message ?? t("api.unknown.default");
+        setError(message);
         formApi.reset();
       }
     },
@@ -28,8 +40,20 @@ export default function ConfirmPassword() {
   return (
     <>
       <div className="mb-4 text-gray-600 text-sm dark:text-gray-400">
-        {t("auth.comfirmPassword.description")}
+        {t("auth.confirmPassword.description")}
       </div>
+
+      {status === "password-confirmed" && (
+        <div className="mb-4 font-medium text-green-600 text-sm dark:text-green-400">
+          {t("auth.confirmPassword.success")}
+        </div>
+      )}
+
+      {error && (
+        <div className="mb-4 font-medium text-red-600 text-sm dark:text-red-400">
+          {error}
+        </div>
+      )}
 
       <form
         onSubmit={(e) => {
@@ -42,7 +66,10 @@ export default function ConfirmPassword() {
           <form.Field name="password">
             {(field) => (
               <>
-                <InputLabel htmlFor={field.name} value="Password" />
+                <InputLabel
+                  htmlFor={field.name}
+                  value={t("common.password")}
+                />
 
                 <TextInput
                   id={field.name}
@@ -55,7 +82,6 @@ export default function ConfirmPassword() {
                   required
                 />
 
-                {/* <InputError message={errors.password} className="mt-2" /> */}
               </>
             )}
           </form.Field>
@@ -63,7 +89,7 @@ export default function ConfirmPassword() {
 
         <div className="mt-4 flex items-center justify-end">
           <PrimaryButton className="ms-4" disabled={form.state.isSubmitting}>
-            {t("auth.comfirmPassword.submit")}
+            {t("auth.confirmPassword.submit")}
           </PrimaryButton>
         </div>
       </form>

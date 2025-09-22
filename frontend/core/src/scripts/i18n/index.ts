@@ -1,4 +1,4 @@
-import { Locale } from "@/scripts/types/index.d";
+import type { Locale } from "@/scripts/types";
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import en from "./locales/en.json";
@@ -12,8 +12,8 @@ const resources = {
 export const initializeI18n = (lang: Locale) => {
   i18n.use(initReactI18next).init({
     resources,
-    lng: lang || Locale.ENGLISH,
-    fallbackLng: Locale.ENGLISH,
+    lng: lang || "en",
+    fallbackLng: "en",
     interpolation: {
       escapeValue: false,
     },
