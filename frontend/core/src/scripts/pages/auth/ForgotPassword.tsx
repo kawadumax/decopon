@@ -1,11 +1,11 @@
-import { callApi } from "@/scripts/queries/apiClient";
+import { AuthService } from "@/scripts/api/services/AuthService";
 import InputLabel from "@components/InputLabel";
 import PrimaryButton from "@components/PrimaryButton";
 import TextInput from "@components/TextInput";
 import { useForm } from "@tanstack/react-form";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { route } from "ziggy-js";
+
 
 export default function ForgotPassword() {
   const { t } = useTranslation();
@@ -16,9 +16,9 @@ export default function ForgotPassword() {
       email: "",
     },
     async onSubmit({ value, formApi }) {
-      try {
-        const res = await callApi("post", route("password.email"), value);
-        setStatus(res.status);
+        try {
+          const res = await AuthService.forgotPassword(value);
+        setStatus((res as any).status);
       } catch (error) {
         console.error("API error:", error);
       } finally {
@@ -60,7 +60,6 @@ export default function ForgotPassword() {
                 isFocused={true}
               />
 
-              {/* <InputError message={form.errors.email} className="mt-2" /> */}
             </>
           )}
         </form.Field>

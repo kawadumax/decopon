@@ -34,6 +34,22 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # 5) ビルド
+      # 5) Rust のセットアップ
+      - name: Set up Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+          override: true
+
+      # 6) Axum サイドカーのビルド
+      - name: Build axum sidecar
+        run: cargo build --manifest-path backend/axum/Cargo.toml --release
+
+      # 7) Migration サイドカーのビルド
+      - name: Build migration sidecar
+        run: cargo build --manifest-path backend/axum/migration/Cargo.toml --release
+
+      # 8) フロントエンドのビルド
       - name: Build
         run: pnpm web:build

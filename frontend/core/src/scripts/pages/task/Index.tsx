@@ -15,24 +15,39 @@ import { TaskTools } from "./partials/TaskTools";
 
 export default function Index() {
   const deviceSize = useDeviceSize();
-  if (deviceSize === undefined) {
-    return <Loading />;
-  }
-  if (deviceSize === "mobile") {
-    return <MobileLayout />;
-  }
-  if (deviceSize === "tablet") {
-    return <TabletLayout />;
-  }
-  return <PCLayout />;
+  const layouts = {
+    pc: PCLayout,
+    tablet: TabletLayout,
+    mobile: MobileLayout,
+  } as const;
+  const Layout = deviceSize ? layouts[deviceSize] : undefined;
+  return Layout ? <Layout /> : <Loading />;
 }
 
-const PCLayout = () => {
+const ResizableLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <ResizablePanelGroup
       direction="horizontal"
       className="flex max-h-full min-h-full flex-row bg-white"
     >
+      {children}
+    </ResizablePanelGroup>
+  );
+};
+
+const MainPanel = () => {
+  return (
+    <>
+      <TaskTools />
+      <TagHeader />
+      <TaskTree />
+    </>
+  );
+};
+
+const PCLayout = () => {
+  return (
+    <ResizableLayout>
       <ResizablePanel defaultSize={17.2}>
         <ResizablePanelGroup direction="vertical">
           <ResizablePanel
@@ -56,9 +71,7 @@ const PCLayout = () => {
         defaultSize={41.4}
         className="hidden-scrollbar max-h-full overflow-auto shadow-xs dark:bg-gray-800"
       >
-        <TaskTools />
-        <TagHeader />
-        <TaskTree />
+        <MainPanel />
       </ResizablePanel>
 
       <ResizableHandle withHandle />
@@ -66,23 +79,18 @@ const PCLayout = () => {
       <ResizablePanel className="max-h-full overflow-hidden shadow-xs dark:bg-gray-800">
         <TaskSideView />
       </ResizablePanel>
-    </ResizablePanelGroup>
+    </ResizableLayout>
   );
 };
 
 const TabletLayout = () => {
   return (
-    <ResizablePanelGroup
-      direction="horizontal"
-      className="flex max-h-full min-h-full flex-row bg-white"
-    >
+    <ResizableLayout>
       <ResizablePanel
         defaultSize={50}
         className="hidden-scrollbar max-h-full overflow-auto shadow-xs dark:bg-gray-800"
       >
-        <TaskTools />
-        <TagHeader />
-        <TaskTree />
+        <MainPanel />
       </ResizablePanel>
 
       <ResizableHandle withHandle />
@@ -90,7 +98,7 @@ const TabletLayout = () => {
       <ResizablePanel className="max-h-full overflow-hidden shadow-xs dark:bg-gray-800">
         <TaskSideView />
       </ResizablePanel>
-    </ResizablePanelGroup>
+    </ResizableLayout>
   );
 };
 
@@ -100,9 +108,7 @@ const MobileLayout = () => {
       <div className="hidden-scrollbar flex max-h-full flex-1 flex-col overflow-auto shadow-xs dark:bg-gray-800">
         <StackViewList initialPanelId="default">
           <StackViewPanel panelId="default" className="size-full bg-white">
-            <TaskTools />
-            <TagHeader />
-            <TaskTree />
+            <MainPanel />
           </StackViewPanel>
           <StackViewPanel panelId="detail" className="size-full bg-white">
             <TaskSideView />

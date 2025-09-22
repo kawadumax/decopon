@@ -1,4 +1,4 @@
-use axum::{Extension, Router, extract::State, response::Json, routing::put};
+use axum::{extract::State, response::Json, Extension, Router, routing::put};
 use sea_orm::DatabaseConnection;
 use std::sync::Arc;
 
@@ -8,6 +8,7 @@ use crate::{
     services::preferences,
 };
 
+#[tracing::instrument(skip(db, user))]
 async fn update(
     State(db): State<Arc<DatabaseConnection>>,
     Extension(user): Extension<AuthenticatedUser>,

@@ -8,8 +8,8 @@ use axum_password_worker::PasswordWorker;
 use lettre::SmtpTransport;
 use migration::{Migrator, MigratorTrait};
 use sea_orm::{
-    ActiveModelTrait, Database, DbBackend, EntityTrait, Set, Statement, ColumnTrait, QueryFilter,
-    ConnectionTrait,
+    ActiveModelTrait, ColumnTrait, ConnectionTrait, Database, DbBackend, EntityTrait, QueryFilter,
+    Set, Statement,
 };
 use tower::ServiceExt;
 
@@ -17,17 +17,19 @@ use decopon_axum::{
     AppState,
     entities::{prelude::*, tag_task, users},
     middleware::auth::AuthenticatedUser,
-    routes,
-    services,
+    routes, services,
 };
 
 #[tokio::test]
 async fn task_creation_attaches_tags() {
     let db = Database::connect("sqlite::memory:").await.unwrap();
     Migrator::up(&db, None).await.unwrap();
-    db.execute(Statement::from_string(DbBackend::Sqlite, "PRAGMA foreign_keys = ON".to_owned()))
-        .await
-        .unwrap();
+    db.execute(Statement::from_string(
+        DbBackend::Sqlite,
+        "PRAGMA foreign_keys = ON".to_owned(),
+    ))
+    .await
+    .unwrap();
     let db = Arc::new(db);
 
     let user = users::ActiveModel {
@@ -74,7 +76,10 @@ async fn task_creation_attaches_tags() {
         jwt_secret,
     });
 
-    let auth_user = AuthenticatedUser { id: user.id, exp: 0 };
+    let auth_user = AuthenticatedUser {
+        id: user.id,
+        exp: 0,
+    };
 
     let payload = serde_json::json!({
         "title": "task",
@@ -100,6 +105,20 @@ async fn task_creation_attaches_tags() {
     let body = to_bytes(response.into_body(), usize::MAX).await.unwrap();
     let task: serde_json::Value = serde_json::from_slice(&body).unwrap();
     let task_id = task["id"].as_i64().unwrap() as i32;
+    let tags = task["tags"].as_array().unwrap();
+    assert_eq!(tags.len(), 2);
+    let response_tag_ids: Vec<i32> = tags
+        .iter()
+        .map(|tag| tag["id"].as_i64().unwrap() as i32)
+        .collect();
+    assert!(response_tag_ids.contains(&tag1.id));
+    assert!(response_tag_ids.contains(&tag2.id));
+    let response_tag_names: Vec<&str> = tags
+        .iter()
+        .map(|tag| tag["name"].as_str().unwrap())
+        .collect();
+    assert!(response_tag_names.contains(&"tag1"));
+    assert!(response_tag_names.contains(&"tag2"));
 
     let relations = TagTask::find()
         .filter(tag_task::Column::TaskId.eq(task_id))
@@ -116,9 +135,12 @@ async fn task_creation_attaches_tags() {
 async fn task_update_syncs_tags() {
     let db = Database::connect("sqlite::memory:").await.unwrap();
     Migrator::up(&db, None).await.unwrap();
-    db.execute(Statement::from_string(DbBackend::Sqlite, "PRAGMA foreign_keys = ON".to_owned()))
-        .await
-        .unwrap();
+    db.execute(Statement::from_string(
+        DbBackend::Sqlite,
+        "PRAGMA foreign_keys = ON".to_owned(),
+    ))
+    .await
+    .unwrap();
     let db = Arc::new(db);
 
     let user = users::ActiveModel {
@@ -178,10 +200,12 @@ async fn task_update_syncs_tags() {
         jwt_secret,
     });
 
-    let auth_user = AuthenticatedUser { id: user.id, exp: 0 };
+    let auth_user = AuthenticatedUser {
+        id: user.id,
+        exp: 0,
+    };
 
     let payload = serde_json::json!({
-        "id": task.id,
         "title": null,
         "description": null,
         "completed": null,
@@ -203,6 +227,13 @@ async fn task_update_syncs_tags() {
         .unwrap();
 
     assert_eq!(response.status(), StatusCode::OK);
+    let body = to_bytes(response.into_body(), usize::MAX).await.unwrap();
+    let task_json: serde_json::Value = serde_json::from_slice(&body).unwrap();
+    let tags = task_json["tags"].as_array().unwrap();
+    assert_eq!(tags.len(), 1);
+    assert_eq!(tags[0]["id"].as_i64().unwrap() as i32, tag2.id);
+    assert_eq!(tags[0]["name"].as_str().unwrap(), "tag2");
+
     let relations = TagTask::find()
         .filter(tag_task::Column::TaskId.eq(task.id))
         .all(db.as_ref())
@@ -216,9 +247,12 @@ async fn task_update_syncs_tags() {
 async fn task_delete_detaches_tags() {
     let db = Database::connect("sqlite::memory:").await.unwrap();
     Migrator::up(&db, None).await.unwrap();
-    db.execute(Statement::from_string(DbBackend::Sqlite, "PRAGMA foreign_keys = ON".to_owned()))
-        .await
-        .unwrap();
+    db.execute(Statement::from_string(
+        DbBackend::Sqlite,
+        "PRAGMA foreign_keys = ON".to_owned(),
+    ))
+    .await
+    .unwrap();
     let db = Arc::new(db);
 
     let user = users::ActiveModel {
@@ -278,9 +312,10 @@ async fn task_delete_detaches_tags() {
         jwt_secret,
     });
 
-    let auth_user = AuthenticatedUser { id: user.id, exp: 0 };
-
-    let payload = serde_json::json!({ "id": task.id });
+    let auth_user = AuthenticatedUser {
+        id: user.id,
+        exp: 0,
+    };
 
     let response = app
         .oneshot(
@@ -288,8 +323,7 @@ async fn task_delete_detaches_tags() {
                 .method(axum::http::Method::DELETE)
                 .uri(format!("/{}", task.id))
                 .extension(auth_user)
-                .header(CONTENT_TYPE, "application/json")
-                .body(Body::from(payload.to_string()))
+                .body(Body::empty())
                 .unwrap(),
         )
         .await
@@ -304,4 +338,121 @@ async fn task_delete_detaches_tags() {
     assert!(relations.is_empty());
     let task = Tasks::find_by_id(task.id).one(db.as_ref()).await.unwrap();
     assert!(task.is_none());
+}
+
+#[tokio::test]
+async fn tasks_index_filters_by_tag() {
+    let db = Database::connect("sqlite::memory:").await.unwrap();
+    Migrator::up(&db, None).await.unwrap();
+    db.execute(Statement::from_string(
+        DbBackend::Sqlite,
+        "PRAGMA foreign_keys = ON".to_owned(),
+    ))
+    .await
+    .unwrap();
+    let db = Arc::new(db);
+
+    let user = users::ActiveModel {
+        name: Set("Test User".to_string()),
+        email: Set("test@example.com".to_string()),
+        password: Set("hashed".to_string()),
+        work_time: Set(25),
+        break_time: Set(5),
+        locale: Set("ja".to_string()),
+        ..Default::default()
+    }
+    .insert(db.as_ref())
+    .await
+    .unwrap();
+
+    let tag1 = services::tags::insert_tag(
+        &db,
+        services::tags::NewTag {
+            name: "tag1".to_string(),
+            user_id: user.id,
+        },
+    )
+    .await
+    .unwrap();
+
+    let tag2 = services::tags::insert_tag(
+        &db,
+        services::tags::NewTag {
+            name: "tag2".to_string(),
+            user_id: user.id,
+        },
+    )
+    .await
+    .unwrap();
+
+    let task1 = services::tasks::insert_task(
+        db.as_ref(),
+        services::tasks::NewTask {
+            title: "task1".to_string(),
+            description: "desc".to_string(),
+            parent_task_id: None,
+            tag_ids: Some(vec![tag1.id]),
+            user_id: user.id,
+        },
+    )
+    .await
+    .unwrap();
+
+    let task2 = services::tasks::insert_task(
+        db.as_ref(),
+        services::tasks::NewTask {
+            title: "task2".to_string(),
+            description: "desc".to_string(),
+            parent_task_id: None,
+            tag_ids: Some(vec![tag2.id]),
+            user_id: user.id,
+        },
+    )
+    .await
+    .unwrap();
+
+    let password_worker = Arc::new(PasswordWorker::new_bcrypt(1).unwrap());
+    let mailer = Arc::new(SmtpTransport::builder_dangerous("localhost").build());
+    let jwt_secret = "test_secret".to_string();
+
+    let app = routes::tasks::routes().with_state(AppState {
+        db: db.clone(),
+        password_worker,
+        mailer,
+        jwt_secret,
+    });
+
+    let auth_user = AuthenticatedUser {
+        id: user.id,
+        exp: 0,
+    };
+
+    let response = app
+        .oneshot(
+            Request::builder()
+                .method(axum::http::Method::GET)
+                .uri(format!("/?tag_ids={}&tag_ids={}", tag1.id, tag2.id))
+                .extension(auth_user)
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+
+    assert_eq!(response.status(), StatusCode::OK);
+    let body = to_bytes(response.into_body(), usize::MAX).await.unwrap();
+    let tasks: Vec<serde_json::Value> = serde_json::from_slice(&body).unwrap();
+    assert_eq!(tasks.len(), 2);
+    let ids: Vec<i32> = tasks
+        .iter()
+        .map(|t| t["id"].as_i64().unwrap() as i32)
+        .collect();
+    assert!(ids.contains(&task1.id));
+    assert!(ids.contains(&task2.id));
+    for task in tasks {
+        let tags = task["tags"].as_array().unwrap();
+        assert_eq!(tags.len(), 1);
+        let tag_name = tags[0]["name"].as_str().unwrap();
+        assert!(tag_name == "tag1" || tag_name == "tag2");
+    }
 }

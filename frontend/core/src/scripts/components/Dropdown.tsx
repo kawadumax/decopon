@@ -2,6 +2,7 @@ import type { DecoponLinkProps } from "@/scripts/types";
 import { Transition } from "@headlessui/react";
 import { useLogout } from "@hooks/useLogout";
 import { Link } from "@tanstack/react-router";
+import { cn } from "@/scripts/lib/utils";
 import {
   type Dispatch,
   type PropsWithChildren,
@@ -94,12 +95,19 @@ const Content = ({
         leaveTo="opacity-0 scale-95"
       >
         <div
-          className={`absolute z-50 mt-2 rounded-md shadow-lg ${alignmentClasses} ${widthClasses}`}
+          className={cn(
+            "absolute z-50 mt-2 rounded-md shadow-lg",
+            alignmentClasses,
+            widthClasses,
+          )}
           onClick={() => setOpen(false)}
           onKeyDown={() => setOpen(false)}
         >
           <div
-            className={`rounded-md ring-1 ring-black ring-opacity-5 ${contentClasses}`}
+            className={cn(
+              "rounded-md ring-1 ring-black ring-opacity-5",
+              contentClasses,
+            )}
           >
             {children}
           </div>
@@ -108,9 +116,11 @@ const Content = ({
     </>
   );
 };
-
 const commonClassis = (additionalClasses: string) =>
-  `block w-full px-4 py-2 text-start text-sm leading-5 text-gray-700 transition duration-150 ease-in-out hover:bg-gray-100 focus:bg-gray-100 focus:outline-hidden dark:text-gray-300 dark:hover:bg-gray-800 dark:focus:bg-gray-800 ${additionalClasses}`;
+  cn(
+    "block w-full px-4 py-2 text-start text-sm leading-5 text-gray-700 transition duration-150 ease-in-out hover:bg-gray-100 focus:bg-gray-100 focus:outline-hidden dark:text-gray-300 dark:hover:bg-gray-800 dark:focus:bg-gray-800",
+    additionalClasses,
+  );
 
 const DropdownLink = ({
   className = "",

@@ -1,7 +1,7 @@
 use sea_orm::prelude::DateTimeUtc;
 use serde::{Deserialize, Serialize};
 
-use crate::services::tasks::Task;
+use crate::services::tasks::{Task, TaskTag};
 
 #[derive(Serialize)]
 pub struct TaskResponseDto {
@@ -9,9 +9,10 @@ pub struct TaskResponseDto {
     pub title: String,
     pub description: String,
     pub completed: bool,
+    pub parent_task_id: Option<i32>,
     pub created_at: DateTimeUtc,
     pub updated_at: DateTimeUtc,
-    pub parent_task_id: Option<i32>,
+    pub tags: Vec<TaskTagResponseDto>,
 }
 
 impl From<Task> for TaskResponseDto {
@@ -21,14 +22,38 @@ impl From<Task> for TaskResponseDto {
             title: task.title,
             description: task.description,
             completed: task.completed,
+            parent_task_id: task.parent_task_id,
             created_at: task.created_at,
             updated_at: task.updated_at,
-            parent_task_id: task.parent_task_id,
+            tags: task
+                .tags
+                .into_iter()
+                .map(TaskTagResponseDto::from)
+                .collect(),
         }
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize)]
+pub struct TaskTagResponseDto {
+    pub id: i32,
+    pub name: String,
+    pub created_at: DateTimeUtc,
+    pub updated_at: DateTimeUtc,
+}
+
+impl From<TaskTag> for TaskTagResponseDto {
+    fn from(tag: TaskTag) -> Self {
+        Self {
+            id: tag.id,
+            name: tag.name,
+            created_at: tag.created_at,
+            updated_at: tag.updated_at,
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct StoreTaskRequestDto {
     pub title: String,
     pub description: String,
@@ -36,17 +61,11 @@ pub struct StoreTaskRequestDto {
     pub tag_ids: Option<Vec<i32>>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct UpdateTaskRequestDto {
-    pub id: i32,
     pub title: Option<String>,
     pub description: Option<String>,
     pub completed: Option<bool>,
     pub parent_task_id: Option<i32>,
     pub tag_ids: Option<Vec<i32>>,
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct DeleteTaskRequestDto {
-    pub id: i32,
 }

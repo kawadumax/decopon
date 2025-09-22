@@ -3,15 +3,9 @@ import type { RegisteredRouter } from "@tanstack/react-router";
 
 export interface User {
   id: number;
-  preference: Preference;
   name: string;
   email: string;
   email_verified_at?: string;
-}
-
-export interface Preference {
-  id: number;
-  user_id: number;
   work_time: number;
   break_time: number;
   locale: Locale;
@@ -24,16 +18,20 @@ export enum Locale {
 
 export interface Task {
   id: number;
-  user_id: number;
-  parent_task_id?: number;
   title: string;
-  completed: boolean;
   description: string;
-  tags: Tag[];
+  completed: boolean;
+  created_at: string;
+  updated_at: string;
+  parent_task_id?: number;
+  tags?: Tag[];
 }
 
-export type TaskStoreRequest = Omit<Partial<Task>, "tags"> & {
-  tags?: number[];
+export type TaskStoreRequest = {
+  title: string;
+  description: string;
+  parent_task_id?: number;
+  tag_ids?: number[];
 };
 
 export enum LogSource {
@@ -43,15 +41,15 @@ export enum LogSource {
 
 export interface Log {
   id: number;
-  user_id: number;
-  task_id: number;
   content: string;
+  source: LogSource;
   created_at: string;
   updated_at: string;
-  source: LogSource;
+  user_id: number;
+  task_id?: number;
 }
 
-export enum TimeEntryStatus {
+export enum DecoponSessionStatus {
   InProgress = "In_Progress",
   Completed = "Completed",
   Interrupted = "Interrupted",
@@ -59,24 +57,29 @@ export enum TimeEntryStatus {
   Extended = "Extended",
 }
 
-export interface TimeEntry {
+export interface DecoponSession {
   id: number;
-  user_id: number;
+  status: DecoponSessionStatus;
   started_at: string;
-  ended_at: string;
-  status: TimeEntryStatus;
+  ended_at: string | null;
+  created_at: string;
+  updated_at: string;
+  user_id: number;
+}
+
+export interface CycleCount {
+  date: string;
+  count: number;
+}
+
+export interface TagResponse {
+  id: number;
+  name: string;
   created_at: string;
   updated_at: string;
 }
 
-export interface Tag {
-  id: number;
-  name: string;
-  user_id: number;
-  created_at: string;
-  updated_at: string;
-  tasks?: Task[];
-}
+export type Tag = TagResponse;
 
 export interface TagWithCheck {
   id: number;
@@ -95,6 +98,30 @@ export type PageProps<
 
 export interface Auth {
   user?: User;
+}
+
+export interface AuthResponse {
+  token: string;
+  user: User;
+}
+
+export interface UserResponse {
+  user: User;
+}
+
+export interface ProfileResponse {
+  status?: string;
+  mustVerifyEmail: boolean;
+}
+
+export interface StatusResponse {
+  status: string;
+}
+
+export interface PreferenceResponse {
+  work_time: number;
+  break_time: number;
+  locale: Locale;
 }
 
 export type DecoponLinkProps = Pick<LinkProps<RegisteredRouter>, "to"> & {

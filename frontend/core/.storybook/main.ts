@@ -3,7 +3,7 @@ import { fileURLToPath } from "node:url";
 import type { StorybookConfig } from "@storybook/react-vite";
 import tailwindcss from "@tailwindcss/vite";
 import { TanStackRouterVite } from "@tanstack/router-plugin/vite";
-import react from "@vitejs/plugin-react";
+import react from "@vitejs/plugin-react-swc";
 import { mergeConfig } from "vite";
 import type { Plugin, PluginOption } from "vite";
 import svgr from "vite-plugin-svgr";
@@ -16,11 +16,7 @@ const plugins: (Plugin<unknown> | PluginOption[])[] = [
     routesDirectory: "../core/src/routes",
     generatedRouteTree: "../core/src/routeTree.gen.ts",
   }),
-  react({
-    babel: {
-      presets: ["jotai/babel/preset"],
-    },
-  }),
+  react(),
   svgr({
     svgrOptions: {
       exportType: "named",

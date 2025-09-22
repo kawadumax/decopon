@@ -1,4 +1,4 @@
-import { callApi } from "@/scripts/queries/apiClient";
+import { AuthService } from "@/scripts/api/services/AuthService";
 import InputLabel from "@components/InputLabel";
 import PrimaryButton from "@components/PrimaryButton";
 import TextInput from "@components/TextInput";
@@ -6,7 +6,7 @@ import { useForm } from "@tanstack/react-form";
 import { getRouteApi } from "@tanstack/react-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { route } from "ziggy-js";
+
 
 export default function ResetPassword() {
   const { t } = useTranslation();
@@ -24,9 +24,9 @@ export default function ResetPassword() {
       password_confirmation: "",
     },
     async onSubmit({ value, formApi }) {
-      try {
-        const res = await callApi("post", route("password.store"), value);
-        setStatus(res.status);
+        try {
+          const res = await AuthService.resetPassword(value);
+        setStatus((res as any).status);
       } catch (error) {
         console.error("API error:", error);
       } finally {
@@ -69,7 +69,6 @@ export default function ResetPassword() {
                   isFocused={true}
                 />
 
-                {/* <InputError message={form.errors.email} className="mt-2" /> */}
               </>
             )}
           </form.Field>
@@ -90,7 +89,6 @@ export default function ResetPassword() {
                   autoComplete="new-password"
                   isFocused={false}
                 />
-                {/* <InputError message={form.errors.email} className="mt-2" /> */}
               </>
             )}
           </form.Field>
@@ -112,7 +110,6 @@ export default function ResetPassword() {
                   autoComplete="new-password"
                 />
 
-                {/* <InputError message={errors.password_confirmation} className="mt-2" /> */}
               </>
             )}
           </form.Field>

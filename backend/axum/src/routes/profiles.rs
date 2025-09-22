@@ -1,6 +1,6 @@
 use axum::{
-    Extension, Router,
     extract::State,
+    Extension, Router,
     http::StatusCode,
     response::Json,
     routing::{get, put},
@@ -14,6 +14,7 @@ use crate::{
     services::profiles,
 };
 
+#[tracing::instrument(skip(db, user))]
 async fn show(
     State(db): State<Arc<DatabaseConnection>>,
     Extension(user): Extension<AuthenticatedUser>,
@@ -22,6 +23,7 @@ async fn show(
     Ok(Json(UserDto::from(user)))
 }
 
+#[tracing::instrument(skip(db, user))]
 async fn update(
     State(db): State<Arc<DatabaseConnection>>,
     Extension(user): Extension<AuthenticatedUser>,
@@ -35,6 +37,7 @@ async fn update(
     Ok(Json(UserDto::from(user)))
 }
 
+#[tracing::instrument(skip(db, password_worker, user))]
 async fn update_password(
     State(AppState {
         db,
@@ -52,6 +55,7 @@ async fn update_password(
     Ok(StatusCode::OK)
 }
 
+#[tracing::instrument(skip(db, password_worker, user))]
 async fn destroy(
     State(AppState {
         db,

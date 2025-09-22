@@ -1,6 +1,6 @@
 use axum::{
-    Extension, Json, Router,
     extract::{Path, State},
+    Extension, Json, Router,
     routing::get,
 };
 use axum_macros::debug_handler;
@@ -13,6 +13,7 @@ use crate::{
 };
 
 #[debug_handler]
+#[tracing::instrument(skip(db, user))]
 async fn index(
     State(db): State<Arc<DatabaseConnection>>,
     Extension(user): Extension<AuthenticatedUser>,
@@ -23,6 +24,7 @@ async fn index(
 }
 
 #[debug_handler]
+#[tracing::instrument(skip(db, user))]
 async fn logs_by_task(
     Path(task_id): Path<i32>,
     State(db): State<Arc<DatabaseConnection>>,
@@ -34,6 +36,7 @@ async fn logs_by_task(
 }
 
 #[debug_handler]
+#[tracing::instrument(skip(db, user))]
 async fn store(
     State(db): State<Arc<DatabaseConnection>>,
     Extension(user): Extension<AuthenticatedUser>,
@@ -52,5 +55,5 @@ async fn store(
 pub fn routes() -> Router<AppState> {
     Router::<AppState>::new()
         .route("/", get(index).post(store))
-        .route("/task/:task_id", get(logs_by_task))
+        .route("/task/{task_id}", get(logs_by_task))
 }

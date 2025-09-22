@@ -9,6 +9,7 @@ pub struct TagResponseDto {
     pub name: String,
     pub created_at: DateTimeUtc,
     pub updated_at: DateTimeUtc,
+    pub task_count: u64,
 }
 
 impl From<Tag> for TagResponseDto {
@@ -18,22 +19,23 @@ impl From<Tag> for TagResponseDto {
             name: tag.name,
             created_at: tag.created_at,
             updated_at: tag.updated_at,
+            task_count: tag.task_count,
         }
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct StoreTagRequestDto {
     pub name: String,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct TagRelationRequestDto {
     pub task_id: i32,
     pub name: String,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct DeleteTagsRequestDto {
     pub tag_ids: Vec<i32>,
 }

@@ -9,8 +9,8 @@ import {
   ResizablePanelGroup,
 } from "@components/ui/resizable";
 import { useDeviceSize } from "@hooks/useDeviceSize";
-import { logsAtom } from "@lib/atoms";
-import { useAtomValue } from "jotai";
+import { useQuery } from "@tanstack/react-query";
+import { fetchLogsQueryOptions } from "@/scripts/queries";
 import { useRef } from "react";
 import { LogTagList } from "./partials/LogTagList";
 
@@ -59,7 +59,7 @@ const PCLayout = ({
 
 export default function Index() {
   const logContainerRef = useRef<HTMLUListElement>(null);
-  const logs = useAtomValue(logsAtom);
+  const { data: logs = [] } = useQuery(fetchLogsQueryOptions);
   const deviceSize = useDeviceSize();
 
   if (deviceSize === undefined) {

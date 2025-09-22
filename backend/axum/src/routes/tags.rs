@@ -1,6 +1,6 @@
 use axum::{
-    Extension, Router,
     extract::State,
+    Extension, Router,
     http::StatusCode,
     response::Json,
     routing::{delete, get, post},
@@ -13,6 +13,7 @@ use crate::{
     AppState, errors::ApiError, extractors::authenticated_user::AuthenticatedUser, services::tags,
 };
 
+#[tracing::instrument(skip(db, user))]
 async fn index(
     State(db): State<Arc<DatabaseConnection>>,
     Extension(user): Extension<AuthenticatedUser>,
@@ -21,6 +22,7 @@ async fn index(
     Ok(Json(tags.into_iter().map(TagResponseDto::from).collect()))
 }
 
+#[tracing::instrument(skip(db, user))]
 async fn store(
     State(db): State<Arc<DatabaseConnection>>,
     Extension(user): Extension<AuthenticatedUser>,
@@ -34,6 +36,7 @@ async fn store(
     Ok(Json(TagResponseDto::from(tag)))
 }
 
+#[tracing::instrument(skip(db, user))]
 async fn store_relation(
     State(db): State<Arc<DatabaseConnection>>,
     Extension(user): Extension<AuthenticatedUser>,
@@ -43,6 +46,7 @@ async fn store_relation(
     Ok(Json(TagResponseDto::from(tag)))
 }
 
+#[tracing::instrument(skip(db, user))]
 async fn destroy_relation(
     State(db): State<Arc<DatabaseConnection>>,
     Extension(user): Extension<AuthenticatedUser>,
@@ -52,6 +56,7 @@ async fn destroy_relation(
     Ok(Json(tag.map(TagResponseDto::from)))
 }
 
+#[tracing::instrument(skip(db, user))]
 async fn destroy_multiple(
     State(db): State<Arc<DatabaseConnection>>,
     Extension(user): Extension<AuthenticatedUser>,

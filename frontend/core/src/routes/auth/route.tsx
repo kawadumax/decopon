@@ -1,5 +1,6 @@
 import Authenticated from "@/scripts/layouts/AuthenticatedLayout";
-import { queryClient, fetchAuthQueryOptions } from "@/scripts/queries";
+import { fetchAuthQueryOptions, queryClient } from "@/scripts/queries";
+import { decoponSessionCyclesQueryOptions } from "@/scripts/queries/decoponSession";
 import { Outlet, createFileRoute, redirect } from "@tanstack/react-router";
 
 // 失敗時にはリダイレクト
@@ -9,6 +10,7 @@ const requireAuth = async () => {
     queryClient.removeQueries({ queryKey: ["auth"] });
     throw redirect({ to: "/guest/login" });
   }
+  await queryClient.ensureQueryData(decoponSessionCyclesQueryOptions);
 };
 
 export const Route = createFileRoute("/auth")({

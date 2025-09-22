@@ -9,7 +9,7 @@ pub mod tasks;
 use crate::{AppState, middleware::auth::auth_middleware};
 use axum::{Router, middleware};
 
-pub fn create_routes() -> Router<AppState> {
+pub fn create_routes(app_state: AppState) -> Router<AppState> {
     let protected = Router::<AppState>::new()
         .nest("/decopon_sessions", decopon_sessions::routes())
         .nest("/logs", logs::routes())
@@ -17,7 +17,10 @@ pub fn create_routes() -> Router<AppState> {
         .nest("/preferences", preferences::routes())
         .nest("/tags", tags::routes())
         .nest("/tasks", tasks::routes())
-        .layer(middleware::from_fn(auth_middleware));
+        .layer(middleware::from_fn_with_state(
+            app_state.clone(),
+            auth_middleware,
+        ));
 
     Router::<AppState>::new()
         .nest("/auth", auth::routes())

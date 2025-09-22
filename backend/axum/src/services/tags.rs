@@ -6,7 +6,7 @@ use crate::{
 
 use sea_orm::prelude::DateTimeUtc;
 use sea_orm::{
-    ActiveValue, ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter,
+    ActiveValue, ColumnTrait, DatabaseConnection, EntityTrait, PaginatorTrait, QueryFilter,
 };
 
 pub struct NewTag {
@@ -20,6 +20,7 @@ pub struct Tag {
     pub created_at: DateTimeUtc,
     pub updated_at: DateTimeUtc,
     pub user_id: i32,
+    pub task_count: u64,
 }
 
 impl From<tags::Model> for Tag {
@@ -30,8 +31,21 @@ impl From<tags::Model> for Tag {
             created_at: tag.created_at,
             updated_at: tag.updated_at,
             user_id: tag.user_id,
+            task_count: 0,
         }
     }
+}
+
+async fn tag_with_count(
+    db: &DatabaseConnection,
+    tag: tags::Model,
+) -> Result<Tag, ApiError> {
+    let mut tag: Tag = tag.into();
+    tag.task_count = TagTask::find()
+        .filter(tag_task::Column::TagId.eq(tag.id))
+        .count(db)
+        .await?;
+    Ok(tag)
 }
 
 pub async fn get_tags(db: &DatabaseConnection, user_id: i32) -> Result<Vec<Tag>, ApiError> {
@@ -39,7 +53,11 @@ pub async fn get_tags(db: &DatabaseConnection, user_id: i32) -> Result<Vec<Tag>,
         .filter(tags::Column::UserId.eq(user_id))
         .all(db)
         .await?;
-    Ok(tags.into_iter().map(Into::into).collect())
+    let mut result = Vec::new();
+    for tag in tags {
+        result.push(tag_with_count(db, tag).await?);
+    }
+    Ok(result)
 }
 
 pub async fn insert_tag(db: &DatabaseConnection, params: NewTag) -> Result<Tag, ApiError> {
@@ -53,7 +71,7 @@ pub async fn insert_tag(db: &DatabaseConnection, params: NewTag) -> Result<Tag, 
         .one(db)
         .await?
         .ok_or(ApiError::NotFound("tag"))?;
-    Ok(tag.into())
+    tag_with_count(db, tag).await
 }
 
 pub async fn attach_tag_to_task(
@@ -85,7 +103,7 @@ pub async fn attach_tag_to_task(
     };
 
     services::tag_task::attach_tags(db, task_id, vec![tag.id]).await?;
-    Ok(tag.into())
+    tag_with_count(db, tag).await
 }
 
 pub async fn detach_tag_from_task(
@@ -103,8 +121,11 @@ pub async fn detach_tag_from_task(
     if let Some(tag) = &tag {
         services::tag_task::detach_tags(db, task_id, vec![tag.id]).await?;
     }
-
-    Ok(tag.map(Into::into))
+    if let Some(tag) = tag {
+        Ok(Some(tag_with_count(db, tag).await?))
+    } else {
+        Ok(None)
+    }
 }
 
 pub async fn delete_tags(

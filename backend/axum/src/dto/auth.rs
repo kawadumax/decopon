@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::services::users::{User, UserFull};
 
-#[derive(Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct RegisterUserRequestDto {
     pub name: String,
     pub email: String,
@@ -86,7 +86,7 @@ pub struct GetAuthUserResponseDto {
     pub user: UserDto,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct LoginRequestDto {
     pub email: String,
     pub password: String,
@@ -98,14 +98,29 @@ pub struct AuthResponseDto {
     pub user: UserDto,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct ForgotPasswordRequestDto {
     pub email: String,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct ResetPasswordRequestDto {
     pub token: String,
     pub email: String,
     pub password: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct ConfirmPasswordRequestDto {
+    pub password: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct ResendVerificationRequestDto {
+    pub email: String,
+}
+
+#[derive(Debug, Serialize)]
+pub struct StatusResponseDto {
+    pub status: String,
 }

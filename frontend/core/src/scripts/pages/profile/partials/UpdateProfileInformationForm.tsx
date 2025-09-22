@@ -1,4 +1,5 @@
-import { callApi } from "@/scripts/queries/apiClient";
+import { ProfileService } from "@/scripts/api/services/ProfileService";
+import { authStorage } from "@/scripts/lib/authStorage";
 import type { Auth } from "@/scripts/types";
 import InputError from "@components/InputError";
 import InputLabel from "@components/InputLabel";
@@ -8,8 +9,7 @@ import { Transition } from "@headlessui/react";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { route } from "ziggy-js";
-import { PostButton } from "./PostButton";
+
 
 type UpdateData = {
   name: string;
@@ -18,7 +18,7 @@ type UpdateData = {
 
 const updateProfile = async (updateData: UpdateData) => {
   try {
-    await callApi("patch", route("api.profile.update"), updateData);
+    return await ProfileService.updateProfile(updateData);
   } catch (e) {
     throw new Error(String(e));
   }
@@ -40,7 +40,9 @@ export default function UpdateProfileInformation({
   const mutation = useMutation({
     mutationFn: updateProfile,
     onSuccess: (data) => {
-      queryClient.setQueryData(["auth"], data);
+      const auth = { user: data };
+      queryClient.setQueryData(["auth"], auth);
+      authStorage.set(auth);
     },
   });
 
@@ -119,27 +121,6 @@ export default function UpdateProfileInformation({
             </div>
           )}
         </form.Field>
-
-        {mustVerifyEmail && user?.email_verified_at === null && (
-          <div>
-            <p className="mt-2 text-gray-800 text-sm dark:text-gray-200">
-              {t("profile.updateProfileInformation.unverified")}
-              <PostButton
-                to={route("verification.send")}
-                className="rounded-md text-gray-600 text-sm underline hover:text-gray-900 focus:outline-hidden focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:text-gray-400 dark:focus:ring-offset-gray-800 dark:hover:text-gray-100"
-              >
-                {t("profile.updateProfileInformation.resend")}
-              </PostButton>
-            </p>
-
-            {status === "verification-link-sent" && (
-              <div className="mt-2 font-medium text-green-600 text-sm dark:text-green-400">
-                {t("profile.updateProfileInformation.verificationLinkSent")}
-              </div>
-            )}
-          </div>
-        )}
-
         <div className="flex items-center gap-4">
           <PrimaryButton disabled={form.state.isSubmitting}>
             {t("common.save")}

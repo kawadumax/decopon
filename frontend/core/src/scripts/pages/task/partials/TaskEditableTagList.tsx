@@ -1,73 +1,76 @@
-import { callApi } from "@/scripts/queries/apiClient";
-import type { Task } from "@/scripts/types";
-import { tagsAtom } from "@lib/atoms";
+import { TagService } from "@/scripts/api/services/TagService";
+import type { Tag } from "@/scripts/types";
 import { logger, toEmblorTags } from "@lib/utils";
+import { setTags } from "@/scripts/queries";
 import { type Tag as EmblorTag, TagInput } from "emblor";
-import { useAtom, useSetAtom } from "jotai";
-import type { PrimitiveAtom } from "jotai";
 import { useCallback, useEffect, useState } from "react";
-import { route } from "ziggy-js";
+import { useTaskStore } from "@store/task";
+import { useQueryClient } from "@tanstack/react-query";
 
-export const TaskEditableTagList = ({
-  taskAtom,
-}: {
-  taskAtom: PrimitiveAtom<Task>;
-}) => {
+export const TaskEditableTagList = () => {
+  const queryClient = useQueryClient();
   const [activeTagIndex, setActiveTagIndex] = useState<number | null>(null);
-  const [currentTask, setCurrentTask] = useAtom(taskAtom);
+  const currentTask = useTaskStore((s) => s.currentTask);
+  const setCurrentTask = useTaskStore((s) => s.setCurrentTask);
   const [emblorTags, setEmblorTags] = useState<EmblorTag[]>(
-    toEmblorTags(currentTask.tags),
+    toEmblorTags(currentTask?.tags ?? []),
   );
-  const setTags = useSetAtom(tagsAtom);
 
   const handleTagAdded = useCallback(
     (tagText: string) => {
-      callApi("post", route("api.tasks.update.tags", currentTask.id), {
+      if (!currentTask) return;
+      TagService.relation({
         task_id: currentTask.id,
         name: tagText,
-      }).then((data) => {
-        const newTag = data.tag;
-        setTags((prev) => {
-          // タグの名前で重複をチェック
-          const isDuplicate = prev.some((tag) => tag.name === newTag.name);
-          if (isDuplicate) {
-            return prev; // 重複がある場合は既存の配列をそのまま返す
+      }).then((newTag) => {
+        setTags((prev: Tag[] = []) => {
+          const exists = prev.find((tag) => tag.id === newTag.id);
+          if (exists) {
+            return prev.map((tag) => (tag.id === newTag.id ? newTag : tag));
           }
-          return [newTag, ...prev]; // 重複がない場合のみ新しいタグを追加
+          return [newTag, ...prev];
         });
-        setCurrentTask((prev) => ({
-          ...prev,
-          tags: [...prev.tags, newTag],
-        }));
+        setCurrentTask({
+          ...currentTask,
+          tags: [...(currentTask.tags ?? []), newTag],
+        });
+        queryClient.invalidateQueries({ queryKey: ["tasks"] });
       });
     },
-    [currentTask, setCurrentTask, setTags],
+    [currentTask, queryClient, setCurrentTask, setTags],
   );
 
   const handleTagRemoved = useCallback(
     (tagText: string) => {
+      if (!currentTask) return;
       logger("tag removed", tagText, currentTask);
-      callApi("delete", route("api.tags.relation.destroy"), {
+      TagService.relationDestroy({
         task_id: currentTask.id,
         name: tagText,
-      }).then((data) => {
-        setCurrentTask((prev) => {
-          const newTags = prev.tags
-            ? prev.tags.filter((tag) => tag.name !== data.tag.name)
-            : [];
-          return {
-            ...prev,
-            tags: [...newTags],
-          };
+      }).then((tag) => {
+        if (tag) {
+          setTags((prev: Tag[] = []) =>
+            prev.map((t) => (t.id === tag.id ? tag : t)),
+          );
+        }
+        const newTags = currentTask.tags
+          ? currentTask.tags.filter((t) => t.name !== tagText)
+          : [];
+        setCurrentTask({
+          ...currentTask,
+          tags: [...newTags],
         });
+        queryClient.invalidateQueries({ queryKey: ["tasks"] });
       });
     },
-    [currentTask, setCurrentTask],
+    [currentTask, queryClient, setCurrentTask, setTags],
   );
 
   useEffect(() => {
-    setEmblorTags(toEmblorTags(currentTask.tags));
+    setEmblorTags(toEmblorTags(currentTask?.tags ?? []));
   }, [currentTask]);
+
+  if (!currentTask) return null;
 
   return (
     <TagInput

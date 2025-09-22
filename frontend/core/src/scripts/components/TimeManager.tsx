@@ -1,9 +1,12 @@
-import { type TimeEntry, TimeEntryStatus } from "@/scripts/types/index.d";
-import { useTimeEntryApi } from "@hooks/useTimeEntryApi";
-import { getSpanAtom, timerStateAtom } from "@lib/atoms";
-import { useAtom, useAtomValue } from "jotai";
+import {
+  completeDecoponSessionMutationOptions,
+  interruptDecoponSessionMutationOptions,
+} from "@/scripts/queries/decoponSession";
+import { DecoponSessionStatus } from "@/scripts/types";
+import { useTimerStore } from "@store/timer";
+import { useMutation } from "@tanstack/react-query";
 import { useCallback, useEffect, useState } from "react";
-import TimerWorker from "../workers/TimerWorker.ts?worker";
+import TimerWorker from "../workers/TimerWorker?worker&inline";
 
 /**
  * 時間を進めるWebWorkerの処理を発行及び購読を行う
@@ -11,16 +14,22 @@ import TimerWorker from "../workers/TimerWorker.ts?worker";
  */
 export const TimeManager = () => {
   const [timerWorker, setTimeWorker] = useState<Worker | null>(null);
-  const [timerState, setTimerState] = useAtom(timerStateAtom);
-  const timeSpan = useAtomValue(getSpanAtom);
-  const { interruptTimeEntry, completeTimeEntry } = useTimeEntryApi();
+  const timerState = useTimerStore((s) => s.timerState);
+  const setTimerState = useTimerStore((s) => s.setTimerState);
+  const timeSpan = useTimerStore((s) => s.getSpan());
+  const { mutate: interruptDecoponSession } = useMutation(
+    interruptDecoponSessionMutationOptions,
+  );
+  const { mutate: completeDecoponSession } = useMutation(
+    completeDecoponSessionMutationOptions,
+  );
 
   useEffect(() => {
     // Workerのインスタンスを作成
-    const timerWorker = new TimerWorker();
-    setTimeWorker(timerWorker);
+    const worker = new TimerWorker();
+    setTimeWorker(worker);
 
-    timerWorker.onmessage = (e) => {
+    worker.onmessage = (e: MessageEvent) => {
       if (e.data.type === "TICK") {
         setTimerState((prev) => ({
           ...prev,
@@ -30,7 +39,7 @@ export const TimeManager = () => {
     };
 
     return () => {
-      timerWorker.terminate();
+      worker.terminate();
     };
   }, [setTimerState]);
 
@@ -50,32 +59,27 @@ export const TimeManager = () => {
    */
   useEffect(() => {
     if (timerState.elapsedTime < timeSpan) return;
-    let currentCycles = timerState.cycles.count || 0;
-
     // タイマーが終わった時
 
     if (timerState.isWorkTime) {
-      // Worktimeの時
-      completeTimeEntry();
-      currentCycles++;
+      // Worktimeの時: completeミューテーション -> onSuccessで状態更新
+      completeDecoponSession();
+    } else {
+      // BreakTimeの時: ローカルで状態更新
+      setTimerState((prev) => ({
+        ...prev,
+        isRunning: false,
+        isWorkTime: true,
+        elapsedTime: 0,
+        startedTime: null,
+      }));
     }
-
-    // WorkTimeとBreakTimeを切り替える
-    setTimerState((prev) => ({
-      ...prev,
-      isRunning: false,
-      isWorkTime: !prev.isWorkTime,
-      elapsedTime: 0,
-      startedTime: null,
-      cycles: { date: prev.cycles.date, count: currentCycles },
-    }));
   }, [
     timerState.elapsedTime,
     timerState.isWorkTime,
-    timerState.cycles,
     timeSpan,
     setTimerState,
-    completeTimeEntry,
+    completeDecoponSession,
   ]);
 
   /**
@@ -84,22 +88,15 @@ export const TimeManager = () => {
    *  */
   const handleBeforeUnload = useCallback(
     (event: BeforeUnloadEvent) => {
-      if (timerState.timeEntry?.status === TimeEntryStatus.InProgress) {
+      if (
+        timerState.decoponSession?.status === DecoponSessionStatus.InProgress
+      ) {
         event.preventDefault(); // 離脱時に進行中のタイマーがある場合、アラートが表示される
-        interruptTimeEntry();
-        setTimerState((prev) => {
-          return {
-            ...prev,
-            timeEntry: {
-              ...(timerState.timeEntry as TimeEntry),
-              status: TimeEntryStatus.Interrupted,
-            },
-            isRunning: false,
-          };
-        });
+        // interruptミューテーション -> onSuccessで停止状態へ
+        interruptDecoponSession();
       }
     },
-    [timerState, setTimerState, interruptTimeEntry],
+    [timerState, interruptDecoponSession],
   );
 
   useEffect(() => {

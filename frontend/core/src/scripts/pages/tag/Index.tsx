@@ -1,8 +1,6 @@
-import type { PageProps } from "@/scripts/types";
-import type { Tag } from "@/scripts/types";
+import type { PageProps, Tag } from "@/scripts/types";
 import { TagHeader } from "@components/TagHeader";
 import { TaskTree } from "@components/TaskTree";
-import { tagsAtom } from "@lib/atoms";
 
 import { Loading } from "@components/Loading";
 import { StackViewList, StackViewPanel } from "@components/StackView";
@@ -12,23 +10,20 @@ import {
   ResizablePanelGroup,
 } from "@components/ui/resizable";
 import { useDeviceSize } from "@hooks/useDeviceSize";
-import { useAtom } from "jotai";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { fetchTagsQueryOptions } from "@/scripts/queries";
 import { useEffect } from "react";
 import { TagTable } from "./partials/TagTable";
 import { TagTools } from "./partials/TagTools";
 
-const MobileLayout = ({
-  tags,
-}: {
-  tags: Tag[];
-}) => {
+const MobileLayout = () => {
   return (
     <div className="flex min-h-full flex-col bg-white">
       <div className="hidden-scrollbar flex max-h-full flex-1 flex-col overflow-auto shadow-xs dark:bg-gray-800">
         <StackViewList initialPanelId="default">
           <StackViewPanel panelId="default" className="size-full bg-white p-4">
             <TagTools />
-            <TagTable tags={tags} />
+            <TagTable />
           </StackViewPanel>
           <StackViewPanel panelId="detail" className="size-full bg-white">
             <TaskTree />
@@ -39,11 +34,7 @@ const MobileLayout = ({
   );
 };
 
-const PCLayout = ({
-  tags,
-}: {
-  tags: Tag[];
-}) => {
+const PCLayout = () => {
   return (
     <ResizablePanelGroup
       direction="horizontal"
@@ -51,7 +42,7 @@ const PCLayout = ({
     >
       <ResizablePanel className="p-8 py-2">
         <TagTools />
-        <TagTable tags={tags} />
+        <TagTable />
       </ResizablePanel>
       <ResizableHandle withHandle />
       <ResizablePanel>
@@ -67,19 +58,20 @@ export default function Index(
     tags: Tag[];
   }>,
 ) {
-  const [tags, setTags] = useAtom(tagsAtom);
+  const queryClient = useQueryClient();
+  useQuery(fetchTagsQueryOptions);
   const deviceSize = useDeviceSize();
   useEffect(() => {
-    setTags(props.tags);
-  }, [props.tags, setTags]);
+    queryClient.setQueryData(["tags"], props.tags);
+  }, [props.tags, queryClient]);
 
   if (deviceSize === undefined) {
     return <Loading />;
   }
 
   if (deviceSize === "mobile" || deviceSize === "tablet") {
-    return <MobileLayout tags={tags} />;
+    return <MobileLayout />;
   }
 
-  return <PCLayout tags={tags} />;
+  return <PCLayout />;
 }

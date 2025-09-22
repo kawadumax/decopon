@@ -1,6 +1,6 @@
 use axum::{
-    Extension, Json, Router,
     extract::{Path, Query, State},
+    Extension, Json, Router,
     http::StatusCode,
     routing::get,
 };
@@ -15,6 +15,7 @@ use crate::{
 };
 
 #[debug_handler]
+#[tracing::instrument(skip(db, user))]
 async fn index(
     State(db): State<Arc<DatabaseConnection>>,
     Extension(user): Extension<AuthenticatedUser>,
@@ -28,6 +29,7 @@ async fn index(
 }
 
 #[debug_handler]
+#[tracing::instrument(skip(db, user))]
 async fn show(
     Path(id): Path<i32>,
     State(db): State<Arc<DatabaseConnection>>,
@@ -38,6 +40,7 @@ async fn show(
 }
 
 #[debug_handler]
+#[tracing::instrument(skip(db, user))]
 async fn store(
     State(db): State<Arc<DatabaseConnection>>,
     Extension(user): Extension<AuthenticatedUser>,
@@ -54,6 +57,7 @@ async fn store(
 }
 
 #[debug_handler]
+#[tracing::instrument(skip(db, user))]
 async fn update(
     Path(id): Path<i32>,
     State(db): State<Arc<DatabaseConnection>>,
@@ -71,6 +75,7 @@ async fn update(
 }
 
 #[debug_handler]
+#[tracing::instrument(skip(db, user))]
 async fn destroy(
     Path(id): Path<i32>,
     State(db): State<Arc<DatabaseConnection>>,
@@ -80,12 +85,13 @@ async fn destroy(
     Ok(StatusCode::NO_CONTENT)
 }
 
-#[derive(serde::Deserialize)]
+#[derive(Debug, serde::Deserialize)]
 struct CycleQueryDto {
     date: String,
 }
 
 #[debug_handler]
+#[tracing::instrument(skip(db, user))]
 async fn cycles(
     State(db): State<Arc<DatabaseConnection>>,
     Extension(user): Extension<AuthenticatedUser>,
@@ -104,5 +110,5 @@ pub fn routes() -> Router<AppState> {
     Router::<AppState>::new()
         .route("/", get(index).post(store))
         .route("/cycles", get(cycles))
-        .route("/:id", get(show).put(update).delete(destroy))
+        .route("/{id}", get(show).put(update).delete(destroy))
 }

@@ -1,24 +1,22 @@
 import { initializeI18n } from "@/scripts/i18n";
-import { Locale } from "@/scripts/types/index.d";
-import { languageAtom } from "@lib/atoms";
+import type { Locale } from "@/scripts/types";
 import { useQuery } from "@tanstack/react-query";
-import { useAtomValue } from "jotai";
 import { useEffect } from "react";
 import { fetchAuthQueryOptions } from "../queries";
+import { useLangStore } from "@store/lang";
 
 // 多言語化初期化
-initializeI18n(Locale.ENGLISH);
+initializeI18n("en" as Locale);
 
 export const LangManager = () => {
-  const langAtomValue = useAtomValue(languageAtom);
+  const langStoreValue = useLangStore((s) => s.language);
   const { data: auth } = useQuery(fetchAuthQueryOptions);
 
   useEffect(() => {
-    const lang =
-      auth?.user?.preference?.locale ?? langAtomValue ?? String(Locale.ENGLISH);
+    const lang = (auth?.user?.locale ?? langStoreValue ?? "en") as Locale;
     initializeI18n(lang);
     document.documentElement.lang = lang;
-  }, [auth, langAtomValue]);
+  }, [auth, langStoreValue]);
 
   return <></>;
 };
