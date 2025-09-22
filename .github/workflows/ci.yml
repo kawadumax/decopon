@@ -52,6 +52,7 @@ jobs:
 
       # 8) フロントエンドのビルド
       - name: gen routes
-        run: pnpm web:generate:routes
+        run: pnpm core:gen-routes
+
       - name: Build
         run: pnpm web:build

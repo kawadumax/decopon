@@ -14,10 +14,10 @@
     "axum:build": "cd backend/axum && cargo build",
     "axum:fresh": "cd backend/axum && cargo run -p migration -- fresh",
     "axum:gen:entity": "cd backend/axum && sea-orm-cli generate entity -o src/entities", // generate entity
-    "web:generate:routes": "pnpm -F web generate:routes",
     "web:build": "pnpm -F web build",
     "web:dev": "pnpm -F web dev",
     "web:preview": "pnpm -F web preview",
+    "core:gen-routes": "pnpm -F core gen-routes",
     "core:storybook": "pnpm -F core storybook",
     "app:build": "pnpm -F core build && pnpm -F app tauri build",
     "app:dev": "pnpm -F app tauri dev"
