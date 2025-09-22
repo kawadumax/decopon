@@ -3,6 +3,6 @@
   "files": [],
   "references": [
     { "path": "./frontend/web" },
-    { "path": "./frontend/app" }
+    { "path": "./frontend/windows" }
   ]
 }

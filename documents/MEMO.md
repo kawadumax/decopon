@@ -36,7 +36,7 @@ php artisan key:generate
 
 ```shell
 pnpm install
-pnpm windows:dev # webとaxumの起動
+pnpm fullstack:dev # webとaxumの起動
 ```
 
 DB リセットして Seeder 実行

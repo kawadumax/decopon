@@ -5,8 +5,8 @@
   "scripts": {
     "preinstall": "npx only-allow pnpm",
     "build": "pnpm -F core build && tsc -b tsconfig.build.json",
-    "windows:dev": "concurrently -c \"#93c5fd,#c4b5fd,#fb7185,#fdba74\" \"pnpm axum:dev\" \"pnpm web:dev\" --names=axum,web",
-    "windows:preview": "concurrently -c \"#93c5fd,#c4b5fd,#fb7185,#fdba74\" \"pnpm axum:dev\" \"pnpm web:preview\" --names=axum,web",
+    "fullstack:dev": "concurrently -c \"#93c5fd,#c4b5fd,#fb7185,#fdba74\" \"pnpm axum:dev\" \"pnpm web:dev\" --names=axum,web",
+    "fullstack:preview": "concurrently -c \"#93c5fd,#c4b5fd,#fb7185,#fdba74\" \"pnpm axum:dev\" \"pnpm web:preview\" --names=axum,web",
     // "laravel:dev": "cd backend/laravel && php artisan serve --host=0.0.0.0 --port=8000",
     // "laravel:fresh": "cd backend/laravel && php artisan migrate:fresh --seed",
     // "laravel:routes": "cd backend/laravel && php artisan route:list",
@@ -19,8 +19,8 @@
     "web:preview": "pnpm -F web preview",
     "core:gen-routes": "pnpm -F core gen-routes",
     "core:storybook": "pnpm -F core storybook",
-    "app:build": "pnpm -F core build && pnpm -F app tauri build",
-    "app:dev": "pnpm -F app tauri dev"
+    "windows:build": "pnpm -F core build && pnpm -F @decopon/windows tauri build",
+    "windows:dev": "pnpm -F @decopon/windows tauri dev"
   },
   "packageManager": "pnpm@10.11.0",
   "dependencies": {
