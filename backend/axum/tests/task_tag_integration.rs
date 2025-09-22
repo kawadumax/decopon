@@ -72,8 +72,9 @@ async fn task_creation_attaches_tags() {
     let app = routes::tasks::routes().with_state(AppState {
         db: db.clone(),
         password_worker,
-        mailer,
+        mailer: Some(mailer),
         jwt_secret,
+        single_user_session: None,
     });
 
     let auth_user = AuthenticatedUser {
@@ -196,8 +197,9 @@ async fn task_update_syncs_tags() {
     let app = routes::tasks::routes().with_state(AppState {
         db: db.clone(),
         password_worker,
-        mailer,
+        mailer: Some(mailer),
         jwt_secret,
+        single_user_session: None,
     });
 
     let auth_user = AuthenticatedUser {
@@ -308,8 +310,9 @@ async fn task_delete_detaches_tags() {
     let app = routes::tasks::routes().with_state(AppState {
         db: db.clone(),
         password_worker,
-        mailer,
+        mailer: Some(mailer),
         jwt_secret,
+        single_user_session: None,
     });
 
     let auth_user = AuthenticatedUser {
@@ -418,8 +421,9 @@ async fn tasks_index_filters_by_tag() {
     let app = routes::tasks::routes().with_state(AppState {
         db: db.clone(),
         password_worker,
-        mailer,
+        mailer: Some(mailer),
         jwt_secret,
+        single_user_session: None,
     });
 
     let auth_user = AuthenticatedUser {

@@ -18,3 +18,4 @@ Rust（Cargo workspace）を用いており、`migration` クレートとアプ�
 - API は既定で `127.0.0.1:3000` で待ち受け、`.env` の `AXUM_ALLOWED_ORIGINS` で CORS 許可先を制御します。
 - `pnpm fullstack:dev` を使うとフロントエンド (`web`) と同時に起動でき、`.env` で指定したポートに合わせて動作確認できます。
 - ログ出力は `RUST_LOG` 環境変数に従います（例: `RUST_LOG="info,decopon_axum=trace"`）。
+- `APP_SINGLE_USER_MODE=true` とするとシングルユーザーモードが有効になり、バックエンド起動時に固定アカウントを整備して `/auth/local/session` から JWT とプロフィールを取得できます。

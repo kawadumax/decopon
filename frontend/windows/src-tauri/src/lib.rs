@@ -1,4 +1,10 @@
-use std::{fs, path::PathBuf};
+use std::{
+    fs,
+    io::ErrorKind,
+    path::{Path, PathBuf},
+};
+
+use rand::{distributions::Alphanumeric, Rng};
 
 use tauri::{api::dialog, Manager};
 
@@ -22,7 +28,30 @@ fn ensure_app_data_dir(app_handle: &tauri::AppHandle) -> Result<PathBuf, std::io
     Ok(data_dir)
 }
 
-fn ensure_env_vars(database_url: &str) {
+fn load_or_generate_jwt_secret(data_dir: &Path) -> Result<String, std::io::Error> {
+    let secret_path = data_dir.join("jwt_secret");
+
+    match fs::read_to_string(&secret_path) {
+        Ok(existing) => {
+            let trimmed = existing.trim().to_string();
+            if !trimmed.is_empty() {
+                return Ok(trimmed);
+            }
+        }
+        Err(err) if err.kind() != ErrorKind::NotFound => return Err(err),
+        _ => {}
+    }
+
+    let secret: String = rand::thread_rng()
+        .sample_iter(&Alphanumeric)
+        .take(64)
+        .map(char::from)
+        .collect();
+    fs::write(&secret_path, format!("{secret}\n"))?;
+    Ok(secret)
+}
+
+fn ensure_env_vars(data_dir: &Path, database_url: &str) -> Result<(), std::io::Error> {
     std::env::set_var("AXUM_DATABASE_URL", database_url);
     std::env::set_var("DATABASE_URL", database_url);
 
@@ -40,6 +69,45 @@ fn ensure_env_vars(database_url: &str) {
             "tauri://localhost,http://localhost:1420",
         );
     }
+
+    if std::env::var_os("AXUM_JWT_SECRET").is_none() {
+        let secret = load_or_generate_jwt_secret(data_dir)?;
+        std::env::set_var("AXUM_JWT_SECRET", secret);
+    }
+
+    if std::env::var_os("APP_SINGLE_USER_MODE").is_none() {
+        std::env::set_var("APP_SINGLE_USER_MODE", "1");
+    }
+
+    if std::env::var_os("APP_SINGLE_USER_EMAIL").is_none() {
+        std::env::set_var("APP_SINGLE_USER_EMAIL", "single-user@localhost");
+    }
+
+    if std::env::var_os("APP_SINGLE_USER_PASSWORD").is_none() {
+        std::env::set_var("APP_SINGLE_USER_PASSWORD", "decopon-local-password");
+    }
+
+    if std::env::var_os("APP_SINGLE_USER_NAME").is_none() {
+        std::env::set_var("APP_SINGLE_USER_NAME", "Decopon User");
+    }
+
+    if std::env::var_os("APP_SINGLE_USER_LOCALE").is_none() {
+        std::env::set_var("APP_SINGLE_USER_LOCALE", "en");
+    }
+
+    if std::env::var_os("APP_SINGLE_USER_WORK_TIME").is_none() {
+        std::env::set_var("APP_SINGLE_USER_WORK_TIME", "25");
+    }
+
+    if std::env::var_os("APP_SINGLE_USER_BREAK_TIME").is_none() {
+        std::env::set_var("APP_SINGLE_USER_BREAK_TIME", "5");
+    }
+
+    if std::env::var_os("AXUM_DISABLE_SMTP").is_none() {
+        std::env::set_var("AXUM_DISABLE_SMTP", "1");
+    }
+
+    Ok(())
 }
 
 fn notify_error(window: Option<&tauri::Window>, message: &str) {
@@ -65,7 +133,14 @@ pub fn run() {
 
             let db_path = data_dir.join("decopon.sqlite");
             let dsn = format!("sqlite://{}?mode=rwc", db_path.to_string_lossy());
-            ensure_env_vars(&dsn);
+            if let Err(e) = ensure_env_vars(&data_dir, &dsn) {
+                eprintln!("failed to configure environment variables: {e}");
+                notify_error(
+                    main_window.as_ref(),
+                    &format!("環境変数の設定に失敗しました: {e}"),
+                );
+                return Err(Box::new(e));
+            }
 
             let db_exists = fs::metadata(&db_path).is_ok();
             let dsn_for_emit = dsn.clone();

@@ -31,7 +31,7 @@ pub struct AuthResponse {
 pub async fn register_user(
     db: &DatabaseConnection,
     password_worker: &PasswordWorker<Bcrypt>,
-    mailer: &Arc<SmtpTransport>,
+    mailer: Option<&Arc<SmtpTransport>>,
     name: &str,
     email: &str,
     password: &str,
@@ -47,21 +47,35 @@ pub async fn register_user(
     }
 
     let hashed_password = hash_password(password, password_worker).await?;
-    let raw_token: String = rand::thread_rng()
-        .sample_iter(&Alphanumeric)
-        .take(32)
-        .map(char::from)
-        .collect();
-    let hashed_token = hash_token(&raw_token);
-    let user_active = users::ActiveModel {
+    let (raw_token, hashed_token) = if mailer.is_some() {
+        let raw: String = rand::thread_rng()
+            .sample_iter(&Alphanumeric)
+            .take(32)
+            .map(char::from)
+            .collect();
+        let hashed = hash_token(&raw);
+        (Some(raw), Some(hashed))
+    } else {
+        (None, None)
+    };
+    let mut user_active = users::ActiveModel {
         name: Set(name.to_string()),
         email: Set(email.to_string()),
         password: Set(hashed_password),
-        verification_token: Set(Some(hashed_token)),
+        verification_token: Set(hashed_token.clone()),
         ..Default::default()
     };
+    if mailer.is_none() {
+        user_active.email_verified_at = Set(Some(Utc::now()));
+    }
     let user = user_active.insert(db).await?;
-    services::mails::send_verification_email(mailer.clone(), email, &raw_token)?;
+    if let (Some(mailer), Some(raw_token)) = (mailer, raw_token.as_deref()) {
+        services::mails::send_verification_email(mailer.clone(), email, raw_token)?;
+    } else {
+        tracing::info!(
+            "Skipping verification email because SMTP transport is disabled; marking user as verified"
+        );
+    }
 
     Ok(RegisterUserResult { user: user.into() })
 }
@@ -155,7 +169,7 @@ pub async fn verify_email(
 
 pub async fn forgot_password(
     db: &DatabaseConnection,
-    mailer: &Arc<SmtpTransport>,
+    mailer: Option<&Arc<SmtpTransport>>,
     email: &str,
 ) -> Result<(), ApiError> {
     let user = users::Entity::find()
@@ -175,7 +189,11 @@ pub async fn forgot_password(
     user_active.update(db).await?;
 
     let body = format!("Reset token: {}", raw_token);
-    services::mails::send(mailer.clone(), email, "Reset your password", &body)?;
+    if let Some(mailer) = mailer {
+        services::mails::send(mailer.clone(), email, "Reset your password", &body)?;
+    } else {
+        tracing::info!("Skipping password reset email because SMTP transport is disabled");
+    }
     Ok(())
 }
 
@@ -229,7 +247,7 @@ pub async fn confirm_password(
 
 pub async fn resend_verification(
     db: &DatabaseConnection,
-    mailer: &Arc<SmtpTransport>,
+    mailer: Option<&Arc<SmtpTransport>>,
     email: &str,
 ) -> Result<(), ApiError> {
     let user = users::Entity::find()
@@ -253,7 +271,11 @@ pub async fn resend_verification(
     user_active.verification_token = Set(Some(hashed));
     let user = user_active.update(db).await?;
 
-    services::mails::send_verification_email(mailer.clone(), &user.email, &raw_token)?;
+    if let Some(mailer) = mailer {
+        services::mails::send_verification_email(mailer.clone(), &user.email, &raw_token)?;
+    } else {
+        tracing::info!("Skipping verification email resend because SMTP transport is disabled");
+    }
 
     Ok(())
 }
@@ -418,7 +440,15 @@ mod tests {
     async fn register_user_success() {
         let (db, pw, mailer, mut child) = setup(2525).await;
 
-        let res = register_user(&db, &pw, &mailer, "Alice", "user@example.com", "password").await;
+        let res = register_user(
+            &db,
+            &pw,
+            Some(&mailer),
+            "Alice",
+            "user@example.com",
+            "password",
+        )
+        .await;
         assert_eq!(res.unwrap().user.name, "Alice");
 
         child.kill().ok();
@@ -428,11 +458,26 @@ mod tests {
     async fn register_user_conflict() {
         let (db, pw, mailer, mut child) = setup(2626).await;
 
-        register_user(&db, &pw, &mailer, "Bob", "user@example.com", "password")
-            .await
-            .expect("initial insert");
+        register_user(
+            &db,
+            &pw,
+            Some(&mailer),
+            "Bob",
+            "user@example.com",
+            "password",
+        )
+        .await
+        .expect("initial insert");
 
-        let res = register_user(&db, &pw, &mailer, "Tom", "user@example.com", "password").await;
+        let res = register_user(
+            &db,
+            &pw,
+            Some(&mailer),
+            "Tom",
+            "user@example.com",
+            "password",
+        )
+        .await;
         assert!(matches!(res, Err(ApiError::Conflict("user"))));
 
         child.kill().ok();
@@ -511,7 +556,7 @@ mod tests {
         .await
         .unwrap();
 
-        resend_verification(&db, &mailer, "carol@example.com")
+        resend_verification(&db, Some(&mailer), "carol@example.com")
             .await
             .expect("resend should succeed");
 
@@ -544,7 +589,7 @@ mod tests {
         .await
         .unwrap();
 
-        let res = resend_verification(&db, &mailer, "dave@example.com").await;
+        let res = resend_verification(&db, Some(&mailer), "dave@example.com").await;
         assert!(matches!(res, Err(ApiError::BadRequest(_))));
 
         child.kill().ok();

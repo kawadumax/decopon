@@ -1,8 +1,9 @@
 use crate::entities::users;
 use crate::errors::ApiError;
-use sea_orm::{ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter};
 use chrono::{DateTime, Utc};
+use sea_orm::{ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter};
 
+#[derive(Clone, Debug)]
 pub struct User {
     pub id: i32,
     pub email: String,
@@ -12,6 +13,7 @@ pub struct User {
     pub locale: String,
 }
 
+#[derive(Clone, Debug)]
 pub struct UserFull {
     pub id: i32,
     pub email: String,
@@ -79,6 +81,5 @@ pub async fn get_user_by_email(
         .filter(users::Column::Email.eq(email))
         .one(db)
         .await?;
-    user.map(UserFull::from)
-        .ok_or(ApiError::NotFound("user"))
+    user.map(UserFull::from).ok_or(ApiError::NotFound("user"))
 }

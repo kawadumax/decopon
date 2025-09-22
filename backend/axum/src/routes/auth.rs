@@ -13,6 +13,26 @@ use crate::errors::ApiError;
 use crate::services;
 
 #[debug_handler]
+#[tracing::instrument]
+async fn get_single_user_session(
+    State(AppState {
+        single_user_session,
+        ..
+    }): State<AppState>,
+) -> Result<impl IntoResponse, ApiError> {
+    match single_user_session {
+        Some(session) => Ok((
+            StatusCode::OK,
+            Json(AuthResponseDto {
+                token: session.token,
+                user: session.user.into(),
+            }),
+        )),
+        None => Err(ApiError::NotFound("single-user-session")),
+    }
+}
+
+#[debug_handler]
 #[tracing::instrument(skip(db, password_worker, mailer))]
 async fn register_user(
     State(AppState {
@@ -26,7 +46,7 @@ async fn register_user(
     let result = services::auth::register_user(
         &db,
         &password_worker,
-        &mailer,
+        mailer.as_ref(),
         &payload.name,
         &payload.email,
         &payload.password,
@@ -64,6 +84,7 @@ async fn login(
         password_worker,
         mailer: _,
         jwt_secret,
+        ..
     }): State<AppState>,
     Json(payload): Json<LoginRequestDto>,
 ) -> Result<impl IntoResponse, ApiError> {
@@ -98,7 +119,7 @@ async fn forgot_password(
     State(AppState { db, mailer, .. }): State<AppState>,
     Json(payload): Json<ForgotPasswordRequestDto>,
 ) -> Result<StatusCode, ApiError> {
-    services::auth::forgot_password(&db, &mailer, &payload.email).await?;
+    services::auth::forgot_password(&db, mailer.as_ref(), &payload.email).await?;
     Ok(StatusCode::OK)
 }
 
@@ -174,7 +195,7 @@ async fn resend_verification(
     State(AppState { db, mailer, .. }): State<AppState>,
     Json(payload): Json<ResendVerificationRequestDto>,
 ) -> Result<impl IntoResponse, ApiError> {
-    services::auth::resend_verification(&db, &mailer, &payload.email).await?;
+    services::auth::resend_verification(&db, mailer.as_ref(), &payload.email).await?;
 
     Ok((
         StatusCode::OK,
@@ -197,6 +218,7 @@ pub fn routes() -> Router<AppState> {
     Router::<AppState>::new()
         .route("/users", post(register_user).get(get_auth_user))
         .route("/sessions", post(login).delete(logout))
+        .route("/local/session", get(get_single_user_session))
         .route("/password/forgot", post(forgot_password))
         .route("/password/reset", post(reset_password))
         .route("/password/confirm", post(confirm_password))

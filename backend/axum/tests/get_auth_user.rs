@@ -41,8 +41,9 @@ async fn get_auth_user_via_header() {
     let app = routes::auth::routes().with_state(AppState {
         db: db.clone(),
         password_worker,
-        mailer,
+        mailer: Some(mailer),
         jwt_secret: jwt_secret.clone(),
+        single_user_session: None,
     });
 
     let response = app

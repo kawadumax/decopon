@@ -28,8 +28,11 @@ async fn reject_without_token() {
     let state = AppState {
         db: Arc::new(db),
         password_worker: Arc::new(PasswordWorker::new_bcrypt(1).unwrap()),
-        mailer: Arc::new(SmtpTransport::builder_dangerous("localhost").build()),
+        mailer: Some(Arc::new(
+            SmtpTransport::builder_dangerous("localhost").build(),
+        )),
         jwt_secret: "secret".to_string(),
+        single_user_session: None,
     };
 
     let app = Router::new()
@@ -48,8 +51,11 @@ async fn reject_invalid_token() {
     let state = AppState {
         db: Arc::new(db),
         password_worker: Arc::new(PasswordWorker::new_bcrypt(1).unwrap()),
-        mailer: Arc::new(SmtpTransport::builder_dangerous("localhost").build()),
+        mailer: Some(Arc::new(
+            SmtpTransport::builder_dangerous("localhost").build(),
+        )),
         jwt_secret: "secret".to_string(),
+        single_user_session: None,
     };
 
     let app = Router::new()
@@ -74,8 +80,11 @@ async fn accept_valid_token() {
     let state = AppState {
         db: Arc::new(db),
         password_worker: Arc::new(PasswordWorker::new_bcrypt(1).unwrap()),
-        mailer: Arc::new(SmtpTransport::builder_dangerous("localhost").build()),
+        mailer: Some(Arc::new(
+            SmtpTransport::builder_dangerous("localhost").build(),
+        )),
         jwt_secret,
+        single_user_session: None,
     };
 
     let app = Router::new()

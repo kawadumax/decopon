@@ -20,12 +20,15 @@ use std::sync::Arc;
 use tower_http::cors::{Any, CorsLayer};
 use tracing_subscriber::{EnvFilter, fmt, layer::SubscriberExt, util::SubscriberInitExt};
 
+use services::single_user::SingleUserSession;
+
 #[derive(Clone)]
 pub struct AppState {
     pub db: Arc<DatabaseConnection>,
     pub password_worker: Arc<PasswordWorker<Bcrypt>>,
-    pub mailer: Arc<lettre::SmtpTransport>,
+    pub mailer: Option<Arc<lettre::SmtpTransport>>,
     pub jwt_secret: String,
+    pub single_user_session: Option<SingleUserSession>,
 }
 
 impl FromRef<AppState> for Arc<DatabaseConnection> {
@@ -40,9 +43,15 @@ impl FromRef<AppState> for Arc<PasswordWorker<Bcrypt>> {
     }
 }
 
-impl FromRef<AppState> for Arc<lettre::SmtpTransport> {
+impl FromRef<AppState> for Option<Arc<lettre::SmtpTransport>> {
     fn from_ref(state: &AppState) -> Self {
         state.mailer.clone()
+    }
+}
+
+impl FromRef<AppState> for Option<SingleUserSession> {
+    fn from_ref(state: &AppState) -> Self {
+        state.single_user_session.clone()
     }
 }
 

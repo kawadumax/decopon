@@ -1,16 +1,63 @@
-use lettre::message::{header::ContentType, Mailbox};
+use lettre::message::{Mailbox, header::ContentType};
 use lettre::transport::smtp::response::Response;
 use lettre::{Message, SmtpTransport, Transport};
 use std::env;
 use std::sync::Arc;
+use tracing::{info, warn};
 
 use crate::errors::ApiError;
 
-pub fn setup_mailer() -> Result<Arc<SmtpTransport>, ApiError> {
+fn is_truthy(value: &str) -> bool {
+    matches!(
+        value.trim().to_ascii_lowercase().as_str(),
+        "1" | "true" | "yes" | "on"
+    )
+}
+
+fn smtp_disabled() -> bool {
+    if let Ok(value) = env::var("AXUM_DISABLE_SMTP") {
+        if is_truthy(&value) {
+            return true;
+        }
+    }
+
+    if let Ok(value) = env::var("APP_SINGLE_USER_MODE") {
+        if is_truthy(&value) {
+            return true;
+        }
+    }
+
+    false
+}
+
+pub fn setup_mailer() -> Result<Option<Arc<SmtpTransport>>, ApiError> {
+    if smtp_disabled() {
+        info!("SMTP transport is disabled by configuration");
+        return Ok(None);
+    }
+
     // Load SMTP server credentials from environment variables
-    let smtp_server = env::var("AXUM_SMTP_SERVER")?;
-    let smtp_username = env::var("AXUM_SMTP_USERNAME")?;
-    let smtp_password = env::var("AXUM_SMTP_PASSWORD")?;
+    let smtp_server = match env::var("AXUM_SMTP_SERVER") {
+        Ok(value) => value,
+        Err(_) => {
+            warn!("AXUM_SMTP_SERVER is not set; skipping SMTP setup");
+            return Ok(None);
+        }
+    };
+    let smtp_username = match env::var("AXUM_SMTP_USERNAME") {
+        Ok(value) => value,
+        Err(_) => {
+            warn!("AXUM_SMTP_USERNAME is not set; skipping SMTP setup");
+            return Ok(None);
+        }
+    };
+    let smtp_password = match env::var("AXUM_SMTP_PASSWORD") {
+        Ok(value) => value,
+        Err(_) => {
+            warn!("AXUM_SMTP_PASSWORD is not set; skipping SMTP setup");
+            return Ok(None);
+        }
+    };
 
     // Create SMTP transport
     let creds =
@@ -19,15 +66,13 @@ pub fn setup_mailer() -> Result<Arc<SmtpTransport>, ApiError> {
         .credentials(creds)
         .build();
 
-    Ok(Arc::new(mailer))
+    Ok(Some(Arc::new(mailer)))
 }
 
 fn get_from() -> Result<Mailbox, ApiError> {
     let name = env::var("AXUM_MAIL_FROM_NAME").unwrap_or_else(|_| "Default Name".to_string());
     let email = env::var("AXUM_MAIL_FROM_EMAIL")?;
-    let address = email
-        .parse()
-        .map_err(|e| ApiError::Internal(Box::new(e)))?;
+    let address = email.parse().map_err(|e| ApiError::Internal(Box::new(e)))?;
     Ok(Mailbox::new(Some(name), address))
 }
 
@@ -39,9 +84,7 @@ pub fn send(
 ) -> Result<Response, ApiError> {
     let to = Mailbox::new(
         Some(subject.to_owned()),
-        email
-            .parse()
-            .map_err(|e| ApiError::Internal(Box::new(e)))?,
+        email.parse().map_err(|e| ApiError::Internal(Box::new(e)))?,
     );
     let from = get_from()?;
 
@@ -62,7 +105,8 @@ pub fn send_verification_email(
     email: &str,
     token: &str,
 ) -> Result<(), ApiError> {
-    let frontend_url = env::var("FRONTEND_URL").unwrap_or_else(|_| "http://localhost:5173".to_string());
+    let frontend_url =
+        env::var("FRONTEND_URL").unwrap_or_else(|_| "http://localhost:5173".to_string());
     let url = format!(
         "{}/guest/verify-email/{}",
         frontend_url.trim_end_matches('/'),
@@ -90,6 +134,10 @@ mod tests {
     #[ignore = "外部サービスにメール送信するため通常はスキップ"]
     fn one_shot() {
         dotenv().ok();
+        unsafe {
+            std::env::set_var("AXUM_DISABLE_SMTP", "0");
+            std::env::set_var("APP_SINGLE_USER_MODE", "0");
+        }
 
         let from = get_from().expect("from address");
 
@@ -101,7 +149,9 @@ mod tests {
             .body(String::from("Be happy!"))
             .unwrap();
 
-        let mailer = setup_mailer().expect("Failed to set up mailer");
+        let mailer = setup_mailer()
+            .expect("Failed to set up mailer")
+            .expect("SMTP transport should be configured for this test");
 
         match mailer.send(&email) {
             Ok(_) => println!("Email sent successfully!"),

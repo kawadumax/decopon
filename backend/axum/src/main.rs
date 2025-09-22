@@ -24,8 +24,24 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // メール送信の設定
     let mailer = services::mails::setup_mailer()?;
+    if mailer.is_none() {
+        info!("SMTP transport is disabled or not configured; email features are inactive");
+    }
 
     let jwt_secret = setup_jwt_secret()?;
+
+    let single_user_mode = env::var("APP_SINGLE_USER_MODE")
+        .map(|value| value == "1" || value.eq_ignore_ascii_case("true"))
+        .unwrap_or(false);
+
+    let single_user_session = if single_user_mode {
+        Some(
+            services::single_user::ensure_user(db.as_ref(), password_worker.as_ref(), &jwt_secret)
+                .await?,
+        )
+    } else {
+        None
+    };
 
     // CORS設定
     let cors = setup_cors();
@@ -36,6 +52,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         password_worker: password_worker.clone(),
         mailer: mailer.clone(),
         jwt_secret: jwt_secret.clone(),
+        single_user_session,
     };
 
     // build our application with routes

@@ -27,8 +27,9 @@ async fn logout_returns_no_content() {
     let app = routes::auth::routes().with_state(AppState {
         db: db.clone(),
         password_worker,
-        mailer,
+        mailer: Some(mailer),
         jwt_secret,
+        single_user_session: None,
     });
 
     let response = app
@@ -91,8 +92,9 @@ async fn delete_tags_returns_no_content() {
     let app = routes::tags::routes().with_state(AppState {
         db: db.clone(),
         password_worker,
-        mailer,
+        mailer: Some(mailer),
         jwt_secret,
+        single_user_session: None,
     });
 
     let auth_user = AuthenticatedUser {
