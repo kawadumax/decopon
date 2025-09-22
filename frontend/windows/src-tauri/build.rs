@@ -1,18 +1,27 @@
+fn build_sidecar(path: &str, profile: &str) {
+    let mut command = std::process::Command::new("cargo");
+    command.arg("build");
+
+    if profile == "release" {
+        command.arg("--release");
+    }
+
+    let status = command
+        .current_dir(path)
+        .status()
+        .unwrap_or_else(|err| panic!("failed to build sidecar at {path}: {err}"));
+
+    assert!(status.success(), "sidecar build failed for {}", path);
+}
+
 fn main() {
     tauri_build::build();
-    // Build backend sidecar in release mode so Tauri can bundle it
-    let status = std::process::Command::new("cargo")
-        .args(["build", "--release"])
-        .current_dir("../../../backend/axum")
-        .status()
-        .expect("failed to build decopon-axum sidecar");
-    assert!(status.success(), "decopon-axum build failed");
+
+    let profile = std::env::var("PROFILE").unwrap_or_else(|_| "release".to_string());
+
+    // Build backend sidecar so Tauri can bundle it in production
+    build_sidecar("../../../backend/axum", &profile);
 
     // Build migration sidecar to ensure database can be initialized
-    let status = std::process::Command::new("cargo")
-        .args(["build", "--release"])
-        .current_dir("../../../backend/axum/migration")
-        .status()
-        .expect("failed to build migration sidecar");
-    assert!(status.success(), "migration build failed");
+    build_sidecar("../../../backend/axum/migration", &profile);
 }
