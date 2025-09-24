@@ -85,11 +85,11 @@ importers:
         specifier: 'catalog:'
         version: 5.8.3
 
-  frontend/windows:
+  frontend/app/windows:
     dependencies:
       '@decopon/core':
         specifier: workspace:*
-        version: link:../core
+        version: link:../../core
       '@tauri-apps/api':
         specifier: ^2
         version: 2.5.0

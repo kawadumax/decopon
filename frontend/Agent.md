@@ -2,12 +2,13 @@
 pnpm workspaceを用いてモノレポ構成となっています。
 Reactを用いています。
 
-基本的に、coreから提供されるAppコンポーネントを使ってwebおよびappをビルドする構成となっています。
+基本的に、coreから提供されるAppコンポーネントを使ってwebおよびappをビルドする構成となっています。Tauri 向けエントリーポイントは `frontend/app` に集約され、プラットフォーム固有部分から共通の React/Vite 構成を参照します。
 
 ## パッケージ構成
 - `core`: デザインシステムと共通ロジック。`pnpm -F core build` で dist を更新し、`pnpm core:storybook` で Storybook を起動できます。
 - `web`: ブラウザ向けフロントエンド。Vite + React を利用しており `pnpm web:dev` で開発サーバーが立ち上がります。
-- `windows`: Tauri を用いたデスクトップアプリ。`pnpm windows:dev` で Tauri DevTools を含む開発環境が起動します。
+- `app/shared`: React + Vite のエントリーポイントや HTML テンプレート、共通設定を保持します。将来的に別プラットフォームを追加する際もここを再利用します。
+- `app/windows`: Tauri を用いたデスクトップアプリ。`app/shared` のエントリーポイントを再利用しつつ、Windows 固有の `src-tauri` 設定やサイドカーを保持します。`pnpm -F @decopon/app-windows dev` や `pnpm windows:dev` で Tauri DevTools を含む開発環境が起動します。
 
 ## セットアップとコマンド
 1. ルートで `pnpm install` を実行します（`package.json5` のスクリプトを参照）。

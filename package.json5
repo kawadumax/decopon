@@ -19,8 +19,8 @@
     "web:preview": "pnpm -F web preview",
     "core:gen-routes": "pnpm -F core gen-routes",
     "core:storybook": "pnpm -F core storybook",
-    "windows:build": "pnpm -F core build && pnpm -F @decopon/windows tauri build",
-    "windows:dev": "pnpm -F @decopon/windows tauri dev"
+    "windows:build": "pnpm -F core build && pnpm -F @decopon/app-windows tauri build",
+    "windows:dev": "pnpm -F @decopon/app-windows tauri dev"
   },
   "packageManager": "pnpm@10.11.0",
   "dependencies": {

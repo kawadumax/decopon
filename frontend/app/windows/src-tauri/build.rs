@@ -20,8 +20,8 @@ fn main() {
     let profile = std::env::var("PROFILE").unwrap_or_else(|_| "release".to_string());
 
     // Build backend sidecar so Tauri can bundle it in production
-    build_sidecar("../../../backend/axum", &profile);
+    build_sidecar("../../../../backend/axum", &profile);
 
     // Build migration sidecar to ensure database can be initialized
-    build_sidecar("../../../backend/axum/migration", &profile);
+    build_sidecar("../../../../backend/axum/migration", &profile);
 }

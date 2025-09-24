@@ -3,10 +3,17 @@ import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react-swc";
 import { defineConfig } from "vite";
 import svgr from "vite-plugin-svgr";
-import { alias } from "../vite.aliases";
+import { alias } from "../../vite.aliases";
+
 const host = process.env.TAURI_DEV_HOST;
+const sharedRoot = path.resolve(__dirname, "../shared");
 
 export default defineConfig(() => ({
+  root: sharedRoot,
+  build: {
+    outDir: path.resolve(__dirname, "dist"),
+    emptyOutDir: true,
+  },
   plugins: [
     tailwindcss(),
     react(),
@@ -17,7 +24,7 @@ export default defineConfig(() => ({
       },
     }),
   ],
-  publicDir: path.resolve(__dirname, "../core/public"),
+  publicDir: path.resolve(__dirname, "../../core/public"),
 
   // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
   //
@@ -36,7 +43,7 @@ export default defineConfig(() => ({
         }
       : undefined,
     fs: {
-      allow: [path.resolve(__dirname, "../")],
+      allow: [sharedRoot, path.resolve(__dirname, "../../")],
     },
     watch: {
       // 3. tell vite to ignore watching `src-tauri`

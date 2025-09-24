@@ -1,5 +1,5 @@
 {
-  "extends": ["../../tsconfig.base.json", "../tsconfig.paths.json"],
+  "extends": ["../../../tsconfig.base.json", "../../tsconfig.paths.json"],
   "compilerOptions": {
     "target": "ES2020",
     "useDefineForClassFields": true,
@@ -16,11 +16,11 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "baseUrl": "."
+    "baseUrl": "../shared"
   },
 
   /* Type checking */
-  "include": ["src/**/*"],
+  "include": ["../shared/src/**/*"],
   "exclude": ["node_modules", "dist", "vite.config.ts"],
-  "references": [{ "path": "../core" }]
+  "references": [{ "path": "../../core" }]
 }

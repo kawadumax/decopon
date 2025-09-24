@@ -35,11 +35,11 @@
   "sidecar": [
     {
       "name": "decopon-axum",
-      "path": "../../../backend/axum"
+      "path": "../../../../backend/axum"
     },
     {
       "name": "migration",
-      "path": "../../../backend/axum/migration"
+      "path": "../../../../backend/axum/migration"
     }
   ]
 }
