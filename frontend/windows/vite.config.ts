@@ -44,4 +44,9 @@ export default defineConfig(() => ({
     },
   },
   resolve: { alias },
+  define: {
+    "import.meta.env.VITE_APP_SINGLE_USER_MODE": JSON.stringify(
+      process.env.VITE_APP_SINGLE_USER_MODE ?? "1",
+    ),
+  },
 }));

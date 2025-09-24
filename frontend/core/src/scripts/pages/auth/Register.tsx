@@ -22,7 +22,7 @@ export default function Register() {
         try {
           await AuthService.register(value);
           navigate({
-            to: "/guest/verify-email/",
+            to: "/guest/verify-email",
             search: { email: value.email },
           });
         } catch (error) {
