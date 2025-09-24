@@ -5,7 +5,7 @@ use sea_orm::{ActiveModelTrait, Database, Set};
 
 use decopon_axum::{
     entities::users,
-    services::decopon_sessions::{self, DecoponSessionUpdate, NewDecoponSession},
+    usecases::decopon_sessions::{self, DecoponSessionUpdate, NewDecoponSession},
 };
 use migration::{Migrator, MigratorTrait};
 

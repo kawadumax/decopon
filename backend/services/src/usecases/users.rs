@@ -1,5 +1,5 @@
 use crate::entities::users;
-use crate::errors::ApiError;
+use crate::errors::ServiceError;
 use chrono::{DateTime, Utc};
 use sea_orm::{ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter};
 
@@ -68,18 +68,19 @@ impl From<UserFull> for User {
     }
 }
 
-pub async fn get_user_by_id(db: &DatabaseConnection, user_id: i32) -> Result<User, ApiError> {
+pub async fn get_user_by_id(db: &DatabaseConnection, user_id: i32) -> Result<User, ServiceError> {
     let user = users::Entity::find_by_id(user_id).one(db).await?;
-    user.map(User::from).ok_or(ApiError::NotFound("user"))
+    user.map(User::from).ok_or(ServiceError::NotFound("user"))
 }
 
 pub async fn get_user_by_email(
     db: &DatabaseConnection,
     email: &String,
-) -> Result<UserFull, ApiError> {
+) -> Result<UserFull, ServiceError> {
     let user = users::Entity::find()
         .filter(users::Column::Email.eq(email))
         .one(db)
         .await?;
-    user.map(UserFull::from).ok_or(ApiError::NotFound("user"))
+    user.map(UserFull::from)
+        .ok_or(ServiceError::NotFound("user"))
 }

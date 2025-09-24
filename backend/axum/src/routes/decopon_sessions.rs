@@ -1,6 +1,6 @@
 use axum::{
-    extract::{Path, Query, State},
     Extension, Json, Router,
+    extract::{Path, Query, State},
     http::StatusCode,
     routing::get,
 };
@@ -11,7 +11,7 @@ use std::sync::Arc;
 
 use crate::{
     AppState, dto::decopon_sessions::*, errors::ApiError,
-    extractors::authenticated_user::AuthenticatedUser, services::decopon_sessions,
+    extractors::authenticated_user::AuthenticatedUser, usecases::decopon_sessions,
 };
 
 #[debug_handler]
@@ -19,11 +19,11 @@ use crate::{
 async fn index(
     State(db): State<Arc<DatabaseConnection>>,
     Extension(user): Extension<AuthenticatedUser>,
-) -> Result<Json<Vec<DecoponSessionResponseDto>>, ApiError> {
+) -> Result<Json<Vec<DecoponSessionResponse>>, ApiError> {
     let sessions = decopon_sessions::get_sessions(&db, user.id).await?;
     let sessions = sessions
         .into_iter()
-        .map(DecoponSessionResponseDto::from)
+        .map(DecoponSessionResponse::from)
         .collect();
     Ok(Json(sessions))
 }
@@ -34,9 +34,9 @@ async fn show(
     Path(id): Path<i32>,
     State(db): State<Arc<DatabaseConnection>>,
     Extension(user): Extension<AuthenticatedUser>,
-) -> Result<Json<DecoponSessionResponseDto>, ApiError> {
+) -> Result<Json<DecoponSessionResponse>, ApiError> {
     let session = decopon_sessions::get_session_by_id(&db, id, user.id).await?;
-    Ok(Json(DecoponSessionResponseDto::from(session)))
+    Ok(Json(DecoponSessionResponse::from(session)))
 }
 
 #[debug_handler]
@@ -44,8 +44,8 @@ async fn show(
 async fn store(
     State(db): State<Arc<DatabaseConnection>>,
     Extension(user): Extension<AuthenticatedUser>,
-    Json(payload): Json<StoreDecoponSessionRequestDto>,
-) -> Result<Json<DecoponSessionResponseDto>, ApiError> {
+    Json(payload): Json<StoreDecoponSessionRequest>,
+) -> Result<Json<DecoponSessionResponse>, ApiError> {
     let params = decopon_sessions::NewDecoponSession {
         status: payload.status,
         started_at: payload.started_at,
@@ -53,7 +53,7 @@ async fn store(
         user_id: user.id,
     };
     let session = decopon_sessions::insert_session(&db, params).await?;
-    Ok(Json(DecoponSessionResponseDto::from(session)))
+    Ok(Json(DecoponSessionResponse::from(session)))
 }
 
 #[debug_handler]
@@ -62,8 +62,8 @@ async fn update(
     Path(id): Path<i32>,
     State(db): State<Arc<DatabaseConnection>>,
     Extension(user): Extension<AuthenticatedUser>,
-    Json(payload): Json<UpdateDecoponSessionRequestDto>,
-) -> Result<Json<DecoponSessionResponseDto>, ApiError> {
+    Json(payload): Json<UpdateDecoponSessionRequest>,
+) -> Result<Json<DecoponSessionResponse>, ApiError> {
     let params = decopon_sessions::DecoponSessionUpdate {
         id,
         status: payload.status,
@@ -71,7 +71,7 @@ async fn update(
         user_id: user.id,
     };
     let session = decopon_sessions::update_session(&db, params).await?;
-    Ok(Json(DecoponSessionResponseDto::from(session)))
+    Ok(Json(DecoponSessionResponse::from(session)))
 }
 
 #[debug_handler]
@@ -86,7 +86,7 @@ async fn destroy(
 }
 
 #[derive(Debug, serde::Deserialize)]
-struct CycleQueryDto {
+struct CycleQuery {
     date: String,
 }
 
@@ -95,12 +95,12 @@ struct CycleQueryDto {
 async fn cycles(
     State(db): State<Arc<DatabaseConnection>>,
     Extension(user): Extension<AuthenticatedUser>,
-    Query(q): Query<CycleQueryDto>,
-) -> Result<Json<CycleCountResponseDto>, ApiError> {
+    Query(q): Query<CycleQuery>,
+) -> Result<Json<CycleCountResponse>, ApiError> {
     let date = NaiveDate::parse_from_str(&q.date, "%Y-%m-%d")
         .map_err(|e| ApiError::BadRequest(e.to_string()))?;
     let count = decopon_sessions::count_completed_sessions_on(&db, user.id, date).await?;
-    Ok(Json(CycleCountResponseDto {
+    Ok(Json(CycleCountResponse {
         date: q.date,
         count,
     }))

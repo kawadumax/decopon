@@ -1,10 +1,10 @@
 use axum::http::Request;
 use decopon_axum::{
-    AppState, routes, services, setup_cors, setup_database, setup_jwt_secret,
-    setup_password_worker, setup_tracing_subscriber,
+    AppState, ServiceContext, routes, setup_cors, setup_database, setup_jwt_secret,
+    setup_password_worker, setup_tracing_subscriber, usecases,
 };
 use dotenvy::dotenv;
-use std::{env, net::SocketAddr};
+use std::{env, net::SocketAddr, sync::Arc};
 use tower_http::trace::TraceLayer;
 use tracing::{info, info_span};
 
@@ -23,7 +23,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let password_worker = setup_password_worker()?;
 
     // メール送信の設定
-    let mailer = services::mails::setup_mailer()?;
+    let mailer = usecases::mails::setup_mailer()
+        .map_err(|err| -> Box<dyn std::error::Error> { Box::new(err) })?;
     if mailer.is_none() {
         info!("SMTP transport is disabled or not configured; email features are inactive");
     }
@@ -36,8 +37,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let single_user_session = if single_user_mode {
         Some(
-            services::single_user::ensure_user(db.as_ref(), password_worker.as_ref(), &jwt_secret)
-                .await?,
+            usecases::single_user::ensure_user(db.as_ref(), password_worker.as_ref(), &jwt_secret)
+                .await
+                .map_err(|err| -> Box<dyn std::error::Error> { Box::new(err) })?,
         )
     } else {
         None
@@ -47,13 +49,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cors = setup_cors();
 
     // アプリケーション状態を構築
-    let app_state = AppState {
-        db: db.clone(),
-        password_worker: password_worker.clone(),
-        mailer: mailer.clone(),
-        jwt_secret: jwt_secret.clone(),
-        single_user_session,
-    };
+    let service_context =
+        ServiceContext::builder(db.clone(), password_worker.clone(), jwt_secret.clone())
+            .mailer(mailer.clone())
+            .single_user_session(single_user_session)
+            .build();
+    let app_state = AppState::new(Arc::new(service_context));
 
     // build our application with routes
     let app = routes::create_routes(app_state.clone())

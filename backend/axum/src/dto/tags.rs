@@ -1,10 +1,10 @@
 use sea_orm::prelude::DateTimeUtc;
 use serde::{Deserialize, Serialize};
 
-use crate::services::tags::Tag;
+use crate::usecases::tags::Tag;
 
 #[derive(Serialize)]
-pub struct TagResponseDto {
+pub struct TagResponse {
     pub id: i32,
     pub name: String,
     pub created_at: DateTimeUtc,
@@ -12,7 +12,7 @@ pub struct TagResponseDto {
     pub task_count: u64,
 }
 
-impl From<Tag> for TagResponseDto {
+impl From<Tag> for TagResponse {
     fn from(tag: Tag) -> Self {
         Self {
             id: tag.id,
@@ -25,17 +25,17 @@ impl From<Tag> for TagResponseDto {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct StoreTagRequestDto {
+pub struct StoreTagRequest {
     pub name: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct TagRelationRequestDto {
+pub struct TagRelationRequest {
     pub task_id: i32,
     pub name: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct DeleteTagsRequestDto {
+pub struct DeleteTagsRequest {
     pub tag_ids: Vec<i32>,
 }

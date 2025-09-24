@@ -1,6 +1,6 @@
 use crate::{
     entities::{prelude::*, *},
-    errors::ApiError,
+    errors::ServiceError,
 };
 
 use sea_orm::{
@@ -13,7 +13,7 @@ async fn attach_tags_inner(
     db: &impl ConnectionTrait, // DB connection or transaction
     task_id: i32,
     tag_ids: Vec<i32>,
-) -> Result<(), ApiError> {
+) -> Result<(), ServiceError> {
     let unique_tag_ids: HashSet<i32> = tag_ids.into_iter().collect();
     for tag_id in unique_tag_ids {
         let exists = TagTask::find()
@@ -38,7 +38,7 @@ pub async fn attach_tags(
     db: &DatabaseConnection,
     task_id: i32,
     tag_ids: Vec<i32>,
-) -> Result<(), ApiError> {
+) -> Result<(), ServiceError> {
     // create transaction to ensure atomicity
     let txn = db.begin().await?;
     attach_tags_inner(&txn, task_id, tag_ids).await?;
@@ -49,7 +49,7 @@ pub async fn sync_tags(
     db: &impl ConnectionTrait,
     task_id: i32,
     new_tag_ids: Vec<i32>,
-) -> Result<(), ApiError> {
+) -> Result<(), ServiceError> {
     // 既存のリレーションを全て削除
     TagTask::delete_many()
         .filter(tag_task::Column::TaskId.eq(task_id))
@@ -63,7 +63,7 @@ async fn detach_tags_inner(
     db: &impl ConnectionTrait, // accepts transaction or connection
     task_id: i32,
     tag_ids: Vec<i32>,
-) -> Result<(), ApiError> {
+) -> Result<(), ServiceError> {
     for tag_id in tag_ids {
         TagTask::delete_many()
             .filter(tag_task::Column::TaskId.eq(task_id))
@@ -78,7 +78,7 @@ pub async fn detach_tags(
     db: &DatabaseConnection,
     task_id: i32,
     tag_ids: Vec<i32>,
-) -> Result<(), ApiError> {
+) -> Result<(), ServiceError> {
     // create transaction to ensure atomicity
     let txn = db.begin().await?;
     detach_tags_inner(&txn, task_id, tag_ids).await?;

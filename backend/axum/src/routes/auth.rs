@@ -10,20 +10,17 @@ use axum_macros::debug_handler;
 use crate::AppState;
 use crate::dto::auth::*;
 use crate::errors::ApiError;
-use crate::services;
+use crate::usecases;
 
 #[debug_handler]
-#[tracing::instrument]
+#[tracing::instrument(skip(app_state))]
 async fn get_single_user_session(
-    State(AppState {
-        single_user_session,
-        ..
-    }): State<AppState>,
+    State(app_state): State<AppState>,
 ) -> Result<impl IntoResponse, ApiError> {
-    match single_user_session {
+    match app_state.single_user_session() {
         Some(session) => Ok((
             StatusCode::OK,
-            Json(AuthResponseDto {
+            Json(AuthResponse {
                 token: session.token,
                 user: session.user.into(),
             }),
@@ -33,20 +30,15 @@ async fn get_single_user_session(
 }
 
 #[debug_handler]
-#[tracing::instrument(skip(db, password_worker, mailer))]
+#[tracing::instrument(skip(app_state, payload))]
 async fn register_user(
-    State(AppState {
-        db,
-        password_worker,
-        mailer,
-        ..
-    }): State<AppState>,
-    Json(payload): Json<RegisterUserRequestDto>,
+    State(app_state): State<AppState>,
+    Json(payload): Json<RegisterUserRequest>,
 ) -> Result<impl IntoResponse, ApiError> {
-    let result = services::auth::register_user(
-        &db,
-        &password_worker,
-        mailer.as_ref(),
+    let result = usecases::auth::register_user(
+        app_state.db(),
+        app_state.password_worker(),
+        app_state.mailer(),
         &payload.name,
         &payload.email,
         &payload.password,
@@ -54,44 +46,40 @@ async fn register_user(
     .await?;
     Ok((
         StatusCode::CREATED,
-        Json(RegisterUserResponseDto {
+        Json(RegisterUserResponse {
             user: result.user.into(),
         }),
     ))
 }
 
 #[debug_handler]
-#[tracing::instrument(skip(db, jwt_secret, headers))]
+#[tracing::instrument(skip(app_state, headers))]
 async fn get_auth_user(
-    State(AppState { db, jwt_secret, .. }): State<AppState>,
+    State(app_state): State<AppState>,
     headers: HeaderMap,
 ) -> Result<impl IntoResponse, ApiError> {
     let token = extract_bearer_token(&headers)?;
     tracing::info!(%token, "extracted token");
 
-    let user = services::auth::get_auth_user_from_token(&db, token, &jwt_secret).await?;
+    let user =
+        usecases::auth::get_auth_user_from_token(app_state.db(), token, app_state.jwt_secret())
+            .await?;
     Ok((
         StatusCode::OK,
-        Json(GetAuthUserResponseDto { user: user.into() }),
+        Json(GetAuthUserResponse { user: user.into() }),
     ))
 }
 
 #[debug_handler]
-#[tracing::instrument(skip(db, password_worker, jwt_secret))]
+#[tracing::instrument(skip(app_state, payload))]
 async fn login(
-    State(AppState {
-        db,
-        password_worker,
-        mailer: _,
-        jwt_secret,
-        ..
-    }): State<AppState>,
-    Json(payload): Json<LoginRequestDto>,
+    State(app_state): State<AppState>,
+    Json(payload): Json<LoginRequest>,
 ) -> Result<impl IntoResponse, ApiError> {
-    let result = services::auth::login_user(
-        &db,
-        &password_worker,
-        &jwt_secret,
+    let result = usecases::auth::login_user(
+        app_state.db(),
+        app_state.password_worker(),
+        app_state.jwt_secret(),
         &payload.email,
         &payload.password,
     )
@@ -99,7 +87,7 @@ async fn login(
 
     Ok((
         StatusCode::OK,
-        Json(AuthResponseDto {
+        Json(AuthResponse {
             token: result.token,
             user: result.user.into(),
         }),
@@ -114,28 +102,24 @@ async fn logout() -> StatusCode {
 }
 
 #[debug_handler]
-#[tracing::instrument(skip(db, mailer))]
+#[tracing::instrument(skip(app_state, payload))]
 async fn forgot_password(
-    State(AppState { db, mailer, .. }): State<AppState>,
-    Json(payload): Json<ForgotPasswordRequestDto>,
+    State(app_state): State<AppState>,
+    Json(payload): Json<ForgotPasswordRequest>,
 ) -> Result<StatusCode, ApiError> {
-    services::auth::forgot_password(&db, mailer.as_ref(), &payload.email).await?;
+    usecases::auth::forgot_password(app_state.db(), app_state.mailer(), &payload.email).await?;
     Ok(StatusCode::OK)
 }
 
 #[debug_handler]
-#[tracing::instrument(skip(db, password_worker))]
+#[tracing::instrument(skip(app_state, payload))]
 async fn reset_password(
-    State(AppState {
-        db,
-        password_worker,
-        ..
-    }): State<AppState>,
-    Json(payload): Json<ResetPasswordRequestDto>,
+    State(app_state): State<AppState>,
+    Json(payload): Json<ResetPasswordRequest>,
 ) -> Result<StatusCode, ApiError> {
-    services::auth::reset_password(
-        &db,
-        &password_worker,
+    usecases::auth::reset_password(
+        app_state.db(),
+        app_state.password_worker(),
         &payload.token,
         &payload.email,
         &payload.password,
@@ -144,15 +128,16 @@ async fn reset_password(
     Ok(StatusCode::OK)
 }
 #[debug_handler]
-#[tracing::instrument(skip(db, jwt_secret))]
+#[tracing::instrument(skip(app_state, token))]
 async fn verify_email(
-    State(AppState { db, jwt_secret, .. }): State<AppState>,
+    State(app_state): State<AppState>,
     Path(token): Path<String>,
 ) -> Result<impl IntoResponse, ApiError> {
-    let result = services::auth::verify_email(&db, token, &jwt_secret).await?;
+    let result =
+        usecases::auth::verify_email(app_state.db(), token, app_state.jwt_secret()).await?;
     Ok((
         StatusCode::OK,
-        Json(AuthResponseDto {
+        Json(AuthResponse {
             token: result.token,
             user: result.user.into(),
         }),
@@ -160,22 +145,17 @@ async fn verify_email(
 }
 
 #[debug_handler]
-#[tracing::instrument(skip(db, password_worker, jwt_secret, headers))]
+#[tracing::instrument(skip(app_state, headers, payload))]
 async fn confirm_password(
-    State(AppState {
-        db,
-        password_worker,
-        jwt_secret,
-        ..
-    }): State<AppState>,
+    State(app_state): State<AppState>,
     headers: HeaderMap,
-    Json(payload): Json<ConfirmPasswordRequestDto>,
+    Json(payload): Json<ConfirmPasswordRequest>,
 ) -> Result<impl IntoResponse, ApiError> {
     let token = extract_bearer_token(&headers)?;
-    services::auth::confirm_password(
-        &db,
-        &password_worker,
-        &jwt_secret,
+    usecases::auth::confirm_password(
+        app_state.db(),
+        app_state.password_worker(),
+        app_state.jwt_secret(),
         &token,
         &payload.password,
     )
@@ -183,23 +163,23 @@ async fn confirm_password(
 
     Ok((
         StatusCode::OK,
-        Json(StatusResponseDto {
+        Json(StatusResponse {
             status: "password-confirmed".to_string(),
         }),
     ))
 }
 
 #[debug_handler]
-#[tracing::instrument(skip(db, mailer))]
+#[tracing::instrument(skip(app_state, payload))]
 async fn resend_verification(
-    State(AppState { db, mailer, .. }): State<AppState>,
-    Json(payload): Json<ResendVerificationRequestDto>,
+    State(app_state): State<AppState>,
+    Json(payload): Json<ResendVerificationRequest>,
 ) -> Result<impl IntoResponse, ApiError> {
-    services::auth::resend_verification(&db, mailer.as_ref(), &payload.email).await?;
+    usecases::auth::resend_verification(app_state.db(), app_state.mailer(), &payload.email).await?;
 
     Ok((
         StatusCode::OK,
-        Json(StatusResponseDto {
+        Json(StatusResponse {
             status: "verification-link-sent".to_string(),
         }),
     ))

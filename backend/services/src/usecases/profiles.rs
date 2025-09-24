@@ -1,4 +1,8 @@
-use crate::{entities::users, errors::ApiError, services};
+use crate::{
+    entities::users,
+    errors::ServiceError,
+    usecases::{auth, users as user_usecase},
+};
 use axum_password_worker::{Bcrypt, PasswordWorker};
 use chrono::Utc;
 use sea_orm::{ActiveModelTrait, ActiveValue, DatabaseConnection, EntityTrait};
@@ -20,9 +24,9 @@ pub struct DeleteProfile {
 pub async fn get_profile(
     db: &DatabaseConnection,
     user_id: i32,
-) -> Result<services::users::User, ApiError> {
+) -> Result<user_usecase::User, ServiceError> {
     let user = users::Entity::find_by_id(user_id).one(db).await?;
-    let user = user.ok_or(ApiError::NotFound("user"))?;
+    let user = user.ok_or(ServiceError::NotFound("user"))?;
     Ok(user.into())
 }
 
@@ -30,11 +34,11 @@ pub async fn update_profile(
     db: &DatabaseConnection,
     user_id: i32,
     params: UpdateProfile,
-) -> Result<services::users::User, ApiError> {
+) -> Result<user_usecase::User, ServiceError> {
     let mut user: users::ActiveModel = users::Entity::find_by_id(user_id)
         .one(db)
         .await?
-        .ok_or(ApiError::NotFound("user"))?
+        .ok_or(ServiceError::NotFound("user"))?
         .into();
 
     if let Some(name) = params.name {
@@ -57,21 +61,20 @@ pub async fn update_password(
     password_worker: &PasswordWorker<Bcrypt>,
     user_id: i32,
     params: UpdatePassword,
-) -> Result<(), ApiError> {
+) -> Result<(), ServiceError> {
     let user = users::Entity::find_by_id(user_id)
         .one(db)
         .await?
-        .ok_or(ApiError::NotFound("user"))?;
+        .ok_or(ServiceError::NotFound("user"))?;
 
     let is_valid =
-        services::auth::verify_password(&params.current_password, &user.password, password_worker)
-            .await?;
+        auth::verify_password(&params.current_password, &user.password, password_worker).await?;
 
     if !is_valid {
-        return Err(ApiError::Unauthorized);
+        return Err(ServiceError::Unauthorized);
     }
 
-    let hashed = services::auth::hash_password(&params.password, password_worker).await?;
+    let hashed = auth::hash_password(&params.password, password_worker).await?;
 
     let mut user: users::ActiveModel = user.into();
     user.password = ActiveValue::Set(hashed);
@@ -85,17 +88,16 @@ pub async fn delete_profile(
     password_worker: &PasswordWorker<Bcrypt>,
     user_id: i32,
     params: DeleteProfile,
-) -> Result<(), ApiError> {
+) -> Result<(), ServiceError> {
     let user = users::Entity::find_by_id(user_id)
         .one(db)
         .await?
-        .ok_or(ApiError::NotFound("user"))?;
+        .ok_or(ServiceError::NotFound("user"))?;
 
-    let is_valid =
-        services::auth::verify_password(&params.password, &user.password, password_worker).await?;
+    let is_valid = auth::verify_password(&params.password, &user.password, password_worker).await?;
 
     if !is_valid {
-        return Err(ApiError::Unauthorized);
+        return Err(ServiceError::Unauthorized);
     }
 
     let user: users::ActiveModel = user.into();

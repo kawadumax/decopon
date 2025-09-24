@@ -1,7 +1,7 @@
 use crate::{
     entities::users,
-    errors::ApiError,
-    services::{self, users::User},
+    errors::ServiceError,
+    usecases::{self, users::User},
 };
 use axum_password_worker::{Bcrypt, BcryptConfig, PasswordWorker};
 use chrono::Utc;
@@ -35,7 +35,7 @@ pub async fn register_user(
     name: &str,
     email: &str,
     password: &str,
-) -> Result<RegisterUserResult, ApiError> {
+) -> Result<RegisterUserResult, ServiceError> {
     // ステップ1: ユニーク性検証（DBで既存ユーザー確認）
     if users::Entity::find()
         .filter(users::Column::Email.eq(email))
@@ -43,7 +43,7 @@ pub async fn register_user(
         .await?
         .is_some()
     {
-        return Err(ApiError::Conflict("user"));
+        return Err(ServiceError::Conflict("user"));
     }
 
     let hashed_password = hash_password(password, password_worker).await?;
@@ -70,7 +70,7 @@ pub async fn register_user(
     }
     let user = user_active.insert(db).await?;
     if let (Some(mailer), Some(raw_token)) = (mailer, raw_token.as_deref()) {
-        services::mails::send_verification_email(mailer.clone(), email, raw_token)?;
+        usecases::mails::send_verification_email(mailer.clone(), email, raw_token)?;
     } else {
         tracing::info!(
             "Skipping verification email because SMTP transport is disabled; marking user as verified"
@@ -84,20 +84,20 @@ pub async fn get_auth_user_from_token(
     db: &DatabaseConnection,
     token: String,
     jwt_secret: &str,
-) -> Result<User, ApiError> {
+) -> Result<User, ServiceError> {
     // jwtを検証して、ユーザーIDを取得する必要があります。
     let claims = decode_jwt(token, jwt_secret)?;
     if !verify_jwt(&claims)? {
-        return Err(ApiError::Unauthorized);
+        return Err(ServiceError::Unauthorized);
     }
     let user_id = claims.sub;
-    services::users::get_user_by_id(&db, user_id).await
+    usecases::users::get_user_by_id(&db, user_id).await
 }
 
 pub async fn hash_password(
     password: &str,
     password_worker: &PasswordWorker<Bcrypt>,
-) -> Result<String, ApiError> {
+) -> Result<String, ServiceError> {
     let hashed_password = password_worker
         .hash(password, BcryptConfig { cost: 12 }) // costは調整可能
         .await?;
@@ -110,21 +110,21 @@ pub async fn login_user(
     jwt_secret: &str,
     email: &str,
     password: &str,
-) -> Result<AuthResponse, ApiError> {
+) -> Result<AuthResponse, ServiceError> {
     // ユーザーをメールアドレスで取得
-    let user_full = match services::users::get_user_by_email(db, &email.to_string()).await {
+    let user_full = match usecases::users::get_user_by_email(db, &email.to_string()).await {
         Ok(u) => u,
-        Err(ApiError::NotFound(_)) => return Err(ApiError::Unauthorized),
+        Err(ServiceError::NotFound(_)) => return Err(ServiceError::Unauthorized),
         Err(e) => return Err(e),
     };
 
     if user_full.email_verified_at.is_none() {
-        return Err(ApiError::Unauthorized);
+        return Err(ServiceError::Unauthorized);
     }
 
     // パスワードを検証
     if !verify_password(password, &user_full.password, password_worker).await? {
-        return Err(ApiError::Unauthorized);
+        return Err(ServiceError::Unauthorized);
     }
 
     // JWTトークンを生成
@@ -139,7 +139,7 @@ pub async fn verify_email(
     db: &DatabaseConnection,
     token: String,
     jwt_secret: &str,
-) -> Result<AuthResponse, ApiError> {
+) -> Result<AuthResponse, ServiceError> {
     let hashed = hash_token(&token);
     tracing::trace!(%hashed, "hashed verification token");
 
@@ -147,7 +147,7 @@ pub async fn verify_email(
         .filter(users::Column::VerificationToken.eq(hashed.clone()))
         .one(db)
         .await?
-        .ok_or_else(|| ApiError::BadRequest("Invalid token".into()))?;
+        .ok_or_else(|| ServiceError::BadRequest("Invalid token".into()))?;
 
     let mut user_active: users::ActiveModel = user.into();
     user_active.email_verified_at = Set(Some(Utc::now()));
@@ -157,7 +157,7 @@ pub async fn verify_email(
     tracing::info!(user_id = user.id, "creating JWT");
     let jwt = create_jwt(user.id, jwt_secret).map_err(|e| {
         tracing::error!(error = %e, user_id = user.id, "failed to create JWT");
-        ApiError::Internal(Box::new(e))
+        ServiceError::Internal(Box::new(e))
     })?;
     tracing::info!(user_id = user.id, "JWT created");
 
@@ -171,12 +171,12 @@ pub async fn forgot_password(
     db: &DatabaseConnection,
     mailer: Option<&Arc<SmtpTransport>>,
     email: &str,
-) -> Result<(), ApiError> {
+) -> Result<(), ServiceError> {
     let user = users::Entity::find()
         .filter(users::Column::Email.eq(email))
         .one(db)
         .await?
-        .ok_or(ApiError::NotFound("user"))?;
+        .ok_or(ServiceError::NotFound("user"))?;
 
     let raw_token: String = rand::thread_rng()
         .sample_iter(&Alphanumeric)
@@ -190,7 +190,7 @@ pub async fn forgot_password(
 
     let body = format!("Reset token: {}", raw_token);
     if let Some(mailer) = mailer {
-        services::mails::send(mailer.clone(), email, "Reset your password", &body)?;
+        usecases::mails::send(mailer.clone(), email, "Reset your password", &body)?;
     } else {
         tracing::info!("Skipping password reset email because SMTP transport is disabled");
     }
@@ -203,14 +203,14 @@ pub async fn reset_password(
     token: &str,
     email: &str,
     password: &str,
-) -> Result<(), ApiError> {
+) -> Result<(), ServiceError> {
     let hashed = hash_token(token);
     let user = users::Entity::find()
         .filter(users::Column::Email.eq(email))
         .filter(users::Column::VerificationToken.eq(hashed))
         .one(db)
         .await?
-        .ok_or(ApiError::BadRequest("Invalid token".into()))?;
+        .ok_or(ServiceError::BadRequest("Invalid token".into()))?;
 
     let hashed_password = hash_password(password, password_worker).await?;
     let mut user_active: users::ActiveModel = user.into();
@@ -226,20 +226,20 @@ pub async fn confirm_password(
     jwt_secret: &str,
     token: &str,
     password: &str,
-) -> Result<(), ApiError> {
+) -> Result<(), ServiceError> {
     let claims = decode_jwt(token.to_string(), jwt_secret)?;
     if !verify_jwt(&claims)? {
-        return Err(ApiError::Unauthorized);
+        return Err(ServiceError::Unauthorized);
     }
 
     let user = users::Entity::find_by_id(claims.sub)
         .one(db)
         .await?
-        .ok_or(ApiError::Unauthorized)?;
+        .ok_or(ServiceError::Unauthorized)?;
 
     let is_valid = verify_password(password, &user.password, password_worker).await?;
     if !is_valid {
-        return Err(ApiError::Unauthorized);
+        return Err(ServiceError::Unauthorized);
     }
 
     Ok(())
@@ -249,15 +249,15 @@ pub async fn resend_verification(
     db: &DatabaseConnection,
     mailer: Option<&Arc<SmtpTransport>>,
     email: &str,
-) -> Result<(), ApiError> {
+) -> Result<(), ServiceError> {
     let user = users::Entity::find()
         .filter(users::Column::Email.eq(email))
         .one(db)
         .await?
-        .ok_or(ApiError::NotFound("user"))?;
+        .ok_or(ServiceError::NotFound("user"))?;
 
     if user.email_verified_at.is_some() {
-        return Err(ApiError::BadRequest("Email already verified".into()));
+        return Err(ServiceError::BadRequest("Email already verified".into()));
     }
 
     let raw_token: String = rand::thread_rng()
@@ -272,7 +272,7 @@ pub async fn resend_verification(
     let user = user_active.update(db).await?;
 
     if let Some(mailer) = mailer {
-        services::mails::send_verification_email(mailer.clone(), &user.email, &raw_token)?;
+        usecases::mails::send_verification_email(mailer.clone(), &user.email, &raw_token)?;
     } else {
         tracing::info!("Skipping verification email resend because SMTP transport is disabled");
     }
@@ -288,12 +288,12 @@ pub async fn verify_password(
     password: &str,
     hashed_password: &str,
     password_worker: &PasswordWorker<Bcrypt>,
-) -> Result<bool, ApiError> {
+) -> Result<bool, ServiceError> {
     let is_valid = password_worker.verify(password, hashed_password).await?;
     Ok(is_valid)
 }
 
-pub fn create_jwt(user_id: i32, secret: &str) -> Result<String, ApiError> {
+pub fn create_jwt(user_id: i32, secret: &str) -> Result<String, ServiceError> {
     let claims = Claims {
         sub: user_id,
         exp: (Utc::now() + chrono::Duration::days(30)).timestamp() as usize, // 30日間有効
@@ -307,18 +307,18 @@ pub fn create_jwt(user_id: i32, secret: &str) -> Result<String, ApiError> {
     Ok(token)
 }
 
-pub fn decode_jwt(token: String, secret: &str) -> Result<Claims, ApiError> {
+pub fn decode_jwt(token: String, secret: &str) -> Result<Claims, ServiceError> {
     let token_data = jsonwebtoken::decode::<Claims>(
         &token,
         &jsonwebtoken::DecodingKey::from_secret(secret.as_ref()),
         &jsonwebtoken::Validation::default(),
     )
-    .map_err(|_| ApiError::Unauthorized)?;
+    .map_err(|_| ServiceError::Unauthorized)?;
 
     Ok(token_data.claims)
 }
 
-pub fn verify_jwt(claims: &Claims) -> Result<bool, ApiError> {
+pub fn verify_jwt(claims: &Claims) -> Result<bool, ServiceError> {
     // JWTの検証ロジックを実装
     Ok(claims.exp > Utc::now().timestamp() as usize)
 }
@@ -376,7 +376,7 @@ mod auth_tests {
     fn decode_jwt_invalid_secret() {
         let token = create_jwt(1, "secret").unwrap();
         let res = decode_jwt(token, "wrong");
-        assert!(matches!(res, Err(ApiError::Unauthorized)));
+        assert!(matches!(res, Err(ServiceError::Unauthorized)));
     }
 }
 
@@ -478,7 +478,7 @@ mod tests {
             "password",
         )
         .await;
-        assert!(matches!(res, Err(ApiError::Conflict("user"))));
+        assert!(matches!(res, Err(ServiceError::Conflict("user"))));
 
         child.kill().ok();
     }
@@ -533,7 +533,7 @@ mod tests {
         let jwt = create_jwt(user.id, secret).unwrap();
 
         let res = confirm_password(&db, &pw, secret, &jwt, "wrong").await;
-        assert!(matches!(res, Err(ApiError::Unauthorized)));
+        assert!(matches!(res, Err(ServiceError::Unauthorized)));
 
         child.kill().ok();
     }
@@ -590,7 +590,7 @@ mod tests {
         .unwrap();
 
         let res = resend_verification(&db, Some(&mailer), "dave@example.com").await;
-        assert!(matches!(res, Err(ApiError::BadRequest(_))));
+        assert!(matches!(res, Err(ServiceError::BadRequest(_))));
 
         child.kill().ok();
     }

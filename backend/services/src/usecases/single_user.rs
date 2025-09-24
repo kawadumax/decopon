@@ -3,8 +3,8 @@
 
 use crate::{
     entities::users as users_entity,
-    errors::ApiError,
-    services::{auth, users::User},
+    errors::ServiceError,
+    usecases::{auth, users::User},
 };
 use axum_password_worker::{Bcrypt, PasswordWorker};
 use chrono::Utc;
@@ -66,7 +66,7 @@ pub async fn ensure_user(
     db: &DatabaseConnection,
     password_worker: &PasswordWorker<Bcrypt>,
     jwt_secret: &str,
-) -> Result<SingleUserSession, ApiError> {
+) -> Result<SingleUserSession, ServiceError> {
     let config = SingleUserConfig::from_env();
     let hashed_password = auth::hash_password(&config.password, password_worker).await?;
     let now = Utc::now();

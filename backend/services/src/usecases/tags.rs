@@ -1,8 +1,9 @@
 use crate::{
-    entities::{prelude::*, *},
-    errors::ApiError,
-    services,
+    entities::{prelude::*, tag_task, *},
+    errors::ServiceError,
 };
+
+use super::tag_task as tag_task_usecase;
 
 use sea_orm::prelude::DateTimeUtc;
 use sea_orm::{
@@ -36,10 +37,7 @@ impl From<tags::Model> for Tag {
     }
 }
 
-async fn tag_with_count(
-    db: &DatabaseConnection,
-    tag: tags::Model,
-) -> Result<Tag, ApiError> {
+async fn tag_with_count(db: &DatabaseConnection, tag: tags::Model) -> Result<Tag, ServiceError> {
     let mut tag: Tag = tag.into();
     tag.task_count = TagTask::find()
         .filter(tag_task::Column::TagId.eq(tag.id))
@@ -48,7 +46,7 @@ async fn tag_with_count(
     Ok(tag)
 }
 
-pub async fn get_tags(db: &DatabaseConnection, user_id: i32) -> Result<Vec<Tag>, ApiError> {
+pub async fn get_tags(db: &DatabaseConnection, user_id: i32) -> Result<Vec<Tag>, ServiceError> {
     let tags = Tags::find()
         .filter(tags::Column::UserId.eq(user_id))
         .all(db)
@@ -60,7 +58,7 @@ pub async fn get_tags(db: &DatabaseConnection, user_id: i32) -> Result<Vec<Tag>,
     Ok(result)
 }
 
-pub async fn insert_tag(db: &DatabaseConnection, params: NewTag) -> Result<Tag, ApiError> {
+pub async fn insert_tag(db: &DatabaseConnection, params: NewTag) -> Result<Tag, ServiceError> {
     let new_tag = tags::ActiveModel {
         name: ActiveValue::Set(params.name),
         user_id: ActiveValue::Set(params.user_id),
@@ -70,7 +68,7 @@ pub async fn insert_tag(db: &DatabaseConnection, params: NewTag) -> Result<Tag, 
     let tag = Tags::find_by_id(res.last_insert_id)
         .one(db)
         .await?
-        .ok_or(ApiError::NotFound("tag"))?;
+        .ok_or(ServiceError::NotFound("tag"))?;
     tag_with_count(db, tag).await
 }
 
@@ -79,7 +77,7 @@ pub async fn attach_tag_to_task(
     user_id: i32,
     task_id: i32,
     name: String,
-) -> Result<Tag, ApiError> {
+) -> Result<Tag, ServiceError> {
     let tag = Tags::find()
         .filter(tags::Column::Name.eq(name.clone()))
         .filter(tags::Column::UserId.eq(user_id))
@@ -98,11 +96,11 @@ pub async fn attach_tag_to_task(
             Tags::find_by_id(res.last_insert_id)
                 .one(db)
                 .await?
-                .ok_or(ApiError::NotFound("tag"))?
+                .ok_or(ServiceError::NotFound("tag"))?
         }
     };
 
-    services::tag_task::attach_tags(db, task_id, vec![tag.id]).await?;
+    tag_task_usecase::attach_tags(db, task_id, vec![tag.id]).await?;
     tag_with_count(db, tag).await
 }
 
@@ -111,7 +109,7 @@ pub async fn detach_tag_from_task(
     user_id: i32,
     task_id: i32,
     name: String,
-) -> Result<Option<Tag>, ApiError> {
+) -> Result<Option<Tag>, ServiceError> {
     let tag = Tags::find()
         .filter(tags::Column::Name.eq(name))
         .filter(tags::Column::UserId.eq(user_id))
@@ -119,7 +117,7 @@ pub async fn detach_tag_from_task(
         .await?;
 
     if let Some(tag) = &tag {
-        services::tag_task::detach_tags(db, task_id, vec![tag.id]).await?;
+        tag_task_usecase::detach_tags(db, task_id, vec![tag.id]).await?;
     }
     if let Some(tag) = tag {
         Ok(Some(tag_with_count(db, tag).await?))
@@ -132,7 +130,7 @@ pub async fn delete_tags(
     db: &DatabaseConnection,
     user_id: i32,
     tag_ids: Vec<i32>,
-) -> Result<(), ApiError> {
+) -> Result<(), ServiceError> {
     Tags::delete_many()
         .filter(tags::Column::Id.is_in(tag_ids))
         .filter(tags::Column::UserId.eq(user_id))

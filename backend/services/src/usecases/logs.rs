@@ -1,6 +1,6 @@
 use crate::{
     entities::{logs, prelude::*},
-    errors::ApiError,
+    errors::ServiceError,
 };
 
 use sea_orm::prelude::DateTimeUtc;
@@ -62,7 +62,7 @@ impl From<logs::Model> for Log {
     }
 }
 
-pub async fn get_logs(db: &DatabaseConnection, user_id: i32) -> Result<Vec<Log>, ApiError> {
+pub async fn get_logs(db: &DatabaseConnection, user_id: i32) -> Result<Vec<Log>, ServiceError> {
     let logs = Logs::find()
         .filter(logs::Column::UserId.eq(user_id))
         .all(db)
@@ -74,7 +74,7 @@ pub async fn get_logs_by_task(
     db: &DatabaseConnection,
     user_id: i32,
     task_id: i32,
-) -> Result<Vec<Log>, ApiError> {
+) -> Result<Vec<Log>, ServiceError> {
     let logs = Logs::find()
         .filter(logs::Column::UserId.eq(user_id))
         .filter(logs::Column::TaskId.eq(task_id))
@@ -83,7 +83,7 @@ pub async fn get_logs_by_task(
     Ok(logs.into_iter().map(Into::into).collect())
 }
 
-pub async fn insert_log(db: &DatabaseConnection, params: NewLog) -> Result<Log, ApiError> {
+pub async fn insert_log(db: &DatabaseConnection, params: NewLog) -> Result<Log, ServiceError> {
     let new_log = logs::ActiveModel {
         content: ActiveValue::Set(params.content),
         source: ActiveValue::Set(params.source.as_str().to_owned()),
@@ -95,6 +95,6 @@ pub async fn insert_log(db: &DatabaseConnection, params: NewLog) -> Result<Log, 
     let log = Logs::find_by_id(result.last_insert_id)
         .one(db)
         .await?
-        .ok_or(ApiError::NotFound("log"))?;
+        .ok_or(ServiceError::NotFound("log"))?;
     Ok(log.into())
 }

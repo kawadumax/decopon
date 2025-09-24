@@ -1,0 +1,11 @@
+[package]
+name = "decopon-app-ipc"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+async-trait = "0.1"
+chrono = { version = "0.4", features = ["serde"] }
+decopon-services = { path = "../../../backend/services" }
+serde = { version = "1", features = ["derive"] }
+tauri = { version = "2", features = ["test"] }

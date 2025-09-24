@@ -1,10 +1,10 @@
 use sea_orm::prelude::DateTimeUtc;
 use serde::{Deserialize, Serialize};
 
-use crate::services::decopon_sessions::DecoponSession;
+use crate::usecases::decopon_sessions::DecoponSession;
 
 #[derive(Serialize)]
-pub struct DecoponSessionResponseDto {
+pub struct DecoponSessionResponse {
     pub id: i32,
     pub status: String,
     pub started_at: DateTimeUtc,
@@ -14,7 +14,7 @@ pub struct DecoponSessionResponseDto {
     pub user_id: i32,
 }
 
-impl From<DecoponSession> for DecoponSessionResponseDto {
+impl From<DecoponSession> for DecoponSessionResponse {
     fn from(s: DecoponSession) -> Self {
         Self {
             id: s.id,
@@ -29,20 +29,20 @@ impl From<DecoponSession> for DecoponSessionResponseDto {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct StoreDecoponSessionRequestDto {
+pub struct StoreDecoponSessionRequest {
     pub status: String,
     pub started_at: DateTimeUtc,
     pub ended_at: Option<DateTimeUtc>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct UpdateDecoponSessionRequestDto {
+pub struct UpdateDecoponSessionRequest {
     pub status: Option<String>,
     pub ended_at: Option<DateTimeUtc>,
 }
 
 #[derive(Serialize)]
-pub struct CycleCountResponseDto {
+pub struct CycleCountResponse {
     pub date: String,
     pub count: u64,
 }

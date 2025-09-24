@@ -1,6 +1,6 @@
 use axum::{
-    extract::State,
     Extension, Router,
+    extract::State,
     http::StatusCode,
     response::Json,
     routing::{get, put},
@@ -8,67 +8,59 @@ use axum::{
 use sea_orm::DatabaseConnection;
 use std::sync::Arc;
 
-use crate::dto::{auth::UserDto, profiles::*};
+use crate::dto::{auth::UserResponse, profiles::*};
 use crate::{
     AppState, errors::ApiError, extractors::authenticated_user::AuthenticatedUser,
-    services::profiles,
+    usecases::profiles,
 };
 
 #[tracing::instrument(skip(db, user))]
 async fn show(
     State(db): State<Arc<DatabaseConnection>>,
     Extension(user): Extension<AuthenticatedUser>,
-) -> Result<Json<UserDto>, ApiError> {
+) -> Result<Json<UserResponse>, ApiError> {
     let user = profiles::get_profile(&db, user.id).await?;
-    Ok(Json(UserDto::from(user)))
+    Ok(Json(UserResponse::from(user)))
 }
 
 #[tracing::instrument(skip(db, user))]
 async fn update(
     State(db): State<Arc<DatabaseConnection>>,
     Extension(user): Extension<AuthenticatedUser>,
-    Json(payload): Json<UpdateProfileRequestDto>,
-) -> Result<Json<UserDto>, ApiError> {
+    Json(payload): Json<UpdateProfileRequest>,
+) -> Result<Json<UserResponse>, ApiError> {
     let params = profiles::UpdateProfile {
         name: payload.name,
         email: payload.email,
     };
     let user = profiles::update_profile(&db, user.id, params).await?;
-    Ok(Json(UserDto::from(user)))
+    Ok(Json(UserResponse::from(user)))
 }
 
-#[tracing::instrument(skip(db, password_worker, user))]
+#[tracing::instrument(skip(app_state, user, payload))]
 async fn update_password(
-    State(AppState {
-        db,
-        password_worker,
-        ..
-    }): State<AppState>,
+    State(app_state): State<AppState>,
     Extension(user): Extension<AuthenticatedUser>,
-    Json(payload): Json<UpdatePasswordRequestDto>,
+    Json(payload): Json<UpdatePasswordRequest>,
 ) -> Result<StatusCode, ApiError> {
     let params = profiles::UpdatePassword {
         current_password: payload.current_password,
         password: payload.password,
     };
-    profiles::update_password(&db, &password_worker, user.id, params).await?;
+    profiles::update_password(app_state.db(), app_state.password_worker(), user.id, params).await?;
     Ok(StatusCode::OK)
 }
 
-#[tracing::instrument(skip(db, password_worker, user))]
+#[tracing::instrument(skip(app_state, user, payload))]
 async fn destroy(
-    State(AppState {
-        db,
-        password_worker,
-        ..
-    }): State<AppState>,
+    State(app_state): State<AppState>,
     Extension(user): Extension<AuthenticatedUser>,
-    Json(payload): Json<DeleteProfileRequestDto>,
+    Json(payload): Json<DeleteProfileRequest>,
 ) -> Result<StatusCode, ApiError> {
     let params = profiles::DeleteProfile {
         password: payload.password,
     };
-    profiles::delete_profile(&db, &password_worker, user.id, params).await?;
+    profiles::delete_profile(app_state.db(), app_state.password_worker(), user.id, params).await?;
     Ok(StatusCode::NO_CONTENT)
 }
 

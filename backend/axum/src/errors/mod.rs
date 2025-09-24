@@ -1,9 +1,11 @@
-use axum::{http::StatusCode, response::IntoResponse, Json};
+use axum::{Json, http::StatusCode, response::IntoResponse};
 use axum_password_worker::{Bcrypt, PasswordWorkerError};
 use jsonwebtoken::errors::Error as JwtError;
 use lettre::transport::smtp::Error as SmtpError;
 use serde::Serialize;
 use thiserror::Error;
+
+use crate::ServiceError;
 
 #[derive(Debug, Error)]
 pub enum ApiError {
@@ -102,5 +104,20 @@ impl From<std::env::VarError> for ApiError {
 impl From<JwtError> for ApiError {
     fn from(err: JwtError) -> Self {
         ApiError::Internal(Box::new(err))
+    }
+}
+
+impl From<ServiceError> for ApiError {
+    fn from(err: ServiceError) -> Self {
+        match err {
+            ServiceError::NotFound(target) => ApiError::NotFound(target),
+            ServiceError::Conflict(target) => ApiError::Conflict(target),
+            ServiceError::BadRequest(message) => ApiError::BadRequest(message),
+            ServiceError::Unauthorized => ApiError::Unauthorized,
+            ServiceError::Db(source) => ApiError::Db(source),
+            ServiceError::Password(source) => ApiError::Password(source),
+            ServiceError::Mail(source) => ApiError::Mail(source),
+            ServiceError::Internal(source) => ApiError::Internal(source),
+        }
     }
 }

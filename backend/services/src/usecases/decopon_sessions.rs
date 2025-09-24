@@ -1,11 +1,14 @@
 use crate::{
-    entities::{prelude::*, decopon_sessions},
-    errors::ApiError,
+    entities::{decopon_sessions, prelude::*},
+    errors::ServiceError,
 };
 
-use sea_orm::{ActiveModelTrait, ActiveValue, DatabaseConnection, EntityTrait, QueryFilter, ColumnTrait, DeleteResult, PaginatorTrait};
+use chrono::{DateTime, NaiveDate, NaiveDateTime, Utc};
 use sea_orm::prelude::DateTimeUtc;
-use chrono::{NaiveDate, NaiveDateTime, Utc, DateTime};
+use sea_orm::{
+    ActiveModelTrait, ActiveValue, ColumnTrait, DatabaseConnection, DeleteResult, EntityTrait,
+    PaginatorTrait, QueryFilter,
+};
 
 pub struct NewDecoponSession {
     pub status: String,
@@ -48,7 +51,7 @@ impl From<decopon_sessions::Model> for DecoponSession {
 pub async fn get_sessions(
     db: &DatabaseConnection,
     user_id: i32,
-) -> Result<Vec<DecoponSession>, ApiError> {
+) -> Result<Vec<DecoponSession>, ServiceError> {
     let sessions = DecoponSessions::find()
         .filter(decopon_sessions::Column::UserId.eq(user_id))
         .all(db)
@@ -60,19 +63,19 @@ pub async fn get_session_by_id(
     db: &DatabaseConnection,
     id: i32,
     user_id: i32,
-) -> Result<DecoponSession, ApiError> {
+) -> Result<DecoponSession, ServiceError> {
     let session = DecoponSessions::find_by_id(id)
         .filter(decopon_sessions::Column::UserId.eq(user_id))
         .one(db)
         .await?
-        .ok_or(ApiError::NotFound("decopon_session"))?;
+        .ok_or(ServiceError::NotFound("decopon_session"))?;
     Ok(session.into())
 }
 
 pub async fn insert_session(
     db: &DatabaseConnection,
     params: NewDecoponSession,
-) -> Result<DecoponSession, ApiError> {
+) -> Result<DecoponSession, ServiceError> {
     let new_session = decopon_sessions::ActiveModel {
         status: ActiveValue::Set(params.status),
         started_at: ActiveValue::Set(params.started_at),
@@ -84,24 +87,33 @@ pub async fn insert_session(
     let session = DecoponSessions::find_by_id(result.last_insert_id)
         .one(db)
         .await?
-        .ok_or(ApiError::NotFound("decopon_session"))?;
+        .ok_or(ServiceError::NotFound("decopon_session"))?;
     Ok(session.into())
 }
 
 pub async fn update_session(
     db: &DatabaseConnection,
     params: DecoponSessionUpdate,
-) -> Result<DecoponSession, ApiError> {
-    let DecoponSessionUpdate { id, status, ended_at, user_id } = params;
+) -> Result<DecoponSession, ServiceError> {
+    let DecoponSessionUpdate {
+        id,
+        status,
+        ended_at,
+        user_id,
+    } = params;
     let mut session: decopon_sessions::ActiveModel = DecoponSessions::find_by_id(id)
         .filter(decopon_sessions::Column::UserId.eq(user_id))
         .one(db)
         .await?
-        .ok_or(ApiError::NotFound("decopon_session"))?
+        .ok_or(ServiceError::NotFound("decopon_session"))?
         .into();
 
-    if let Some(status) = status { session.status = ActiveValue::Set(status); }
-    if let Some(ended_at) = ended_at { session.ended_at = ActiveValue::Set(Some(ended_at)); }
+    if let Some(status) = status {
+        session.status = ActiveValue::Set(status);
+    }
+    if let Some(ended_at) = ended_at {
+        session.ended_at = ActiveValue::Set(Some(ended_at));
+    }
     session.updated_at = ActiveValue::Set(Utc::now());
     let session = session.update(db).await?;
     Ok(session.into())
@@ -111,7 +123,7 @@ pub async fn delete_session(
     db: &DatabaseConnection,
     id: i32,
     user_id: i32,
-) -> Result<DeleteResult, ApiError> {
+) -> Result<DeleteResult, ServiceError> {
     DecoponSessions::delete_many()
         .filter(decopon_sessions::Column::Id.eq(id))
         .filter(decopon_sessions::Column::UserId.eq(user_id))
@@ -124,8 +136,8 @@ pub async fn count_completed_sessions_on(
     db: &DatabaseConnection,
     user_id: i32,
     date: NaiveDate,
-) -> Result<u64, ApiError> {
-    let start_ndt = NaiveDateTime::new(date, chrono::NaiveTime::from_hms_opt(0,0,0).unwrap());
+) -> Result<u64, ServiceError> {
+    let start_ndt = NaiveDateTime::new(date, chrono::NaiveTime::from_hms_opt(0, 0, 0).unwrap());
     let end_ndt = start_ndt + chrono::Duration::days(1);
     let start: DateTime<Utc> = DateTime::from_naive_utc_and_offset(start_ndt, Utc);
     let end: DateTime<Utc> = DateTime::from_naive_utc_and_offset(end_ndt, Utc);

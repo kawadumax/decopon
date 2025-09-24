@@ -1,4 +1,4 @@
-use crate::{entities::users, errors::ApiError, services::users::User};
+use crate::{entities::users, errors::ServiceError, usecases::users::User};
 use chrono::Utc;
 use sea_orm::{ActiveModelTrait, ActiveValue, DatabaseConnection, EntityTrait};
 
@@ -12,11 +12,11 @@ pub async fn update_preference(
     db: &DatabaseConnection,
     user_id: i32,
     params: UpdatePreference,
-) -> Result<User, ApiError> {
+) -> Result<User, ServiceError> {
     let mut user: users::ActiveModel = users::Entity::find_by_id(user_id)
         .one(db)
         .await?
-        .ok_or(ApiError::NotFound("user"))?
+        .ok_or(ServiceError::NotFound("user"))?
         .into();
 
     user.work_time = ActiveValue::Set(params.work_time);

@@ -1,6 +1,6 @@
 use serde::Deserialize;
 
 #[derive(Deserialize)]
-pub struct UserQueryDto {
+pub struct UserQuery {
     pub user_id: i32,
 }

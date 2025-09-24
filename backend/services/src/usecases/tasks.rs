@@ -1,8 +1,9 @@
 use crate::{
-    entities::{prelude::*, *},
-    errors::ApiError,
-    services,
+    entities::{prelude::*, tag_task, *},
+    errors::ServiceError,
 };
+
+use super::{logs, tag_task as tag_task_usecase};
 
 use sea_orm::prelude::DateTimeUtc;
 use sea_orm::{
@@ -75,7 +76,7 @@ pub async fn get_tasks(
     db: &DatabaseConnection,
     user_id: i32,
     tag_ids: Option<Vec<i32>>,
-) -> Result<Vec<Task>, ApiError> {
+) -> Result<Vec<Task>, ServiceError> {
     let mut query = Tasks::find().filter(tasks::Column::UserId.eq(user_id));
     if let Some(tag_ids) = tag_ids {
         let subquery = tag_task::Entity::find()
@@ -97,7 +98,7 @@ pub async fn get_tasks(
     Ok(tasks)
 }
 
-pub async fn insert_task(db: &DatabaseConnection, params: NewTask) -> Result<Task, ApiError> {
+pub async fn insert_task(db: &DatabaseConnection, params: NewTask) -> Result<Task, ServiceError> {
     let NewTask {
         title,
         description,
@@ -117,7 +118,7 @@ pub async fn insert_task(db: &DatabaseConnection, params: NewTask) -> Result<Tas
 
     // create relation between task and tags
     if let Some(tag_ids) = tag_ids {
-        services::tag_task::attach_tags(db, inserted_result.last_insert_id, tag_ids).await?;
+        tag_task_usecase::attach_tags(db, inserted_result.last_insert_id, tag_ids).await?;
     }
 
     let (task, tags) = Tasks::find_by_id(inserted_result.last_insert_id)
@@ -126,7 +127,7 @@ pub async fn insert_task(db: &DatabaseConnection, params: NewTask) -> Result<Tas
         .await?
         .into_iter()
         .next()
-        .ok_or(ApiError::NotFound("task"))?;
+        .ok_or(ServiceError::NotFound("task"))?;
 
     Ok(Task::from_model(task, tags))
 }
@@ -135,7 +136,7 @@ pub async fn get_task_by_id(
     db: &DatabaseConnection,
     user_id: i32,
     id: i32,
-) -> Result<Task, ApiError> {
+) -> Result<Task, ServiceError> {
     let (task, tags) = Tasks::find()
         .filter(tasks::Column::Id.eq(id))
         .filter(tasks::Column::UserId.eq(user_id))
@@ -144,18 +145,21 @@ pub async fn get_task_by_id(
         .await?
         .into_iter()
         .next()
-        .ok_or(ApiError::NotFound("task"))?;
+        .ok_or(ServiceError::NotFound("task"))?;
     Ok(Task::from_model(task, tags))
 }
 
-pub async fn update_task(db: &DatabaseConnection, params: TaskUpdate) -> Result<Task, ApiError> {
+pub async fn update_task(
+    db: &DatabaseConnection,
+    params: TaskUpdate,
+) -> Result<Task, ServiceError> {
     let id = params.id;
     let mut task: tasks::ActiveModel = Tasks::find()
         .filter(tasks::Column::Id.eq(id))
         .filter(tasks::Column::UserId.eq(params.user_id))
         .one(db)
         .await?
-        .ok_or(ApiError::NotFound("task"))?
+        .ok_or(ServiceError::NotFound("task"))?
         .into();
 
     if let Some(title) = params.title {
@@ -181,16 +185,16 @@ pub async fn update_task(db: &DatabaseConnection, params: TaskUpdate) -> Result<
     let txn = db.begin().await?;
     let task = task.update(&txn).await?;
     if let Some(tag_ids) = params.tag_ids {
-        services::tag_task::sync_tags(&txn, id, tag_ids).await?;
+        tag_task_usecase::sync_tags(&txn, id, tag_ids).await?;
     }
     txn.commit().await?;
 
     if params.completed == Some(true) {
-        services::logs::insert_log(
+        logs::insert_log(
             db,
-            services::logs::NewLog {
+            logs::NewLog {
                 content: format!("Task \"{}\" completed.", task.title),
-                source: services::logs::LogSource::System,
+                source: logs::LogSource::System,
                 task_id: Some(id),
                 user_id: params.user_id,
             },
@@ -204,7 +208,7 @@ pub async fn update_task(db: &DatabaseConnection, params: TaskUpdate) -> Result<
         .await?
         .into_iter()
         .next()
-        .ok_or(ApiError::NotFound("task"))?;
+        .ok_or(ServiceError::NotFound("task"))?;
 
     Ok(Task::from_model(task, tags))
 }
@@ -213,7 +217,7 @@ pub async fn delete_task(
     db: &DatabaseConnection,
     id: i32,
     user_id: i32,
-) -> Result<DeleteResult, ApiError> {
+) -> Result<DeleteResult, ServiceError> {
     Tasks::delete_many()
         .filter(tasks::Column::Id.eq(id))
         .filter(tasks::Column::UserId.eq(user_id))

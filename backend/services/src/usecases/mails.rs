@@ -5,7 +5,7 @@ use std::env;
 use std::sync::Arc;
 use tracing::{info, warn};
 
-use crate::errors::ApiError;
+use crate::errors::ServiceError;
 
 fn is_truthy(value: &str) -> bool {
     matches!(
@@ -30,7 +30,7 @@ fn smtp_disabled() -> bool {
     false
 }
 
-pub fn setup_mailer() -> Result<Option<Arc<SmtpTransport>>, ApiError> {
+pub fn setup_mailer() -> Result<Option<Arc<SmtpTransport>>, ServiceError> {
     if smtp_disabled() {
         info!("SMTP transport is disabled by configuration");
         return Ok(None);
@@ -69,10 +69,12 @@ pub fn setup_mailer() -> Result<Option<Arc<SmtpTransport>>, ApiError> {
     Ok(Some(Arc::new(mailer)))
 }
 
-fn get_from() -> Result<Mailbox, ApiError> {
+fn get_from() -> Result<Mailbox, ServiceError> {
     let name = env::var("AXUM_MAIL_FROM_NAME").unwrap_or_else(|_| "Default Name".to_string());
     let email = env::var("AXUM_MAIL_FROM_EMAIL")?;
-    let address = email.parse().map_err(|e| ApiError::Internal(Box::new(e)))?;
+    let address = email
+        .parse()
+        .map_err(|e| ServiceError::Internal(Box::new(e)))?;
     Ok(Mailbox::new(Some(name), address))
 }
 
@@ -81,10 +83,12 @@ pub fn send(
     email: &str,
     subject: &str,
     body: &str,
-) -> Result<Response, ApiError> {
+) -> Result<Response, ServiceError> {
     let to = Mailbox::new(
         Some(subject.to_owned()),
-        email.parse().map_err(|e| ApiError::Internal(Box::new(e)))?,
+        email
+            .parse()
+            .map_err(|e| ServiceError::Internal(Box::new(e)))?,
     );
     let from = get_from()?;
 
@@ -94,7 +98,7 @@ pub fn send(
         .subject(subject)
         .header(ContentType::TEXT_PLAIN)
         .body(String::from(body))
-        .map_err(|e| ApiError::Internal(Box::new(e)))?;
+        .map_err(|e| ServiceError::Internal(Box::new(e)))?;
 
     // Send the email
     Ok(mailer.send(&email)?)
@@ -104,7 +108,7 @@ pub fn send_verification_email(
     mailer: Arc<SmtpTransport>,
     email: &str,
     token: &str,
-) -> Result<(), ApiError> {
+) -> Result<(), ServiceError> {
     let frontend_url =
         env::var("FRONTEND_URL").unwrap_or_else(|_| "http://localhost:5173".to_string());
     let url = format!(

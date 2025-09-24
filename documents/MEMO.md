@@ -50,3 +50,6 @@ pnpm axum:fresh
 ```
 git config --local core.hooksPath .githooks
 ```
+
+## PRメモ
+- Windows 向け Tauri アプリでは `frontend/app/windows/src-tauri/src` 配下に独自の `ipc` モジュールは存在せず、共通クレート `decopon_app_ipc` をそのまま利用する実装が既に反映されている。
