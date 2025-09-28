@@ -31,15 +31,5 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ]
-  },
-  "sidecar": [
-    {
-      "name": "decopon-axum",
-      "path": "../../../../backend/axum"
-    },
-    {
-      "name": "migration",
-      "path": "../../../../backend/axum/migration"
-    }
-  ]
+  }
 }

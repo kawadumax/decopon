@@ -1,6 +1,6 @@
 # Decopon Windows（Tauri版）
 
-Tauri + React で構築した Windows 向けの Decopon クライアントです。バックエンド（Axum）はサイドカーとして同梱され、ローカルのアプリデータディレクトリに SQLite データベースや JWT シークレットを保存します。
+Tauri + React で構築した Windows 向けの Decopon クライアントです。バックエンド（Axum）はアプリ内 IPC で直接呼び出され、ローカルのアプリデータディレクトリに SQLite データベースや JWT シークレットを保存します。
 
 Windows/Android などのデスクトップ・モバイルアプリで共通利用するフロントエンドのエントリーポイントや Vite 設定は `../shared` に集約しています。Windows 固有の設定は本ディレクトリにある `vite.config.ts` と `src-tauri` 以下で管理します。
 
@@ -20,7 +20,7 @@ SMTP を利用する場合や単一ユーザーモードを解除したい場合
 
 1. リポジトリのルートで `pnpm install` を実行し依存関係を揃えます。
 2. ルートで `pnpm core:gen-routes` を実行しルーティング定義を更新します。
-3. 開発モードで起動する場合は `pnpm windows:dev` を実行します。Vite のフロントエンドと Tauri のサイドカーが同時に起動します。
+3. 開発モードで起動する場合は `pnpm windows:dev` を実行します。Vite のフロントエンドと Tauri が起動し、IPC 経由でサービス層を利用します。
 4. インストーラーを含むビルドを作成する場合は `pnpm windows:build` を実行します。`src-tauri/target/release/bundle/` 以下に MSI などのパッケージが生成されます。
 
 バックエンドの `.env` を手動で用意する必要はありませんが、SMTP を有効化したい場合は `.env` やシステム環境変数で `AXUM_SMTP_SERVER` / `AXUM_SMTP_USERNAME` / `AXUM_SMTP_PASSWORD` などを設定してください。
