@@ -33,4 +33,5 @@ thiserror = "1"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["fmt", "env-filter"] }
 rand = { version = "0.8", default-features = false, features = ["std", "std_rng"] }
+sha2 = "0.10"
 

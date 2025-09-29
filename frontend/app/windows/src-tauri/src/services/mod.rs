@@ -3,7 +3,9 @@ use std::sync::Arc;
 use async_trait::async_trait;
 use axum_password_worker::{Bcrypt, PasswordWorker};
 use decopon_app_ipc::{
-    AuthHandler, AuthLoginRequest, AuthSession, CreateTaskRequest, DeleteTaskRequest, Task,
+    AuthConfirmPasswordRequest, AuthCurrentUserRequest, AuthForgotPasswordRequest, AuthHandler,
+    AuthLoginRequest, AuthRegisterRequest, AuthResendVerificationRequest, AuthResetPasswordRequest,
+    AuthSession, AuthUser, AuthVerifyEmailRequest, CreateTaskRequest, DeleteTaskRequest, Task,
     TaskHandler, TaskListRequest, UpdateTaskRequest,
 };
 use decopon_services::{
@@ -54,7 +56,7 @@ impl AppServices {
         })
     }
 
-    fn context(&self) -> &ServiceContext {
+    pub(crate) fn context(&self) -> &ServiceContext {
         self.context.as_ref()
     }
 }
@@ -93,6 +95,99 @@ impl AuthHandler for AppServices {
                 user: session.user.into(),
             })
             .ok_or(ServiceError::NotFound("single-user-session"))
+    }
+
+    async fn register(&self, request: AuthRegisterRequest) -> Result<AuthUser, ServiceError> {
+        if request.password != request.password_confirmation {
+            return Err(ServiceError::BadRequest(
+                "password-confirmation-mismatch".to_string(),
+            ));
+        }
+
+        let result = auth::register_user(
+            self.context().db(),
+            self.context().password_worker(),
+            self.context().mailer(),
+            &request.name,
+            &request.email,
+            &request.password,
+        )
+        .await?;
+
+        Ok(result.user.into())
+    }
+
+    async fn current_user(
+        &self,
+        request: AuthCurrentUserRequest,
+    ) -> Result<AuthUser, ServiceError> {
+        let user = auth::get_auth_user_from_token(
+            self.context().db(),
+            request.token,
+            self.context().jwt_secret(),
+        )
+        .await?;
+
+        Ok(user.into())
+    }
+
+    async fn logout(&self) -> Result<(), ServiceError> {
+        Ok(())
+    }
+
+    async fn forgot_password(
+        &self,
+        request: AuthForgotPasswordRequest,
+    ) -> Result<(), ServiceError> {
+        auth::forgot_password(self.context().db(), self.context().mailer(), &request.email).await
+    }
+
+    async fn reset_password(&self, request: AuthResetPasswordRequest) -> Result<(), ServiceError> {
+        auth::reset_password(
+            self.context().db(),
+            self.context().password_worker(),
+            &request.token,
+            &request.email,
+            &request.password,
+        )
+        .await
+    }
+
+    async fn confirm_password(
+        &self,
+        token: String,
+        request: AuthConfirmPasswordRequest,
+    ) -> Result<(), ServiceError> {
+        auth::confirm_password(
+            self.context().db(),
+            self.context().password_worker(),
+            self.context().jwt_secret(),
+            &token,
+            &request.password,
+        )
+        .await
+    }
+
+    async fn verify_email(
+        &self,
+        request: AuthVerifyEmailRequest,
+    ) -> Result<AuthSession, ServiceError> {
+        let response = auth::verify_email(
+            self.context().db(),
+            request.token,
+            self.context().jwt_secret(),
+        )
+        .await?;
+
+        Ok(response.into())
+    }
+
+    async fn resend_verification(
+        &self,
+        request: AuthResendVerificationRequest,
+    ) -> Result<(), ServiceError> {
+        auth::resend_verification(self.context().db(), self.context().mailer(), &request.email)
+            .await
     }
 }
 

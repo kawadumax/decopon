@@ -4,8 +4,12 @@ use decopon_app_ipc::{
     auth::AuthLoginResponse,
     error::IpcError,
     tasks::{DeleteTaskResponse, TaskResponse, TasksResponse},
+    AuthCurrentUserResponse, AuthRegisterResponse, AuthStatusResponse,
 };
+use decopon_services::entities::users;
+use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, Set};
 use serde_json::json;
+use sha2::{Digest, Sha256};
 use tauri::{
     ipc::{CallbackFn, InvokeBody},
     test::{self, mock_context, noop_assets, INVOKE_KEY},
@@ -49,7 +53,7 @@ fn smoke_test_auth_and_task_commands() {
     ))
     .expect("service initialization should succeed");
 
-    let app = build_test_app(services);
+    let app = build_test_app(services.clone());
     let webview = WebviewWindowBuilder::new(&app, "main", Default::default())
         .build()
         .expect("failed to build webview");
@@ -166,4 +170,253 @@ fn smoke_test_auth_and_task_commands() {
     .expect("failed to deserialize empty list response");
 
     assert!(empty_list.tasks.is_empty());
+}
+
+#[test]
+fn smoke_test_registration_and_password_flow() {
+    let services = tauri::async_runtime::block_on(AppServices::initialize(
+        "sqlite::memory:",
+        "password-secret".into(),
+        false,
+    ))
+    .expect("service initialization should succeed");
+
+    let app = build_test_app(services.clone());
+    let webview = WebviewWindowBuilder::new(&app, "auth", Default::default())
+        .build()
+        .expect("failed to build webview");
+
+    let email = "flow@example.com";
+
+    let register_body = json!({
+        "request": {
+            "name": "Flow User",
+            "email": email,
+            "password": "initial-pass",
+            "passwordConfirmation": "initial-pass"
+        }
+    });
+
+    let register_response =
+        test::get_ipc_response(&webview, invoke_request("register", register_body))
+            .expect("register command should succeed")
+            .deserialize::<AuthRegisterResponse>()
+            .expect("failed to deserialize register response");
+
+    assert_eq!(register_response.user.email, email);
+
+    let login_body = json!({
+        "request": {
+            "email": "flow@example.com",
+            "password": "initial-pass"
+        }
+    });
+
+    let login_response = test::get_ipc_response(&webview, invoke_request("login", login_body))
+        .expect("login command should succeed")
+        .deserialize::<AuthLoginResponse>()
+        .expect("failed to deserialize login response");
+
+    let current_user_body = json!({
+        "request": {
+            "token": login_response.session.token
+        }
+    });
+
+    let current_user_response =
+        test::get_ipc_response(&webview, invoke_request("current_user", current_user_body))
+            .expect("current_user command should succeed")
+            .deserialize::<AuthCurrentUserResponse>()
+            .expect("failed to deserialize current_user response");
+
+    assert_eq!(current_user_response.user.email, email);
+
+    let confirm_body = json!({
+        "token": login_response.session.token,
+        "request": {
+            "password": "initial-pass"
+        }
+    });
+
+    let confirm_response =
+        test::get_ipc_response(&webview, invoke_request("confirm_password", confirm_body))
+            .expect("confirm_password command should succeed")
+            .deserialize::<AuthStatusResponse>()
+            .expect("failed to deserialize confirm_password response");
+
+    assert_eq!(confirm_response.status, "password-confirmed");
+
+    let forgot_body = json!({
+        "request": {
+            "email": email
+        }
+    });
+
+    let forgot_response =
+        test::get_ipc_response(&webview, invoke_request("forgot_password", forgot_body))
+            .expect("forgot_password command should succeed")
+            .deserialize::<AuthStatusResponse>()
+            .expect("failed to deserialize forgot_password response");
+
+    assert_eq!(forgot_response.status, "password-reset-link-sent");
+
+    let reset_token = "reset-token";
+    let hashed_token = format!("{:x}", Sha256::digest(reset_token.as_bytes()));
+
+    tauri::async_runtime::block_on(async {
+        let db = services.context().db();
+        let user = users::Entity::find()
+            .filter(users::Column::Email.eq(email))
+            .one(db)
+            .await
+            .expect("query user")
+            .expect("user should exist");
+
+        let mut active: users::ActiveModel = user.into();
+        active.verification_token = Set(Some(hashed_token));
+        active.update(db).await.expect("update verification token");
+    });
+
+    let reset_body = json!({
+        "request": {
+            "token": reset_token,
+            "email": email,
+            "password": "new-pass"
+        }
+    });
+
+    let reset_response =
+        test::get_ipc_response(&webview, invoke_request("reset_password", reset_body))
+            .expect("reset_password command should succeed")
+            .deserialize::<AuthStatusResponse>()
+            .expect("failed to deserialize reset_password response");
+
+    assert_eq!(reset_response.status, "password-reset");
+
+    let login_after_reset_body = json!({
+        "request": {
+            "email": email,
+            "password": "new-pass"
+        }
+    });
+
+    let login_after_reset =
+        test::get_ipc_response(&webview, invoke_request("login", login_after_reset_body))
+            .expect("login after reset should succeed")
+            .deserialize::<AuthLoginResponse>()
+            .expect("failed to deserialize login after reset response");
+
+    assert_eq!(login_after_reset.session.user.email, email);
+
+    let logout_response = test::get_ipc_response(&webview, invoke_request("logout", json!({})))
+        .expect("logout command should succeed")
+        .deserialize::<AuthStatusResponse>()
+        .expect("failed to deserialize logout response");
+
+    assert_eq!(logout_response.status, "logged-out");
+}
+
+#[test]
+fn smoke_test_email_verification_flow() {
+    let services = tauri::async_runtime::block_on(AppServices::initialize(
+        "sqlite::memory:",
+        "email-secret".into(),
+        false,
+    ))
+    .expect("service initialization should succeed");
+
+    let app = build_test_app(services.clone());
+    let webview = WebviewWindowBuilder::new(&app, "verify", Default::default())
+        .build()
+        .expect("failed to build webview");
+
+    let email = "verify@example.com";
+    let token = "verify-token";
+
+    let register_body = json!({
+        "request": {
+            "name": "Verify User",
+            "email": email,
+            "password": "initial-pass",
+            "passwordConfirmation": "initial-pass"
+        }
+    });
+
+    test::get_ipc_response(&webview, invoke_request("register", register_body))
+        .expect("register command should succeed")
+        .deserialize::<AuthRegisterResponse>()
+        .expect("failed to deserialize register response");
+
+    let hashed_token = format!("{:x}", Sha256::digest(token.as_bytes()));
+
+    tauri::async_runtime::block_on(async {
+        let db = services.context().db();
+        let user = users::Entity::find()
+            .filter(users::Column::Email.eq(email))
+            .one(db)
+            .await
+            .expect("query user")
+            .expect("user should exist");
+
+        let mut active: users::ActiveModel = user.into();
+        active.email_verified_at = Set(None);
+        active.verification_token = Set(Some(hashed_token.clone()));
+        active.update(db).await.expect("update user");
+    });
+
+    let resend_body = json!({
+        "request": {
+            "email": email
+        }
+    });
+
+    let resend_response =
+        test::get_ipc_response(&webview, invoke_request("resend_verification", resend_body))
+            .expect("resend_verification command should succeed")
+            .deserialize::<AuthStatusResponse>()
+            .expect("failed to deserialize resend response");
+
+    assert_eq!(resend_response.status, "verification-link-sent");
+
+    let hashed_token = format!("{:x}", Sha256::digest(token.as_bytes()));
+
+    tauri::async_runtime::block_on(async {
+        let db = services.context().db();
+        let user = users::Entity::find()
+            .filter(users::Column::Email.eq(email))
+            .one(db)
+            .await
+            .expect("query user")
+            .expect("user should exist");
+
+        let mut active: users::ActiveModel = user.into();
+        active.verification_token = Set(Some(hashed_token.clone()));
+        active.update(db).await.expect("restore token");
+    });
+
+    let verify_body = json!({
+        "request": {
+            "token": token
+        }
+    });
+
+    let verify_response =
+        test::get_ipc_response(&webview, invoke_request("verify_email", verify_body))
+            .expect("verify_email command should succeed")
+            .deserialize::<AuthLoginResponse>()
+            .expect("failed to deserialize verify_email response");
+
+    assert_eq!(verify_response.session.user.email, email);
+
+    tauri::async_runtime::block_on(async {
+        let db = services.context().db();
+        let user = users::Entity::find()
+            .filter(users::Column::Email.eq(email))
+            .one(db)
+            .await
+            .expect("query user")
+            .expect("user should exist");
+
+        assert!(user.email_verified_at.is_some());
+    });
 }
