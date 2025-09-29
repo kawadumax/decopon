@@ -63,7 +63,21 @@ impl From<AuthResponse> for AuthSession {
 
 #[async_trait]
 pub trait AuthHandler: Send + Sync {
+    async fn single_user_session(&self) -> Result<AuthSession, ServiceError>;
     async fn login(&self, request: AuthLoginRequest) -> Result<AuthSession, ServiceError>;
+}
+
+#[tauri::command]
+pub async fn single_user_session<S>(services: State<'_, S>) -> IpcResult<AuthLoginResponse>
+where
+    S: AuthHandler,
+{
+    services
+        .inner()
+        .single_user_session()
+        .await
+        .map(|session| AuthLoginResponse { session })
+        .map_err(IpcError::from)
 }
 
 #[tauri::command]

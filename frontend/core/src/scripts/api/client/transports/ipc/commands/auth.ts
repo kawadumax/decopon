@@ -1,33 +1,38 @@
 import { endpoints } from "../../../../endpoints";
 import {
   ensureRecord,
-  getPathname,
   transformLoginResponse,
 } from "../shared";
 
-import type { IpcCommandMatcher } from "./types";
+import {
+  createCommandMatchers,
+  type IpcCommandDefinition,
+} from "./types";
 
-const matchLoginRequest: IpcCommandMatcher = (request) => {
-  if (request.method !== "post") {
-    return null;
-  }
-
-  if (getPathname(request.url) !== endpoints.auth.login) {
-    return null;
-  }
-
-  const payload = ensureRecord(request.data, "email", "password");
-
-  return {
+export const authCommandDefinitions: IpcCommandDefinition[] = [
+  {
+    method: "post",
+    path: endpoints.auth.login,
     command: "login",
-    payload: {
-      request: {
-        email: String(payload.email ?? ""),
-        password: String(payload.password ?? ""),
-      },
+    buildPayload: (request) => {
+      const payload = ensureRecord(request.data, "email", "password");
+
+      return {
+        request: {
+          email: String(payload.email ?? ""),
+          password: String(payload.password ?? ""),
+        },
+      };
     },
     transform: transformLoginResponse,
-  };
-};
+  },
+  {
+    method: "get",
+    path: endpoints.auth.local.session,
+    command: "single_user_session",
+    buildPayload: () => ({}),
+    transform: transformLoginResponse,
+  },
+];
 
-export const authCommandMatchers: IpcCommandMatcher[] = [matchLoginRequest];
+export const authCommandMatchers = createCommandMatchers(authCommandDefinitions);

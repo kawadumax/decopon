@@ -11,6 +11,7 @@ pub use tasks::{
 
 pub fn register<R: tauri::Runtime>(builder: tauri::Builder<R>) -> tauri::Builder<R> {
     builder.invoke_handler(tauri::generate_handler![
+        auth::single_user_session,
         auth::login,
         tasks::list_tasks,
         tasks::create_task,

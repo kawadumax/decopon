@@ -1,8 +1,13 @@
-import { authCommandMatchers } from "./auth";
-import { taskCommandMatchers } from "./tasks";
-import type { IpcCommandMatcher } from "./types";
+import { authCommandDefinitions } from "./auth";
+import { taskCommandDefinitions } from "./tasks";
+import { createCommandMatchers } from "./types";
 
-export const ipcCommandMatchers: IpcCommandMatcher[] = [
-  ...authCommandMatchers,
-  ...taskCommandMatchers,
-];
+export { authCommandDefinitions, authCommandMatchers } from "./auth";
+export { taskCommandDefinitions, taskCommandMatchers } from "./tasks";
+
+export const ipcCommandDefinitions = [
+  ...authCommandDefinitions,
+  ...taskCommandDefinitions,
+] as const;
+
+export const ipcCommandMatchers = createCommandMatchers(ipcCommandDefinitions);

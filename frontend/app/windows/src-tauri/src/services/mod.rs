@@ -84,6 +84,16 @@ impl AuthHandler for AppServices {
         .await?;
         Ok(response.into())
     }
+
+    async fn single_user_session(&self) -> Result<AuthSession, ServiceError> {
+        self.context()
+            .single_user_session_owned()
+            .map(|session| AuthSession {
+                token: session.token,
+                user: session.user.into(),
+            })
+            .ok_or(ServiceError::NotFound("single-user-session"))
+    }
 }
 
 #[async_trait]
