@@ -12,10 +12,11 @@ Reactを用いています。
 
 ## セットアップとコマンド
 1. ルートで `pnpm install` を実行します（`package.json5` のスクリプトを参照）。
-2. Web 開発: `pnpm web:dev`（`pnpm fullstack:dev` を使うと Axum バックエンドと同時起動できます）。
-3. デスクトップ開発: `pnpm windows:dev`。
-4. Storybook: `pnpm core:storybook`。
-5. ビルド: `pnpm core:gen-routes` を実行してルート定義を最新化してから `pnpm web:build` / `pnpm windows:build` を実行してください。`pnpm build` は core をビルドした後に TypeScript プロジェクト全体をビルドします。
+2. Git LFS をセットアップし、`git lfs pull` でアイコンなどのバイナリアセットを取得してください。特に `frontend/app/windows/src-tauri/icons` 配下の画像は LFS 管理下にあるため、セットアップ時に取得しておく必要があります。
+3. Web 開発: `pnpm web:dev`（`pnpm fullstack:dev` を使うと Axum バックエンドと同時起動できます）。
+4. デスクトップ開発: `pnpm windows:dev`。
+5. Storybook: `pnpm core:storybook`。
+6. ビルド: `pnpm core:gen-routes` を実行してルート定義を最新化してから `pnpm web:build` / `pnpm windows:build` を実行してください。`pnpm build` は core をビルドした後に TypeScript プロジェクト全体をビルドします。
 
 ## 補足
 - ルートの `tsconfig.paths.json` と `vite.aliases.ts` で共通のエイリアスを定義しています。

@@ -8,8 +8,8 @@ use std::{
 use decopon_app_ipc::{self as ipc, AppIpcState};
 use rand::{distributions::Alphanumeric, Rng};
 use services::AppServices;
-use tauri::{api::dialog, Manager};
-use tracing::{error, info};
+use tauri::{Emitter, EventTarget, Manager};
+use tracing::{error, info, warn};
 use tracing_subscriber::EnvFilter;
 
 mod services;
@@ -17,14 +17,11 @@ mod services;
 mod tests;
 
 fn ensure_app_data_dir(app_handle: &tauri::AppHandle) -> Result<PathBuf, std::io::Error> {
-    let data_dir = app_handle
-        .path_resolver()
-        .app_data_dir()
-        .unwrap_or_else(|| {
-            let mut fallback = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
-            fallback.push("decopon-data");
-            fallback
-        });
+    let data_dir = app_handle.path().app_data_dir().unwrap_or_else(|_| {
+        let mut fallback = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
+        fallback.push("decopon-data");
+        fallback
+    });
 
     fs::create_dir_all(&data_dir)?;
     Ok(data_dir)
@@ -45,7 +42,7 @@ fn load_or_generate_jwt_secret(data_dir: &Path) -> Result<String, std::io::Error
     }
 
     let secret: String = rand::thread_rng()
-        .sample_iter(&rand::distributions::Alphanumeric)
+        .sample_iter(&Alphanumeric)
         .take(64)
         .map(char::from)
         .collect();
@@ -87,8 +84,21 @@ fn configure_environment(data_dir: &Path, database_url: &str) -> Result<String, 
     Ok(secret)
 }
 
-fn notify_error(window: Option<&tauri::Window>, message: &str) {
-    dialog::message(window, "Decopon", message);
+fn notify_error(window: Option<&tauri::WebviewWindow>, message: &str) {
+    if let Some(window) = window {
+        match serde_json::to_string(&format!("Decopon: {message}")) {
+            Ok(payload) => {
+                if let Err(err) = window.eval(format!("window.alert({payload});")) {
+                    warn!(error = ?err, "failed to display alert dialog");
+                }
+            }
+            Err(err) => {
+                warn!(error = ?err, "failed to serialize alert dialog payload");
+            }
+        }
+    } else {
+        warn!("no window available for alert: {message}");
+    }
 }
 
 fn init_tracing() {
@@ -106,7 +116,7 @@ pub fn run() {
     ipc::register(tauri::Builder::default().plugin(tauri_plugin_opener::init()))
         .setup(|app| {
             let app_handle = app.handle();
-            let main_window = app.get_window("main");
+            let main_window = app.get_webview_window("main");
 
             let data_dir = ensure_app_data_dir(&app_handle).map_err(|e| {
                 error!(error = ?e, "failed to create app data directory");
@@ -151,7 +161,7 @@ pub fn run() {
 
             if let Some(window) = main_window {
                 let _ = app_handle.emit_to(
-                    window.label(),
+                    EventTarget::webview_window(window.label()),
                     "decopon://backend-ready",
                     serde_json::json!({ "database": database_url }),
                 );

@@ -2,14 +2,20 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 use axum_password_worker::{Bcrypt, PasswordWorker};
+use chrono::NaiveDate;
 use decopon_app_ipc::{
     AuthConfirmPasswordRequest, AuthCurrentUserRequest, AuthForgotPasswordRequest, AuthHandler,
     AuthLoginRequest, AuthRegisterRequest, AuthResendVerificationRequest, AuthResetPasswordRequest,
-    AuthSession, AuthUser, AuthVerifyEmailRequest, CreateTaskRequest, DeleteTaskRequest, Task,
-    TaskHandler, TaskListRequest, UpdateTaskRequest,
+    AuthSession, AuthUser, AuthVerifyEmailRequest, CreateDecoponSessionRequest, CreateLogRequest,
+    CreateTaskRequest, DecoponSession, DecoponSessionHandler, DeleteDecoponSessionRequest,
+    DeleteTaskRequest, Log, LogHandler, LogListByTaskRequest, LogListRequest, Task, TaskHandler,
+    TaskListRequest, UpdateDecoponSessionRequest, UpdateTaskRequest,
 };
 use decopon_services::{
-    usecases::{self, auth, tasks as tasks_usecase},
+    usecases::{
+        self, auth, decopon_sessions as decopon_sessions_usecase, logs as logs_usecase,
+        tasks as tasks_usecase,
+    },
     ServiceContext, ServiceError,
 };
 use migration::{Migrator, MigratorTrait};
@@ -28,7 +34,9 @@ impl AppServices {
         single_user_mode: bool,
     ) -> Result<Self, ServiceInitError> {
         let db = Database::connect(database_url).await?;
-        Migrator::up(&db, None).await?;
+        Migrator::up(&db, None)
+            .await
+            .map_err(ServiceInitError::Migration)?;
 
         let db = Arc::new(db);
         let password_worker = Arc::new(PasswordWorker::new_bcrypt(4)?);
@@ -65,8 +73,8 @@ impl AppServices {
 pub enum ServiceInitError {
     #[error(transparent)]
     Database(#[from] sea_orm::DbErr),
-    #[error(transparent)]
-    Migration(#[from] sea_orm_migration::DbErr),
+    #[error("migration failed: {0}")]
+    Migration(#[source] sea_orm_migration::DbErr),
     #[error(transparent)]
     PasswordWorker(#[from] axum_password_worker::PasswordWorkerError<Bcrypt>),
     #[error(transparent)]
@@ -245,5 +253,115 @@ impl TaskHandler for AppServices {
             tasks_usecase::delete_task(self.context().db(), request.id, request.user_id).await?;
 
         Ok(result.rows_affected > 0)
+    }
+}
+
+#[async_trait]
+impl LogHandler for AppServices {
+    async fn list_logs(&self, request: LogListRequest) -> Result<Vec<Log>, ServiceError> {
+        let logs = logs_usecase::get_logs(self.context().db(), request.user_id).await?;
+        Ok(logs.into_iter().map(Into::into).collect())
+    }
+
+    async fn list_logs_by_task(
+        &self,
+        request: LogListByTaskRequest,
+    ) -> Result<Vec<Log>, ServiceError> {
+        let logs = logs_usecase::get_logs_by_task(
+            self.context().db(),
+            request.user_id,
+            request.task_id,
+        )
+        .await?;
+        Ok(logs.into_iter().map(Into::into).collect())
+    }
+
+    async fn create_log(&self, request: CreateLogRequest) -> Result<Log, ServiceError> {
+        let new_log = logs_usecase::NewLog {
+            content: request.content,
+            source: request.source.into(),
+            task_id: request.task_id,
+            user_id: request.user_id,
+        };
+
+        logs_usecase::insert_log(self.context().db(), new_log)
+            .await
+            .map(Into::into)
+    }
+}
+
+#[async_trait]
+impl DecoponSessionHandler for AppServices {
+    async fn list_decopon_sessions(
+        &self,
+        user_id: i32,
+    ) -> Result<Vec<DecoponSession>, ServiceError> {
+        let sessions = decopon_sessions_usecase::get_sessions(self.context().db(), user_id).await?;
+        Ok(sessions.into_iter().map(Into::into).collect())
+    }
+
+    async fn get_decopon_session(
+        &self,
+        id: i32,
+        user_id: i32,
+    ) -> Result<DecoponSession, ServiceError> {
+        decopon_sessions_usecase::get_session_by_id(self.context().db(), id, user_id)
+            .await
+            .map(Into::into)
+    }
+
+    async fn create_decopon_session(
+        &self,
+        request: CreateDecoponSessionRequest,
+    ) -> Result<DecoponSession, ServiceError> {
+        let params = decopon_sessions_usecase::NewDecoponSession {
+            status: request.status,
+            started_at: request.started_at,
+            ended_at: request.ended_at,
+            user_id: request.user_id,
+        };
+
+        decopon_sessions_usecase::insert_session(self.context().db(), params)
+            .await
+            .map(Into::into)
+    }
+
+    async fn update_decopon_session(
+        &self,
+        request: UpdateDecoponSessionRequest,
+    ) -> Result<DecoponSession, ServiceError> {
+        let params = decopon_sessions_usecase::DecoponSessionUpdate {
+            id: request.id,
+            status: request.status,
+            ended_at: request.ended_at,
+            user_id: request.user_id,
+        };
+
+        decopon_sessions_usecase::update_session(self.context().db(), params)
+            .await
+            .map(Into::into)
+    }
+
+    async fn delete_decopon_session(
+        &self,
+        request: DeleteDecoponSessionRequest,
+    ) -> Result<bool, ServiceError> {
+        let result = decopon_sessions_usecase::delete_session(
+            self.context().db(),
+            request.id,
+            request.user_id,
+        )
+        .await?;
+
+        Ok(result.rows_affected > 0)
+    }
+
+    async fn count_decopon_cycles(
+        &self,
+        user_id: i32,
+        date: NaiveDate,
+    ) -> Result<u64, ServiceError> {
+        decopon_sessions_usecase::count_completed_sessions_on(self.context().db(), user_id, date)
+            .await
     }
 }

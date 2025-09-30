@@ -18,3 +18,4 @@
 - ルートの `package.json5` に全ワークスペース共通のスクリプトが定義されています。`pnpm -r run <script>` でパッケージ横断のコマンドを実行できます。
 - TypeScript 設定は `tsconfig.base.json` / `tsconfig.build.json` で共有し、フロントエンド固有のパスエイリアスは `frontend/tsconfig.paths.json` にまとめています。
 - 開発用 SQLite データベースは `backend/database/db.sqlite` に配置されます。必要に応じて削除・再生成してください。
+- Tauri 関連の Rust プロジェクトはビルド時間が非常に長く、この環境では途中で失敗しやすいため、検証時は `cargo build` ではなく `cargo check` を用いてください。
