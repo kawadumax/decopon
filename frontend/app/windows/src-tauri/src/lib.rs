@@ -2,9 +2,10 @@ use std::{
     fs,
     io::ErrorKind,
     path::{Path, PathBuf},
+    sync::Arc,
 };
 
-use decopon_app_ipc as ipc;
+use decopon_app_ipc::{self as ipc, AppIpcState};
 use rand::{distributions::Alphanumeric, Rng};
 use services::AppServices;
 use tauri::{api::dialog, Manager};
@@ -145,7 +146,8 @@ pub fn run() {
                 Box::new(error) as Box<dyn std::error::Error>
             })?;
 
-            app.manage(services);
+            let handler: AppIpcState = Arc::new(services);
+            app.manage(handler);
 
             if let Some(window) = main_window {
                 let _ = app_handle.emit_to(

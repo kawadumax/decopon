@@ -193,6 +193,12 @@ impl AuthHandler for AppServices {
 
 #[async_trait]
 impl TaskHandler for AppServices {
+    async fn get_task(&self, id: i32, user_id: i32) -> Result<Task, ServiceError> {
+        tasks_usecase::get_task_by_id(self.context().db(), user_id, id)
+            .await
+            .map(Into::into)
+    }
+
     async fn list_tasks(&self, request: TaskListRequest) -> Result<Vec<Task>, ServiceError> {
         let tasks = tasks_usecase::get_tasks(
             self.context().db(),

@@ -7,7 +7,10 @@ use decopon_services::{
 use serde::{Deserialize, Serialize};
 use tauri::State;
 
-use crate::error::{IpcError, IpcResult};
+use crate::{
+    error::{IpcError, IpcResult},
+    AppIpcState,
+};
 
 #[derive(Debug, Serialize, Clone, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
@@ -102,6 +105,13 @@ pub struct DeleteTaskRequest {
     pub user_id: i32,
 }
 
+#[derive(Debug, Deserialize, Clone, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct GetTaskRequest {
+    pub id: i32,
+    pub user_id: i32,
+}
+
 #[derive(Debug, Serialize, Clone, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct TaskResponse {
@@ -122,6 +132,7 @@ pub struct DeleteTaskResponse {
 
 #[async_trait]
 pub trait TaskHandler: Send + Sync {
+    async fn get_task(&self, id: i32, user_id: i32) -> Result<Task, ServiceError>;
     async fn list_tasks(&self, request: TaskListRequest) -> Result<Vec<Task>, ServiceError>;
     async fn create_task(&self, request: CreateTaskRequest) -> Result<Task, ServiceError>;
     async fn update_task(&self, request: UpdateTaskRequest) -> Result<Task, ServiceError>;
@@ -129,13 +140,23 @@ pub trait TaskHandler: Send + Sync {
 }
 
 #[tauri::command]
-pub async fn list_tasks<S>(
-    services: State<'_, S>,
+pub async fn get_task(
+    services: State<'_, AppIpcState>,
+    request: GetTaskRequest,
+) -> IpcResult<TaskResponse> {
+    services
+        .inner()
+        .get_task(request.id, request.user_id)
+        .await
+        .map(|task| TaskResponse { task })
+        .map_err(IpcError::from)
+}
+
+#[tauri::command]
+pub async fn list_tasks(
+    services: State<'_, AppIpcState>,
     request: TaskListRequest,
-) -> IpcResult<TasksResponse>
-where
-    S: TaskHandler,
-{
+) -> IpcResult<TasksResponse> {
     services
         .inner()
         .list_tasks(request)
@@ -145,13 +166,10 @@ where
 }
 
 #[tauri::command]
-pub async fn create_task<S>(
-    services: State<'_, S>,
+pub async fn create_task(
+    services: State<'_, AppIpcState>,
     request: CreateTaskRequest,
-) -> IpcResult<TaskResponse>
-where
-    S: TaskHandler,
-{
+) -> IpcResult<TaskResponse> {
     services
         .inner()
         .create_task(request)
@@ -161,13 +179,10 @@ where
 }
 
 #[tauri::command]
-pub async fn update_task<S>(
-    services: State<'_, S>,
+pub async fn update_task(
+    services: State<'_, AppIpcState>,
     request: UpdateTaskRequest,
-) -> IpcResult<TaskResponse>
-where
-    S: TaskHandler,
-{
+) -> IpcResult<TaskResponse> {
     services
         .inner()
         .update_task(request)
@@ -177,13 +192,10 @@ where
 }
 
 #[tauri::command]
-pub async fn delete_task<S>(
-    services: State<'_, S>,
+pub async fn delete_task(
+    services: State<'_, AppIpcState>,
     request: DeleteTaskRequest,
-) -> IpcResult<DeleteTaskResponse>
-where
-    S: TaskHandler,
-{
+) -> IpcResult<DeleteTaskResponse> {
     services
         .inner()
         .delete_task(request)

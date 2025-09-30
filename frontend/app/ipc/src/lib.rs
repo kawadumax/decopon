@@ -2,6 +2,8 @@ pub mod auth;
 pub mod error;
 pub mod tasks;
 
+use std::sync::Arc;
+
 pub use auth::{
     AuthConfirmPasswordRequest, AuthCurrentUserRequest, AuthCurrentUserResponse,
     AuthForgotPasswordRequest, AuthHandler, AuthLoginRequest, AuthLoginResponse,
@@ -10,9 +12,15 @@ pub use auth::{
 };
 pub use error::{IpcError, IpcResult};
 pub use tasks::{
-    CreateTaskRequest, DeleteTaskRequest, DeleteTaskResponse, Task, TaskHandler, TaskListRequest,
-    TaskResponse, TaskTag, TasksResponse, UpdateTaskRequest,
+    CreateTaskRequest, DeleteTaskRequest, DeleteTaskResponse, GetTaskRequest, Task, TaskHandler,
+    TaskListRequest, TaskResponse, TaskTag, TasksResponse, UpdateTaskRequest,
 };
+
+pub trait AppIpcHandler: AuthHandler + TaskHandler {}
+
+impl<T> AppIpcHandler for T where T: AuthHandler + TaskHandler {}
+
+pub type AppIpcState = Arc<dyn AppIpcHandler>;
 
 pub fn register<R: tauri::Runtime>(builder: tauri::Builder<R>) -> tauri::Builder<R> {
     builder.invoke_handler(tauri::generate_handler![
@@ -26,6 +34,7 @@ pub fn register<R: tauri::Runtime>(builder: tauri::Builder<R>) -> tauri::Builder
         auth::confirm_password,
         auth::verify_email,
         auth::resend_verification,
+        tasks::get_task,
         tasks::list_tasks,
         tasks::create_task,
         tasks::update_task,

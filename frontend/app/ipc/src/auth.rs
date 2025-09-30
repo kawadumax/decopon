@@ -6,7 +6,10 @@ use decopon_services::{
 use serde::{Deserialize, Serialize};
 use tauri::State;
 
-use crate::error::{IpcError, IpcResult};
+use crate::{
+    error::{IpcError, IpcResult},
+    AppIpcState,
+};
 
 #[derive(Debug, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -153,10 +156,7 @@ pub trait AuthHandler: Send + Sync {
 }
 
 #[tauri::command]
-pub async fn single_user_session<S>(services: State<'_, S>) -> IpcResult<AuthLoginResponse>
-where
-    S: AuthHandler,
-{
+pub async fn single_user_session(services: State<'_, AppIpcState>) -> IpcResult<AuthLoginResponse> {
     services
         .inner()
         .single_user_session()
@@ -166,13 +166,10 @@ where
 }
 
 #[tauri::command]
-pub async fn login<S>(
-    services: State<'_, S>,
+pub async fn login(
+    services: State<'_, AppIpcState>,
     request: AuthLoginRequest,
-) -> IpcResult<AuthLoginResponse>
-where
-    S: AuthHandler,
-{
+) -> IpcResult<AuthLoginResponse> {
     services
         .inner()
         .login(request)
@@ -182,13 +179,10 @@ where
 }
 
 #[tauri::command]
-pub async fn register<S>(
-    services: State<'_, S>,
+pub async fn register(
+    services: State<'_, AppIpcState>,
     request: AuthRegisterRequest,
-) -> IpcResult<AuthRegisterResponse>
-where
-    S: AuthHandler,
-{
+) -> IpcResult<AuthRegisterResponse> {
     services
         .inner()
         .register(request)
@@ -198,13 +192,10 @@ where
 }
 
 #[tauri::command]
-pub async fn current_user<S>(
-    services: State<'_, S>,
+pub async fn current_user(
+    services: State<'_, AppIpcState>,
     request: AuthCurrentUserRequest,
-) -> IpcResult<AuthCurrentUserResponse>
-where
-    S: AuthHandler,
-{
+) -> IpcResult<AuthCurrentUserResponse> {
     services
         .inner()
         .current_user(request)
@@ -214,10 +205,7 @@ where
 }
 
 #[tauri::command]
-pub async fn logout<S>(services: State<'_, S>) -> IpcResult<AuthStatusResponse>
-where
-    S: AuthHandler,
-{
+pub async fn logout(services: State<'_, AppIpcState>) -> IpcResult<AuthStatusResponse> {
     services
         .inner()
         .logout()
@@ -229,13 +217,10 @@ where
 }
 
 #[tauri::command]
-pub async fn forgot_password<S>(
-    services: State<'_, S>,
+pub async fn forgot_password(
+    services: State<'_, AppIpcState>,
     request: AuthForgotPasswordRequest,
-) -> IpcResult<AuthStatusResponse>
-where
-    S: AuthHandler,
-{
+) -> IpcResult<AuthStatusResponse> {
     services
         .inner()
         .forgot_password(request)
@@ -247,13 +232,10 @@ where
 }
 
 #[tauri::command]
-pub async fn reset_password<S>(
-    services: State<'_, S>,
+pub async fn reset_password(
+    services: State<'_, AppIpcState>,
     request: AuthResetPasswordRequest,
-) -> IpcResult<AuthStatusResponse>
-where
-    S: AuthHandler,
-{
+) -> IpcResult<AuthStatusResponse> {
     services
         .inner()
         .reset_password(request)
@@ -265,14 +247,11 @@ where
 }
 
 #[tauri::command]
-pub async fn confirm_password<S>(
-    services: State<'_, S>,
+pub async fn confirm_password(
+    services: State<'_, AppIpcState>,
     token: String,
     request: AuthConfirmPasswordRequest,
-) -> IpcResult<AuthStatusResponse>
-where
-    S: AuthHandler,
-{
+) -> IpcResult<AuthStatusResponse> {
     services
         .inner()
         .confirm_password(token, request)
@@ -284,13 +263,10 @@ where
 }
 
 #[tauri::command]
-pub async fn verify_email<S>(
-    services: State<'_, S>,
+pub async fn verify_email(
+    services: State<'_, AppIpcState>,
     request: AuthVerifyEmailRequest,
-) -> IpcResult<AuthLoginResponse>
-where
-    S: AuthHandler,
-{
+) -> IpcResult<AuthLoginResponse> {
     services
         .inner()
         .verify_email(request)
@@ -300,13 +276,10 @@ where
 }
 
 #[tauri::command]
-pub async fn resend_verification<S>(
-    services: State<'_, S>,
+pub async fn resend_verification(
+    services: State<'_, AppIpcState>,
     request: AuthResendVerificationRequest,
-) -> IpcResult<AuthStatusResponse>
-where
-    S: AuthHandler,
-{
+) -> IpcResult<AuthStatusResponse> {
     services
         .inner()
         .resend_verification(request)

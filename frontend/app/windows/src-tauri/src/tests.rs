@@ -4,12 +4,13 @@ use decopon_app_ipc::{
     auth::AuthLoginResponse,
     error::IpcError,
     tasks::{DeleteTaskResponse, TaskResponse, TasksResponse},
-    AuthCurrentUserResponse, AuthRegisterResponse, AuthStatusResponse,
+    AppIpcState, AuthCurrentUserResponse, AuthRegisterResponse, AuthStatusResponse,
 };
 use decopon_services::entities::users;
 use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, Set};
 use serde_json::json;
 use sha2::{Digest, Sha256};
+use std::sync::Arc;
 use tauri::{
     ipc::{CallbackFn, InvokeBody},
     test::{self, mock_context, noop_assets, INVOKE_KEY},
@@ -30,7 +31,8 @@ fn invoke_request(cmd: &str, body: serde_json::Value) -> InvokeRequest {
 }
 
 fn build_test_app(services: AppServices) -> tauri::App<tauri::test::MockRuntime> {
-    let builder = test::mock_builder().manage(services);
+    let handler: AppIpcState = Arc::new(services);
+    let builder = test::mock_builder().manage(handler);
     ipc::register(builder)
         .build(mock_context(noop_assets()))
         .expect("failed to build test app")
@@ -104,6 +106,21 @@ fn smoke_test_auth_and_task_commands() {
     assert_eq!(created.task.title, "Write integration test");
     assert_eq!(created.task.description, "Cover IPC smoke scenario");
     assert!(!created.task.completed);
+
+    let get_body = json!({
+        "request": {
+            "id": created.task.id,
+            "userId": user_id
+        }
+    });
+
+    let fetched = test::get_ipc_response(&webview, invoke_request("get_task", get_body))
+        .expect("get task should succeed")
+        .deserialize::<TaskResponse>()
+        .expect("failed to deserialize get response");
+
+    assert_eq!(fetched.task.id, created.task.id);
+    assert_eq!(fetched.task.title, created.task.title);
 
     let list_response = test::get_ipc_response(
         &webview,
