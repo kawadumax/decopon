@@ -5,6 +5,7 @@ use decopon_app_ipc::{
     error::IpcError,
     tasks::{DeleteTaskResponse, TaskResponse, TasksResponse},
     AppIpcState, AuthCurrentUserResponse, AuthRegisterResponse, AuthStatusResponse,
+    PreferenceResponse,
 };
 use decopon_services::entities::users;
 use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, Set};
@@ -435,5 +436,68 @@ fn smoke_test_email_verification_flow() {
             .expect("user should exist");
 
         assert!(user.email_verified_at.is_some());
+    });
+}
+
+#[test]
+fn update_preferences_command_updates_user_settings() {
+    std::env::set_var("APP_SINGLE_USER_MODE", "1");
+    std::env::set_var("APP_SINGLE_USER_EMAIL", "prefs@example.com");
+    std::env::set_var("APP_SINGLE_USER_PASSWORD", "password");
+    std::env::set_var("APP_SINGLE_USER_NAME", "Preference User");
+    std::env::set_var("APP_SINGLE_USER_LOCALE", "ja");
+    std::env::set_var("APP_SINGLE_USER_WORK_TIME", "25");
+    std::env::set_var("APP_SINGLE_USER_BREAK_TIME", "5");
+
+    let services = tauri::async_runtime::block_on(AppServices::initialize(
+        "sqlite::memory:",
+        "preferences-secret".into(),
+        true,
+    ))
+    .expect("service initialization should succeed");
+
+    let app = build_test_app(services.clone());
+    let webview = WebviewWindowBuilder::new(&app, "preferences", Default::default())
+        .build()
+        .expect("failed to build webview");
+
+    let session =
+        test::get_ipc_response(&webview, invoke_request("single_user_session", json!({})))
+            .expect("single_user_session command should succeed")
+            .deserialize::<AuthLoginResponse>()
+            .expect("failed to deserialize single_user_session response");
+
+    let user_id = session.session.user.id;
+
+    let update_body = json!({
+        "userId": user_id,
+        "request": {
+            "workTime": 40,
+            "breakTime": 20,
+            "locale": "en"
+        }
+    });
+
+    let response =
+        test::get_ipc_response(&webview, invoke_request("update_preferences", update_body))
+            .expect("update_preferences command should succeed")
+            .deserialize::<PreferenceResponse>()
+            .expect("failed to deserialize update_preferences response");
+
+    assert_eq!(response.work_time, 40);
+    assert_eq!(response.break_time, 20);
+    assert_eq!(response.locale, "en");
+
+    tauri::async_runtime::block_on(async {
+        let db = services.context().db();
+        let user = users::Entity::find_by_id(user_id)
+            .one(db)
+            .await
+            .expect("query user by id")
+            .expect("user should exist");
+
+        assert_eq!(user.work_time, 40);
+        assert_eq!(user.break_time, 20);
+        assert_eq!(user.locale, "en");
     });
 }

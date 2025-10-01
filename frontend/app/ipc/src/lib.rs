@@ -2,6 +2,7 @@ pub mod auth;
 pub mod decopon_sessions;
 pub mod error;
 pub mod logs;
+pub mod preferences;
 pub mod tasks;
 
 use std::sync::Arc;
@@ -23,14 +24,21 @@ pub use logs::{
     CreateLogRequest, Log, LogHandler, LogListByTaskRequest, LogListRequest, LogListResponse,
     LogResponse, LogSource,
 };
+pub use preferences::{PreferenceHandler, PreferenceResponse, UpdatePreferenceRequest};
 pub use tasks::{
     CreateTaskRequest, DeleteTaskRequest, DeleteTaskResponse, GetTaskRequest, Task, TaskHandler,
     TaskListRequest, TaskResponse, TaskTag, TasksResponse, UpdateTaskRequest,
 };
 
-pub trait AppIpcHandler: AuthHandler + TaskHandler + DecoponSessionHandler + LogHandler {}
+pub trait AppIpcHandler:
+    AuthHandler + TaskHandler + DecoponSessionHandler + LogHandler + PreferenceHandler
+{
+}
 
-impl<T> AppIpcHandler for T where T: AuthHandler + TaskHandler + DecoponSessionHandler + LogHandler {}
+impl<T> AppIpcHandler for T where
+    T: AuthHandler + TaskHandler + DecoponSessionHandler + LogHandler + PreferenceHandler
+{
+}
 
 pub type AppIpcState = Arc<dyn AppIpcHandler>;
 
@@ -55,6 +63,7 @@ pub fn register<R: tauri::Runtime>(builder: tauri::Builder<R>) -> tauri::Builder
         logs::list_logs,
         logs::list_logs_by_task,
         logs::create_log,
+        preferences::update_preferences,
         tasks::get_task,
         tasks::list_tasks,
         tasks::create_task,

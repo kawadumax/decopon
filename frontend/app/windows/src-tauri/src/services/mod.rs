@@ -8,13 +8,14 @@ use decopon_app_ipc::{
     AuthLoginRequest, AuthRegisterRequest, AuthResendVerificationRequest, AuthResetPasswordRequest,
     AuthSession, AuthUser, AuthVerifyEmailRequest, CreateDecoponSessionRequest, CreateLogRequest,
     CreateTaskRequest, DecoponSession, DecoponSessionHandler, DeleteDecoponSessionRequest,
-    DeleteTaskRequest, Log, LogHandler, LogListByTaskRequest, LogListRequest, Task, TaskHandler,
-    TaskListRequest, UpdateDecoponSessionRequest, UpdateTaskRequest,
+    DeleteTaskRequest, Log, LogHandler, LogListByTaskRequest, LogListRequest, PreferenceHandler,
+    PreferenceResponse, Task, TaskHandler, TaskListRequest, UpdateDecoponSessionRequest,
+    UpdatePreferenceRequest, UpdateTaskRequest,
 };
 use decopon_services::{
     usecases::{
         self, auth, decopon_sessions as decopon_sessions_usecase, logs as logs_usecase,
-        tasks as tasks_usecase,
+        preferences as preferences_usecase, tasks as tasks_usecase,
     },
     ServiceContext, ServiceError,
 };
@@ -267,12 +268,9 @@ impl LogHandler for AppServices {
         &self,
         request: LogListByTaskRequest,
     ) -> Result<Vec<Log>, ServiceError> {
-        let logs = logs_usecase::get_logs_by_task(
-            self.context().db(),
-            request.user_id,
-            request.task_id,
-        )
-        .await?;
+        let logs =
+            logs_usecase::get_logs_by_task(self.context().db(), request.user_id, request.task_id)
+                .await?;
         Ok(logs.into_iter().map(Into::into).collect())
     }
 
@@ -287,6 +285,25 @@ impl LogHandler for AppServices {
         logs_usecase::insert_log(self.context().db(), new_log)
             .await
             .map(Into::into)
+    }
+}
+
+#[async_trait]
+impl PreferenceHandler for AppServices {
+    async fn update_preferences(
+        &self,
+        user_id: i32,
+        request: UpdatePreferenceRequest,
+    ) -> Result<PreferenceResponse, ServiceError> {
+        let params = preferences_usecase::UpdatePreference {
+            work_time: request.work_time,
+            break_time: request.break_time,
+            locale: request.locale,
+        };
+
+        preferences_usecase::update_preference(self.context().db(), user_id, params)
+            .await
+            .map(PreferenceResponse::from)
     }
 }
 
