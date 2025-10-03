@@ -7,15 +7,18 @@ use decopon_app_ipc::{
     AuthConfirmPasswordRequest, AuthCurrentUserRequest, AuthForgotPasswordRequest, AuthHandler,
     AuthLoginRequest, AuthRegisterRequest, AuthResendVerificationRequest, AuthResetPasswordRequest,
     AuthSession, AuthUser, AuthVerifyEmailRequest, CreateDecoponSessionRequest, CreateLogRequest,
-    CreateTaskRequest, DecoponSession, DecoponSessionHandler, DeleteDecoponSessionRequest,
-    DeleteTaskRequest, Log, LogHandler, LogListByTaskRequest, LogListRequest, PreferenceHandler,
-    PreferenceResponse, Task, TaskHandler, TaskListRequest, UpdateDecoponSessionRequest,
-    UpdatePreferenceRequest, UpdateTaskRequest,
+    CreateTagRequest, CreateTaskRequest, DecoponSession, DecoponSessionHandler,
+    DeleteDecoponSessionRequest, DeleteProfileRequest, DeleteTagsRequest, DeleteTaskRequest,
+    ListTagsRequest, Log, LogHandler, LogListByTaskRequest, LogListRequest, PreferenceHandler,
+    PreferenceResponse, ProfileHandler, ProfileResponse, Tag, TagHandler, TagRelationRequest, Task,
+    TaskHandler, TaskListRequest, UpdateDecoponSessionRequest, UpdatePasswordRequest,
+    UpdatePreferenceRequest, UpdateProfileRequest, UpdateTaskRequest,
 };
 use decopon_services::{
     usecases::{
         self, auth, decopon_sessions as decopon_sessions_usecase, logs as logs_usecase,
-        preferences as preferences_usecase, tasks as tasks_usecase,
+        preferences as preferences_usecase, profiles as profiles_usecase,
+        tag_task as tag_task_usecase, tags as tags_usecase, tasks as tasks_usecase,
     },
     ServiceContext, ServiceError,
 };
@@ -258,6 +261,106 @@ impl TaskHandler for AppServices {
 }
 
 #[async_trait]
+impl TagHandler for AppServices {
+    async fn list_tags(&self, request: ListTagsRequest) -> Result<Vec<Tag>, ServiceError> {
+        tags_usecase::get_tags(self.context().db(), request.user_id)
+            .await
+            .map(|tags| tags.into_iter().map(Into::into).collect())
+    }
+
+    async fn create_tag(&self, request: CreateTagRequest) -> Result<Tag, ServiceError> {
+        let params = tags_usecase::NewTag {
+            name: request.name,
+            user_id: request.user_id,
+        };
+
+        tags_usecase::insert_tag(self.context().db(), params)
+            .await
+            .map(Into::into)
+    }
+
+    async fn attach_tag_to_task(&self, request: TagRelationRequest) -> Result<Tag, ServiceError> {
+        let TagRelationRequest {
+            user_id,
+            task_id: requested_task_id,
+            name,
+        } = request;
+
+        let task_id = tasks_usecase::get_task_by_id(
+            self.context().db(),
+            user_id,
+            requested_task_id,
+        )
+        .await?
+        .id;
+
+        let tag = match tags_usecase::get_tags(self.context().db(), user_id)
+            .await?
+            .into_iter()
+            .find(|tag| tag.name == name)
+        {
+            Some(tag) => tag,
+            None => {
+                let params = tags_usecase::NewTag {
+                    name: name.clone(),
+                    user_id,
+                };
+                tags_usecase::insert_tag(self.context().db(), params).await?
+            }
+        };
+
+        tag_task_usecase::attach_tags(self.context().db(), task_id, vec![tag.id]).await?;
+
+        let updated = tags_usecase::get_tags(self.context().db(), user_id)
+            .await?
+            .into_iter()
+            .find(|candidate| candidate.id == tag.id)
+            .ok_or(ServiceError::NotFound("tag"))?;
+
+        Ok(updated.into())
+    }
+
+    async fn detach_tag_from_task(
+        &self,
+        request: TagRelationRequest,
+    ) -> Result<Option<Tag>, ServiceError> {
+        let TagRelationRequest {
+            user_id,
+            task_id: requested_task_id,
+            name,
+        } = request;
+
+        let task_id = tasks_usecase::get_task_by_id(
+            self.context().db(),
+            user_id,
+            requested_task_id,
+        )
+        .await?
+        .id;
+
+        let tags = tags_usecase::get_tags(self.context().db(), user_id).await?;
+
+        if let Some(tag) = tags.into_iter().find(|tag| tag.name == name) {
+            tag_task_usecase::detach_tags(self.context().db(), task_id, vec![tag.id]).await?;
+
+            let updated = tags_usecase::get_tags(self.context().db(), user_id)
+                .await?
+                .into_iter()
+                .find(|candidate| candidate.id == tag.id)
+                .ok_or(ServiceError::NotFound("tag"))?;
+
+            Ok(Some(updated.into()))
+        } else {
+            Ok(None)
+        }
+    }
+
+    async fn delete_tags(&self, request: DeleteTagsRequest) -> Result<(), ServiceError> {
+        tags_usecase::delete_tags(self.context().db(), request.user_id, request.tag_ids).await
+    }
+}
+
+#[async_trait]
 impl LogHandler for AppServices {
     async fn list_logs(&self, request: LogListRequest) -> Result<Vec<Log>, ServiceError> {
         let logs = logs_usecase::get_logs(self.context().db(), request.user_id).await?;
@@ -304,6 +407,67 @@ impl PreferenceHandler for AppServices {
         preferences_usecase::update_preference(self.context().db(), user_id, params)
             .await
             .map(PreferenceResponse::from)
+    }
+}
+
+#[async_trait]
+impl ProfileHandler for AppServices {
+    async fn get_profile(&self, user_id: i32) -> Result<ProfileResponse, ServiceError> {
+        profiles_usecase::get_profile(self.context().db(), user_id)
+            .await
+            .map(ProfileResponse::from)
+    }
+
+    async fn update_profile(
+        &self,
+        user_id: i32,
+        request: UpdateProfileRequest,
+    ) -> Result<ProfileResponse, ServiceError> {
+        let params = profiles_usecase::UpdateProfile {
+            name: request.name,
+            email: request.email,
+        };
+
+        profiles_usecase::update_profile(self.context().db(), user_id, params)
+            .await
+            .map(ProfileResponse::from)
+    }
+
+    async fn update_profile_password(
+        &self,
+        user_id: i32,
+        request: UpdatePasswordRequest,
+    ) -> Result<(), ServiceError> {
+        let params = profiles_usecase::UpdatePassword {
+            current_password: request.current_password,
+            password: request.password,
+        };
+
+        profiles_usecase::update_password(
+            self.context().db(),
+            self.context().password_worker(),
+            user_id,
+            params,
+        )
+        .await
+    }
+
+    async fn delete_profile(
+        &self,
+        user_id: i32,
+        request: DeleteProfileRequest,
+    ) -> Result<(), ServiceError> {
+        let params = profiles_usecase::DeleteProfile {
+            password: request.password,
+        };
+
+        profiles_usecase::delete_profile(
+            self.context().db(),
+            self.context().password_worker(),
+            user_id,
+            params,
+        )
+        .await
     }
 }
 

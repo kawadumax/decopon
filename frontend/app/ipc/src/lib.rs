@@ -3,6 +3,8 @@ pub mod decopon_sessions;
 pub mod error;
 pub mod logs;
 pub mod preferences;
+pub mod profiles;
+pub mod tags;
 pub mod tasks;
 
 use std::sync::Arc;
@@ -25,18 +27,38 @@ pub use logs::{
     LogResponse, LogSource,
 };
 pub use preferences::{PreferenceHandler, PreferenceResponse, UpdatePreferenceRequest};
+pub use profiles::{
+    DeleteProfileCommand, DeleteProfileRequest, GetProfileRequest, ProfileHandler, ProfileResponse,
+    UpdatePasswordCommand, UpdatePasswordRequest, UpdateProfileCommand, UpdateProfileRequest,
+};
+pub use tags::{
+    CreateTagRequest, DeleteTagsRequest, DeleteTagsResponse, ListTagsRequest, ListTagsResponse,
+    OptionalTagResponse, Tag, TagHandler, TagRelationRequest, TagResponse,
+};
 pub use tasks::{
     CreateTaskRequest, DeleteTaskRequest, DeleteTaskResponse, GetTaskRequest, Task, TaskHandler,
     TaskListRequest, TaskResponse, TaskTag, TasksResponse, UpdateTaskRequest,
 };
 
 pub trait AppIpcHandler:
-    AuthHandler + TaskHandler + DecoponSessionHandler + LogHandler + PreferenceHandler
+    AuthHandler
+    + TaskHandler
+    + TagHandler
+    + DecoponSessionHandler
+    + LogHandler
+    + PreferenceHandler
+    + ProfileHandler
 {
 }
 
 impl<T> AppIpcHandler for T where
-    T: AuthHandler + TaskHandler + DecoponSessionHandler + LogHandler + PreferenceHandler
+    T: AuthHandler
+        + TaskHandler
+        + TagHandler
+        + DecoponSessionHandler
+        + LogHandler
+        + PreferenceHandler
+        + ProfileHandler
 {
 }
 
@@ -63,7 +85,16 @@ pub fn register<R: tauri::Runtime>(builder: tauri::Builder<R>) -> tauri::Builder
         logs::list_logs,
         logs::list_logs_by_task,
         logs::create_log,
+        tags::list_tags,
+        tags::create_tag,
+        tags::attach_tag_to_task,
+        tags::detach_tag_from_task,
+        tags::delete_tags,
         preferences::update_preferences,
+        profiles::get_profile,
+        profiles::update_profile,
+        profiles::update_profile_password,
+        profiles::delete_profile,
         tasks::get_task,
         tasks::list_tasks,
         tasks::create_task,
