@@ -8,13 +8,19 @@ Windows/Android などのデスクトップ・モバイルアプリで共通利�
 
 Windows 版では `src-tauri/src/lib.rs` 内のセットアップ処理で以下の環境変数を自動注入します。
 
-- `AXUM_DATABASE_URL` / `DATABASE_URL`: アプリデータディレクトリ直下の `decopon.sqlite` を指す SQLite DSN。
+- `AXUM_DATABASE_URL`: アプリデータディレクトリ直下の `decopon.sqlite` を指す SQLite DSN。
 - `AXUM_JWT_SECRET`: `AppData\\Roaming\\com.decopon.windows\\jwt_secret` に保存された値を読み込みます。ファイルが存在しない場合は 64 文字のランダム文字列を生成して保存します。
 - `APP_SINGLE_USER_MODE`: 単一ユーザー前提の動作をさせるため `1` をセットします。
-- `AXUM_DISABLE_SMTP`: ローカル配布でメール送信を行わないため `1` をセットします。
-- `AXUM_IP` / `AXUM_PORT` / `AXUM_ALLOWED_ORIGINS`: 未設定時にローカル開発向けの既定値を補います。
+- `APP_SINGLE_USER_EMAIL`: 単一ユーザー用のメールアドレスとして `single-user@localhost` をセットします。
+- `APP_SINGLE_USER_PASSWORD`: ローカル用の既定パスワードとして `decopon-local-password` をセットします。
+- `APP_SINGLE_USER_NAME`: 既定の表示名として `Decopon User` をセットします。
+- `APP_SINGLE_USER_LOCALE`: 既定のロケールとして `en` をセットします。
+- `APP_SINGLE_USER_WORK_TIME`: ポモドーロの作業時間として `25` をセットします。
+- `APP_SINGLE_USER_BREAK_TIME`: ポモドーロの休憩時間として `5` をセットします。
 
 SMTP を利用する場合や単一ユーザーモードを解除したい場合は、Tauri アプリを起動する前に任意の値を環境変数へ設定してください。
+
+なお、`DATABASE_URL`、`AXUM_DISABLE_SMTP`、`AXUM_IP` / `AXUM_PORT` / `AXUM_ALLOWED_ORIGINS` などは自動では注入されません。必要に応じて `.env` やシステム環境変数で個別に設定してください（Axum 側には未設定時のフォールバック値が用意されています）。
 
 ## 開発・ビルド手順
 

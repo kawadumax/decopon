@@ -1,11 +1,29 @@
+import { authStorage } from "@/scripts/lib/authStorage";
+import { tokenStorage } from "@/scripts/lib/tokenStorage";
+
 import { ApiError, type ApiRequest, type ApiTransport, type TransportResponse } from "../types";
-import type { IpcCommandMatcher } from "./ipc/commands/types";
-import { ipcCommandMatchers } from "./ipc/commands";
-import { getTauriInvoke, type IpcCommand, type InvokeFn, toApiError } from "./ipc/shared";
+import { getTauriInvoke, type InvokeFn, toApiError } from "./ipc/shared";
 
 const forcedTransport = (
   import.meta.env as unknown as Record<string, string | undefined>
 ).VITE_APP_TRANSPORT as "http" | "ipc" | undefined;
+
+type IpcInvokeResponse = {
+  status: number;
+  body: unknown;
+  headers: Record<string, string>;
+};
+
+type IpcCommandPayload = {
+  method: string;
+  path: string;
+  headers: Record<string, string>;
+  body?: unknown;
+};
+
+type IpcErrorData = Record<string, unknown> & {
+  message?: string;
+};
 
 export function createIpcTransport(): ApiTransport | null {
   if (forcedTransport === "http") {
@@ -17,59 +35,98 @@ export function createIpcTransport(): ApiTransport | null {
     return null;
   }
 
-  return new IpcTransport(invoke, ipcCommandMatchers);
+  return new IpcTransport(invoke);
 }
 
 class IpcTransport implements ApiTransport {
   readonly kind = "ipc" as const;
 
-  private readonly commandCache = new WeakMap<ApiRequest, IpcCommand | null>();
-
-  constructor(
-    private readonly invoke: InvokeFn,
-    private readonly matchers: readonly IpcCommandMatcher[],
-  ) {}
+  constructor(private readonly invoke: InvokeFn) {}
 
   canHandle(request: ApiRequest): boolean {
-    return this.findCommand(request) !== null;
+    return true;
   }
 
   async send<T>(request: ApiRequest): Promise<TransportResponse<T>> {
-    const match = this.findCommand(request);
-    this.commandCache.delete(request);
-    if (!match) {
-      throw new ApiError("IPC transport does not support this request.", {
-        code: "transport.unsupported",
-        data: {
-          message: "IPC transport does not support this request.",
-        },
-      });
-    }
-
     try {
-      const raw = await this.invoke(match.command, match.payload);
-      const data = match.transform(raw) as T;
-      return { data, status: match.status ?? 200 };
+      const response = await this.invoke<IpcInvokeResponse>(
+        "dispatch_http_request",
+        this.buildPayload(request),
+      );
+
+      if (response.status >= 400) {
+        throw this.toApiError(response);
+      }
+
+      return { data: response.body as T, status: response.status };
     } catch (error) {
       throw toApiError(error);
     }
   }
 
-  private findCommand(request: ApiRequest): IpcCommand | null {
-    const cached = this.commandCache.get(request);
-    if (cached !== undefined) {
-      return cached;
+  private buildPayload(request: ApiRequest): IpcCommandPayload {
+    const headers: Record<string, string> = {
+      "X-Requested-With": "XMLHttpRequest",
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    };
+
+    const token = tokenStorage.getToken();
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
     }
 
-    for (const match of this.matchers) {
-      const command = match(request);
-      if (command) {
-        this.commandCache.set(request, command);
-        return command;
-      }
+    const body = this.serializeBody(request);
+
+    return {
+      method: request.method.toUpperCase(),
+      path: request.url,
+      headers,
+      ...(body !== undefined ? { body } : {}),
+    };
+  }
+
+  private serializeBody(request: ApiRequest): unknown {
+    if (request.data === undefined) {
+      return undefined;
     }
 
-    this.commandCache.set(request, null);
-    return null;
+    if (typeof FormData !== "undefined" && request.data instanceof FormData) {
+      return Object.fromEntries(Array.from(request.data.entries()));
+    }
+
+    return request.data;
+  }
+
+  private toApiError(response: IpcInvokeResponse): ApiError {
+    const data = this.extractErrorData(response.body);
+    const message = data.message ?? "IPC 呼び出しに失敗しました。";
+
+    if (response.status === 401) {
+      tokenStorage.removeToken();
+      authStorage.clear();
+    }
+
+    return new ApiError(message, {
+      status: response.status,
+      data,
+    });
+  }
+
+  private extractErrorData(body: unknown): IpcErrorData {
+    if (body && typeof body === "object") {
+      const record = body as Record<string, unknown>;
+      const message =
+        typeof record.message === "string"
+          ? record.message
+          : "IPC 呼び出しに失敗しました。";
+      return { ...record, message };
+    }
+
+    if (typeof body === "string") {
+      return { message: body };
+    }
+
+    return { message: "IPC 呼び出しに失敗しました。" };
   }
 }

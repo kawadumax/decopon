@@ -1,20 +1,33 @@
 use std::{
+    collections::HashMap,
     fs,
     io::ErrorKind,
     path::{Path, PathBuf},
-    sync::Arc,
 };
 
-use decopon_app_ipc::{self as ipc, AppIpcState};
+use decopon_app_ipc::{self as ipc, AppIpcState, IpcHttpResponse};
+use decopon_axum::AppState;
 use rand::{distributions::Alphanumeric, Rng};
+use serde_json::Value;
 use services::AppServices;
-use tauri::{Emitter, EventTarget, Manager};
+use tauri::{Emitter, EventId, EventTarget, Listener, Manager, State};
 use tracing::{error, info, warn};
 use tracing_subscriber::EnvFilter;
+use url::Url;
 
 mod services;
-#[cfg(test)]
-mod tests;
+
+struct ReadyListenerState {
+    _listener_id: EventId,
+}
+
+impl ReadyListenerState {
+    fn new(listener_id: EventId) -> Self {
+        Self {
+            _listener_id: listener_id,
+        }
+    }
+}
 
 fn ensure_app_data_dir(app_handle: &tauri::AppHandle) -> Result<PathBuf, std::io::Error> {
     let data_dir = app_handle.path().app_data_dir().unwrap_or_else(|_| {
@@ -48,6 +61,40 @@ fn load_or_generate_jwt_secret(data_dir: &Path) -> Result<String, std::io::Error
         .collect();
     fs::write(&secret_path, format!("{secret}\n"))?;
     Ok(secret)
+}
+
+fn sqlite_url_from_path(path: &Path) -> Result<String, std::io::Error> {
+    match Url::from_file_path(path) {
+        Ok(url) => Ok(format!("sqlite://{}", url.path())),
+        Err(_) => {
+            if let Some(path_str) = path.to_str() {
+                if looks_like_windows_path(path_str) {
+                    let normalized = path_str.replace('\\', "/");
+                    let file_url = format!("file:///{}", normalized);
+                    let url = Url::parse(&file_url).map_err(|err| {
+                        std::io::Error::new(ErrorKind::InvalidInput, err.to_string())
+                    })?;
+                    return Ok(format!("sqlite://{}", url.path()));
+                }
+            }
+
+            Err(std::io::Error::new(
+                ErrorKind::InvalidInput,
+                format!("invalid database path: {}", path.display()),
+            ))
+        }
+    }
+}
+
+fn looks_like_windows_path(path: &str) -> bool {
+    let bytes = path.as_bytes();
+    if bytes.len() < 3 {
+        return false;
+    }
+
+    matches!(bytes[0], b'a'..=b'z' | b'A'..=b'Z')
+        && bytes[1] == b':'
+        && (bytes[2] == b'\\' || bytes[2] == b'/')
 }
 
 fn configure_environment(data_dir: &Path, database_url: &str) -> Result<String, std::io::Error> {
@@ -109,11 +156,24 @@ fn init_tracing() {
         .try_init();
 }
 
+#[tauri::command]
+async fn dispatch_http_request(
+    state: State<'_, AppIpcState>,
+    method: String,
+    path: String,
+    body: Option<Value>,
+    headers: Option<HashMap<String, String>>,
+) -> Result<IpcHttpResponse, String> {
+    ipc::dispatch_http_request(&state, method, path, body, headers).await
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     init_tracing();
 
-    ipc::register(tauri::Builder::default().plugin(tauri_plugin_opener::init()))
+    tauri::Builder::default()
+        .plugin(tauri_plugin_opener::init())
+        .invoke_handler(tauri::generate_handler![dispatch_http_request])
         .setup(|app| {
             let app_handle = app.handle();
             let main_window = app.get_webview_window("main");
@@ -128,7 +188,15 @@ pub fn run() {
             })?;
 
             let db_path = data_dir.join("decopon.sqlite");
-            let database_url = format!("sqlite://{}?mode=rwc", db_path.to_string_lossy());
+            let normalized_url = sqlite_url_from_path(&db_path).map_err(|e| {
+                error!(error = ?e, "failed to normalize database path");
+                notify_error(
+                    main_window.as_ref(),
+                    &format!("データベースパスの正規化に失敗しました: {e}"),
+                );
+                Box::new(e) as Box<dyn std::error::Error>
+            })?;
+            let database_url = format!("{normalized_url}?mode=rwc");
             let jwt_secret = configure_environment(&data_dir, &database_url).map_err(|e| {
                 error!(error = ?e, "failed to configure environment");
                 notify_error(
@@ -156,15 +224,25 @@ pub fn run() {
                 Box::new(error) as Box<dyn std::error::Error>
             })?;
 
-            let handler: AppIpcState = Arc::new(services);
+            let app_state = AppState::from(services.service_context());
+            let router = decopon_axum::routes::create_routes(app_state.clone());
+            let handler = AppIpcState::new(router, app_state);
             app.manage(handler);
 
             if let Some(window) = main_window {
-                let _ = app_handle.emit_to(
-                    EventTarget::webview_window(window.label()),
-                    "decopon://backend-ready",
-                    serde_json::json!({ "database": database_url }),
-                );
+                let window_label = window.label().to_string();
+                let payload = serde_json::json!({ "database": database_url });
+                let handle = app_handle.clone();
+
+                let ready_listener = app_handle.listen_any("tauri://ready", move |_| {
+                    let _ = handle.emit_to(
+                        EventTarget::webview_window(window_label.clone()),
+                        "decopon://backend-ready",
+                        payload.clone(),
+                    );
+                });
+
+                app.manage(ReadyListenerState::new(ready_listener));
             }
 
             info!("application environment is ready");
@@ -172,4 +250,30 @@ pub fn run() {
         })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+}
+
+#[cfg(test)]
+mod sqlite_url_tests {
+    use super::sqlite_url_from_path;
+    use std::path::Path;
+
+    #[test]
+    fn converts_unix_style_path() {
+        let path = Path::new("/home/test/.local/share/decopon/decopon.sqlite");
+        let url = sqlite_url_from_path(path).expect("unix path should convert");
+        assert_eq!(
+            url,
+            "sqlite:///home/test/.local/share/decopon/decopon.sqlite"
+        );
+    }
+
+    #[test]
+    fn converts_windows_style_path() {
+        let path = Path::new(r"C:\Users\Test\AppData\Local\Decopon\decopon.sqlite");
+        let url = sqlite_url_from_path(path).expect("windows path should convert");
+        assert_eq!(
+            url,
+            "sqlite:///C:/Users/Test/AppData/Local/Decopon/decopon.sqlite"
+        );
+    }
 }

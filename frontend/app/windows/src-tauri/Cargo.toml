@@ -21,6 +21,7 @@ tauri-build = { version = "2", features = [] }
 async-trait = "0.1"
 axum-password-worker = "0.4"
 decopon-app-ipc = { path = "../../ipc" }
+decopon-axum = { path = "../../../../backend/axum" }
 decopon-services = { path = "../../../../backend/services" }
 migration = { path = "../../../../backend/axum/migration" }
 sea-orm = { version = "1.1", features = ["sqlx-sqlite", "runtime-tokio-rustls", "macros"] }
@@ -35,4 +36,5 @@ tracing-subscriber = { version = "0.3", features = ["fmt", "env-filter"] }
 rand = { version = "0.8", default-features = false, features = ["std", "std_rng"] }
 sha2 = "0.10"
 chrono = { version = "0.4.41", features = ["serde"] }
+url = "2"
 
