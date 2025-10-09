@@ -1,10 +1,19 @@
 import { authStorage } from "@/scripts/lib/authStorage";
-import type {
-  ApiRequestData,
-  AuthResponse,
+import {
+  DecoponSessionStatus,
   Locale,
-  Tag,
-  Task,
+  LogSource,
+  type ApiRequestData,
+  type AuthResponse,
+  type CycleCount,
+  type DecoponSession,
+  type Log,
+  type PreferenceResponse,
+  type ProfileResponse,
+  type StatusResponse,
+  type Tag,
+  type Task,
+  type User,
 } from "@/scripts/types";
 
 import { ApiError } from "../../types";
@@ -141,6 +150,19 @@ export function getOptionalNumberArray(
   return undefined;
 }
 
+export function ensureNumberArray(value: unknown, field: string): number[] {
+  const numbers = getOptionalNumberArray(value);
+
+  if (!numbers || numbers.length === 0) {
+    throw new ApiError(`Invalid numeric array: ${field}`, {
+      code: "ipc.invalidResponse",
+      data: { message: `Invalid numeric array: ${field}` },
+    });
+  }
+
+  return numbers;
+}
+
 export function getOptionalString(value: unknown): string | undefined {
   if (value === null || value === undefined) {
     return undefined;
@@ -182,6 +204,82 @@ export function getDateTimeString(value: unknown): string {
 
 export function isFiniteNumber(value: number): value is number {
   return Number.isFinite(value);
+}
+
+const LOCALE_VALUES = Object.values(Locale);
+const LOG_SOURCE_VALUES = Object.values(LogSource);
+const DECOPON_SESSION_STATUS_VALUES = Object.values(DecoponSessionStatus);
+
+function ensureEnumValue<T extends string>(
+  values: readonly T[],
+  value: unknown,
+  field: string,
+): T {
+  if (typeof value === "string" && values.includes(value as T)) {
+    return value as T;
+  }
+
+  throw new ApiError(`Invalid enum value: ${field}`, {
+    code: "ipc.invalidResponse",
+    data: { message: `Invalid enum value: ${field}` },
+  });
+}
+
+export function ensureLocale(value: unknown, field: string): Locale {
+  return ensureEnumValue(LOCALE_VALUES as Locale[], value, field);
+}
+
+export function ensureLogSource(value: unknown, field: string): LogSource {
+  return ensureEnumValue(LOG_SOURCE_VALUES as LogSource[], value, field);
+}
+
+export function ensureDecoponSessionStatus(
+  value: unknown,
+  field: string,
+): DecoponSessionStatus {
+  return ensureEnumValue(
+    DECOPON_SESSION_STATUS_VALUES as DecoponSessionStatus[],
+    value,
+    field,
+  );
+}
+
+function getRecordValue(
+  record: Record<string, unknown>,
+  ...keys: string[]
+): unknown {
+  for (const key of keys) {
+    if (key in record) {
+      return record[key];
+    }
+  }
+  return undefined;
+}
+
+export function transformUser(raw: unknown): User {
+  if (!isPlainRecord(raw)) {
+    throw invalidResponseError();
+  }
+
+  const user = raw as Record<string, unknown>;
+
+  return {
+    id: ensureNumber(user.id, "user.id"),
+    name: String(user.name ?? ""),
+    email: String(user.email ?? ""),
+    work_time: ensureNumber(
+      getRecordValue(user, "workTime", "work_time"),
+      "user.workTime",
+    ),
+    break_time: ensureNumber(
+      getRecordValue(user, "breakTime", "break_time"),
+      "user.breakTime",
+    ),
+    locale: ensureLocale(user.locale, "user.locale"),
+    email_verified_at: getOptionalString(
+      getRecordValue(user, "emailVerifiedAt", "email_verified_at"),
+    ),
+  };
 }
 
 export function transformTask(raw: unknown): Task {
@@ -340,7 +438,6 @@ export function transformLoginResponse(raw: unknown): AuthResponse {
     throw invalidResponseError();
   }
 
-  const locale = String(user.locale ?? "en") as Locale;
   const token = session.token;
 
   if (typeof token !== "string" || token.length === 0) {
@@ -349,14 +446,267 @@ export function transformLoginResponse(raw: unknown): AuthResponse {
 
   return {
     token,
-    user: {
-      id: ensureNumber(user.id, "user.id"),
-      name: String(user.name ?? ""),
-      email: String(user.email ?? ""),
-      work_time: ensureNumber(user.workTime, "user.workTime"),
-      break_time: ensureNumber(user.breakTime, "user.breakTime"),
-      locale,
-      email_verified_at: undefined,
-    },
+    user: transformUser(user),
   };
+}
+
+export function transformStatusResponse(raw: unknown): StatusResponse {
+  if (!isPlainRecord(raw)) {
+    throw invalidResponseError();
+  }
+
+  const payload = raw as { status?: unknown };
+
+  if (typeof payload.status !== "string" || payload.status.length === 0) {
+    throw invalidResponseError();
+  }
+
+  return { status: payload.status };
+}
+
+export function transformPreferenceResponse(
+  raw: unknown,
+): PreferenceResponse {
+  if (!isPlainRecord(raw)) {
+    throw invalidResponseError();
+  }
+
+  const payload = raw as Record<string, unknown>;
+
+  return {
+    work_time: ensureNumber(
+      getRecordValue(payload, "workTime", "work_time"),
+      "preference.workTime",
+    ),
+    break_time: ensureNumber(
+      getRecordValue(payload, "breakTime", "break_time"),
+      "preference.breakTime",
+    ),
+    locale: ensureLocale(payload.locale, "preference.locale"),
+  };
+}
+
+export function transformProfileMetaResponse(raw: unknown): ProfileResponse {
+  if (!isPlainRecord(raw)) {
+    throw invalidResponseError();
+  }
+
+  if ("id" in raw && typeof (raw as Record<string, unknown>).id === "number") {
+    return {
+      mustVerifyEmail: false,
+      user: transformUser(raw),
+    };
+  }
+
+  const payload = raw as Record<string, unknown>;
+  const mustVerifyEmail =
+    typeof payload.mustVerifyEmail === "boolean" ? payload.mustVerifyEmail : false;
+  const statusValue = payload.status;
+  const status =
+    typeof statusValue === "string" && statusValue.length > 0
+      ? statusValue
+      : undefined;
+
+  const userValue = payload.user;
+  const user =
+    userValue !== undefined && userValue !== null
+      ? transformUser(userValue)
+      : undefined;
+
+  return {
+    mustVerifyEmail,
+    ...(status ? { status } : {}),
+    ...(user ? { user } : {}),
+  };
+}
+
+export function transformTagListResponse(raw: unknown): Tag[] {
+  if (!isPlainRecord(raw)) {
+    throw invalidResponseError();
+  }
+
+  const payload = raw as { tags?: unknown };
+
+  if (!Array.isArray(payload.tags)) {
+    throw invalidResponseError();
+  }
+
+  return payload.tags.map((tag) => transformTag(tag));
+}
+
+export function transformTagResponse(raw: unknown): Tag {
+  if (!isPlainRecord(raw)) {
+    throw invalidResponseError();
+  }
+
+  const payload = raw as { tag?: unknown };
+  return transformTag(payload.tag);
+}
+
+export function transformOptionalTagResponse(raw: unknown): Tag | null {
+  if (!isPlainRecord(raw)) {
+    throw invalidResponseError();
+  }
+
+  const payload = raw as { tag?: unknown };
+
+  if (payload.tag === null || payload.tag === undefined) {
+    return null;
+  }
+
+  return transformTag(payload.tag);
+}
+
+export function transformDeleteTagsResponse(raw: unknown): void {
+  if (!isPlainRecord(raw)) {
+    throw invalidResponseError();
+  }
+
+  const payload = raw as { success?: unknown };
+  if (payload.success !== true) {
+    throw invalidResponseError();
+  }
+}
+
+export function transformLog(raw: unknown): Log {
+  if (!isPlainRecord(raw)) {
+    throw invalidResponseError();
+  }
+
+  const log = raw as Record<string, unknown>;
+
+  return {
+    id: ensureNumber(log.id, "log.id"),
+    content: String(log.content ?? ""),
+    source: ensureLogSource(log.source, "log.source"),
+    created_at: getDateTimeString(
+      getRecordValue(log, "createdAt", "created_at"),
+    ),
+    updated_at: getDateTimeString(
+      getRecordValue(log, "updatedAt", "updated_at"),
+    ),
+    user_id: ensureNumber(
+      getRecordValue(log, "userId", "user_id"),
+      "log.userId",
+    ),
+    task_id: getOptionalNumber(getRecordValue(log, "taskId", "task_id")),
+  };
+}
+
+export function transformLogListResponse(raw: unknown): Log[] {
+  if (!isPlainRecord(raw)) {
+    throw invalidResponseError();
+  }
+
+  const payload = raw as { logs?: unknown };
+
+  if (!Array.isArray(payload.logs)) {
+    throw invalidResponseError();
+  }
+
+  return payload.logs.map((log) => transformLog(log));
+}
+
+export function transformLogResponse(raw: unknown): Log {
+  if (!isPlainRecord(raw)) {
+    throw invalidResponseError();
+  }
+
+  const payload = raw as { log?: unknown };
+  return transformLog(payload.log);
+}
+
+export function transformDecoponSession(raw: unknown): DecoponSession {
+  if (!isPlainRecord(raw)) {
+    throw invalidResponseError();
+  }
+
+  const session = raw as Record<string, unknown>;
+  const endedRaw = getRecordValue(session, "endedAt", "ended_at");
+
+  return {
+    id: ensureNumber(session.id, "decoponSession.id"),
+    status: ensureDecoponSessionStatus(
+      session.status,
+      "decoponSession.status",
+    ),
+    started_at: getDateTimeString(
+      getRecordValue(session, "startedAt", "started_at"),
+    ),
+    ended_at:
+      endedRaw === null || endedRaw === undefined
+        ? null
+        : getDateTimeString(endedRaw),
+    created_at: getDateTimeString(
+      getRecordValue(session, "createdAt", "created_at"),
+    ),
+    updated_at: getDateTimeString(
+      getRecordValue(session, "updatedAt", "updated_at"),
+    ),
+    user_id: ensureNumber(
+      getRecordValue(session, "userId", "user_id"),
+      "decoponSession.userId",
+    ),
+  };
+}
+
+export function transformDecoponSessionListResponse(
+  raw: unknown,
+): DecoponSession[] {
+  if (!isPlainRecord(raw)) {
+    throw invalidResponseError();
+  }
+
+  const payload = raw as { sessions?: unknown };
+
+  if (!Array.isArray(payload.sessions)) {
+    throw invalidResponseError();
+  }
+
+  return payload.sessions.map((session) => transformDecoponSession(session));
+}
+
+export function transformDecoponSessionResponse(raw: unknown): DecoponSession {
+  if (!isPlainRecord(raw)) {
+    throw invalidResponseError();
+  }
+
+  const payload = raw as { session?: unknown };
+  return transformDecoponSession(payload.session);
+}
+
+export function transformDeleteDecoponSessionResponse(raw: unknown): void {
+  if (!isPlainRecord(raw)) {
+    throw invalidResponseError();
+  }
+
+  const payload = raw as { success?: unknown };
+  if (payload.success !== true) {
+    throw invalidResponseError();
+  }
+}
+
+export function transformCycleCountResponse(raw: unknown): CycleCount {
+  if (!isPlainRecord(raw)) {
+    throw invalidResponseError();
+  }
+
+  const payload = raw as Record<string, unknown>;
+
+  return {
+    date: String(payload.date ?? ""),
+    count: ensureNumber(payload.count, "cycleCount.count"),
+  };
+}
+
+export function transformVoidResponse(raw: unknown): void {
+  if (
+    raw === null ||
+    raw === undefined ||
+    (isPlainRecord(raw) && Object.keys(raw).length === 0)
+  ) {
+    return undefined;
+  }
+
+  throw invalidResponseError();
 }
