@@ -13,10 +13,6 @@ export const alias: AliasOptions = [
     replacement: coreSourceRoot,
   },
   {
-    find: "@tauri-apps/api",
-    replacement: path.resolve(__dirname, "app/windows/node_modules/@tauri-apps/api"),
-  },
-  {
     find: "@lib",
     replacement: path.resolve(coreSourceRoot, "scripts/lib"),
   },

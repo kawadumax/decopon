@@ -5,9 +5,7 @@
     "baseUrl": ".",
     "paths": {
       "@decopon/core": ["../../core/dist"],
-      "@decopon/core/*": ["../../core/dist/*"],
-      "@tauri-apps/api": ["../windows/node_modules/@tauri-apps/api"],
-      "@tauri-apps/api/*": ["../windows/node_modules/@tauri-apps/api/*"]
+      "@decopon/core/*": ["../../core/dist/*"]
     }
   },
   "include": ["src/**/*"],
