@@ -6502,9 +6502,7 @@ dependencies = [
 name = "windows"
 version = "0.1.0"
 dependencies = [
- "async-trait",
  "axum-password-worker",
- "chrono",
  "decopon-app-ipc",
  "decopon-axum",
  "decopon-services",
@@ -6514,7 +6512,6 @@ dependencies = [
  "sea-orm-migration",
  "serde",
  "serde_json",
- "sha2",
  "tauri",
  "tauri-build",
  "tauri-plugin-opener",

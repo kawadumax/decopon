@@ -1,12 +1,12 @@
 import "@decopon/core/styles/app.css";
 import { bootstrap, singleUserBootstrap } from "@decopon/core";
-import { listen } from "@tauri-apps/api/event";
+import { emit, listen } from "@tauri-apps/api/event";
 
 const BACKEND_READY_EVENT = "decopon://backend-ready";
 
 void (async () => {
   const unlisten = await listen(BACKEND_READY_EVENT, async () => {
-    unlisten();
+    await unlisten();
 
     try {
       await singleUserBootstrap();
@@ -16,4 +16,10 @@ void (async () => {
 
     bootstrap();
   });
+
+  try {
+    await emit("decopon://frontend-ready");
+  } catch (error) {
+    console.error("Failed to notify backend about frontend readiness", error);
+  }
 })();

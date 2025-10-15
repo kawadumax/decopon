@@ -2,7 +2,13 @@
   "extends": ["../../../tsconfig.base.json", "../../tsconfig.paths.json"],
   "compilerOptions": {
     "composite": false,
-    "baseUrl": "."
+    "baseUrl": ".",
+    "paths": {
+      "@decopon/core": ["../../core/dist"],
+      "@decopon/core/*": ["../../core/dist/*"],
+      "@tauri-apps/api": ["../windows/node_modules/@tauri-apps/api"],
+      "@tauri-apps/api/*": ["../windows/node_modules/@tauri-apps/api/*"]
+    }
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]

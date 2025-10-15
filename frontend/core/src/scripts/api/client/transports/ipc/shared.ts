@@ -8,19 +8,43 @@ export type InvokeFn = <T>(
 export type TauriWindow = Window & {
   __TAURI__?: {
     core?: {
-      invoke: InvokeFn;
+      invoke?: InvokeFn;
     };
+    invoke?: InvokeFn;
+  };
+  __TAURI_INTERNALS__?: {
+    invoke?: InvokeFn;
   };
 };
 
+let cachedInvoke: InvokeFn | null | undefined;
+
 export function getTauriInvoke(): InvokeFn | null {
+  if (cachedInvoke !== undefined) {
+    return cachedInvoke;
+  }
+
   if (typeof window === "undefined") {
-    return null;
+    cachedInvoke = null;
+    return cachedInvoke;
   }
 
   const global = window as TauriWindow;
-  const invoke = global.__TAURI__?.core?.invoke;
-  return typeof invoke === "function" ? invoke : null;
+  const candidates: Array<InvokeFn | undefined> = [
+    global.__TAURI__?.core?.invoke,
+    global.__TAURI__?.invoke,
+    global.__TAURI_INTERNALS__?.invoke,
+  ];
+
+  for (const candidate of candidates) {
+    if (typeof candidate === "function") {
+      cachedInvoke = candidate;
+      return candidate;
+    }
+  }
+
+  cachedInvoke = null;
+  return cachedInvoke;
 }
 
 export function toApiError(error: unknown): ApiError {

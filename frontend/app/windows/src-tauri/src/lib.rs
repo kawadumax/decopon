@@ -3,6 +3,7 @@ use std::{
     fs,
     io::ErrorKind,
     path::{Path, PathBuf},
+    sync::Mutex,
 };
 
 use decopon_app_ipc::{self as ipc, AppIpcState, IpcHttpResponse};
@@ -18,13 +19,21 @@ use url::Url;
 mod services;
 
 struct ReadyListenerState {
-    _listener_id: EventId,
+    listener_id: Mutex<Option<EventId>>,
 }
 
 impl ReadyListenerState {
     fn new(listener_id: EventId) -> Self {
         Self {
-            _listener_id: listener_id,
+            listener_id: Mutex::new(Some(listener_id)),
+        }
+    }
+
+    fn unlisten(&self, app_handle: &tauri::AppHandle) {
+        if let Ok(mut guard) = self.listener_id.lock() {
+            if let Some(listener_id) = guard.take() {
+                app_handle.unlisten(listener_id);
+            }
         }
     }
 }
@@ -234,12 +243,18 @@ pub fn run() {
                 let payload = serde_json::json!({ "database": database_url });
                 let handle = app_handle.clone();
 
-                let ready_listener = app_handle.listen_any("tauri://ready", move |_| {
-                    let _ = handle.emit_to(
+                let ready_listener = app_handle.listen_any("decopon://frontend-ready", move |_| {
+                    if let Err(error) = handle.emit_to(
                         EventTarget::webview_window(window_label.clone()),
                         "decopon://backend-ready",
                         payload.clone(),
-                    );
+                    ) {
+                        warn!(error = ?error, "failed to emit backend ready event");
+                    }
+
+                    if let Some(state) = handle.try_state::<ReadyListenerState>() {
+                        state.unlisten(&handle);
+                    }
                 });
 
                 app.manage(ReadyListenerState::new(ready_listener));
