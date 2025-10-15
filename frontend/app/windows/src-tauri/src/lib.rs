@@ -9,8 +9,8 @@ use std::{
 use decopon_app_ipc::{self as ipc, AppIpcState, IpcHttpResponse};
 use decopon_axum::AppState;
 use rand::{distributions::Alphanumeric, Rng};
-use serde_json::Value;
 use services::AppServices;
+use serde_json::Value;
 use tauri::{Emitter, EventId, EventTarget, Listener, Manager, State};
 use tracing::{error, info, warn};
 use tracing_subscriber::EnvFilter;
@@ -240,14 +240,13 @@ pub fn run() {
 
             if let Some(window) = main_window {
                 let window_label = window.label().to_string();
-                let payload = serde_json::json!({ "database": database_url });
                 let handle = app_handle.clone();
 
                 let ready_listener = app_handle.listen_any("decopon://frontend-ready", move |_| {
                     if let Err(error) = handle.emit_to(
                         EventTarget::webview_window(window_label.clone()),
                         "decopon://backend-ready",
-                        payload.clone(),
+                        (),
                     ) {
                         warn!(error = ?error, "failed to emit backend ready event");
                     }
