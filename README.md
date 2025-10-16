@@ -21,7 +21,7 @@ This software is self-hostable task manager. Originally conceived as a counterme
 
 **Tech Stack**
 
-*This system is currently composed of Laravel Breeze and React.*
+*This system is currently composed of a Rust (Axum) backend and React.*
 
 ## Features
 
