@@ -1,6 +1,6 @@
 use axum::{
-    extract::State,
     Extension, Router,
+    extract::State,
     http::StatusCode,
     response::Json,
     routing::{delete, get, post},
@@ -10,57 +10,57 @@ use std::sync::Arc;
 
 use crate::dto::tags::*;
 use crate::{
-    AppState, errors::ApiError, extractors::authenticated_user::AuthenticatedUser, services::tags,
+    AppState, errors::ApiError, extractors::authenticated_user::AuthenticatedUser, usecases::tags,
 };
 
 #[tracing::instrument(skip(db, user))]
 async fn index(
     State(db): State<Arc<DatabaseConnection>>,
     Extension(user): Extension<AuthenticatedUser>,
-) -> Result<Json<Vec<TagResponseDto>>, ApiError> {
+) -> Result<Json<Vec<TagResponse>>, ApiError> {
     let tags = tags::get_tags(&db, user.id).await?;
-    Ok(Json(tags.into_iter().map(TagResponseDto::from).collect()))
+    Ok(Json(tags.into_iter().map(TagResponse::from).collect()))
 }
 
 #[tracing::instrument(skip(db, user))]
 async fn store(
     State(db): State<Arc<DatabaseConnection>>,
     Extension(user): Extension<AuthenticatedUser>,
-    Json(payload): Json<StoreTagRequestDto>,
-) -> Result<Json<TagResponseDto>, ApiError> {
+    Json(payload): Json<StoreTagRequest>,
+) -> Result<Json<TagResponse>, ApiError> {
     let params = tags::NewTag {
         name: payload.name,
         user_id: user.id,
     };
     let tag = tags::insert_tag(&db, params).await?;
-    Ok(Json(TagResponseDto::from(tag)))
+    Ok(Json(TagResponse::from(tag)))
 }
 
 #[tracing::instrument(skip(db, user))]
 async fn store_relation(
     State(db): State<Arc<DatabaseConnection>>,
     Extension(user): Extension<AuthenticatedUser>,
-    Json(payload): Json<TagRelationRequestDto>,
-) -> Result<Json<TagResponseDto>, ApiError> {
+    Json(payload): Json<TagRelationRequest>,
+) -> Result<Json<TagResponse>, ApiError> {
     let tag = tags::attach_tag_to_task(&db, user.id, payload.task_id, payload.name).await?;
-    Ok(Json(TagResponseDto::from(tag)))
+    Ok(Json(TagResponse::from(tag)))
 }
 
 #[tracing::instrument(skip(db, user))]
 async fn destroy_relation(
     State(db): State<Arc<DatabaseConnection>>,
     Extension(user): Extension<AuthenticatedUser>,
-    Json(payload): Json<TagRelationRequestDto>,
-) -> Result<Json<Option<TagResponseDto>>, ApiError> {
+    Json(payload): Json<TagRelationRequest>,
+) -> Result<Json<Option<TagResponse>>, ApiError> {
     let tag = tags::detach_tag_from_task(&db, user.id, payload.task_id, payload.name).await?;
-    Ok(Json(tag.map(TagResponseDto::from)))
+    Ok(Json(tag.map(TagResponse::from)))
 }
 
 #[tracing::instrument(skip(db, user))]
 async fn destroy_multiple(
     State(db): State<Arc<DatabaseConnection>>,
     Extension(user): Extension<AuthenticatedUser>,
-    Json(payload): Json<DeleteTagsRequestDto>,
+    Json(payload): Json<DeleteTagsRequest>,
 ) -> Result<StatusCode, ApiError> {
     tags::delete_tags(&db, user.id, payload.tag_ids).await?;
     Ok(StatusCode::NO_CONTENT)

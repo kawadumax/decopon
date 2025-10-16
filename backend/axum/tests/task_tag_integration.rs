@@ -14,11 +14,25 @@ use sea_orm::{
 use tower::ServiceExt;
 
 use decopon_axum::{
-    AppState,
+    AppState, ServiceContext,
     entities::{prelude::*, tag_task, users},
     middleware::auth::AuthenticatedUser,
-    routes, services,
+    routes, usecases,
 };
+
+fn build_state(db: &Arc<sea_orm::DatabaseConnection>, jwt_secret: String) -> AppState {
+    AppState::from(
+        ServiceContext::builder(
+            Arc::clone(db),
+            Arc::new(PasswordWorker::new_bcrypt(1).unwrap()),
+            jwt_secret,
+        )
+        .mailer(Some(Arc::new(
+            SmtpTransport::builder_dangerous("localhost").build(),
+        )))
+        .build(),
+    )
+}
 
 #[tokio::test]
 async fn task_creation_attaches_tags() {
@@ -45,9 +59,9 @@ async fn task_creation_attaches_tags() {
     .await
     .unwrap();
 
-    let tag1 = services::tags::insert_tag(
+    let tag1 = usecases::tags::insert_tag(
         &db,
-        services::tags::NewTag {
+        usecases::tags::NewTag {
             name: "tag1".to_string(),
             user_id: user.id,
         },
@@ -55,9 +69,9 @@ async fn task_creation_attaches_tags() {
     .await
     .unwrap();
 
-    let tag2 = services::tags::insert_tag(
+    let tag2 = usecases::tags::insert_tag(
         &db,
-        services::tags::NewTag {
+        usecases::tags::NewTag {
             name: "tag2".to_string(),
             user_id: user.id,
         },
@@ -65,16 +79,7 @@ async fn task_creation_attaches_tags() {
     .await
     .unwrap();
 
-    let password_worker = Arc::new(PasswordWorker::new_bcrypt(1).unwrap());
-    let mailer = Arc::new(SmtpTransport::builder_dangerous("localhost").build());
-    let jwt_secret = "test_secret".to_string();
-
-    let app = routes::tasks::routes().with_state(AppState {
-        db: db.clone(),
-        password_worker,
-        mailer,
-        jwt_secret,
-    });
+    let app = routes::tasks::routes().with_state(build_state(&db, "test_secret".to_string()));
 
     let auth_user = AuthenticatedUser {
         id: user.id,
@@ -156,9 +161,9 @@ async fn task_update_syncs_tags() {
     .await
     .unwrap();
 
-    let tag1 = services::tags::insert_tag(
+    let tag1 = usecases::tags::insert_tag(
         &db,
-        services::tags::NewTag {
+        usecases::tags::NewTag {
             name: "tag1".to_string(),
             user_id: user.id,
         },
@@ -166,9 +171,9 @@ async fn task_update_syncs_tags() {
     .await
     .unwrap();
 
-    let tag2 = services::tags::insert_tag(
+    let tag2 = usecases::tags::insert_tag(
         &db,
-        services::tags::NewTag {
+        usecases::tags::NewTag {
             name: "tag2".to_string(),
             user_id: user.id,
         },
@@ -176,9 +181,9 @@ async fn task_update_syncs_tags() {
     .await
     .unwrap();
 
-    let task = services::tasks::insert_task(
+    let task = usecases::tasks::insert_task(
         db.as_ref(),
-        services::tasks::NewTask {
+        usecases::tasks::NewTask {
             title: "task".to_string(),
             description: "desc".to_string(),
             parent_task_id: None,
@@ -189,16 +194,7 @@ async fn task_update_syncs_tags() {
     .await
     .unwrap();
 
-    let password_worker = Arc::new(PasswordWorker::new_bcrypt(1).unwrap());
-    let mailer = Arc::new(SmtpTransport::builder_dangerous("localhost").build());
-    let jwt_secret = "test_secret".to_string();
-
-    let app = routes::tasks::routes().with_state(AppState {
-        db: db.clone(),
-        password_worker,
-        mailer,
-        jwt_secret,
-    });
+    let app = routes::tasks::routes().with_state(build_state(&db, "test_secret".to_string()));
 
     let auth_user = AuthenticatedUser {
         id: user.id,
@@ -268,9 +264,9 @@ async fn task_delete_detaches_tags() {
     .await
     .unwrap();
 
-    let tag1 = services::tags::insert_tag(
+    let tag1 = usecases::tags::insert_tag(
         &db,
-        services::tags::NewTag {
+        usecases::tags::NewTag {
             name: "tag1".to_string(),
             user_id: user.id,
         },
@@ -278,9 +274,9 @@ async fn task_delete_detaches_tags() {
     .await
     .unwrap();
 
-    let tag2 = services::tags::insert_tag(
+    let tag2 = usecases::tags::insert_tag(
         &db,
-        services::tags::NewTag {
+        usecases::tags::NewTag {
             name: "tag2".to_string(),
             user_id: user.id,
         },
@@ -288,9 +284,9 @@ async fn task_delete_detaches_tags() {
     .await
     .unwrap();
 
-    let task = services::tasks::insert_task(
+    let task = usecases::tasks::insert_task(
         db.as_ref(),
-        services::tasks::NewTask {
+        usecases::tasks::NewTask {
             title: "task".to_string(),
             description: "desc".to_string(),
             parent_task_id: None,
@@ -301,16 +297,7 @@ async fn task_delete_detaches_tags() {
     .await
     .unwrap();
 
-    let password_worker = Arc::new(PasswordWorker::new_bcrypt(1).unwrap());
-    let mailer = Arc::new(SmtpTransport::builder_dangerous("localhost").build());
-    let jwt_secret = "test_secret".to_string();
-
-    let app = routes::tasks::routes().with_state(AppState {
-        db: db.clone(),
-        password_worker,
-        mailer,
-        jwt_secret,
-    });
+    let app = routes::tasks::routes().with_state(build_state(&db, "test_secret".to_string()));
 
     let auth_user = AuthenticatedUser {
         id: user.id,
@@ -365,9 +352,9 @@ async fn tasks_index_filters_by_tag() {
     .await
     .unwrap();
 
-    let tag1 = services::tags::insert_tag(
+    let tag1 = usecases::tags::insert_tag(
         &db,
-        services::tags::NewTag {
+        usecases::tags::NewTag {
             name: "tag1".to_string(),
             user_id: user.id,
         },
@@ -375,9 +362,9 @@ async fn tasks_index_filters_by_tag() {
     .await
     .unwrap();
 
-    let tag2 = services::tags::insert_tag(
+    let tag2 = usecases::tags::insert_tag(
         &db,
-        services::tags::NewTag {
+        usecases::tags::NewTag {
             name: "tag2".to_string(),
             user_id: user.id,
         },
@@ -385,9 +372,9 @@ async fn tasks_index_filters_by_tag() {
     .await
     .unwrap();
 
-    let task1 = services::tasks::insert_task(
+    let task1 = usecases::tasks::insert_task(
         db.as_ref(),
-        services::tasks::NewTask {
+        usecases::tasks::NewTask {
             title: "task1".to_string(),
             description: "desc".to_string(),
             parent_task_id: None,
@@ -398,9 +385,9 @@ async fn tasks_index_filters_by_tag() {
     .await
     .unwrap();
 
-    let task2 = services::tasks::insert_task(
+    let task2 = usecases::tasks::insert_task(
         db.as_ref(),
-        services::tasks::NewTask {
+        usecases::tasks::NewTask {
             title: "task2".to_string(),
             description: "desc".to_string(),
             parent_task_id: None,
@@ -411,16 +398,7 @@ async fn tasks_index_filters_by_tag() {
     .await
     .unwrap();
 
-    let password_worker = Arc::new(PasswordWorker::new_bcrypt(1).unwrap());
-    let mailer = Arc::new(SmtpTransport::builder_dangerous("localhost").build());
-    let jwt_secret = "test_secret".to_string();
-
-    let app = routes::tasks::routes().with_state(AppState {
-        db: db.clone(),
-        password_worker,
-        mailer,
-        jwt_secret,
-    });
+    let app = routes::tasks::routes().with_state(build_state(&db, "test_secret".to_string()));
 
     let auth_user = AuthenticatedUser {
         id: user.id,

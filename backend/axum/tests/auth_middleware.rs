@@ -13,24 +13,33 @@ use sea_orm::Database;
 use tower::ServiceExt;
 
 use decopon_axum::{
-    AppState,
+    AppState, ServiceContext,
     middleware::auth::{AuthenticatedUser, auth_middleware},
-    services,
+    usecases,
 };
 
 async fn handler() -> StatusCode {
     StatusCode::OK
 }
 
+fn build_state(db: sea_orm::DatabaseConnection, jwt_secret: String) -> AppState {
+    let db = Arc::new(db);
+    let password_worker = Arc::new(PasswordWorker::new_bcrypt(1).unwrap());
+    let mailer = Some(Arc::new(
+        SmtpTransport::builder_dangerous("localhost").build(),
+    ));
+
+    AppState::from(
+        ServiceContext::builder(db, password_worker, jwt_secret)
+            .mailer(mailer)
+            .build(),
+    )
+}
+
 #[tokio::test]
 async fn reject_without_token() {
     let db = Database::connect("sqlite::memory:").await.unwrap();
-    let state = AppState {
-        db: Arc::new(db),
-        password_worker: Arc::new(PasswordWorker::new_bcrypt(1).unwrap()),
-        mailer: Arc::new(SmtpTransport::builder_dangerous("localhost").build()),
-        jwt_secret: "secret".to_string(),
-    };
+    let state = build_state(db, "secret".to_string());
 
     let app = Router::new()
         .route("/", get(handler))
@@ -45,12 +54,7 @@ async fn reject_without_token() {
 #[tokio::test]
 async fn reject_invalid_token() {
     let db = Database::connect("sqlite::memory:").await.unwrap();
-    let state = AppState {
-        db: Arc::new(db),
-        password_worker: Arc::new(PasswordWorker::new_bcrypt(1).unwrap()),
-        mailer: Arc::new(SmtpTransport::builder_dangerous("localhost").build()),
-        jwt_secret: "secret".to_string(),
-    };
+    let state = build_state(db, "secret".to_string());
 
     let app = Router::new()
         .route("/", get(handler))
@@ -70,13 +74,8 @@ async fn reject_invalid_token() {
 async fn accept_valid_token() {
     let db = Database::connect("sqlite::memory:").await.unwrap();
     let jwt_secret = "secret".to_string();
-    let token = services::auth::create_jwt(1, &jwt_secret).unwrap();
-    let state = AppState {
-        db: Arc::new(db),
-        password_worker: Arc::new(PasswordWorker::new_bcrypt(1).unwrap()),
-        mailer: Arc::new(SmtpTransport::builder_dangerous("localhost").build()),
-        jwt_secret,
-    };
+    let token = usecases::auth::create_jwt(1, &jwt_secret).unwrap();
+    let state = build_state(db, jwt_secret);
 
     let app = Router::new()
         .route(

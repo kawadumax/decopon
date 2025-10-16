@@ -1,14 +1,41 @@
 import path from "node:path";
+import type { AliasOptions } from "vite";
 
-export const alias = {
-  "@decopon/core": path.resolve(__dirname, "core/src"),
-  "@": path.resolve(__dirname, "core/src"),
-  "@lib": path.resolve(__dirname, "core/src/scripts/lib"),
-  "@components": path.resolve(__dirname, "core/src/scripts/components"),
-  "@pages": path.resolve(__dirname, "core/src/scripts/pages"),
-  "@public": path.resolve(__dirname, "core/public"),
-  "@hooks": path.resolve(__dirname, "core/src/scripts/hooks"),
-  "@store": path.resolve(__dirname, "core/src/scripts/store"),
-};
+const coreSourceRoot = path.resolve(__dirname, "core/src");
+
+export const alias: AliasOptions = [
+  {
+    find: /^@\//,
+    replacement: `${coreSourceRoot}/`,
+  },
+  {
+    find: "@decopon/core",
+    replacement: coreSourceRoot,
+  },
+  {
+    find: "@lib",
+    replacement: path.resolve(coreSourceRoot, "scripts/lib"),
+  },
+  {
+    find: "@components",
+    replacement: path.resolve(coreSourceRoot, "scripts/components"),
+  },
+  {
+    find: "@pages",
+    replacement: path.resolve(coreSourceRoot, "scripts/pages"),
+  },
+  {
+    find: "@public",
+    replacement: path.resolve(__dirname, "core/public"),
+  },
+  {
+    find: "@hooks",
+    replacement: path.resolve(coreSourceRoot, "scripts/hooks"),
+  },
+  {
+    find: "@store",
+    replacement: path.resolve(coreSourceRoot, "scripts/store"),
+  },
+];
 
 export default alias;

@@ -1,6 +1,6 @@
 use axum::{
-    extract::{Path, State},
     Extension, Json, Router,
+    extract::{Path, State},
     routing::get,
 };
 use axum_macros::debug_handler;
@@ -9,7 +9,7 @@ use std::sync::Arc;
 
 use crate::{
     AppState, dto::logs::*, errors::ApiError, extractors::authenticated_user::AuthenticatedUser,
-    services::logs,
+    usecases::logs,
 };
 
 #[debug_handler]
@@ -17,9 +17,9 @@ use crate::{
 async fn index(
     State(db): State<Arc<DatabaseConnection>>,
     Extension(user): Extension<AuthenticatedUser>,
-) -> Result<Json<Vec<LogResponseDto>>, ApiError> {
+) -> Result<Json<Vec<LogResponse>>, ApiError> {
     let logs_vec = logs::get_logs(&db, user.id).await?;
-    let dto = logs_vec.into_iter().map(LogResponseDto::from).collect();
+    let dto = logs_vec.into_iter().map(LogResponse::from).collect();
     Ok(Json(dto))
 }
 
@@ -29,9 +29,9 @@ async fn logs_by_task(
     Path(task_id): Path<i32>,
     State(db): State<Arc<DatabaseConnection>>,
     Extension(user): Extension<AuthenticatedUser>,
-) -> Result<Json<Vec<LogResponseDto>>, ApiError> {
+) -> Result<Json<Vec<LogResponse>>, ApiError> {
     let logs_vec = logs::get_logs_by_task(&db, user.id, task_id).await?;
-    let dto = logs_vec.into_iter().map(LogResponseDto::from).collect();
+    let dto = logs_vec.into_iter().map(LogResponse::from).collect();
     Ok(Json(dto))
 }
 
@@ -40,8 +40,8 @@ async fn logs_by_task(
 async fn store(
     State(db): State<Arc<DatabaseConnection>>,
     Extension(user): Extension<AuthenticatedUser>,
-    Json(payload): Json<StoreLogRequestDto>,
-) -> Result<Json<LogResponseDto>, ApiError> {
+    Json(payload): Json<StoreLogRequest>,
+) -> Result<Json<LogResponse>, ApiError> {
     let params = logs::NewLog {
         content: payload.content,
         source: payload.source,
@@ -49,7 +49,7 @@ async fn store(
         user_id: user.id,
     };
     let log = logs::insert_log(&db, params).await?;
-    Ok(Json(LogResponseDto::from(log)))
+    Ok(Json(LogResponse::from(log)))
 }
 
 pub fn routes() -> Router<AppState> {

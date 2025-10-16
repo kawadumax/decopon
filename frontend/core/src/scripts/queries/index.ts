@@ -1,27 +1,17 @@
-import {
-  type MutationOptions,
-  type Updater,
-  QueryClient,
-} from "@tanstack/react-query";
+import { type MutationOptions, type Updater } from "@tanstack/react-query";
 import { AuthService } from "../api/services/AuthService";
 import { LogService } from "../api/services/LogService";
 import { TagService } from "../api/services/TagService";
 import { authStorage, AUTH_CACHE_TTL_MS } from "../lib/authStorage";
+import {
+  isSingleUserModeEnabled,
+  SingleUserBootstrapUnavailableError,
+  singleUserBootstrap,
+} from "../lib/singleUserBootstrap";
 import { tokenStorage } from "../lib/tokenStorage";
 import { logger } from "../lib/utils";
 import type { Auth, Log, Tag, User } from "../types";
-
-export const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      // ウィンドウフォーカス時の自動再フェッチを無効化
-      refetchOnWindowFocus: false,
-      // 取得したデータが stale（古い）とみなされるまでの時間（ミリ秒）
-      staleTime: 1000 * 60 * 5, // 5分間は古くならない
-      retry: 0, // 失敗時のリトライ回数
-    },
-  },
-});
+import { queryClient } from "./client";
 
 if (typeof window !== "undefined") {
   const token = tokenStorage.getToken();
@@ -39,7 +29,18 @@ export const fetchAuthQueryOptions = {
   queryKey: ["auth"],
   staleTime: AUTH_CACHE_TTL_MS,
   queryFn: async (): Promise<Auth> => {
-    const token = tokenStorage.getToken();
+    let token = tokenStorage.getToken();
+    if (!token && isSingleUserModeEnabled()) {
+      try {
+        await singleUserBootstrap();
+        token = tokenStorage.getToken();
+      } catch (error) {
+        throw new SingleUserBootstrapUnavailableError(
+          "Single-user session is unavailable.",
+          error,
+        );
+      }
+    }
     if (!token) {
       authStorage.clear();
       return { user: undefined };
@@ -116,3 +117,4 @@ export const setTags = (
 };
 
 export * from "./task";
+export { queryClient } from "./client";

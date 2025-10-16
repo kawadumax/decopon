@@ -1,6 +1,6 @@
 use axum::{
-    extract::{Path, Query, State},
     Extension, Router,
+    extract::{Path, Query, State},
     http::StatusCode,
     response::Json,
     routing::get,
@@ -11,7 +11,7 @@ use std::sync::Arc;
 
 use crate::dto::tasks::*;
 use crate::{
-    AppState, errors::ApiError, extractors::authenticated_user::AuthenticatedUser, services::tasks,
+    AppState, errors::ApiError, extractors::authenticated_user::AuthenticatedUser, usecases::tasks,
 };
 
 #[tracing::instrument(skip(db, user))]
@@ -19,15 +19,19 @@ async fn index(
     State(db): State<Arc<DatabaseConnection>>,
     Extension(user): Extension<AuthenticatedUser>,
     Query(params): Query<Vec<(String, String)>>,
-) -> Result<Json<Vec<TaskResponseDto>>, ApiError> {
+) -> Result<Json<Vec<TaskResponse>>, ApiError> {
     let tag_ids: Vec<i32> = params
         .into_iter()
         .filter(|(k, _)| k == "tag_ids")
         .filter_map(|(_, v)| v.parse::<i32>().ok())
         .collect();
-    let tag_ids = if tag_ids.is_empty() { None } else { Some(tag_ids) };
+    let tag_ids = if tag_ids.is_empty() {
+        None
+    } else {
+        Some(tag_ids)
+    };
     let tasks = tasks::get_tasks(&db, user.id, tag_ids).await?;
-    let tasks = tasks.into_iter().map(TaskResponseDto::from).collect();
+    let tasks = tasks.into_iter().map(TaskResponse::from).collect();
     Ok(Json(tasks))
 }
 
@@ -36,17 +40,17 @@ async fn show(
     Path(id): Path<i32>,
     State(db): State<Arc<DatabaseConnection>>,
     Extension(user): Extension<AuthenticatedUser>,
-) -> Result<Json<TaskResponseDto>, ApiError> {
+) -> Result<Json<TaskResponse>, ApiError> {
     let task = tasks::get_task_by_id(&db, user.id, id).await?;
-    Ok(Json(TaskResponseDto::from(task)))
+    Ok(Json(TaskResponse::from(task)))
 }
 
 #[tracing::instrument(skip(db, user))]
 async fn store(
     State(db): State<Arc<DatabaseConnection>>,
     Extension(user): Extension<AuthenticatedUser>,
-    Json(payload): Json<StoreTaskRequestDto>,
-) -> Result<Json<TaskResponseDto>, ApiError> {
+    Json(payload): Json<StoreTaskRequest>,
+) -> Result<Json<TaskResponse>, ApiError> {
     let params = tasks::NewTask {
         title: payload.title,
         description: payload.description,
@@ -55,7 +59,7 @@ async fn store(
         user_id: user.id,
     };
     let task = tasks::insert_task(&db, params).await?;
-    Ok(Json(TaskResponseDto::from(task)))
+    Ok(Json(TaskResponse::from(task)))
 }
 
 #[tracing::instrument(skip(db, user))]
@@ -63,8 +67,8 @@ async fn update(
     Path(id): Path<i32>,
     State(db): State<Arc<DatabaseConnection>>,
     Extension(user): Extension<AuthenticatedUser>,
-    Json(payload): Json<UpdateTaskRequestDto>,
-) -> Result<Json<TaskResponseDto>, ApiError> {
+    Json(payload): Json<UpdateTaskRequest>,
+) -> Result<Json<TaskResponse>, ApiError> {
     let params = tasks::TaskUpdate {
         id,
         title: payload.title,
@@ -75,7 +79,7 @@ async fn update(
         user_id: user.id,
     };
     let task = tasks::update_task(&db, params).await?;
-    Ok(Json(TaskResponseDto::from(task)))
+    Ok(Json(TaskResponse::from(task)))
 }
 
 #[tracing::instrument(skip(db, user))]

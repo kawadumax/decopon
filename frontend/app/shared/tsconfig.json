@@ -1,0 +1,13 @@
+{
+  "extends": ["../../../tsconfig.base.json", "../../tsconfig.paths.json"],
+  "compilerOptions": {
+    "composite": false,
+    "baseUrl": ".",
+    "paths": {
+      "@decopon/core": ["../../core/dist"],
+      "@decopon/core/*": ["../../core/dist/*"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}

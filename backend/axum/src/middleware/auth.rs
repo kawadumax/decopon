@@ -8,7 +8,7 @@ use axum::{
 
 use crate::{
     AppState,
-    services::auth::{decode_jwt, verify_jwt},
+    usecases::auth::{decode_jwt, verify_jwt},
 };
 
 #[derive(Clone, Debug)]
@@ -32,7 +32,7 @@ pub async fn auth_middleware(
         .ok_or(StatusCode::UNAUTHORIZED)?;
 
     // AppStateからシークレットを取得
-    let secret = app_state.jwt_secret.clone();
+    let secret = app_state.jwt_secret().to_owned();
 
     // JWTをデコード
     let claims = decode_jwt(token, &secret).map_err(|_| StatusCode::UNAUTHORIZED)?;

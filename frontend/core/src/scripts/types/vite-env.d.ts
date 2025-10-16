@@ -29,6 +29,7 @@ interface ImportMetaEnv {
   readonly VITE_BACKEND?: string;
   readonly VITE_GUEST_EMAIL: string;
   readonly VITE_GUEST_PASSWORD: string;
+  readonly VITE_APP_SINGLE_USER_MODE?: string;
 }
 
 interface ImportMeta {

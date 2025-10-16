@@ -47,6 +47,9 @@ export const backendEndpoints = {
         confirmPassword: "/auth/password/confirm",
         verifyEmail: (token: string) => `/auth/email/verify/${token}`,
         resendVerification: "/auth/email/resend",
+        local: {
+          session: "/auth/local/session",
+        },
       },
       tasks: {
         index: "/tasks",

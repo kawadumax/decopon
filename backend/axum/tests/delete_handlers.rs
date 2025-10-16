@@ -10,7 +10,8 @@ use sea_orm::{ActiveModelTrait, Database, Set};
 use tower::ServiceExt;
 
 use decopon_axum::{
-    AppState, entities::users, middleware::auth::AuthenticatedUser, routes, services,
+    AppState, ServiceContext, entities::users, middleware::auth::AuthenticatedUser, routes,
+    usecases,
 };
 use migration::{Migrator, MigratorTrait};
 
@@ -20,16 +21,19 @@ async fn logout_returns_no_content() {
     Migrator::up(&db, None).await.unwrap();
     let db = Arc::new(db);
 
-    let password_worker = Arc::new(PasswordWorker::new_bcrypt(1).unwrap());
-    let mailer = Arc::new(SmtpTransport::builder_dangerous("localhost").build());
     let jwt_secret = "test_secret".to_string();
 
-    let app = routes::auth::routes().with_state(AppState {
-        db: db.clone(),
-        password_worker,
-        mailer,
+    let state = ServiceContext::builder(
+        db.clone(),
+        Arc::new(PasswordWorker::new_bcrypt(1).unwrap()),
         jwt_secret,
-    });
+    )
+    .mailer(Some(Arc::new(
+        SmtpTransport::builder_dangerous("localhost").build(),
+    )))
+    .build();
+
+    let app = routes::auth::routes().with_state(AppState::from(state));
 
     let response = app
         .oneshot(
@@ -51,8 +55,6 @@ async fn delete_tags_returns_no_content() {
     Migrator::up(&db, None).await.unwrap();
     let db = Arc::new(db);
 
-    let password_worker = Arc::new(PasswordWorker::new_bcrypt(1).unwrap());
-    let mailer = Arc::new(SmtpTransport::builder_dangerous("localhost").build());
     let jwt_secret = "test_secret".to_string();
 
     let user = users::ActiveModel {
@@ -68,9 +70,9 @@ async fn delete_tags_returns_no_content() {
     .await
     .unwrap();
 
-    let tag1 = services::tags::insert_tag(
+    let tag1 = usecases::tags::insert_tag(
         &db,
-        services::tags::NewTag {
+        usecases::tags::NewTag {
             name: "tag1".to_string(),
             user_id: user.id,
         },
@@ -78,9 +80,9 @@ async fn delete_tags_returns_no_content() {
     .await
     .unwrap();
 
-    let tag2 = services::tags::insert_tag(
+    let tag2 = usecases::tags::insert_tag(
         &db,
-        services::tags::NewTag {
+        usecases::tags::NewTag {
             name: "tag2".to_string(),
             user_id: user.id,
         },
@@ -88,12 +90,17 @@ async fn delete_tags_returns_no_content() {
     .await
     .unwrap();
 
-    let app = routes::tags::routes().with_state(AppState {
-        db: db.clone(),
-        password_worker,
-        mailer,
+    let state = ServiceContext::builder(
+        db.clone(),
+        Arc::new(PasswordWorker::new_bcrypt(1).unwrap()),
         jwt_secret,
-    });
+    )
+    .mailer(Some(Arc::new(
+        SmtpTransport::builder_dangerous("localhost").build(),
+    )))
+    .build();
+
+    let app = routes::tags::routes().with_state(AppState::from(state));
 
     let auth_user = AuthenticatedUser {
         id: user.id,
