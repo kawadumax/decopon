@@ -112,6 +112,7 @@ export interface UserResponse {
 export interface ProfileResponse {
   status?: string;
   mustVerifyEmail: boolean;
+  user?: User;
 }
 
 export interface StatusResponse {

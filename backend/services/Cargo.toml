@@ -1,0 +1,19 @@
+[package]
+name = "decopon-services"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+axum-password-worker = "0.4.1"
+chrono = { version = "0.4.41", features = ["serde"] }
+jsonwebtoken = "~9.3.1"
+lettre = "0.11.18"
+rand = "0.8"
+sea-orm = { version = "~1.1.14", features = ["sqlx-sqlite", "runtime-tokio-rustls", "macros"] }
+serde = { version = "~1.0.219", features = ["derive"] }
+sha2 = "0.10"
+thiserror = "2"
+tracing = "0.1.41"
+
+[dev-dependencies]
+sea-orm = { version = "~1.1.14", features = ["sqlx-sqlite", "runtime-tokio-rustls", "macros"] }

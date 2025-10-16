@@ -1,42 +1,39 @@
 {
-  "name": "decopon",
-  "version": "1.0.0",
-  "private": true,
-  "scripts": {
-    "preinstall": "npx only-allow pnpm",
-    "build": "pnpm -F core build && tsc -b tsconfig.build.json",
-    "windows:dev": "concurrently -c \"#93c5fd,#c4b5fd,#fb7185,#fdba74\" \"pnpm axum:dev\" \"pnpm web:dev\" --names=axum,web",
-    "windows:preview": "concurrently -c \"#93c5fd,#c4b5fd,#fb7185,#fdba74\" \"pnpm axum:dev\" \"pnpm web:preview\" --names=axum,web",
-    // "laravel:dev": "cd backend/laravel && php artisan serve --host=0.0.0.0 --port=8000",
-    // "laravel:fresh": "cd backend/laravel && php artisan migrate:fresh --seed",
-    // "laravel:routes": "cd backend/laravel && php artisan route:list",
-    "axum:dev": "cd backend/axum && cargo run",
-    "axum:build": "cd backend/axum && cargo build",
-    "axum:fresh": "cd backend/axum && cargo run -p migration -- fresh",
-    "axum:gen:entity": "cd backend/axum && sea-orm-cli generate entity -o src/entities", // generate entity
-    "web:build": "pnpm -F web build",
-    "web:dev": "pnpm -F web dev",
-    "web:preview": "pnpm -F web preview",
-    "core:gen-routes": "pnpm -F core gen-routes",
-    "core:storybook": "pnpm -F core storybook",
-    "app:build": "pnpm -F core build && pnpm -F app tauri build",
-    "app:dev": "pnpm -F app tauri dev"
+  name: 'decopon',
+  version: '1.0.0',
+  private: true,
+  scripts: {
+    preinstall: 'npx only-allow pnpm',
+    build: 'pnpm -F core build && tsc -b tsconfig.build.json',
+    'fullstack:dev': 'concurrently -c "#93c5fd,#c4b5fd,#fb7185,#fdba74" "pnpm axum:dev" "pnpm web:dev" --names=axum,web',
+    'fullstack:preview': 'concurrently -c "#93c5fd,#c4b5fd,#fb7185,#fdba74" "pnpm axum:dev" "pnpm web:preview" --names=axum,web',
+    'axum:dev': 'cd backend/axum && cargo run',
+    'axum:build': 'cd backend/axum && cargo build',
+    'axum:fresh': 'cd backend/axum && cargo run -p migration -- fresh',
+    'axum:gen:entity': 'cd backend/axum && sea-orm-cli generate entity -o src/entities',
+    'web:build': 'pnpm -F web build',
+    'web:dev': 'pnpm -F web dev',
+    'web:preview': 'pnpm -F web preview',
+    'core:gen-routes': 'pnpm -F core gen-routes',
+    'core:storybook': 'pnpm -F core storybook',
+    'windows:build': 'pnpm -F core build && pnpm -F @decopon/app-windows tauri build',
+    'windows:dev': 'pnpm -F @decopon/app-windows tauri dev'
   },
-  "packageManager": "pnpm@10.11.0",
-  "dependencies": {
-    "react": "catalog:",
-    "react-dom": "catalog:",
-    "zustand": "^4.5.7"
+  packageManager: 'pnpm@10.18.2',
+  dependencies: {
+    react: 'catalog:',
+    'react-dom': 'catalog:',
+    zustand: '^4.5.7',
   },
-  "devDependencies": {
-    "@types/react": "catalog:",
-    "@types/react-dom": "catalog:",
-    "@types/node": "^22.15.21",
-    "@biomejs/biome": "^1.9.4",
-    "concurrently": "^9.1.2",
-    "depcheck": "^1.4.7",
-    "typescript": "catalog:",
-    "esbuild": "^0.25.2",
-    "tailwindcss": "catalog:"
-  }
+  devDependencies: {
+    '@biomejs/biome': '^1.9.4',
+    '@types/node': '^22.15.21',
+    '@types/react': 'catalog:',
+    '@types/react-dom': 'catalog:',
+    concurrently: '^9.1.2',
+    depcheck: '^1.4.7',
+    esbuild: '^0.25.2',
+    tailwindcss: 'catalog:',
+    typescript: 'catalog:',
+  },
 }

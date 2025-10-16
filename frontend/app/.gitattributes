@@ -1,2 +1,0 @@
-src-tauri/icons/* filter=lfs diff=lfs merge=lfs -text
-src-tauri/icons/**/* filter=lfs diff=lfs merge=lfs -text

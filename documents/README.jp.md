@@ -23,6 +23,12 @@
 
 *このシステムは現在Laravel BreezeとReactで構成されています。*
 
+## 開発者向けドキュメント
+
+- [IPC サービス層アーキテクチャと運用ガイド](ipc-architecture-guide.md)
+- [Windows IPC 移行検証レポート](windows-ipc-migration.md)
+- [ADR: IPC/HTTP 共通 API クライアントの設計](ADR-frontend-api-transport.md)
+
 ## 機能
 
 - **ポモドーロテクニックを使った集中セッション**: 25分間の作業と5分間の休憩を組み合わせたタイマー機能

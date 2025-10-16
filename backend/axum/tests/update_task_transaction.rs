@@ -1,6 +1,6 @@
 use decopon_axum::{
     entities::{prelude::*, tasks, users},
-    services,
+    usecases,
 };
 use migration::{Migrator, MigratorTrait};
 use sea_orm::{
@@ -31,9 +31,9 @@ async fn insert_task_returns_related_tags() {
     .await
     .unwrap();
 
-    let tag1 = services::tags::insert_tag(
+    let tag1 = usecases::tags::insert_tag(
         &db,
-        services::tags::NewTag {
+        usecases::tags::NewTag {
             name: "tag1".to_string(),
             user_id: user.id,
         },
@@ -41,9 +41,9 @@ async fn insert_task_returns_related_tags() {
     .await
     .unwrap();
 
-    let tag2 = services::tags::insert_tag(
+    let tag2 = usecases::tags::insert_tag(
         &db,
-        services::tags::NewTag {
+        usecases::tags::NewTag {
             name: "tag2".to_string(),
             user_id: user.id,
         },
@@ -51,9 +51,9 @@ async fn insert_task_returns_related_tags() {
     .await
     .unwrap();
 
-    let task = services::tasks::insert_task(
+    let task = usecases::tasks::insert_task(
         &db,
-        services::tasks::NewTask {
+        usecases::tasks::NewTask {
             title: "New Task".to_string(),
             description: "desc".to_string(),
             parent_task_id: None,
@@ -108,9 +108,9 @@ async fn update_task_rollback_on_error() {
     .await
     .unwrap();
 
-    let result = services::tasks::update_task(
+    let result = usecases::tasks::update_task(
         &db,
-        services::tasks::TaskUpdate {
+        usecases::tasks::TaskUpdate {
             id: task.id,
             title: Some("New Title".to_string()),
             description: None,
@@ -175,9 +175,9 @@ async fn update_child_task_keeps_parent_relationship() {
     .await
     .unwrap();
 
-    services::tasks::update_task(
+    usecases::tasks::update_task(
         &db,
-        services::tasks::TaskUpdate {
+        usecases::tasks::TaskUpdate {
             id: child.id,
             title: Some("Updated Child".to_string()),
             description: None,
@@ -219,9 +219,9 @@ async fn update_task_returns_related_tags() {
     .await
     .unwrap();
 
-    let tag1 = services::tags::insert_tag(
+    let tag1 = usecases::tags::insert_tag(
         &db,
-        services::tags::NewTag {
+        usecases::tags::NewTag {
             name: "tag1".to_string(),
             user_id: user.id,
         },
@@ -229,9 +229,9 @@ async fn update_task_returns_related_tags() {
     .await
     .unwrap();
 
-    let tag2 = services::tags::insert_tag(
+    let tag2 = usecases::tags::insert_tag(
         &db,
-        services::tags::NewTag {
+        usecases::tags::NewTag {
             name: "tag2".to_string(),
             user_id: user.id,
         },
@@ -239,9 +239,9 @@ async fn update_task_returns_related_tags() {
     .await
     .unwrap();
 
-    let task = services::tasks::insert_task(
+    let task = usecases::tasks::insert_task(
         &db,
-        services::tasks::NewTask {
+        usecases::tasks::NewTask {
             title: "Task".to_string(),
             description: "desc".to_string(),
             parent_task_id: None,
@@ -252,9 +252,9 @@ async fn update_task_returns_related_tags() {
     .await
     .unwrap();
 
-    let task = services::tasks::update_task(
+    let task = usecases::tasks::update_task(
         &db,
-        services::tasks::TaskUpdate {
+        usecases::tasks::TaskUpdate {
             id: task.id,
             title: None,
             description: None,

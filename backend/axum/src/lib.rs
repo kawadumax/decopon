@@ -1,10 +1,12 @@
 pub mod dto;
-pub mod entities;
 pub mod errors;
 pub mod extractors;
 pub mod middleware;
 pub mod routes;
-pub mod services;
+
+pub use decopon_services::{
+    ServiceContext, ServiceContextBuilder, ServiceError, entities, usecases,
+};
 
 use axum::{
     extract::FromRef,
@@ -20,29 +22,82 @@ use std::sync::Arc;
 use tower_http::cors::{Any, CorsLayer};
 use tracing_subscriber::{EnvFilter, fmt, layer::SubscriberExt, util::SubscriberInitExt};
 
+use usecases::single_user::SingleUserSession;
+
 #[derive(Clone)]
 pub struct AppState {
-    pub db: Arc<DatabaseConnection>,
-    pub password_worker: Arc<PasswordWorker<Bcrypt>>,
-    pub mailer: Arc<lettre::SmtpTransport>,
-    pub jwt_secret: String,
+    services: Arc<ServiceContext>,
+}
+
+impl AppState {
+    pub fn new(services: Arc<ServiceContext>) -> Self {
+        Self { services }
+    }
+
+    pub fn services(&self) -> &ServiceContext {
+        self.services.as_ref()
+    }
+
+    pub fn db(&self) -> &DatabaseConnection {
+        self.services().db()
+    }
+
+    pub fn db_arc(&self) -> Arc<DatabaseConnection> {
+        self.services().db_arc()
+    }
+
+    pub fn password_worker(&self) -> &PasswordWorker<Bcrypt> {
+        self.services().password_worker()
+    }
+
+    pub fn password_worker_arc(&self) -> Arc<PasswordWorker<Bcrypt>> {
+        self.services().password_worker_arc()
+    }
+
+    pub fn mailer(&self) -> Option<&Arc<lettre::SmtpTransport>> {
+        self.services().mailer()
+    }
+
+    pub fn mailer_arc(&self) -> Option<Arc<lettre::SmtpTransport>> {
+        self.services().mailer_arc()
+    }
+
+    pub fn jwt_secret(&self) -> &str {
+        self.services().jwt_secret()
+    }
+
+    pub fn single_user_session(&self) -> Option<SingleUserSession> {
+        self.services().single_user_session_owned()
+    }
+}
+
+impl From<ServiceContext> for AppState {
+    fn from(services: ServiceContext) -> Self {
+        Self::new(Arc::new(services))
+    }
 }
 
 impl FromRef<AppState> for Arc<DatabaseConnection> {
     fn from_ref(state: &AppState) -> Self {
-        state.db.clone()
+        state.db_arc()
     }
 }
 
 impl FromRef<AppState> for Arc<PasswordWorker<Bcrypt>> {
     fn from_ref(state: &AppState) -> Self {
-        state.password_worker.clone()
+        state.password_worker_arc()
     }
 }
 
-impl FromRef<AppState> for Arc<lettre::SmtpTransport> {
+impl FromRef<AppState> for Option<Arc<lettre::SmtpTransport>> {
     fn from_ref(state: &AppState) -> Self {
-        state.mailer.clone()
+        state.mailer_arc()
+    }
+}
+
+impl FromRef<AppState> for Option<SingleUserSession> {
+    fn from_ref(state: &AppState) -> Self {
+        state.single_user_session()
     }
 }
 

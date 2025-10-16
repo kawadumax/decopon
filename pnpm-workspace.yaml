@@ -1,7 +1,8 @@
 packages:
   - frontend/web
   - frontend/core
-  - frontend/app
+  - frontend/app/shared
+  - frontend/app/windows
 catalog:
   react: ^18.0.0
   react-dom: ^18.0.0

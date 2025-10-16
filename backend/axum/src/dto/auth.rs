@@ -1,10 +1,10 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
-use crate::services::users::{User, UserFull};
+use crate::usecases::users::{User, UserFull};
 
 #[derive(Debug, Deserialize, Serialize)]
-pub struct RegisterUserRequestDto {
+pub struct RegisterUserRequest {
     pub name: String,
     pub email: String,
     pub password: String,
@@ -12,12 +12,12 @@ pub struct RegisterUserRequestDto {
 }
 
 #[derive(Serialize)]
-pub struct RegisterUserResponseDto {
-    pub user: UserDto,
+pub struct RegisterUserResponse {
+    pub user: UserResponse,
 }
 
 #[derive(Serialize)]
-pub struct UserFullDto {
+pub struct UserFullResponse {
     pub id: i32,
     pub name: String,
     pub email: String,
@@ -30,7 +30,7 @@ pub struct UserFullDto {
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct UserDto {
+pub struct UserResponse {
     pub id: i32,
     pub name: String,
     pub email: String,
@@ -39,7 +39,7 @@ pub struct UserDto {
     pub locale: String,
 }
 
-impl From<User> for UserDto {
+impl From<User> for UserResponse {
     fn from(user: User) -> Self {
         Self {
             id: user.id,
@@ -52,7 +52,7 @@ impl From<User> for UserDto {
     }
 }
 
-impl From<UserFull> for UserFullDto {
+impl From<UserFull> for UserFullResponse {
     fn from(user: UserFull) -> Self {
         Self {
             id: user.id,
@@ -68,7 +68,7 @@ impl From<UserFull> for UserFullDto {
     }
 }
 
-impl From<UserFull> for UserDto {
+impl From<UserFull> for UserResponse {
     fn from(user: UserFull) -> Self {
         Self {
             id: user.id,
@@ -82,45 +82,45 @@ impl From<UserFull> for UserDto {
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct GetAuthUserResponseDto {
-    pub user: UserDto,
+pub struct GetAuthUserResponse {
+    pub user: UserResponse,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
-pub struct LoginRequestDto {
+pub struct LoginRequest {
     pub email: String,
     pub password: String,
 }
 
 #[derive(Serialize)]
-pub struct AuthResponseDto {
+pub struct AuthResponse {
     pub token: String,
-    pub user: UserDto,
+    pub user: UserResponse,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
-pub struct ForgotPasswordRequestDto {
+pub struct ForgotPasswordRequest {
     pub email: String,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
-pub struct ResetPasswordRequestDto {
+pub struct ResetPasswordRequest {
     pub token: String,
     pub email: String,
     pub password: String,
 }
 
 #[derive(Debug, Deserialize)]
-pub struct ConfirmPasswordRequestDto {
+pub struct ConfirmPasswordRequest {
     pub password: String,
 }
 
 #[derive(Debug, Deserialize)]
-pub struct ResendVerificationRequestDto {
+pub struct ResendVerificationRequest {
     pub email: String,
 }
 
 #[derive(Debug, Serialize)]
-pub struct StatusResponseDto {
+pub struct StatusResponse {
     pub status: String,
 }

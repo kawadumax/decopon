@@ -1,15 +1,15 @@
 use serde::{Deserialize, Serialize};
 
-use crate::services::users::User;
+use crate::usecases::users::User;
 
 #[derive(Serialize)]
-pub struct PreferenceResponseDto {
+pub struct PreferenceResponse {
     pub work_time: i32,
     pub break_time: i32,
     pub locale: String,
 }
 
-impl From<User> for PreferenceResponseDto {
+impl From<User> for PreferenceResponse {
     fn from(user: User) -> Self {
         Self {
             work_time: user.work_time,
@@ -20,7 +20,7 @@ impl From<User> for PreferenceResponseDto {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct UpdatePreferenceRequestDto {
+pub struct UpdatePreferenceRequest {
     pub work_time: i32,
     pub break_time: i32,
     pub locale: String,

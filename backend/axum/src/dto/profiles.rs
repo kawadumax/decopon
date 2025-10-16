@@ -1,18 +1,18 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct UpdateProfileRequestDto {
+pub struct UpdateProfileRequest {
     pub name: Option<String>,
     pub email: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct UpdatePasswordRequestDto {
+pub struct UpdatePasswordRequest {
     pub current_password: String,
     pub password: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct DeleteProfileRequestDto {
+pub struct DeleteProfileRequest {
     pub password: String,
 }

@@ -9,7 +9,7 @@ use sea_orm::{ActiveModelTrait, Database, Set};
 use tower::ServiceExt;
 
 use decopon_axum::{
-    AppState, dto::auth::GetAuthUserResponseDto, entities::users, routes, services,
+    AppState, ServiceContext, dto::auth::GetAuthUserResponse, entities::users, routes, usecases,
 };
 use lettre::SmtpTransport;
 use migration::{Migrator, MigratorTrait};
@@ -33,17 +33,19 @@ async fn get_auth_user_via_header() {
     .await
     .unwrap();
     let jwt_secret = "test_secret".to_string();
-    let token = services::auth::create_jwt(user.id, &jwt_secret).unwrap();
+    let token = usecases::auth::create_jwt(user.id, &jwt_secret).unwrap();
 
-    let password_worker = Arc::new(PasswordWorker::new_bcrypt(1).unwrap());
-    let mailer = Arc::new(SmtpTransport::builder_dangerous("localhost").build());
+    let state = ServiceContext::builder(
+        db.clone(),
+        Arc::new(PasswordWorker::new_bcrypt(1).unwrap()),
+        jwt_secret.clone(),
+    )
+    .mailer(Some(Arc::new(
+        SmtpTransport::builder_dangerous("localhost").build(),
+    )))
+    .build();
 
-    let app = routes::auth::routes().with_state(AppState {
-        db: db.clone(),
-        password_worker,
-        mailer,
-        jwt_secret: jwt_secret.clone(),
-    });
+    let app = routes::auth::routes().with_state(AppState::from(state));
 
     let response = app
         .oneshot(
@@ -58,6 +60,6 @@ async fn get_auth_user_via_header() {
 
     assert_eq!(response.status(), StatusCode::OK);
     let body = to_bytes(response.into_body(), usize::MAX).await.unwrap();
-    let json: GetAuthUserResponseDto = serde_json::from_slice(&body).unwrap();
+    let json: GetAuthUserResponse = serde_json::from_slice(&body).unwrap();
     assert_eq!(json.user.email, "test@example.com");
 }

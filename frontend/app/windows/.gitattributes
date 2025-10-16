@@ -1,0 +1,3 @@
+# Store Tauri icons as regular binary assets so they can be used without Git LFS.
+src-tauri/icons/* binary -filter -diff -merge
+src-tauri/icons/**/* binary -filter -diff -merge
