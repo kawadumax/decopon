@@ -1,17 +1,27 @@
 use axum::{
     Router,
-    extract::{Path, State},
-    http::{HeaderMap, StatusCode, header::AUTHORIZATION},
+    extract::State,
+    http::StatusCode,
     response::{IntoResponse, Json},
-    routing::{get, post},
+    routing::get,
 };
 use axum_macros::debug_handler;
 
 use crate::AppState;
 use crate::dto::auth::*;
 use crate::errors::ApiError;
+
+#[cfg(feature = "web")]
+use axum::{
+    extract::Path,
+    http::{HeaderMap, header::AUTHORIZATION},
+    routing::post,
+};
+
+#[cfg(feature = "web")]
 use crate::usecases;
 
+#[cfg(feature = "app")]
 #[debug_handler]
 #[tracing::instrument(skip(app_state))]
 async fn get_single_user_session(
@@ -29,6 +39,7 @@ async fn get_single_user_session(
     }
 }
 
+#[cfg(feature = "web")]
 #[debug_handler]
 #[tracing::instrument(skip(app_state, payload))]
 async fn register_user(
@@ -52,6 +63,7 @@ async fn register_user(
     ))
 }
 
+#[cfg(feature = "web")]
 #[debug_handler]
 #[tracing::instrument(skip(app_state, headers))]
 async fn get_auth_user(
@@ -70,6 +82,7 @@ async fn get_auth_user(
     ))
 }
 
+#[cfg(feature = "web")]
 #[debug_handler]
 #[tracing::instrument(skip(app_state, payload))]
 async fn login(
@@ -94,6 +107,7 @@ async fn login(
     ))
 }
 
+#[cfg(feature = "web")]
 #[tracing::instrument]
 async fn logout() -> StatusCode {
     // No-op for logout, as JWTs are stateless
@@ -101,6 +115,7 @@ async fn logout() -> StatusCode {
     StatusCode::NO_CONTENT
 }
 
+#[cfg(feature = "web")]
 #[debug_handler]
 #[tracing::instrument(skip(app_state, payload))]
 async fn forgot_password(
@@ -111,6 +126,7 @@ async fn forgot_password(
     Ok(StatusCode::OK)
 }
 
+#[cfg(feature = "web")]
 #[debug_handler]
 #[tracing::instrument(skip(app_state, payload))]
 async fn reset_password(
@@ -127,6 +143,8 @@ async fn reset_password(
     .await?;
     Ok(StatusCode::OK)
 }
+
+#[cfg(feature = "web")]
 #[debug_handler]
 #[tracing::instrument(skip(app_state, token))]
 async fn verify_email(
@@ -144,6 +162,7 @@ async fn verify_email(
     ))
 }
 
+#[cfg(feature = "web")]
 #[debug_handler]
 #[tracing::instrument(skip(app_state, headers, payload))]
 async fn confirm_password(
@@ -169,6 +188,7 @@ async fn confirm_password(
     ))
 }
 
+#[cfg(feature = "web")]
 #[debug_handler]
 #[tracing::instrument(skip(app_state, payload))]
 async fn resend_verification(
@@ -185,6 +205,7 @@ async fn resend_verification(
     ))
 }
 
+#[cfg(feature = "web")]
 fn extract_bearer_token(headers: &HeaderMap) -> Result<String, ApiError> {
     headers
         .get(AUTHORIZATION)
@@ -194,11 +215,16 @@ fn extract_bearer_token(headers: &HeaderMap) -> Result<String, ApiError> {
         .ok_or(ApiError::Unauthorized)
 }
 
-pub fn routes() -> Router<AppState> {
+#[cfg(feature = "app")]
+pub fn app_routes() -> Router<AppState> {
+    Router::<AppState>::new().route("/local/session", get(get_single_user_session))
+}
+
+#[cfg(feature = "web")]
+pub fn web_routes() -> Router<AppState> {
     Router::<AppState>::new()
         .route("/users", post(register_user).get(get_auth_user))
         .route("/sessions", post(login).delete(logout))
-        .route("/local/session", get(get_single_user_session))
         .route("/password/forgot", post(forgot_password))
         .route("/password/reset", post(reset_password))
         .route("/password/confirm", post(confirm_password))
