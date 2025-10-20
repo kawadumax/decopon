@@ -1,3 +1,12 @@
+## ビルドターゲット
+
+このバックエンドは用途ごとにバイナリを分離しています。
+
+- アプリ向けシングルユーザーモード: `cargo run --bin app`（または `cargo run --bin app --release`）
+- Web 向けマルチユーザーモード: `cargo run --no-default-features --features web --bin web`
+
+それぞれ必要な Cargo feature（SQLite / PostgreSQL）を有効化してビルドされます。
+
 ## Commands for migration
 
 ```sh
