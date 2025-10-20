@@ -9,8 +9,8 @@ pub mod tasks;
 use crate::{AppState, middleware::auth::auth_middleware};
 use axum::{Router, middleware};
 
-pub fn create_routes(app_state: AppState) -> Router<AppState> {
-    let protected = Router::<AppState>::new()
+fn protected_routes(app_state: AppState) -> Router<AppState> {
+    Router::<AppState>::new()
         .nest("/decopon_sessions", decopon_sessions::routes())
         .nest("/logs", logs::routes())
         .nest("/profiles", profiles::routes())
@@ -20,9 +20,31 @@ pub fn create_routes(app_state: AppState) -> Router<AppState> {
         .layer(middleware::from_fn_with_state(
             app_state.clone(),
             auth_middleware,
-        ));
-
-    Router::<AppState>::new()
-        .nest("/auth", auth::routes())
-        .merge(protected)
+        ))
 }
+
+#[cfg(feature = "app")]
+pub fn create_app_routes(app_state: AppState) -> Router<AppState> {
+    Router::<AppState>::new()
+        .nest("/auth", auth::app_routes())
+        .merge(protected_routes(app_state))
+}
+
+#[cfg(feature = "web")]
+pub fn create_web_routes(app_state: AppState) -> Router<AppState> {
+    Router::<AppState>::new()
+        .nest("/auth", auth::web_routes())
+        .merge(protected_routes(app_state))
+}
+
+#[cfg(all(feature = "app", feature = "web"))]
+compile_error!("`app` and `web` features cannot be enabled simultaneously for routes.");
+
+#[cfg(not(any(feature = "app", feature = "web")))]
+compile_error!("Either the `app` or `web` feature must be enabled to use routes.");
+
+#[cfg(feature = "app")]
+pub use create_app_routes as create_routes;
+
+#[cfg(all(feature = "web", not(feature = "app")))]
+pub use create_web_routes as create_routes;

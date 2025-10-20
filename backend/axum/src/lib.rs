@@ -16,13 +16,48 @@ use axum::{
     },
 };
 use axum_password_worker::{Bcrypt, PasswordWorker};
+use dotenvy::{dotenv, from_filename};
 use sea_orm::{Database, DatabaseConnection};
-use std::env;
-use std::sync::Arc;
+use std::{env, io::ErrorKind, net::SocketAddr, sync::Arc};
 use tower_http::cors::{Any, CorsLayer};
 use tracing_subscriber::{EnvFilter, fmt, layer::SubscriberExt, util::SubscriberInitExt};
 
+use tracing::info;
 use usecases::single_user::SingleUserSession;
+
+pub fn load_env_with_fallback(primary: &str) -> Result<(), dotenvy::Error> {
+    match from_filename(primary) {
+        Ok(_) => Ok(()),
+        Err(dotenvy::Error::Io(err)) if err.kind() == ErrorKind::NotFound => match dotenv() {
+            Ok(_) => Ok(()),
+            Err(dotenvy::Error::Io(err)) if err.kind() == ErrorKind::NotFound => Ok(()),
+            Err(err) => Err(err),
+        },
+        Err(err) => Err(err),
+    }
+}
+
+#[derive(Debug, Clone, Copy, Default)]
+pub struct BootstrapConfig {
+    pub ensure_single_user_session: bool,
+    pub enable_mailer: bool,
+}
+
+impl BootstrapConfig {
+    pub fn app() -> Self {
+        Self {
+            ensure_single_user_session: true,
+            enable_mailer: false,
+        }
+    }
+
+    pub fn web() -> Self {
+        Self {
+            ensure_single_user_session: false,
+            enable_mailer: true,
+        }
+    }
+}
 
 #[derive(Clone)]
 pub struct AppState {
@@ -158,4 +193,71 @@ pub fn setup_cors() -> CorsLayer {
         HeaderName::from_static("x-requested-with"),
     ])
     .allow_credentials(true)
+}
+
+pub async fn build_app_state(
+    config: BootstrapConfig,
+) -> Result<AppState, Box<dyn std::error::Error>> {
+    let db = setup_database().await?;
+    let password_worker = setup_password_worker()?;
+
+    let mailer = if config.enable_mailer {
+        match usecases::mails::setup_mailer() {
+            Ok(mailer) => {
+                if mailer.is_none() {
+                    info!(
+                        "SMTP transport is disabled or not configured; email features are inactive"
+                    );
+                }
+                mailer
+            }
+            Err(err) => return Err(Box::new(err)),
+        }
+    } else {
+        info!("Mailer is disabled for this build; email features are inactive");
+        None
+    };
+
+    let jwt_secret = setup_jwt_secret()?;
+
+    let single_user_session = if config.ensure_single_user_session {
+        Some(
+            usecases::single_user::ensure_user(db.as_ref(), password_worker.as_ref(), &jwt_secret)
+                .await
+                .map_err(|err| -> Box<dyn std::error::Error> { Box::new(err) })?,
+        )
+    } else {
+        None
+    };
+
+    let service_context =
+        ServiceContext::builder(db.clone(), password_worker.clone(), jwt_secret.clone())
+            .mailer(mailer.clone())
+            .single_user_session(single_user_session)
+            .build();
+
+    Ok(AppState::new(Arc::new(service_context)))
+}
+
+pub fn resolve_socket_addr() -> Result<SocketAddr, Box<dyn std::error::Error>> {
+    let ip = env::var("AXUM_IP").unwrap_or_else(|_| "127.0.0.1".to_string());
+    let port: u16 = env::var("AXUM_PORT")
+        .ok()
+        .and_then(|p| p.parse().ok())
+        .unwrap_or(3000);
+
+    Ok(SocketAddr::new(ip.parse()?, port))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use dotenvy::dotenv;
+
+    #[tokio::test]
+    async fn test_load_env() {
+        dotenv().ok();
+        assert!(env::var("AXUM_DATABASE_URL").is_ok());
+        assert!(env::var("AXUM_JWT_SECRET").is_ok());
+    }
 }
