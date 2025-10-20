@@ -1,7 +1,5 @@
-
-.env
-.env.backup
-.env.production
+.env*
+!.env*.example
 *.patch
 auth.json
 npm-debug.log
