@@ -1,3 +1,5 @@
+#![cfg(feature = "web")]
+
 use std::sync::Arc;
 
 use axum::{

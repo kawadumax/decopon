@@ -1,0 +1,26 @@
+{
+  "extends": ["../../../tsconfig.base.json", "../../tsconfig.paths.json"],
+  "compilerOptions": {
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "composite": true,
+    "outDir": "dist",
+
+    /* Bundler mode */
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "noEmit": true,
+
+    /* Linting */
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "baseUrl": "../shared"
+  },
+
+  /* Type checking */
+  "include": ["../shared/src/**/*"],
+  "exclude": ["node_modules", "dist", "vite.config.ts"],
+  "references": [{ "path": "../../core" }]
+}

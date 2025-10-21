@@ -1,17 +1,14 @@
 use crate::{
     entities::users,
     errors::ServiceError,
-    usecases::{self, users::User},
+    usecases::{self, mails, users::User},
 };
 use axum_password_worker::{Bcrypt, BcryptConfig, PasswordWorker};
 use chrono::Utc;
 use jsonwebtoken::{EncodingKey, Header, encode};
-use lettre::SmtpTransport;
 use rand::{Rng, distributions::Alphanumeric};
 use sea_orm::{ActiveModelTrait, ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter, Set};
 use sha2::{Digest, Sha256};
-use std::sync::Arc;
-
 // JWT claims構造体
 #[derive(serde::Serialize, serde::Deserialize)]
 pub struct Claims {
@@ -31,7 +28,7 @@ pub struct AuthResponse {
 pub async fn register_user(
     db: &DatabaseConnection,
     password_worker: &PasswordWorker<Bcrypt>,
-    mailer: Option<&Arc<SmtpTransport>>,
+    mailer: Option<&mails::Mailer>,
     name: &str,
     email: &str,
     password: &str,
@@ -70,7 +67,7 @@ pub async fn register_user(
     }
     let user = user_active.insert(db).await?;
     if let (Some(mailer), Some(raw_token)) = (mailer, raw_token.as_deref()) {
-        usecases::mails::send_verification_email(mailer.clone(), email, raw_token)?;
+        mails::send_verification_email(mailer.clone(), email, raw_token)?;
     } else {
         tracing::info!(
             "Skipping verification email because SMTP transport is disabled; marking user as verified"
@@ -169,7 +166,7 @@ pub async fn verify_email(
 
 pub async fn forgot_password(
     db: &DatabaseConnection,
-    mailer: Option<&Arc<SmtpTransport>>,
+    mailer: Option<&mails::Mailer>,
     email: &str,
 ) -> Result<(), ServiceError> {
     let user = users::Entity::find()
@@ -190,7 +187,7 @@ pub async fn forgot_password(
 
     let body = format!("Reset token: {}", raw_token);
     if let Some(mailer) = mailer {
-        usecases::mails::send(mailer.clone(), email, "Reset your password", &body)?;
+        mails::send_plain_text(mailer.clone(), email, "Reset your password", &body)?;
     } else {
         tracing::info!("Skipping password reset email because SMTP transport is disabled");
     }
@@ -247,7 +244,7 @@ pub async fn confirm_password(
 
 pub async fn resend_verification(
     db: &DatabaseConnection,
-    mailer: Option<&Arc<SmtpTransport>>,
+    mailer: Option<&mails::Mailer>,
     email: &str,
 ) -> Result<(), ServiceError> {
     let user = users::Entity::find()
@@ -272,7 +269,7 @@ pub async fn resend_verification(
     let user = user_active.update(db).await?;
 
     if let Some(mailer) = mailer {
-        usecases::mails::send_verification_email(mailer.clone(), &user.email, &raw_token)?;
+        mails::send_verification_email(mailer.clone(), &user.email, &raw_token)?;
     } else {
         tracing::info!("Skipping verification email resend because SMTP transport is disabled");
     }
@@ -380,7 +377,7 @@ mod auth_tests {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "mail"))]
 mod tests {
     use super::*;
     use chrono::Utc;
@@ -395,7 +392,7 @@ mod tests {
     ) -> (
         DatabaseConnection,
         PasswordWorker<Bcrypt>,
-        Arc<SmtpTransport>,
+        mails::Mailer,
         Child,
     ) {
         // 環境変数設定（メール送信元）
