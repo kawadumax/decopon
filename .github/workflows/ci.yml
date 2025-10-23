@@ -78,9 +78,11 @@ jobs:
       - name: Generate routes
         run: pnpm core:gen-routes
 
+      - name: Emit core type declarations
+        run: pnpm exec tsc --pretty false --project frontend/core/tsconfig.json --emitDeclarationOnly
+
       - name: Type check packages
         run: |
-          pnpm exec tsc --pretty false --noEmit --project frontend/core/tsconfig.json
           pnpm exec tsc --pretty false --noEmit --project frontend/web/tsconfig.json
           pnpm exec tsc --pretty false --noEmit --project frontend/app/shared/tsconfig.json
           pnpm exec tsc --pretty false --noEmit --project frontend/app/windows/tsconfig.json --rootDir frontend/app/shared

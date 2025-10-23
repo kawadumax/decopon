@@ -22,5 +22,4 @@
   /* Type checking */
   "include": ["../shared/src/**/*"],
   "exclude": ["node_modules", "dist", "vite.config.ts"],
-  "references": [{ "path": "../../core" }]
 }
