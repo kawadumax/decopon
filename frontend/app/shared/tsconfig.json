@@ -4,8 +4,8 @@
     "composite": false,
     "baseUrl": ".",
     "paths": {
-      "@decopon/core": ["../../core/dist"],
-      "@decopon/core/*": ["../../core/dist/*"]
+      "@decopon/core": ["../../core/src", "../../core/dist"],
+      "@decopon/core/*": ["../../core/src/*", "../../core/dist/*"]
     }
   },
   "include": ["src/**/*"],
