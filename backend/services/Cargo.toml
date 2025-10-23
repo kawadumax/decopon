@@ -23,3 +23,4 @@ tracing = "0.1.41"
 
 [dev-dependencies]
 sea-orm = { version = "~1.1.14", default-features = false, features = ["runtime-tokio-rustls", "macros", "sqlx-sqlite", "with-chrono"] }
+tokio = { version = "~1.47.1", features = ["macros", "rt-multi-thread"] }
