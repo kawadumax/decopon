@@ -1,41 +1,22 @@
 #![cfg(feature = "web")]
 
-use std::sync::Arc;
+mod common;
 
 use axum::{
     body::Body,
     http::{Request, StatusCode},
 };
-use axum_password_worker::PasswordWorker;
-use lettre::SmtpTransport;
-use sea_orm::{ActiveModelTrait, Database, Set};
+use sea_orm::{ActiveModelTrait, Set};
 use tower::ServiceExt;
 
-use decopon_axum::{
-    AppState, ServiceContext, entities::users, middleware::auth::AuthenticatedUser, routes,
-    usecases,
-};
-use migration::{Migrator, MigratorTrait};
+use decopon_axum::{entities::users, middleware::auth::AuthenticatedUser, routes, usecases};
+
+use common::{build_app_state, setup_in_memory_db};
 
 #[tokio::test]
 async fn logout_returns_no_content() {
-    let db = Database::connect("sqlite::memory:").await.unwrap();
-    Migrator::up(&db, None).await.unwrap();
-    let db = Arc::new(db);
-
-    let jwt_secret = "test_secret".to_string();
-
-    let state = ServiceContext::builder(
-        db.clone(),
-        Arc::new(PasswordWorker::new_bcrypt(1).unwrap()),
-        jwt_secret,
-    )
-    .mailer(Some(Arc::new(
-        SmtpTransport::builder_dangerous("localhost").build(),
-    )))
-    .build();
-
-    let app = routes::auth::routes().with_state(AppState::from(state));
+    let db = setup_in_memory_db(false).await;
+    let app = routes::auth::routes().with_state(build_app_state(&db, "test_secret"));
 
     let response = app
         .oneshot(
@@ -53,11 +34,7 @@ async fn logout_returns_no_content() {
 
 #[tokio::test]
 async fn delete_tags_returns_no_content() {
-    let db = Database::connect("sqlite::memory:").await.unwrap();
-    Migrator::up(&db, None).await.unwrap();
-    let db = Arc::new(db);
-
-    let jwt_secret = "test_secret".to_string();
+    let db = setup_in_memory_db(false).await;
 
     let user = users::ActiveModel {
         name: Set("Test User".to_string()),
@@ -92,17 +69,7 @@ async fn delete_tags_returns_no_content() {
     .await
     .unwrap();
 
-    let state = ServiceContext::builder(
-        db.clone(),
-        Arc::new(PasswordWorker::new_bcrypt(1).unwrap()),
-        jwt_secret,
-    )
-    .mailer(Some(Arc::new(
-        SmtpTransport::builder_dangerous("localhost").build(),
-    )))
-    .build();
-
-    let app = routes::tags::routes().with_state(AppState::from(state));
+    let app = routes::tags::routes().with_state(build_app_state(&db, "test_secret"));
 
     let auth_user = AuthenticatedUser {
         id: user.id,

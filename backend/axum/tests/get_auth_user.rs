@@ -1,26 +1,23 @@
 #![cfg(feature = "web")]
 
-use std::sync::Arc;
+mod common;
 
 use axum::{
     body::{Body, to_bytes},
     http::{Request, StatusCode, header::AUTHORIZATION},
 };
-use axum_password_worker::PasswordWorker;
-use sea_orm::{ActiveModelTrait, Database, Set};
+use sea_orm::{ActiveModelTrait, Set};
 use tower::ServiceExt;
 
 use decopon_axum::{
-    AppState, ServiceContext, dto::auth::GetAuthUserResponse, entities::users, routes, usecases,
+    dto::auth::GetAuthUserResponse, entities::users, routes, usecases,
 };
-use lettre::SmtpTransport;
-use migration::{Migrator, MigratorTrait};
+
+use common::{build_app_state, setup_in_memory_db};
 
 #[tokio::test]
 async fn get_auth_user_via_header() {
-    let db = Database::connect("sqlite::memory:").await.unwrap();
-    Migrator::up(&db, None).await.unwrap();
-    let db = Arc::new(db);
+    let db = setup_in_memory_db(false).await;
 
     let user = users::ActiveModel {
         name: Set("Test User".to_string()),
@@ -37,17 +34,7 @@ async fn get_auth_user_via_header() {
     let jwt_secret = "test_secret".to_string();
     let token = usecases::auth::create_jwt(user.id, &jwt_secret).unwrap();
 
-    let state = ServiceContext::builder(
-        db.clone(),
-        Arc::new(PasswordWorker::new_bcrypt(1).unwrap()),
-        jwt_secret.clone(),
-    )
-    .mailer(Some(Arc::new(
-        SmtpTransport::builder_dangerous("localhost").build(),
-    )))
-    .build();
-
-    let app = routes::auth::routes().with_state(AppState::from(state));
+    let app = routes::auth::routes().with_state(build_app_state(&db, jwt_secret));
 
     let response = app
         .oneshot(
