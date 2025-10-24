@@ -82,8 +82,11 @@ export const toEmblorTags = (tags: Tag[]): EmblorTag[] => {
 /**
  * 配列の最後の要素を取得する
  * @param arr: T[] 配列
- * @returns T 配列の最後の要素
+ * @returns T | undefined 配列の最後の要素。空配列の場合は undefined
  */
-export const getLast = <T>(arr: T[]): T => {
+export const getLast = <T>(arr: readonly T[]): T | undefined => {
+  if (!arr.length) {
+    return undefined;
+  }
   return arr[arr.length - 1];
 };
