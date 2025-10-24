@@ -15,10 +15,12 @@ export const Route = createRootRouteWithContext<RouterContext>()({
     </>
   ),
   head: (ctx) => {
-    const pageTitle = getLast(ctx.matches).context.title;
     const appName = import.meta.env.VITE_APP_NAME;
+    const lastMatch = getLast(ctx.matches);
+    const pageTitle = lastMatch?.context.title;
+    const title = pageTitle ? `${pageTitle} | ${appName}` : appName;
     return {
-      meta: [{ title: `${pageTitle} | ${appName}` }],
+      meta: [{ title }],
     };
   },
   errorComponent: () => (
