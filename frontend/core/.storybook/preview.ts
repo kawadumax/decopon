@@ -1,8 +1,6 @@
 import type { Preview } from "@storybook/react";
 import { initialize as initializeMsw, mswLoader } from "msw-storybook-addon";
-import { route } from "ziggy-js";
 import { initializeI18n } from "../src/scripts/i18n";
-import { Ziggy } from "../src/scripts/lib/ziggy";
 import { Locale } from "../src/scripts/types/index.d";
 import "../src/styles/app.css";
 
@@ -10,11 +8,6 @@ initializeMsw({
   onUnhandledRequest: "bypass",
 });
 initializeI18n(Locale.ENGLISH);
-
-// @ts-ignore
-globalThis.Ziggy = Ziggy;
-// @ts-ignore
-globalThis.route = route;
 
 const preview: Preview = {
   parameters: {
