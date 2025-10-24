@@ -1,7 +1,6 @@
 use axum::{Json, http::StatusCode, response::IntoResponse};
 use axum_password_worker::{Bcrypt, PasswordWorkerError};
 use jsonwebtoken::errors::Error as JwtError;
-use lettre::transport::smtp::Error as SmtpError;
 use serde::Serialize;
 use thiserror::Error;
 
@@ -29,8 +28,9 @@ pub enum ApiError {
     #[error("password error")]
     Password(#[source] PasswordWorkerError<Bcrypt>),
 
+    #[cfg(feature = "web")]
     #[error("mail error")]
-    Mail(#[source] SmtpError),
+    Mail(#[source] lettre::transport::smtp::Error),
 
     // 想定外
     #[error("internal server error")]
@@ -63,6 +63,7 @@ impl IntoResponse for ApiError {
             // ライブラリ系は “安全な” メッセージに正規化
             ApiError::Db(_) => (StatusCode::INTERNAL_SERVER_ERROR, "Database error"),
             ApiError::Password(_) => (StatusCode::INTERNAL_SERVER_ERROR, "Password error"),
+            #[cfg(feature = "web")]
             ApiError::Mail(_) => (StatusCode::INTERNAL_SERVER_ERROR, "Mail error"),
 
             ApiError::Internal(_) => (StatusCode::INTERNAL_SERVER_ERROR, "Internal error"),
@@ -89,8 +90,9 @@ impl From<PasswordWorkerError<Bcrypt>> for ApiError {
     }
 }
 
-impl From<SmtpError> for ApiError {
-    fn from(err: SmtpError) -> Self {
+#[cfg(feature = "web")]
+impl From<lettre::transport::smtp::Error> for ApiError {
+    fn from(err: lettre::transport::smtp::Error) -> Self {
         ApiError::Mail(err)
     }
 }
@@ -116,6 +118,7 @@ impl From<ServiceError> for ApiError {
             ServiceError::Unauthorized => ApiError::Unauthorized,
             ServiceError::Db(source) => ApiError::Db(source),
             ServiceError::Password(source) => ApiError::Password(source),
+            #[cfg(feature = "web")]
             ServiceError::Mail(source) => ApiError::Mail(source),
             ServiceError::Internal(source) => ApiError::Internal(source),
         }

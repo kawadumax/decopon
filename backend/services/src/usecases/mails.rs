@@ -1,12 +1,26 @@
-use lettre::message::{Mailbox, header::ContentType};
-use lettre::transport::smtp::response::Response;
-use lettre::{Message, SmtpTransport, Transport};
+use crate::errors::ServiceError;
 use std::env;
 use std::sync::Arc;
-use tracing::{info, warn};
+use tracing::info;
+#[cfg(feature = "mail")]
+use tracing::warn;
 
-use crate::errors::ServiceError;
+#[cfg(feature = "mail")]
+use lettre::message::{header::ContentType, Mailbox};
+#[cfg(feature = "mail")]
+use lettre::{transport::smtp::response::Response, Message, SmtpTransport, Transport};
 
+#[cfg(feature = "mail")]
+pub type Mailer = Arc<SmtpTransport>;
+
+#[cfg(not(feature = "mail"))]
+#[derive(Debug, Default)]
+pub struct DisabledMailer;
+
+#[cfg(not(feature = "mail"))]
+pub type Mailer = Arc<DisabledMailer>;
+
+#[cfg(feature = "mail")]
 fn is_truthy(value: &str) -> bool {
     matches!(
         value.trim().to_ascii_lowercase().as_str(),
@@ -14,6 +28,7 @@ fn is_truthy(value: &str) -> bool {
     )
 }
 
+#[cfg(feature = "mail")]
 fn smtp_disabled() -> bool {
     if let Ok(value) = env::var("AXUM_DISABLE_SMTP") {
         if is_truthy(&value) {
@@ -30,13 +45,13 @@ fn smtp_disabled() -> bool {
     false
 }
 
-pub fn setup_mailer() -> Result<Option<Arc<SmtpTransport>>, ServiceError> {
+#[cfg(feature = "mail")]
+pub fn setup_mailer() -> Result<Option<Mailer>, ServiceError> {
     if smtp_disabled() {
         info!("SMTP transport is disabled by configuration");
         return Ok(None);
     }
 
-    // Load SMTP server credentials from environment variables
     let smtp_server = match env::var("AXUM_SMTP_SERVER") {
         Ok(value) => value,
         Err(_) => {
@@ -59,7 +74,6 @@ pub fn setup_mailer() -> Result<Option<Arc<SmtpTransport>>, ServiceError> {
         }
     };
 
-    // Create SMTP transport
     let creds =
         lettre::transport::smtp::authentication::Credentials::new(smtp_username, smtp_password);
     let mailer = SmtpTransport::relay(&smtp_server)?
@@ -69,6 +83,13 @@ pub fn setup_mailer() -> Result<Option<Arc<SmtpTransport>>, ServiceError> {
     Ok(Some(Arc::new(mailer)))
 }
 
+#[cfg(not(feature = "mail"))]
+pub fn setup_mailer() -> Result<Option<Mailer>, ServiceError> {
+    info!("SMTP mailer feature disabled; returning no mailer");
+    Ok(None)
+}
+
+#[cfg(feature = "mail")]
 fn get_from() -> Result<Mailbox, ServiceError> {
     let name = env::var("AXUM_MAIL_FROM_NAME").unwrap_or_else(|_| "Default Name".to_string());
     let email = env::var("AXUM_MAIL_FROM_EMAIL")?;
@@ -78,8 +99,9 @@ fn get_from() -> Result<Mailbox, ServiceError> {
     Ok(Mailbox::new(Some(name), address))
 }
 
-pub fn send(
-    mailer: Arc<SmtpTransport>,
+#[cfg(feature = "mail")]
+fn send_internal(
+    mailer: &Mailer,
     email: &str,
     subject: &str,
     body: &str,
@@ -100,12 +122,29 @@ pub fn send(
         .body(String::from(body))
         .map_err(|e| ServiceError::Internal(Box::new(e)))?;
 
-    // Send the email
     Ok(mailer.send(&email)?)
 }
 
+pub fn send_plain_text(
+    mailer: Mailer,
+    email: &str,
+    subject: &str,
+    body: &str,
+) -> Result<(), ServiceError> {
+    #[cfg(feature = "mail")]
+    {
+        send_internal(&mailer, email, subject, body)?;
+    }
+    #[cfg(not(feature = "mail"))]
+    {
+        let _ = (mailer, email, subject, body);
+        info!("Mail feature disabled; skipping SMTP send");
+    }
+    Ok(())
+}
+
 pub fn send_verification_email(
-    mailer: Arc<SmtpTransport>,
+    mailer: Mailer,
     email: &str,
     token: &str,
 ) -> Result<(), ServiceError> {
@@ -117,13 +156,10 @@ pub fn send_verification_email(
         token
     );
     let body = format!("Verify your email by visiting: {}", url);
-    send(mailer, email, "Verify your email", &body)?;
-    Ok(())
+    send_plain_text(mailer, email, "Verify your email", &body)
 }
 
-// test
-
-#[cfg(test)]
+#[cfg(all(test, feature = "mail"))]
 mod tests {
     use super::*;
     use dotenvy::dotenv;

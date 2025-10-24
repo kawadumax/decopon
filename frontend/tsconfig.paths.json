@@ -1,13 +1,15 @@
 {
   "compilerOptions": {
     "paths": {
-      "@/*": ["../core/dist/*"],
-      "@lib/*": ["../core/dist/scripts/lib/*"],
-      "@components/*": ["../core/dist/scripts/components/*"],
-      "@pages/*": ["../core/dist/scripts/pages/*"],
-      "@public/*": ["../core/public/*"],
-      "@hooks/*": ["../core/dist/scripts/hooks/*"],
-      "@store/*": ["../core/dist/scripts/store/*"]
+      "@/*": ["../core/dist/*", "../../core/dist/*"],
+      "@lib/*": ["../core/dist/scripts/lib/*", "../../core/dist/scripts/lib/*"],
+      "@components/*": ["../core/dist/scripts/components/*", "../../core/dist/scripts/components/*"],
+      "@pages/*": ["../core/dist/scripts/pages/*", "../../core/dist/scripts/pages/*"],
+      "@public/*": ["../core/public/*", "../../core/public/*"],
+      "@hooks/*": ["../core/dist/scripts/hooks/*", "../../core/dist/scripts/hooks/*"],
+      "@store/*": ["../core/dist/scripts/store/*", "../../core/dist/scripts/store/*"],
+      "@decopon/core": ["../core/dist", "../../core/dist"],
+      "@decopon/core/*": ["../core/dist/*", "../../core/dist/*"]
     }
   }
 }

@@ -1,6 +1,5 @@
 use axum_password_worker::{Bcrypt, PasswordWorkerError};
 use jsonwebtoken::errors::Error as JwtError;
-use lettre::transport::smtp::Error as SmtpError;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -23,8 +22,9 @@ pub enum ServiceError {
     #[error("password error")]
     Password(#[from] PasswordWorkerError<Bcrypt>),
 
+    #[cfg(feature = "mail")]
     #[error("mail error")]
-    Mail(#[from] SmtpError),
+    Mail(#[from] lettre::transport::smtp::Error),
 
     #[error("internal server error")]
     Internal(#[source] Box<dyn std::error::Error + Send + Sync>),

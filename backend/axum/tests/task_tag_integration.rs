@@ -1,50 +1,27 @@
-use std::sync::Arc;
+#![cfg(feature = "web")]
+
+mod common;
 
 use axum::{
     body::{Body, to_bytes},
     http::{Request, StatusCode, header::CONTENT_TYPE},
 };
-use axum_password_worker::PasswordWorker;
-use lettre::SmtpTransport;
-use migration::{Migrator, MigratorTrait};
 use sea_orm::{
-    ActiveModelTrait, ColumnTrait, ConnectionTrait, Database, DbBackend, EntityTrait, QueryFilter,
-    Set, Statement,
+    ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, Set,
 };
 use tower::ServiceExt;
 
 use decopon_axum::{
-    AppState, ServiceContext,
     entities::{prelude::*, tag_task, users},
     middleware::auth::AuthenticatedUser,
     routes, usecases,
 };
 
-fn build_state(db: &Arc<sea_orm::DatabaseConnection>, jwt_secret: String) -> AppState {
-    AppState::from(
-        ServiceContext::builder(
-            Arc::clone(db),
-            Arc::new(PasswordWorker::new_bcrypt(1).unwrap()),
-            jwt_secret,
-        )
-        .mailer(Some(Arc::new(
-            SmtpTransport::builder_dangerous("localhost").build(),
-        )))
-        .build(),
-    )
-}
+use common::{build_app_state, setup_in_memory_db};
 
 #[tokio::test]
 async fn task_creation_attaches_tags() {
-    let db = Database::connect("sqlite::memory:").await.unwrap();
-    Migrator::up(&db, None).await.unwrap();
-    db.execute(Statement::from_string(
-        DbBackend::Sqlite,
-        "PRAGMA foreign_keys = ON".to_owned(),
-    ))
-    .await
-    .unwrap();
-    let db = Arc::new(db);
+    let db = setup_in_memory_db(true).await;
 
     let user = users::ActiveModel {
         name: Set("Test User".to_string()),
@@ -79,7 +56,7 @@ async fn task_creation_attaches_tags() {
     .await
     .unwrap();
 
-    let app = routes::tasks::routes().with_state(build_state(&db, "test_secret".to_string()));
+    let app = routes::tasks::routes().with_state(build_app_state(&db, "test_secret"));
 
     let auth_user = AuthenticatedUser {
         id: user.id,
@@ -138,15 +115,7 @@ async fn task_creation_attaches_tags() {
 
 #[tokio::test]
 async fn task_update_syncs_tags() {
-    let db = Database::connect("sqlite::memory:").await.unwrap();
-    Migrator::up(&db, None).await.unwrap();
-    db.execute(Statement::from_string(
-        DbBackend::Sqlite,
-        "PRAGMA foreign_keys = ON".to_owned(),
-    ))
-    .await
-    .unwrap();
-    let db = Arc::new(db);
+    let db = setup_in_memory_db(true).await;
 
     let user = users::ActiveModel {
         name: Set("Test User".to_string()),
@@ -194,7 +163,7 @@ async fn task_update_syncs_tags() {
     .await
     .unwrap();
 
-    let app = routes::tasks::routes().with_state(build_state(&db, "test_secret".to_string()));
+    let app = routes::tasks::routes().with_state(build_app_state(&db, "test_secret"));
 
     let auth_user = AuthenticatedUser {
         id: user.id,
@@ -241,15 +210,7 @@ async fn task_update_syncs_tags() {
 
 #[tokio::test]
 async fn task_delete_detaches_tags() {
-    let db = Database::connect("sqlite::memory:").await.unwrap();
-    Migrator::up(&db, None).await.unwrap();
-    db.execute(Statement::from_string(
-        DbBackend::Sqlite,
-        "PRAGMA foreign_keys = ON".to_owned(),
-    ))
-    .await
-    .unwrap();
-    let db = Arc::new(db);
+    let db = setup_in_memory_db(true).await;
 
     let user = users::ActiveModel {
         name: Set("Test User".to_string()),
@@ -297,7 +258,7 @@ async fn task_delete_detaches_tags() {
     .await
     .unwrap();
 
-    let app = routes::tasks::routes().with_state(build_state(&db, "test_secret".to_string()));
+    let app = routes::tasks::routes().with_state(build_app_state(&db, "test_secret"));
 
     let auth_user = AuthenticatedUser {
         id: user.id,
@@ -329,15 +290,7 @@ async fn task_delete_detaches_tags() {
 
 #[tokio::test]
 async fn tasks_index_filters_by_tag() {
-    let db = Database::connect("sqlite::memory:").await.unwrap();
-    Migrator::up(&db, None).await.unwrap();
-    db.execute(Statement::from_string(
-        DbBackend::Sqlite,
-        "PRAGMA foreign_keys = ON".to_owned(),
-    ))
-    .await
-    .unwrap();
-    let db = Arc::new(db);
+    let db = setup_in_memory_db(true).await;
 
     let user = users::ActiveModel {
         name: Set("Test User".to_string()),
@@ -398,7 +351,7 @@ async fn tasks_index_filters_by_tag() {
     .await
     .unwrap();
 
-    let app = routes::tasks::routes().with_state(build_state(&db, "test_secret".to_string()));
+    let app = routes::tasks::routes().with_state(build_app_state(&db, "test_secret"));
 
     let auth_user = AuthenticatedUser {
         id: user.id,

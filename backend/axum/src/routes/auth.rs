@@ -231,3 +231,8 @@ pub fn web_routes() -> Router<AppState> {
         .route("/email/verify/{token}", get(verify_email))
         .route("/email/resend", post(resend_verification))
 }
+
+#[cfg(feature = "web")]
+pub fn routes() -> Router<AppState> {
+    web_routes()
+}

@@ -21,7 +21,9 @@
     'core:gen-routes': 'pnpm -F core gen-routes',
     'core:storybook': 'pnpm -F core storybook',
     'windows:build': 'pnpm -F core build && pnpm -F @decopon/app-windows tauri build',
-    'windows:dev': 'pnpm -F @decopon/app-windows tauri dev'
+    'windows:dev': 'pnpm -F @decopon/app-windows tauri dev',
+    'android:build': 'pnpm -F core build && pnpm -F @decopon/app-android tauri android build',
+    'android:dev': 'pnpm -F @decopon/app-android tauri android dev'
   },
   packageManager: 'pnpm@10.18.2',
   dependencies: {

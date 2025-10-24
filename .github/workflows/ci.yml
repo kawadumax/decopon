@@ -7,52 +7,83 @@ on:
       - dev
       - main
 jobs:
-  build:
+  backend-check:
+    name: Backend Checks
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./
-
     steps:
-      # 1) リポジトリのチェックアウト
       - name: Check out repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      # 2) Node.jsのセットアップ
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 20  # Node.jsのバージョンを指定
+      - name: Install Linux dependencies for Tauri crates
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libgtk-3-dev \
+            libglib2.0-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev \
+            pkg-config
+          sudo apt-get install -y libwebkit2gtk-4.1-dev || sudo apt-get install -y libwebkit2gtk-4.0-dev
 
-      # 3) pnpmのセットアップ (pnpm/action-setupを使う場合)
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo registry
+        uses: Swatinem/rust-cache@v2
+
+      - name: Cargo check (services crate)
+        run: cargo check --manifest-path backend/services/Cargo.toml --all-targets
+
+      - name: Cargo check (axum default features)
+        run: cargo check --manifest-path backend/axum/Cargo.toml --all-targets
+
+      - name: Cargo check (axum web feature)
+        run: cargo check --manifest-path backend/axum/Cargo.toml --no-default-features --features web --all-targets
+
+      - name: Cargo check (migration crate)
+        run: cargo check --manifest-path backend/axum/migration/Cargo.toml
+
+      - name: Cargo check (app IPC crate)
+        run: cargo check --manifest-path frontend/app/ipc/Cargo.toml
+
+      - name: Cargo check (windows tauri crate)
+        run: cargo check --manifest-path frontend/app/windows/src-tauri/Cargo.toml
+
+      - name: Cargo check (android tauri crate)
+        run: cargo check --manifest-path frontend/app/android/src-tauri/Cargo.toml
+
+  frontend-typecheck:
+    name: Frontend Type Checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 10.11.0 # 好みのpnpmバージョン
+          version: 10.18.2 # pnpm@10.18.2 (packageManagerに整合)
+          run_install: false
 
-      # 4) 依存関係のインストール
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20  # Node.jsのバージョンを指定
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # 5) Rust のセットアップ
-      - name: Set up Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          profile: minimal
-          override: true
-
-      # 6) Axum サイドカーのビルド
-      - name: Build axum sidecar
-        run: cargo build --manifest-path backend/axum/Cargo.toml --release
-
-      # 7) Migration サイドカーのビルド
-      - name: Build migration sidecar
-        run: cargo build --manifest-path backend/axum/migration/Cargo.toml --release
-
-      # 8) フロントエンドのビルド
-      - name: gen routes
+      - name: Generate routes
         run: pnpm core:gen-routes
 
-      - name: Build
-        run: pnpm web:build
+      - name: Emit core type declarations
+        run: pnpm exec tsc --pretty false --project frontend/core/tsconfig.json --emitDeclarationOnly
+
+      - name: Type check packages
+        run: |
+          pnpm exec tsc --pretty false --noEmit --project frontend/web/tsconfig.json
+          pnpm exec tsc --pretty false --noEmit --project frontend/app/shared/tsconfig.json
+          pnpm exec tsc --pretty false --noEmit --project frontend/app/windows/tsconfig.json --rootDir frontend/app/shared
+          pnpm exec tsc --pretty false --noEmit --project frontend/app/android/tsconfig.json --rootDir frontend/app/shared
