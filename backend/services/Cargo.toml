@@ -7,12 +7,13 @@ edition = "2024"
 default = ["sqlite"]
 sqlite = ["sea-orm/sqlx-sqlite"]
 postgres = ["sea-orm/sqlx-postgres"]
+mail = ["lettre"]
 
 [dependencies]
 axum-password-worker = "0.4.1"
 chrono = { version = "0.4.41", features = ["serde"] }
 jsonwebtoken = "~9.3.1"
-lettre = "0.11.18"
+lettre = { version = "0.11.19", default-features = false, features = ["builder", "smtp-transport", "pool", "tokio1-rustls-tls"], optional = true }
 rand = "0.8"
 sea-orm = { version = "~1.1.14", default-features = false, features = ["runtime-tokio-rustls", "macros", "with-chrono"] }
 serde = { version = "~1.0.219", features = ["derive"] }
@@ -22,3 +23,4 @@ tracing = "0.1.41"
 
 [dev-dependencies]
 sea-orm = { version = "~1.1.14", default-features = false, features = ["runtime-tokio-rustls", "macros", "sqlx-sqlite", "with-chrono"] }
+tokio = { version = "~1.47.1", features = ["macros", "rt-multi-thread"] }

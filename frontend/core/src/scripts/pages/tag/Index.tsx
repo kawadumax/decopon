@@ -1,4 +1,3 @@
-import type { PageProps, Tag } from "@/scripts/types";
 import { TagHeader } from "@components/TagHeader";
 import { TaskTree } from "@components/TaskTree";
 
@@ -53,17 +52,13 @@ const PCLayout = () => {
   );
 };
 
-export default function Index(
-  props: PageProps<{
-    tags: Tag[];
-  }>,
-) {
+export default function Index() {
   const queryClient = useQueryClient();
-  useQuery(fetchTagsQueryOptions);
+  const { data: tags = [] } = useQuery(fetchTagsQueryOptions);
   const deviceSize = useDeviceSize();
   useEffect(() => {
-    queryClient.setQueryData(["tags"], props.tags);
-  }, [props.tags, queryClient]);
+    queryClient.setQueryData(["tags"], tags);
+  }, [tags, queryClient]);
 
   if (deviceSize === undefined) {
     return <Loading />;

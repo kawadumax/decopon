@@ -8,7 +8,7 @@ use tracing::{info, info_span};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    load_env_with_fallback(".env.app")?;
+    load_env_with_fallback(".env.windows")?;
     setup_tracing_subscriber()?;
 
     let app_state = build_app_state(BootstrapConfig::app()).await?;

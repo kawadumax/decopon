@@ -23,7 +23,7 @@ use tower_http::cors::{Any, CorsLayer};
 use tracing_subscriber::{EnvFilter, fmt, layer::SubscriberExt, util::SubscriberInitExt};
 
 use tracing::info;
-use usecases::single_user::SingleUserSession;
+use usecases::{mails::Mailer, single_user::SingleUserSession};
 
 pub fn load_env_with_fallback(primary: &str) -> Result<(), dotenvy::Error> {
     match from_filename(primary) {
@@ -89,11 +89,11 @@ impl AppState {
         self.services().password_worker_arc()
     }
 
-    pub fn mailer(&self) -> Option<&Arc<lettre::SmtpTransport>> {
+    pub fn mailer(&self) -> Option<&Mailer> {
         self.services().mailer()
     }
 
-    pub fn mailer_arc(&self) -> Option<Arc<lettre::SmtpTransport>> {
+    pub fn mailer_arc(&self) -> Option<Mailer> {
         self.services().mailer_arc()
     }
 
@@ -124,7 +124,7 @@ impl FromRef<AppState> for Arc<PasswordWorker<Bcrypt>> {
     }
 }
 
-impl FromRef<AppState> for Option<Arc<lettre::SmtpTransport>> {
+impl FromRef<AppState> for Option<Mailer> {
     fn from_ref(state: &AppState) -> Self {
         state.mailer_arc()
     }

@@ -1,16 +1,15 @@
 use std::sync::Arc;
 
 use axum_password_worker::{Bcrypt, PasswordWorker};
-use lettre::SmtpTransport;
 use sea_orm::DatabaseConnection;
 
-use crate::usecases::single_user::SingleUserSession;
+use crate::usecases::{mails::Mailer, single_user::SingleUserSession};
 
 #[derive(Clone)]
 pub struct ServiceContext {
     db: Arc<DatabaseConnection>,
     password_worker: Arc<PasswordWorker<Bcrypt>>,
-    mailer: Option<Arc<SmtpTransport>>,
+    mailer: Option<Mailer>,
     jwt_secret: String,
     single_user_session: Option<SingleUserSession>,
 }
@@ -46,11 +45,11 @@ impl ServiceContext {
         Arc::clone(&self.password_worker)
     }
 
-    pub fn mailer(&self) -> Option<&Arc<SmtpTransport>> {
+    pub fn mailer(&self) -> Option<&Mailer> {
         self.mailer.as_ref()
     }
 
-    pub fn mailer_arc(&self) -> Option<Arc<SmtpTransport>> {
+    pub fn mailer_arc(&self) -> Option<Mailer> {
         self.mailer.as_ref().map(Arc::clone)
     }
 
@@ -71,12 +70,12 @@ pub struct ServiceContextBuilder {
     db: Arc<DatabaseConnection>,
     password_worker: Arc<PasswordWorker<Bcrypt>>,
     jwt_secret: String,
-    mailer: Option<Arc<SmtpTransport>>,
+    mailer: Option<Mailer>,
     single_user_session: Option<SingleUserSession>,
 }
 
 impl ServiceContextBuilder {
-    pub fn mailer(mut self, mailer: Option<Arc<SmtpTransport>>) -> Self {
+    pub fn mailer(mut self, mailer: Option<Mailer>) -> Self {
         self.mailer = mailer;
         self
     }
