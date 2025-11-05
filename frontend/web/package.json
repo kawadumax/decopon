@@ -9,10 +9,10 @@
     "preview": "vite preview"
   },
   "devDependencies": {
-    "vite": "catalog:",
-    "vite-plugin-svgr": "catalog:",
     "@tailwindcss/vite": "catalog:",
-    "@vitejs/plugin-react-swc": "catalog:"
+    "@vitejs/plugin-react-swc": "catalog:",
+    "vite": "5.4.21",
+    "vite-plugin-svgr": "catalog:"
   },
   "dependencies": {
     "@decopon/core": "workspace:*"

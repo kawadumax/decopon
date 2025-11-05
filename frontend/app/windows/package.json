@@ -19,7 +19,7 @@
     "@tailwindcss/vite": "catalog:",
     "@tauri-apps/cli": "^2.9.1",
     "@vitejs/plugin-react-swc": "catalog:",
-    "vite": "catalog:",
+    "vite": "5.4.21",
     "vite-plugin-svgr": "catalog:"
   }
 }

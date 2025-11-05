@@ -27,3 +27,31 @@ Tauri + React で構築した Android 向けの Decopon クライアントです
 - `APP_SINGLE_USER_EMAIL` / `APP_SINGLE_USER_PASSWORD` / `APP_SINGLE_USER_NAME` / `APP_SINGLE_USER_LOCALE` / `APP_SINGLE_USER_WORK_TIME` / `APP_SINGLE_USER_BREAK_TIME`: モバイル単体でも利用できる既定値を注入します。
 
 SMTP を利用する場合や単一ユーザーモードを解除したい場合は、適宜環境変数を明示的に設定してください。
+
+## 謎の接続エラーについて
+
+Windows機で、Android Emulatorから開発版ビルドのviteサーバーにどうやってもアクセスできなかった。
+`frontend\app\android\src-tauri\tauri.conf.json`における下記の設定によってなぜか解決した。
+
+```
+    "windows": [
+      {
+        "additionalBrowserArgs": "--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection --autoplay-policy=no-user-gesture-required"
+      }
+    ]
+```
+
+本来この設定はWindows版デスクトップの設定で読み込まれるため、関係ないはずだが、これを無くすと動かない。注意。
+
+## コマンドについて
+
+android:resetというスクリプトを用意してあります。このコマンドは、androidプロジェクトを再生成するもので、gen以下を削除した後、`tauri android init`を実行する形です。このスクリプトの中には、mobile/android以下のファイルを、プロジェクト再生成後にコピーする処理が含まれていますが、現状コメントアウトしています。何か、androidのネイティブなカスタマイズが必要な場合に便利かもしれません。
+
+## 開発時、役に立つ作法
+
+`pnpm android:halt` というコマンドを用意しています。これはadbとemulatorの常駐プロセスを全て切るものです。
+また、よく使うコマンドを記載しておきます。
+
+`adb emu kill` 起動しているエミュレータを消す
+`adb devices` adbが接続しているエミュレータの一覧を出す。起動してるのにオフラインとか普通にある。
+`adb reverse` エミュレータからホスト側にアクセスするときのポートを接続するコマンド

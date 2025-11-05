@@ -1,0 +1,14 @@
+{
+  "$schema": "../gen/schemas/mobile-schema.json",
+  "identifier": "default",
+  "description": "Capability for the main window during development",
+  "windows": ["main"],
+  "webviews": ["main", "*"],
+  "permissions": ["core:default", "opener:default"],
+  "remote": {
+    "urls": [
+      "http://localhost:1420/*",
+      "ws://*:*/*"
+    ]
+  }
+}

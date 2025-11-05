@@ -4,10 +4,11 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite dev --debug transform",
     "build": "vite build",
     "preview": "vite preview",
-    "tauri": "tauri"
+    "tauri": "tauri",
+    "android:reset": "node ./scripts/reset-android.mjs"
   },
   "dependencies": {
     "@decopon/app-shared": "workspace:*",
@@ -19,7 +20,7 @@
     "@tailwindcss/vite": "catalog:",
     "@tauri-apps/cli": "^2.9.1",
     "@vitejs/plugin-react-swc": "catalog:",
-    "vite": "catalog:",
+    "vite": "5.4.21",
     "vite-plugin-svgr": "catalog:"
   }
 }

@@ -1,9 +1,12 @@
 import path from "node:path";
-import type { AliasOptions } from "vite";
-
 const coreSourceRoot = path.resolve(__dirname, "core/src");
 
-export const alias: AliasOptions = [
+type AliasEntry = {
+  find: string | RegExp;
+  replacement: string;
+};
+
+export const alias: AliasEntry[] = [
   {
     find: /^@\//,
     replacement: `${coreSourceRoot}/`,
