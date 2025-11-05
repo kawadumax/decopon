@@ -1,5 +1,5 @@
 import "@decopon/core/styles/app.css";
-import { bootstrap, singleUserBootstrap } from "@decopon/core";
+import { bootstrap, renderSplash, singleUserBootstrap } from "@decopon/core";
 
 const BACKEND_READY_EVENT = "decopon://backend-ready";
 
@@ -27,39 +27,18 @@ const waitForTauriAvailability = async (timeoutMs = 8000) => {
 
 void (async () => {
   const root = document.getElementById("root");
-  const setStartupMessage = (message: string) => {
-    if (!root) {
-      return;
+  const showInitialSplash = () => {
+    if (root) {
+      renderSplash(root, { variant: "initial" });
     }
-    root.innerHTML = `
-      <div style="
-        display:flex;
-        flex-direction:column;
-        align-items:center;
-        justify-content:center;
-        gap:12px;
-        height:100vh;
-        font-family:sans-serif;
-        color:#4b5563;
-        text-align:center;
-      ">
-        <div style="
-          width:48px;
-          height:48px;
-          border-radius:9999px;
-          border:5px solid #d1d5db;
-          border-top-color:#6366f1;
-          animation:tauri-loader-spin 1s linear infinite;
-        "></div>
-        <p style="font-size:16px;">${message}</p>
-      </div>
-      <style>
-        @keyframes tauri-loader-spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-      </style>
-    `;
+  };
+  const showBackendLoading = () => {
+    if (root) {
+      renderSplash(root, {
+        variant: "loading",
+        message: "バックエンドの初期化を実行しています。しばらくお待ちください…",
+      });
+    }
   };
   const clearStartupMessage = () => {
     if (root) {
@@ -67,7 +46,7 @@ void (async () => {
     }
   };
 
-  setStartupMessage("バックエンドと接続中です。初期化が完了するまでお待ちください…");
+  showInitialSplash();
 
   const tauriReady = await waitForTauriAvailability();
   let emit: typeof import("@tauri-apps/api/event").emit | undefined;
@@ -91,6 +70,8 @@ void (async () => {
     return;
   }
 
+  showBackendLoading();
+
   const unlisten = await listen(BACKEND_READY_EVENT, async () => {
     await unlisten();
 
@@ -111,4 +92,3 @@ void (async () => {
     clearStartupMessage();
   }
 })();
-

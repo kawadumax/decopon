@@ -8,6 +8,6 @@
       "@decopon/core/*": ["../../core/dist/*", "../../core/src/*"]
     }
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "types/**/*.d.ts"],
   "exclude": ["node_modules", "dist"]
 }
