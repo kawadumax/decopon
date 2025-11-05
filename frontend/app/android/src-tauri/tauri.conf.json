@@ -10,9 +10,16 @@
     "frontendDist": "../dist"
   },
   "app": {
+    "withGlobalTauri": true,
     "security": {
-      "csp": null
-    }
+      "csp": null,
+      "capabilities": ["default"]
+    },
+    "windows": [
+      {
+        "additionalBrowserArgs": "--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection --autoplay-policy=no-user-gesture-required"
+      }
+    ]
   },
   "bundle": {
     "active": true,

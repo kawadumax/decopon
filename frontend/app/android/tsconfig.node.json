@@ -7,5 +7,9 @@
     "allowSyntheticDefaultImports": true,
     "noEmit": true
   },
-  "include": ["vite.config.ts"]
+  "include": [
+    "vite.config.ts",
+    "../shared/vite.config.base.ts",
+    "../../vite.aliases.ts"
+  ]
 }

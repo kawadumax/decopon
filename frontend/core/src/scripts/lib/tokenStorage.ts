@@ -1,11 +1,27 @@
+import { getLocalStorage } from "./browserStorage";
+
+const TOKEN_STORAGE_KEY = "token";
+
 export const tokenStorage = {
   setToken(token: string) {
-    localStorage.setItem("token", token);
+    const storage = getLocalStorage();
+    if (!storage) {
+      return;
+    }
+    storage.setItem(TOKEN_STORAGE_KEY, token);
   },
-  getToken(): string | null {
-    return localStorage.getItem("token");
+  getToken(): string | undefined {
+    const storage = getLocalStorage();
+    if (!storage) {
+      return undefined;
+    }
+    return storage.getItem(TOKEN_STORAGE_KEY) ?? undefined;
   },
   removeToken() {
-    localStorage.removeItem("token");
+    const storage = getLocalStorage();
+    if (!storage) {
+      return;
+    }
+    storage.removeItem(TOKEN_STORAGE_KEY);
   },
 };

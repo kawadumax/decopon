@@ -5,6 +5,7 @@
   scripts: {
     preinstall: 'npx only-allow pnpm',
     build: 'pnpm -F core build && tsc -b tsconfig.build.json',
+    clean: 'pnpm -r run clean',
     'fullstack:dev': 'concurrently -c "#93c5fd,#c4b5fd,#fb7185,#fdba74" "pnpm axum:dev:web" "pnpm web:dev" --names=axum,web',
     'fullstack:preview': 'concurrently -c "#93c5fd,#c4b5fd,#fb7185,#fdba74" "pnpm axum:dev:web" "pnpm web:preview" --names=axum,web',
     'axum:dev': 'cd backend/axum && cargo run --bin app',
@@ -23,7 +24,9 @@
     'windows:build': 'pnpm -F core build && pnpm -F @decopon/app-windows tauri build',
     'windows:dev': 'pnpm -F @decopon/app-windows tauri dev',
     'android:build': 'pnpm -F core build && pnpm -F @decopon/app-android tauri android build',
-    'android:dev': 'pnpm -F @decopon/app-android tauri android dev'
+    'android:dev': 'pnpm -F @decopon/app-android tauri android dev',
+    'android:reset': 'pnpm -F @decopon/app-android android:reset',
+    'android:halt': 'node scripts/android-halt.mjs'
   },
   packageManager: 'pnpm@10.18.2',
   dependencies: {
@@ -41,5 +44,15 @@
     esbuild: '^0.25.2',
     tailwindcss: 'catalog:',
     typescript: 'catalog:',
+  },
+  pnpm: {
+    overrides: {
+      axios: '^1.12.0',
+      'brace-expansion': '2.0.2',
+      devalue: '^5.4.2',
+      'form-data': '^4.0.4',
+      'vite@^5.0.0': '5.4.21',
+      'vite@^6.0.0': '6.4.1',
+    },
   },
 }

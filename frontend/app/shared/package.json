@@ -5,5 +5,11 @@
   "type": "module",
   "dependencies": {
     "@tauri-apps/api": "^2.9.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "catalog:",
+    "@vitejs/plugin-react-swc": "catalog:",
+    "vite": "catalog:",
+    "vite-plugin-svgr": "catalog:"
   }
 }

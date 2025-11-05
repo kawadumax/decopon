@@ -1,3 +1,4 @@
+import { getLocalStorage } from "./browserStorage";
 import type { Auth } from "../types";
 
 const AUTH_STORAGE_KEY = "auth";
@@ -10,14 +11,20 @@ type StoredAuth = {
 
 const isExpired = (storedAt: number) => Date.now() - storedAt > AUTH_CACHE_TTL_MS;
 
-const getLocalStorage = (): Storage | undefined => {
-  if (typeof window === "undefined") {
-    return undefined;
-  }
+const parseStoredAuth = (raw: string): StoredAuth | undefined => {
   try {
-    return window.localStorage;
+    const parsed = JSON.parse(raw) as Partial<StoredAuth>;
+    if (
+      !parsed ||
+      typeof parsed !== "object" ||
+      typeof parsed.storedAt !== "number" ||
+      typeof parsed.data === "undefined"
+    ) {
+      return undefined;
+    }
+    return parsed as StoredAuth;
   } catch (error) {
-    console.error("Failed to access localStorage", error);
+    console.error("Failed to parse auth cache", error);
     return undefined;
   }
 };
@@ -40,21 +47,19 @@ export const authStorage = {
     if (!raw) {
       return undefined;
     }
-    try {
-      const parsed = JSON.parse(raw) as StoredAuth;
-      if (!parsed || typeof parsed !== "object" || !("storedAt" in parsed)) {
-        return undefined;
-      }
-      if (isExpired(parsed.storedAt)) {
-        storage.removeItem(AUTH_STORAGE_KEY);
-        return undefined;
-      }
-      return parsed.data;
-    } catch (error) {
-      console.error("Failed to parse auth cache", error);
+
+    const parsed = parseStoredAuth(raw);
+    if (!parsed) {
       storage.removeItem(AUTH_STORAGE_KEY);
       return undefined;
     }
+
+    if (isExpired(parsed.storedAt)) {
+      storage.removeItem(AUTH_STORAGE_KEY);
+      return undefined;
+    }
+
+    return parsed.data;
   },
   clear() {
     const storage = getLocalStorage();
