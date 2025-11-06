@@ -87,3 +87,4 @@ jobs:
           pnpm exec tsc --pretty false --noEmit --project frontend/app/shared/tsconfig.json
           pnpm exec tsc --pretty false --noEmit --project frontend/app/windows/tsconfig.json --rootDir frontend/app/shared
           pnpm exec tsc --pretty false --noEmit --project frontend/app/android/tsconfig.json --rootDir frontend/app/shared
+          pnpm exec tsc --pretty false --noEmit --project sites/tsconfig.json

@@ -26,7 +26,8 @@
     'android:build': 'pnpm -F core build && pnpm -F @decopon/app-android tauri android build',
     'android:dev': 'pnpm -F @decopon/app-android tauri android dev',
     'android:reset': 'pnpm -F @decopon/app-android android:reset',
-    'android:halt': 'node scripts/android-halt.mjs'
+    'android:halt': 'node scripts/android-halt.mjs',
+    'sites:build': 'pnpm -F @decopon/site-welcome build'
   },
   packageManager: 'pnpm@10.18.2',
   dependencies: {
@@ -44,6 +45,7 @@
     esbuild: '^0.25.2',
     tailwindcss: 'catalog:',
     typescript: 'catalog:',
+    vite: 'catalog:',
   },
   pnpm: {
     overrides: {

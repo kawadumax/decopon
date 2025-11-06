@@ -4,6 +4,7 @@ packages:
   - frontend/app/shared
   - frontend/app/windows
   - frontend/app/android
+  - sites
 
 catalog:
   '@tailwindcss/vite': ^4.1.3
