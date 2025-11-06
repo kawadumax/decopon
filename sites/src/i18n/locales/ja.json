@@ -1,0 +1,33 @@
+{
+  "welcome": {
+    "title": "Welcome",
+    "appName": "Decopon",
+    "lang": "言語:",
+    "subtitle": "ADHDのためのタスク管理ツール",
+    "description": "Decoponは、複雑なタスクをより小さくし、取り組みやすくします。",
+    "features": {
+      "focusSessions": {
+        "title": "集中セッション",
+        "description": "生産性を高めるポモドーロ・テクニック"
+      },
+      "nestedLists": {
+        "title": "ネスト化されたリスト",
+        "description": "簡単にタスクを整理"
+      },
+      "easyLogging": {
+        "title": "簡単なログ記録",
+        "description": "タスクにタグを付けて簡単に分類"
+      },
+      "organize": {
+        "title": "タスクの整理",
+        "description": "タグで素早くタスクを見つけ、整理する"
+      }
+    },
+    "getStarted": "始めましょう",
+    "header": {
+      "dashboard": "ダッシュボード",
+      "login": "ログイン",
+      "register": "登録"
+    }
+  }
+}

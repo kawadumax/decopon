@@ -1,0 +1,33 @@
+{
+  "welcome": {
+    "title": "Welcome",
+    "appName": "Decopon",
+    "lang": "Language:",
+    "subtitle": "The Task Manager for ADHD",
+    "description": "Decopon helps you break down complex tasks into smaller, more manageable chunks, just like the juicy segments of a Dekopon fruit.",
+    "features": {
+      "focusSessions": {
+        "title": "Focus Sessions",
+        "description": "Pomodoro technique to boost productivity"
+      },
+      "nestedLists": {
+        "title": "Nested Lists",
+        "description": "Organize tasks with ease"
+      },
+      "easyLogging": {
+        "title": "Easy Logging",
+        "description": "Tag tasks for simple categorization"
+      },
+      "organize": {
+        "title": "Organize",
+        "description": "Find and organize tasks quickly with tags"
+      }
+    },
+    "getStarted": "Get Started",
+    "header": {
+      "dashboard": "Dashboard",
+      "login": "Log in",
+      "register": "Register"
+    }
+  }
+}
