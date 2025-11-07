@@ -1,10 +1,10 @@
 # Decopon - The Task Manager for ADHD
 
 <div style="display: flex; flex-wrap: wrap; gap: 10px;">
-    <img src="documents/videos/focus.gif" alt="Focus GIF" width="200">
-    <img src="documents/videos/logging.gif" alt="Loggiing GIF" width="200">
-    <img src="documents/videos/nested.gif" alt="Nested GIF" width="200">
-    <img src="documents/videos/organize.gif" alt="Organize GIF" width="200">
+    <img src="sites/public/videos/focus.gif" alt="Focus GIF" width="200">
+    <img src="sites/public/videos/logging.gif" alt="Loggiing GIF" width="200">
+    <img src="sites/public/videos/nested.gif" alt="Nested GIF" width="200">
+    <img src="sites/public/videos/organize.gif" alt="Organize GIF" width="200">
 </div>
 
 **Other language**

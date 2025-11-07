@@ -1,4 +1,4 @@
-import type React from "react";
+import type { FC } from "react";
 import { useEffect, useRef } from "react";
 
 interface Particle {
@@ -8,7 +8,7 @@ interface Particle {
   speed: number;
 }
 
-export const ParticlesBackground: React.FC = () => {
+export const ParticlesBackground: FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -21,13 +21,11 @@ export const ParticlesBackground: React.FC = () => {
     const particles: Particle[] = [];
     const particleCount = 30;
 
-    // キャンバスのサイズを設定
     const resizeCanvas = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
     };
 
-    // パーティクルを初期化
     const initParticles = () => {
       for (let i = 0; i < particleCount; i++) {
         particles.push({
@@ -39,7 +37,6 @@ export const ParticlesBackground: React.FC = () => {
       }
     };
 
-    // パーティクルを描画
     const drawParticles = (scrollY: number) => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       for (const particle of particles) {
@@ -56,7 +53,6 @@ export const ParticlesBackground: React.FC = () => {
       }
     };
 
-    // アニメーションループ
     const animate = () => {
       const scrollY = window.scrollY;
       drawParticles(scrollY);
@@ -74,7 +70,5 @@ export const ParticlesBackground: React.FC = () => {
     };
   }, []);
 
-  return (
-    <canvas ref={canvasRef} className="fixed top-0 left-0 h-full w-full" />
-  );
+  return <canvas ref={canvasRef} className="fixed inset-0 h-full w-full" />;
 };
