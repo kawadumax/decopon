@@ -22,12 +22,6 @@
         "title": "タスクの整理",
         "description": "タグで素早くタスクを見つけ、整理する"
       }
-    },
-    "getStarted": "始めましょう",
-    "header": {
-      "dashboard": "ダッシュボード",
-      "login": "ログイン",
-      "register": "登録"
     }
   }
 }

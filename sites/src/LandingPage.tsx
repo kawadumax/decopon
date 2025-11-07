@@ -2,73 +2,53 @@ import { BrandGithub, BrandX } from "@mynaui/icons-react";
 import { useTranslation } from "react-i18next";
 
 import { ApplicationLogo } from "./components/ApplicationLogo";
+import { FeatureCard, type FeatureLayout } from "./components/FeatureCard";
 import { LangSwitch } from "./components/LangSwitch";
 import { ParticlesBackground } from "./components/ParticlesBackground";
 
-const features = [
+const basePath = (() => {
+  const rawBase = import.meta.env.BASE_URL ?? "/";
+  if (rawBase === "/") {
+    return "";
+  }
+  return rawBase.endsWith("/") ? rawBase.slice(0, -1) : rawBase;
+})();
+
+const withBasePath = (target: string) => {
+  const normalized = target.startsWith("/") ? target : `/${target}`;
+  return `${basePath}${normalized}`;
+};
+
+const featureDefinitions = [
   {
     key: "focusSessions" as const,
-    videoPath: "videos/focus.mp4",
-    layout: "right" as const,
+    videoSrc: withBasePath("videos/focus.mp4"),
+    fallbackImageSrc: withBasePath("videos/focus.gif"),
+    layout: "right" as FeatureLayout,
   },
   {
     key: "nestedLists" as const,
-    videoPath: "videos/nested.mp4",
-    layout: "left" as const,
+    videoSrc: withBasePath("videos/nested.mp4"),
+    fallbackImageSrc: withBasePath("videos/nested.gif"),
+    layout: "left" as FeatureLayout,
   },
   {
     key: "easyLogging" as const,
-    videoPath: "videos/logging.mp4",
-    layout: "right" as const,
+    videoSrc: withBasePath("videos/logging.mp4"),
+    fallbackImageSrc: withBasePath("videos/logging.gif"),
+    layout: "right" as FeatureLayout,
   },
   {
     key: "organize" as const,
-    videoPath: "videos/organize.mp4",
-    layout: "left" as const,
+    videoSrc: withBasePath("videos/organize.mp4"),
+    fallbackImageSrc: withBasePath("videos/organize.gif"),
+    layout: "left" as FeatureLayout,
   },
-];
+] as const;
 
-function cn(...classes: Array<string | false | null | undefined>) {
-  return classes.filter(Boolean).join(" ");
-}
+type FeatureDefinition = (typeof featureDefinitions)[number];
 
-type FeatureKey = (typeof features)[number]["key"];
-
-interface WelcomeCardProps {
-  featureKey: FeatureKey;
-  videoPath: string;
-  layout: "left" | "right";
-  translate: (key: string) => string;
-}
-
-function WelcomeCard({ featureKey, videoPath, layout, translate }: WelcomeCardProps) {
-  return (
-    <div
-      className={cn(
-        "flex gap-6 rounded-lg bg-stone-200 p-6 shadow-lg shadow-stone-300/50 transition dark:bg-stone-900/70 dark:shadow-none",
-        layout === "left" ? "flex-row" : "flex-row-reverse",
-      )}
-    >
-      <video
-        className="w-1/2 rounded-lg object-cover"
-        autoPlay
-        muted
-        loop
-        playsInline
-      >
-        <source src={videoPath} />
-      </video>
-      <div className="w-1/2">
-        <h3 className="mb-2 text-xl font-semibold">
-          {translate(`welcome.features.${featureKey}.title`)}
-        </h3>
-        <p>{translate(`welcome.features.${featureKey}.description`)}</p>
-      </div>
-    </div>
-  );
-}
-
-export function Welcome() {
+export function LandingPage() {
   const { t } = useTranslation();
 
   return (
@@ -86,18 +66,6 @@ export function Welcome() {
                   <BrandGithub className="h-6 w-6" />
                 </a>
                 <LangSwitch />
-                <a
-                  href="/guest/login"
-                  className="rounded-md px-3 py-2 text-sm font-medium transition hover:text-black/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF2D20] dark:text-white"
-                >
-                  {t("welcome.header.login")}
-                </a>
-                <a
-                  href="/guest/register"
-                  className="rounded-md px-3 py-2 text-sm font-medium transition hover:text-black/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF2D20] dark:text-white"
-                >
-                  {t("welcome.header.register")}
-                </a>
               </div>
             </nav>
           </header>
@@ -119,23 +87,17 @@ export function Welcome() {
               </div>
 
               <div className="mb-12 grid grid-cols-1 gap-8 md:grid-cols-2">
-                {features.map((feature) => (
-                  <WelcomeCard
+                {featureDefinitions.map((feature: FeatureDefinition) => (
+                  <FeatureCard
                     key={feature.key}
-                    featureKey={feature.key}
-                    videoPath={feature.videoPath}
+                    title={t(`welcome.features.${feature.key}.title`)}
+                    description={t(`welcome.features.${feature.key}.description`)}
+                    videoSrc={feature.videoSrc}
+                    fallbackImageSrc={feature.fallbackImageSrc}
                     layout={feature.layout}
-                    translate={t}
                   />
                 ))}
               </div>
-
-              <a
-                href="/guest/register"
-                className="rounded-full bg-amber-400 px-6 py-3 font-semibold text-white transition duration-300 hover:bg-amber-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-200"
-              >
-                {t("welcome.getStarted")}
-              </a>
             </div>
           </main>
 
@@ -163,3 +125,5 @@ export function Welcome() {
     </div>
   );
 }
+
+export default LandingPage;

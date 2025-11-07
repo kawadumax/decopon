@@ -1,10 +1,10 @@
 import { Suspense } from "react";
-import { Welcome } from "./Welcome";
+import { LandingPage } from "./LandingPage";
 
 export function App() {
   return (
     <Suspense fallback={null}>
-      <Welcome />
+      <LandingPage />
     </Suspense>
   );
 }

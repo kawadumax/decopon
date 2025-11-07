@@ -1,14 +1,13 @@
 {
   "name": "@decopon/app-android",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.0.2",
   "type": "module",
   "scripts": {
     "dev": "vite dev --debug transform",
     "build": "vite build",
     "preview": "vite preview",
-    "tauri": "tauri",
-    "android:reset": "node ./scripts/reset-android.mjs"
+    "tauri": "tauri"
   },
   "dependencies": {
     "@decopon/app-shared": "workspace:*",

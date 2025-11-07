@@ -1,4 +1,4 @@
-name: Deploy Welcome Site
+name: Deploy Site
 
 on:
   push:
@@ -39,7 +39,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build welcome site
-        run: pnpm -F @decopon/site-welcome build
+        run: pnpm -F @decopon/sites build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
