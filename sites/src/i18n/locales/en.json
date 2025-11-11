@@ -22,12 +22,6 @@
         "title": "Organize",
         "description": "Find and organize tasks quickly with tags"
       }
-    },
-    "getStarted": "Get Started",
-    "header": {
-      "dashboard": "Dashboard",
-      "login": "Log in",
-      "register": "Register"
     }
   }
 }

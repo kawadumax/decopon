@@ -24,10 +24,12 @@
     'windows:build': 'pnpm -F core build && pnpm -F @decopon/app-windows tauri build',
     'windows:dev': 'pnpm -F @decopon/app-windows tauri dev',
     'android:build': 'pnpm -F core build && pnpm -F @decopon/app-android tauri android build',
+    'preandroid:build': 'pnpm version:sync',
     'android:dev': 'pnpm -F @decopon/app-android tauri android dev',
-    'android:reset': 'pnpm -F @decopon/app-android android:reset',
     'android:halt': 'node scripts/android-halt.mjs',
-    'sites:build': 'pnpm -F @decopon/site-welcome build'
+    'sites:build': 'pnpm -F @decopon/sites build',
+    'version:sync': 'node ./scripts/sync-version.mjs',
+    'prewindows:build': 'pnpm version:sync'
   },
   packageManager: 'pnpm@10.18.2',
   dependencies: {

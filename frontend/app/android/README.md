@@ -43,9 +43,26 @@ Windows機で、Android Emulatorから開発版ビルドのviteサーバーに�
 
 本来この設定はWindows版デスクトップの設定で読み込まれるため、関係ないはずだが、これを無くすと動かない。注意。
 
-## コマンドについて
+## ネイティブプロジェクトと署名設定
 
-android:resetというスクリプトを用意してあります。このコマンドは、androidプロジェクトを再生成するもので、gen以下を削除した後、`tauri android init`を実行する形です。このスクリプトの中には、mobile/android以下のファイルを、プロジェクト再生成後にコピーする処理が含まれていますが、現状コメントアウトしています。何か、androidのネイティブなカスタマイズが必要な場合に便利かもしれません。
+`src-tauri/gen/android` 直下の Gradle プロジェクトをリポジトリで管理するようにしました。リリース署名の設定も `app/build.gradle.kts` に常駐させているため、むやみに `gen/android` を削除しないでください。
+
+- 署名に必要な情報は `src-tauri/gen/android/keystore.properties`（ローカル専用、gitignore 済み）か、以下の環境変数から解決されます。  
+  `TAURI_ANDROID_KEYSTORE_PATH` / `TAURI_ANDROID_KEYSTORE_PASSWORD` / `TAURI_ANDROID_KEY_PASSWORD` / `TAURI_ANDROID_KEY_ALIAS`
+- ローカルで `keystore.properties` を使う場合は以下のように記述します（パスやパスワードは各自のものに差し替えてください）。
+
+  ```
+  storeFile=D:/path/to/release.jks
+  storePassword=********
+  keyAlias=app-release
+  keyPassword=********
+  ```
+
+- GitHub Actions (`.github/workflows/release.yml`) では上記の環境変数を Secrets から注入しています。`pnpm android:build` を実行すると、自動的に署名済み APK が生成されます。
+- どうしてもプロジェクトを再生成する必要がある場合のみ、`pnpm -F @decopon/app-android tauri android init --ci` を実行してください。その際は必ず下記のファイルを一時退避し、生成後に戻してからコミットしてください。
+  - `src-tauri/gen/android/app/build.gradle.kts`（署名設定・依存関係のカスタマイズを保持）
+  - そのほか手動で加えた変更があるファイル
+  - `keystore.properties`（追跡されませんが、ローカルで再利用する場合はバックアップしておくと安全です）
 
 ## 開発時、役に立つ作法
 

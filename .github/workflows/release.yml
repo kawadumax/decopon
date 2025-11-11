@@ -1,9 +1,10 @@
-name: Release Tauri Apps
+name: Release Apps
 
 on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -19,6 +20,15 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Read version
+        id: windows_version
+        shell: pwsh
+        run: |
+          $version = (Get-Content VERSION -Raw).Trim()
+          "app_version=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -45,11 +55,36 @@ jobs:
       - name: Build Windows Tauri bundle
         run: pnpm windows:build
 
+      - name: Rename Windows installers
+        shell: pwsh
+        env:
+          APP_VERSION: ${{ steps.windows_version.outputs.app_version }}
+        run: |
+          $bundleRoot = "frontend/app/windows/src-tauri/target/release/bundle"
+          $targets = Get-ChildItem -Path $bundleRoot -Recurse -Include *.msi, *.exe
+          if (-not $targets) {
+            throw "No Windows installer artifacts were found under $bundleRoot"
+          }
+          foreach ($file in $targets) {
+            $extension = $file.Extension.ToLowerInvariant()
+            if ($extension -eq ".msi") {
+              $destName = "Decopon.Win.v$env:APP_VERSION.msi"
+            } elseif ($extension -eq ".exe") {
+              $destName = "Decopon.Win.v$env:APP_VERSION.exe"
+            } else {
+              continue
+            }
+            $destination = Join-Path $file.DirectoryName $destName
+            Move-Item -Path $file.FullName -Destination $destination -Force
+          }
+
       - name: Upload Windows artifacts
         uses: actions/upload-artifact@v4
         with:
           name: windows-msi
-          path: frontend/app/windows/src-tauri/target/release/bundle/**/*.msi
+          path: |
+            frontend/app/windows/src-tauri/target/release/bundle/**/Decopon.Win.v*.msi
+            frontend/app/windows/src-tauri/target/release/bundle/**/Decopon.Win.v*.exe
           if-no-files-found: error
 
   build-android:
@@ -59,6 +94,14 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Read version
+        id: android_version
+        run: |
+          APP_VERSION=$(tr -d '\r\n' < VERSION)
+          echo "app_version=$APP_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -87,12 +130,7 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
         with:
-          packages: |
-            platform-tools
-            platforms;android-34
-            build-tools;34.0.0
-            ndk;26.1.10909125
-            cmake;3.22.1
+          packages: "platform-tools platforms;android-34 build-tools;34.0.0 ndk;26.1.10909125 cmake;3.22.1"
 
       - name: Configure Android environment variables
         shell: bash
@@ -125,13 +163,39 @@ jobs:
       - name: Build Android Tauri bundle
         run: pnpm android:build
 
+      - name: Rename Android APK
+        env:
+          APP_VERSION: ${{ steps.android_version.outputs.app_version }}
+        run: |
+          set -euo pipefail
+          APK_ROOT="frontend/app/android/src-tauri/gen/android/app/build/outputs"
+          mapfile -t APK_FILES < <(find "$APK_ROOT" -type f -name '*.apk' ! -name '*-unsigned*' ! -name '*-debug*' | sort)
+          if [ "${#APK_FILES[@]}" -eq 0 ]; then
+            echo "Signed APK was not found under $APK_ROOT" >&2
+            find "$APK_ROOT" -type f -name '*.apk' -print >&2 || true
+            exit 1
+          fi
+          SELECTED=""
+          for apk in "${APK_FILES[@]}"; do
+            base_name=$(basename "$apk")
+            if [[ "$base_name" == *"-universal-"* ]]; then
+              SELECTED="$apk"
+              break
+            fi
+          done
+          if [ -z "$SELECTED" ]; then
+            SELECTED="${APK_FILES[0]}"
+          fi
+          TARGET_DIR=$(dirname "$SELECTED")
+          TARGET="$TARGET_DIR/Decopon.Android.v${APP_VERSION}.apk"
+          mv "$SELECTED" "$TARGET"
+
       - name: Upload Android artifacts
         uses: actions/upload-artifact@v4
         with:
           name: android-artifacts
           path: |
-            frontend/app/android/src-tauri/gen/android/app/build/outputs/**/*.apk
-            frontend/app/android/src-tauri/gen/android/app/build/outputs/**/*.aab
+            frontend/app/android/src-tauri/gen/android/app/build/outputs/**/Decopon.Android.v*.apk
           if-no-files-found: error
 
   publish-release:
@@ -142,6 +206,11 @@ jobs:
       - build-windows
       - build-android
     steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
       - name: Download Windows artifacts
         uses: actions/download-artifact@v4
         with:
@@ -157,12 +226,18 @@ jobs:
       - name: List collected artifacts
         run: ls -R dist
 
-      - name: Create GitHub Release (draft & prerelease)
+      - name: Read version
+        id: version
+        run: |
+          APP_VERSION=$(tr -d '\r\n' < VERSION)
+          echo "app_version=$APP_VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: tauri-${{ github.ref_name }}-${{ github.run_number }}
-          name: Tauri build ${{ github.ref_name }} #${{ github.run_number }}
-          draft: true
+          tag_name: v${{ steps.version.outputs.app_version }}
+          name: Decopon v${{ steps.version.outputs.app_version }}
+          draft: false
           prerelease: true
           files: |
             dist/windows/**

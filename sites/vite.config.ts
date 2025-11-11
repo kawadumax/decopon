@@ -5,7 +5,14 @@ import { defineConfig } from "vite";
 import svgr from "vite-plugin-svgr";
 
 export default defineConfig(() => {
+  const repoName = process.env.GITHUB_REPOSITORY?.split("/")[1];
+  const inferredBase =
+    process.env.SITE_BASE_PATH ??
+    (process.env.GITHUB_ACTIONS ? `/${repoName ?? ""}/` : "/");
+  const base = inferredBase === "//" ? "/" : inferredBase;
+
   return {
+    base,
     plugins: [
       tailwindcss(),
       react(),
