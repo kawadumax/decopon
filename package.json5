@@ -5,7 +5,7 @@
   scripts: {
     preinstall: 'npx only-allow pnpm',
     build: 'pnpm -F core build && tsc -b tsconfig.build.json',
-    clean: 'pnpm -r run clean',
+    'clean:build-artifacts': 'pnpm -r run clean:build-artifacts',
     'fullstack:dev': 'concurrently -c "#93c5fd,#c4b5fd,#fb7185,#fdba74" "pnpm axum:dev:web" "pnpm web:dev" --names=axum,web',
     'fullstack:preview': 'concurrently -c "#93c5fd,#c4b5fd,#fb7185,#fdba74" "pnpm axum:dev:web" "pnpm web:preview" --names=axum,web',
     'axum:dev': 'cd backend/axum && cargo run --bin app',
@@ -21,6 +21,7 @@
     'web:preview': 'pnpm -F web preview',
     'core:gen-routes': 'pnpm -F core gen-routes',
     'core:storybook': 'pnpm -F core storybook',
+    'lint:i18n': 'node scripts/check-i18n-keys.mjs',
     'windows:build': 'pnpm -F core build && pnpm -F @decopon/app-windows tauri build',
     'windows:dev': 'pnpm -F @decopon/app-windows tauri dev',
     'android:build': 'pnpm -F core build && pnpm -F @decopon/app-android tauri android build',

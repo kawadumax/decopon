@@ -1,12 +1,12 @@
 #!/usr/bin/env node
-const { existsSync, lstatSync, rmSync } = require("node:fs");
-const { resolve } = require("node:path");
+import { existsSync, lstatSync, rmSync } from 'node:fs';
+import { resolve } from 'node:path';
 
 const targets = process.argv.slice(2);
 
-if (!targets.length) {
+if (targets.length === 0) {
   console.error(
-    "No targets provided. Usage: node scripts/clean.js <path> [<path> ...]",
+    'No targets provided. Usage: node scripts/remove-build-artifacts.mjs <path> [<path> ...]',
   );
   process.exit(1);
 }
@@ -15,6 +15,7 @@ const cwd = process.cwd();
 
 for (const target of targets) {
   const absolutePath = resolve(cwd, target);
+
   try {
     if (!existsSync(absolutePath)) {
       continue;
@@ -30,4 +31,3 @@ for (const target of targets) {
     process.exitCode = 1;
   }
 }
-

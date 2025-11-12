@@ -13,7 +13,7 @@
     "./style.css": "./dist/style.css"
   },
   "scripts": {
-    "clean": "node ../../scripts/clean.js dist tsconfig.tsbuildinfo",
+    "clean:build-artifacts": "node ../../scripts/remove-build-artifacts.mjs dist tsconfig.tsbuildinfo",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "gen-routes": "tsr generate",
