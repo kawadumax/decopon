@@ -1,7 +1,6 @@
 import "@decopon/core/styles/app.css";
 import { bootstrap, renderSplash, singleUserBootstrap } from "@decopon/core";
-
-const BACKEND_READY_EVENT = "decopon://backend-ready";
+import { BACKEND_READY_EVENT, FRONTEND_READY_EVENT } from "./events";
 
 const sleep = (ms: number) =>
   new Promise((resolve) => {
@@ -86,7 +85,7 @@ void (async () => {
   });
 
   try {
-    await emit("decopon://frontend-ready");
+    await emit(FRONTEND_READY_EVENT);
   } catch (error) {
     console.error("Failed to notify backend about frontend readiness", error);
     clearStartupMessage();

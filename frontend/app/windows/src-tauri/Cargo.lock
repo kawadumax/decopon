@@ -1177,6 +1177,7 @@ dependencies = [
  "axum-macros",
  "axum-password-worker",
  "chrono",
+ "decopon-runtime",
  "decopon-services",
  "dotenvy",
  "jsonwebtoken",
@@ -1195,6 +1196,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "decopon-runtime"
+version = "0.1.0"
+dependencies = [
+ "axum-password-worker",
+ "decopon-services",
+ "sea-orm",
+ "thiserror 2.0.12",
+ "tracing",
+]
+
+[[package]]
 name = "decopon-services"
 version = "0.1.0"
 dependencies = [
@@ -1207,6 +1219,21 @@ dependencies = [
  "sha2",
  "thiserror 2.0.12",
  "tracing",
+]
+
+[[package]]
+name = "decopon-tauri-common"
+version = "0.1.0"
+dependencies = [
+ "decopon-runtime",
+ "migration",
+ "rand 0.8.5",
+ "sea-orm",
+ "sea-orm-migration",
+ "tauri",
+ "thiserror 1.0.69",
+ "tracing",
+ "url",
 ]
 
 [[package]]
@@ -6358,7 +6385,7 @@ version = "0.1.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cf221c93e13a30d793f7645a0e7762c55d169dbb0a49671918a2319d289b10bb"
 dependencies = [
- "windows-sys 0.48.0",
+ "windows-sys 0.59.0",
 ]
 
 [[package]]
@@ -6386,10 +6413,10 @@ dependencies = [
 name = "windows"
 version = "0.1.0"
 dependencies = [
- "axum-password-worker",
  "decopon-app-ipc",
  "decopon-axum",
- "decopon-services",
+ "decopon-runtime",
+ "decopon-tauri-common",
  "migration",
  "rand 0.8.5",
  "sea-orm",

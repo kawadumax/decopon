@@ -1,22 +1,17 @@
-use std::{
-    collections::HashMap,
-    fs,
-    io::ErrorKind,
-    path::{Path, PathBuf},
-    sync::Mutex,
-};
+use std::{collections::HashMap, sync::Mutex};
 
 use decopon_app_ipc::{self as ipc, AppIpcState, IpcHttpResponse};
 use decopon_axum::AppState;
-use rand::{distributions::Alphanumeric, Rng};
-use services::AppServices;
+use decopon_tauri_common::{
+    configure_environment, ensure_app_data_dir, resolve_single_user_mode_flag,
+    should_skip_service_bootstrap, sqlite_url_from_path, BACKEND_READY_EVENT,
+    FRONTEND_READY_EVENT,
+};
+use decopon_tauri_common::services::AppServices;
 use serde_json::Value;
 use tauri::{AppHandle, Emitter, EventId, EventTarget, Listener, Manager, State};
 use tracing::{error, info, warn};
 use tracing_subscriber::EnvFilter;
-use url::Url;
-
-mod services;
 
 struct ReadyListenerState {
     listener_id: Mutex<Option<EventId>>,
@@ -105,7 +100,7 @@ impl AppInitializationState {
         if let Some(label) = label {
             if let Err(error) = app_handle.emit_to(
                 EventTarget::webview_window(label.clone()),
-                "decopon://backend-ready",
+                BACKEND_READY_EVENT,
                 (),
             ) {
                 warn!(error = ?error, "failed to emit backend ready event");
@@ -118,150 +113,6 @@ impl AppInitializationState {
             }
         }
     }
-}
-
-fn ensure_app_data_dir(app_handle: &tauri::AppHandle) -> Result<PathBuf, std::io::Error> {
-    let data_dir = app_handle.path().app_data_dir().unwrap_or_else(|_| {
-        let mut fallback = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
-        fallback.push("decopon-data");
-        fallback
-    });
-
-    fs::create_dir_all(&data_dir)?;
-    Ok(data_dir)
-}
-
-fn load_or_generate_jwt_secret(data_dir: &Path) -> Result<String, std::io::Error> {
-    let secret_path = data_dir.join("jwt_secret");
-
-    match fs::read_to_string(&secret_path) {
-        Ok(existing) => {
-            let trimmed = existing.trim().to_string();
-            if !trimmed.is_empty() {
-                return Ok(trimmed);
-            }
-        }
-        Err(err) if err.kind() != ErrorKind::NotFound => return Err(err),
-        _ => {}
-    }
-
-    let secret: String = rand::thread_rng()
-        .sample_iter(&Alphanumeric)
-        .take(64)
-        .map(char::from)
-        .collect();
-    fs::write(&secret_path, format!("{secret}\n"))?;
-    Ok(secret)
-}
-
-fn sqlite_url_from_path(path: &Path) -> Result<String, std::io::Error> {
-    match Url::from_file_path(path) {
-        Ok(url) => Ok(format!("sqlite://{}", url.path())),
-        Err(_) => {
-            if let Some(path_str) = path.to_str() {
-                if looks_like_windows_path(path_str) {
-                    let normalized = path_str.replace('\\', "/");
-                    let file_url = format!("file:///{}", normalized);
-                    let url = Url::parse(&file_url).map_err(|err| {
-                        std::io::Error::new(ErrorKind::InvalidInput, err.to_string())
-                    })?;
-                    return Ok(format!("sqlite://{}", url.path()));
-                }
-            }
-
-            Err(std::io::Error::new(
-                ErrorKind::InvalidInput,
-                format!("invalid database path: {}", path.display()),
-            ))
-        }
-    }
-}
-
-fn looks_like_windows_path(path: &str) -> bool {
-    let bytes = path.as_bytes();
-    if bytes.len() < 3 {
-        return false;
-    }
-
-    matches!(bytes[0], b'a'..=b'z' | b'A'..=b'Z')
-        && bytes[1] == b':'
-        && (bytes[2] == b'\\' || bytes[2] == b'/')
-}
-
-fn env_flag_enabled(key: &str) -> bool {
-    std::env::var(key)
-        .map(|value| {
-            let normalized = value.trim().to_ascii_lowercase();
-            matches!(
-                normalized.as_str(),
-                "1" | "true" | "yes" | "on" | "enabled"
-            )
-        })
-        .unwrap_or(false)
-}
-
-fn normalized_app_mode() -> String {
-    std::env::var("APP_MODE")
-        .unwrap_or_else(|_| "local".to_string())
-        .trim()
-        .to_ascii_lowercase()
-}
-
-fn is_local_app_mode() -> bool {
-    normalized_app_mode() != "web"
-}
-
-fn resolve_single_user_mode_flag() -> bool {
-    if let Ok(value) = std::env::var("APP_SINGLE_USER_MODE") {
-        return value == "1" || value.eq_ignore_ascii_case("true");
-    }
-    is_local_app_mode()
-}
-
-fn configure_environment(data_dir: &Path, database_url: &str) -> Result<String, std::io::Error> {
-    std::env::set_var("AXUM_DATABASE_URL", database_url);
-
-    if std::env::var_os("APP_MODE").is_none() {
-        std::env::set_var("APP_MODE", "local");
-    }
-
-    if std::env::var_os("APP_SINGLE_USER_MODE").is_none() {
-        let default_value = if is_local_app_mode() { "1" } else { "0" };
-        std::env::set_var("APP_SINGLE_USER_MODE", default_value);
-    }
-    if std::env::var_os("APP_SINGLE_USER_EMAIL").is_none() {
-        std::env::set_var("APP_SINGLE_USER_EMAIL", "single-user@localhost");
-    }
-    if std::env::var_os("APP_SINGLE_USER_PASSWORD").is_none() {
-        std::env::set_var("APP_SINGLE_USER_PASSWORD", "decopon-local-password");
-    }
-    if std::env::var_os("APP_SINGLE_USER_NAME").is_none() {
-        std::env::set_var("APP_SINGLE_USER_NAME", "Decopon User");
-    }
-    if std::env::var_os("APP_SINGLE_USER_LOCALE").is_none() {
-        std::env::set_var("APP_SINGLE_USER_LOCALE", "en");
-    }
-    if std::env::var_os("APP_SINGLE_USER_WORK_TIME").is_none() {
-        std::env::set_var("APP_SINGLE_USER_WORK_TIME", "25");
-    }
-    if std::env::var_os("APP_SINGLE_USER_BREAK_TIME").is_none() {
-        std::env::set_var("APP_SINGLE_USER_BREAK_TIME", "5");
-    }
-
-    if std::env::var_os("AXUM_SMTP_SERVER").is_none() {
-        std::env::set_var("AXUM_DISABLE_SMTP", "1");
-    }
-
-    if std::env::var_os("AXUM_JWT_SECRET").is_none() {
-        std::env::set_var("AXUM_JWT_SECRET", load_or_generate_jwt_secret(data_dir)?);
-    }
-
-    std::env::var("AXUM_JWT_SECRET").map_err(|_| {
-        std::io::Error::new(
-            ErrorKind::InvalidData,
-            "AXUM_JWT_SECRET is not set after initialization",
-        )
-    })
 }
 
 fn init_tracing() {
@@ -312,7 +163,7 @@ pub fn run() {
                 .map(|window| window.label().to_string())
                 .unwrap_or_else(|| "main".to_string());
 
-            let skip_service_bootstrap = env_flag_enabled("DECO_SKIP_SERVICE_BOOTSTRAP");
+            let skip_service_bootstrap = should_skip_service_bootstrap();
             info!(
                 "Preparing application environment (skip_service_bootstrap={})",
                 skip_service_bootstrap
@@ -393,7 +244,8 @@ pub fn run() {
 
             let listener_handle = app_handle.clone();
             let listener_label = main_window_label.clone();
-            let ready_listener = app_handle.listen_any("decopon://frontend-ready", move |_| {
+            let ready_listener =
+                app_handle.listen_any(FRONTEND_READY_EVENT, move |_| {
                 let init_state = listener_handle.state::<AppInitializationState>();
                 init_state.mark_frontend_ready(&listener_handle, listener_label.clone());
 
