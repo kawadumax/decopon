@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "devDependencies": {
+    "@tanstack/router-plugin": "catalog:",
     "@tailwindcss/vite": "catalog:",
     "@vitejs/plugin-react-swc": "catalog:",
     "vite": "5.4.21",

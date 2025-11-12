@@ -2,6 +2,7 @@ import path from "node:path";
 import { createRequire } from "node:module";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react-swc";
+import TanStackRouterVite from "@tanstack/router-plugin/vite";
 import { loadEnv, type ServerOptions, type UserConfig } from "vite";
 import svgr from "vite-plugin-svgr";
 import { alias } from "../../vite.aliases";
@@ -57,6 +58,8 @@ export function createTauriViteConfig({
 
   const sharedRoot = resolvePackageRoot("@decopon/app-shared", sharedFallback);
   const coreRoot = resolvePackageRoot("@decopon/core", coreFallback);
+  const coreRoutesDir = path.resolve(coreRoot, "src/routes");
+  const coreRouteTree = path.resolve(coreRoot, "src/routeTree.gen.ts");
   const repoRoot = path.resolve(platformDir, "../../..");
 
   const resolvedEnvMode =
@@ -96,6 +99,11 @@ export function createTauriViteConfig({
       emptyOutDir: true,
     },
     plugins: [
+      TanStackRouterVite({
+        autoCodeSplitting: true,
+        routesDirectory: coreRoutesDir,
+        generatedRouteTree: coreRouteTree,
+      }),
       tailwindcss(),
       react(),
       svgr({

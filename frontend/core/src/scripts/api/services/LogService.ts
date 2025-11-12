@@ -1,6 +1,6 @@
 import type { ApiRequestData, Log } from "@/scripts/types";
 import { endpoints } from "../endpoints";
-import { callApi } from "../httpClient";
+import { callApi } from "../client";
 
 export const LogService = {
   index(): Promise<Log[]> {

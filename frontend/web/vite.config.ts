@@ -1,10 +1,12 @@
 import path from "node:path";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react-swc";
+import TanStackRouterVite from "@tanstack/router-plugin/vite";
 import { defineConfig, loadEnv } from "vite";
 import svgr from "vite-plugin-svgr";
 import { alias } from "../vite.aliases";
 const RESERVED_MODES = new Set(["development", "production", "test"]);
+const coreRoot = path.resolve(__dirname, "../core");
 
 const resolveEnvMode = (mode: string | undefined, fallback: string) => {
   const explicit = process.env.VITE_PLATFORM?.trim();
@@ -28,6 +30,11 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [
+      TanStackRouterVite({
+        autoCodeSplitting: true,
+        routesDirectory: path.resolve(coreRoot, "src/routes"),
+        generatedRouteTree: path.resolve(coreRoot, "src/routeTree.gen.ts"),
+      }),
       tailwindcss(),
       react(),
       svgr({
