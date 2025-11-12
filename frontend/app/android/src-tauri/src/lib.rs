@@ -200,11 +200,34 @@ fn env_flag_enabled(key: &str) -> bool {
         .unwrap_or(false)
 }
 
+fn normalized_app_mode() -> String {
+    std::env::var("APP_MODE")
+        .unwrap_or_else(|_| "local".to_string())
+        .trim()
+        .to_ascii_lowercase()
+}
+
+fn is_local_app_mode() -> bool {
+    normalized_app_mode() != "web"
+}
+
+fn resolve_single_user_mode_flag() -> bool {
+    if let Ok(value) = std::env::var("APP_SINGLE_USER_MODE") {
+        return value == "1" || value.eq_ignore_ascii_case("true");
+    }
+    is_local_app_mode()
+}
+
 fn configure_environment(data_dir: &Path, database_url: &str) -> Result<String, std::io::Error> {
     std::env::set_var("AXUM_DATABASE_URL", database_url);
 
+    if std::env::var_os("APP_MODE").is_none() {
+        std::env::set_var("APP_MODE", "local");
+    }
+
     if std::env::var_os("APP_SINGLE_USER_MODE").is_none() {
-        std::env::set_var("APP_SINGLE_USER_MODE", "1");
+        let default_value = if is_local_app_mode() { "1" } else { "0" };
+        std::env::set_var("APP_SINGLE_USER_MODE", default_value);
     }
     if std::env::var_os("APP_SINGLE_USER_EMAIL").is_none() {
         std::env::set_var("APP_SINGLE_USER_EMAIL", "single-user@localhost");
@@ -326,9 +349,7 @@ pub fn run() {
             })?;
             info!("Environment variables configured");
 
-            let single_user_mode = std::env::var("APP_SINGLE_USER_MODE")
-                .map(|value| value == "1" || value.eq_ignore_ascii_case("true"))
-                .unwrap_or(true);
+            let single_user_mode = resolve_single_user_mode_flag();
             info!(
                 "Single-user mode resolved to {}",
                 single_user_mode

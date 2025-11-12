@@ -1,14 +1,13 @@
 use std::sync::Arc;
 
-use axum_password_worker::{Bcrypt, PasswordWorker};
-use decopon_services::{usecases, ServiceContext, ServiceError};
+use decopon_runtime::{ServiceContext, ServiceRuntimeBuilder};
 use migration::{Migrator, MigratorTrait};
 use sea_orm::Database;
 use thiserror::Error;
 
 #[derive(Clone)]
 pub struct AppServices {
-    context: ServiceContext,
+    context: Arc<ServiceContext>,
 }
 
 impl AppServices {
@@ -22,32 +21,19 @@ impl AppServices {
             .await
             .map_err(ServiceInitError::Migration)?;
 
-        let db = Arc::new(db);
-        let password_worker = Arc::new(PasswordWorker::new_bcrypt(4)?);
+        let runtime = ServiceRuntimeBuilder::new(database_url.to_string(), jwt_secret)
+            .ensure_single_user_session(single_user_mode)
+            .enable_mailer(false)
+            .build()
+            .await?;
 
-        let single_user_session = if single_user_mode {
-            Some(
-                usecases::single_user::ensure_user(
-                    db.as_ref(),
-                    password_worker.as_ref(),
-                    &jwt_secret,
-                )
-                .await?,
-            )
-        } else {
-            None
-        };
-
-        let context = ServiceContext::builder(db, password_worker, jwt_secret)
-            .mailer(None)
-            .single_user_session(single_user_session)
-            .build();
-
-        Ok(Self { context })
+        Ok(Self {
+            context: runtime.service_context(),
+        })
     }
 
     pub fn service_context(&self) -> ServiceContext {
-        self.context.clone()
+        self.context.as_ref().clone()
     }
 }
 
@@ -58,7 +44,5 @@ pub enum ServiceInitError {
     #[error("migration failed: {0}")]
     Migration(#[source] sea_orm_migration::DbErr),
     #[error(transparent)]
-    PasswordWorker(#[from] axum_password_worker::PasswordWorkerError<Bcrypt>),
-    #[error(transparent)]
-    Service(#[from] ServiceError),
+    Runtime(#[from] decopon_runtime::RuntimeError),
 }

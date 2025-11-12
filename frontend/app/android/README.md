@@ -23,6 +23,7 @@ Tauri + React で構築した Android 向けの Decopon クライアントです
 
 - `AXUM_DATABASE_URL`: アプリデータディレクトリ配下の `decopon.sqlite` を指す SQLite DSN。
 - `AXUM_JWT_SECRET`: ディレクトリ内の `jwt_secret` ファイルから読み込み、なければ 64 文字のランダム文字列を生成して保存します。
+- `APP_MODE`: ローカルクライアントとして動作させるため `local` をセットします。
 - `APP_SINGLE_USER_MODE`: 単一ユーザー前提で動作させるため `1` をセットします。
 - `APP_SINGLE_USER_EMAIL` / `APP_SINGLE_USER_PASSWORD` / `APP_SINGLE_USER_NAME` / `APP_SINGLE_USER_LOCALE` / `APP_SINGLE_USER_WORK_TIME` / `APP_SINGLE_USER_BREAK_TIME`: モバイル単体でも利用できる既定値を注入します。
 

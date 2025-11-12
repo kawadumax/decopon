@@ -1,10 +1,31 @@
 import path from "node:path";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react-swc";
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import svgr from "vite-plugin-svgr";
 import { alias } from "../vite.aliases";
-export default defineConfig(() => {
+const RESERVED_MODES = new Set(["development", "production", "test"]);
+
+const resolveEnvMode = (mode: string | undefined, fallback: string) => {
+  const explicit = process.env.VITE_PLATFORM?.trim();
+  if (explicit) {
+    return explicit;
+  }
+  if (mode && !RESERVED_MODES.has(mode)) {
+    return mode;
+  }
+  return fallback;
+};
+
+export default defineConfig(({ mode }) => {
+  const envDir = path.resolve(__dirname, "../../");
+  const envMode = resolveEnvMode(mode, "web");
+  const env = loadEnv(envMode, envDir, "");
+  Object.assign(process.env, env);
+  const normalizedMode = (env.APP_MODE ?? "web").trim().toLowerCase();
+  const fallbackSingleUser = normalizedMode === "web" ? "0" : "1";
+  const singleUserModeFlag = env.VITE_APP_SINGLE_USER_MODE ?? fallbackSingleUser;
+
   return {
     plugins: [
       tailwindcss(),
@@ -31,7 +52,12 @@ export default defineConfig(() => {
         allow: [path.resolve(__dirname, "../")],
       },
     },
-    envDir: "../../",
+    envDir,
     resolve: { alias },
+    define: {
+      "import.meta.env.VITE_APP_SINGLE_USER_MODE": JSON.stringify(
+        singleUserModeFlag,
+      ),
+    },
   };
 });

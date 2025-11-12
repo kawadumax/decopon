@@ -1,7 +1,6 @@
 use std::{env, sync::Arc};
 
-use axum_password_worker::{Bcrypt, PasswordWorker};
-use decopon_services::{usecases, ServiceContext, ServiceError};
+use decopon_runtime::{ServiceContext, ServiceRuntimeBuilder};
 use migration::{Migrator, MigratorTrait};
 use sea_orm::Database;
 use thiserror::Error;
@@ -9,7 +8,7 @@ use tracing::info;
 
 #[derive(Clone)]
 pub struct AppServices {
-    context: ServiceContext,
+    context: Arc<ServiceContext>,
 }
 
 impl AppServices {
@@ -33,43 +32,32 @@ impl AppServices {
                 .map_err(ServiceInitError::Migration)?;
         }
 
-        let db = Arc::new(db);
-        let password_worker = Arc::new(PasswordWorker::new_bcrypt(4)?);
-
-        let single_user_session = if single_user_mode && !skip_bootstrap {
+        if single_user_mode && !skip_bootstrap {
             info!("Ensuring single-user bootstrap data is present");
-            Some(
-                usecases::single_user::ensure_user(
-                    db.as_ref(),
-                    password_worker.as_ref(),
-                    &jwt_secret,
-                )
-                .await?,
-            )
+        } else if skip_bootstrap && single_user_mode {
+            info!("Single-user bootstrap skipped because DECO_SKIP_SERVICE_BOOTSTRAP is enabled");
         } else {
-            if skip_bootstrap && single_user_mode {
-                info!("Single-user bootstrap skipped because DECO_SKIP_SERVICE_BOOTSTRAP is enabled");
-            } else {
-                info!(
-                    "Single-user bootstrap disabled (single_user_mode={})",
-                    single_user_mode
-                );
-            }
-            None
-        };
+            info!(
+                "Single-user bootstrap disabled (single_user_mode={})",
+                single_user_mode
+            );
+        }
 
-        let context = ServiceContext::builder(db, password_worker, jwt_secret)
-            .mailer(None)
-            .single_user_session(single_user_session)
-            .build();
+        let runtime = ServiceRuntimeBuilder::new(database_url.to_string(), jwt_secret)
+            .ensure_single_user_session(single_user_mode && !skip_bootstrap)
+            .enable_mailer(false)
+            .build()
+            .await?;
 
         info!("Service context initialized");
 
-        Ok(Self { context })
+        Ok(Self {
+            context: runtime.service_context(),
+        })
     }
 
     pub fn service_context(&self) -> ServiceContext {
-        self.context.clone()
+        self.context.as_ref().clone()
     }
 }
 
@@ -80,9 +68,7 @@ pub enum ServiceInitError {
     #[error("migration failed: {0}")]
     Migration(#[source] sea_orm_migration::DbErr),
     #[error(transparent)]
-    PasswordWorker(#[from] axum_password_worker::PasswordWorkerError<Bcrypt>),
-    #[error(transparent)]
-    Service(#[from] ServiceError),
+    Runtime(#[from] decopon_runtime::RuntimeError),
 }
 
 fn env_flag_enabled(key: &str) -> bool {

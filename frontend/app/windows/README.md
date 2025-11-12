@@ -10,6 +10,7 @@ Windows 版では `src-tauri/src/lib.rs` 内のセットアップ処理で以下
 
 - `AXUM_DATABASE_URL`: アプリデータディレクトリ直下の `decopon.sqlite` を指す SQLite DSN。
 - `AXUM_JWT_SECRET`: `AppData\\Roaming\\com.decopon.windows\\jwt_secret` に保存された値を読み込みます。ファイルが存在しない場合は 64 文字のランダム文字列を生成して保存します。
+- `APP_MODE`: ローカルクライアントとして動作させるため `local` をセットします。
 - `APP_SINGLE_USER_MODE`: 単一ユーザー前提の動作をさせるため `1` をセットします。
 - `APP_SINGLE_USER_EMAIL`: 単一ユーザー用のメールアドレスとして `single-user@localhost` をセットします。
 - `APP_SINGLE_USER_PASSWORD`: ローカル用の既定パスワードとして `decopon-local-password` をセットします。
@@ -20,7 +21,7 @@ Windows 版では `src-tauri/src/lib.rs` 内のセットアップ処理で以下
 
 SMTP を利用する場合や単一ユーザーモードを解除したい場合は、Tauri アプリを起動する前に任意の値を環境変数へ設定してください。
 
-なお、`DATABASE_URL`、`AXUM_DISABLE_SMTP`、`AXUM_IP` / `AXUM_PORT` / `AXUM_ALLOWED_ORIGINS` などは自動では注入されません。必要に応じて `.env` やシステム環境変数で個別に設定してください（Axum 側には未設定時のフォールバック値が用意されています）。
+なお、`DATABASE_URL`、`AXUM_DISABLE_SMTP`、`AXUM_IP` / `AXUM_PORT` / `AXUM_ALLOWED_ORIGINS` などは自動では注入されません。必要に応じて `.env.windows` などのファイルやシステム環境変数で個別に設定してください（Axum 側には未設定時のフォールバック値が用意されています）。
 
 ## 開発・ビルド手順
 
@@ -34,7 +35,7 @@ SMTP を利用する場合や単一ユーザーモードを解除したい場合
 ## ローカル配布のポイント
 
 - 初回起動時にアプリデータディレクトリ（例: `%APPDATA%\\com.decopon.windows`）が作成され、データベース・JWT シークレット・ログなどが格納されます。
-- `.env.example` にある `APP_SINGLE_USER_MODE` と `AXUM_DISABLE_SMTP` を `1` に設定すると、サーバー単体で起動した場合でもデスクトップアプリ同様の挙動になります。
+- ルート直下の `.env.windows` で `APP_MODE=local`（および必要なら `AXUM_DISABLE_SMTP=1`）を設定すると、サーバー単体で起動した場合でもデスクトップアプリ同様の挙動になります。
 - メール機能が無効な状態でもサーバーは起動し、認証ルートではメール送信をスキップして処理が継続されます。
 
 ## 推奨ツールチェーン

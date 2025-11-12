@@ -36,13 +36,10 @@ fn smtp_disabled() -> bool {
         }
     }
 
-    if let Ok(value) = env::var("APP_SINGLE_USER_MODE") {
-        if is_truthy(&value) {
-            return true;
-        }
-    }
-
-    false
+    let app_mode = env::var("APP_MODE")
+        .unwrap_or_else(|_| "local".to_string())
+        .to_ascii_lowercase();
+    app_mode != "web"
 }
 
 #[cfg(feature = "mail")]
@@ -176,7 +173,7 @@ mod tests {
         dotenv().ok();
         unsafe {
             std::env::set_var("AXUM_DISABLE_SMTP", "0");
-            std::env::set_var("APP_SINGLE_USER_MODE", "0");
+            std::env::set_var("APP_MODE", "web");
         }
 
         let from = get_from().expect("from address");

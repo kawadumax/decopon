@@ -18,10 +18,9 @@ crate-type = ["staticlib", "cdylib", "rlib"]
 tauri-build = { version = "2", features = [] }
 
 [dependencies]
-axum-password-worker = "0.4"
 decopon-app-ipc = { path = "../../ipc" }
 decopon-axum = { path = "../../../../backend/axum" }
-decopon-services = { path = "../../../../backend/services" }
+decopon-runtime = { path = "../../../../backend/runtime", features = ["sqlite"] }
 migration = { path = "../../../../backend/axum/migration" }
 sea-orm = { version = "1.1", features = ["sqlx-sqlite", "runtime-tokio-rustls", "macros"] }
 sea-orm-migration = { version = "1.1", features = ["sqlx-sqlite", "runtime-tokio-rustls"] }
@@ -34,4 +33,3 @@ tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["fmt", "env-filter"] }
 rand = { version = "0.8", default-features = false, features = ["std", "std_rng"] }
 url = "2"
-

@@ -7,17 +7,21 @@ edition = "2024"
 default = ["app"]
 app = [
     "decopon-services/sqlite",
+    "decopon-runtime/sqlite",
     "sea-orm/sqlx-sqlite",
 ]
 web = [
     "decopon-services/postgres",
     "decopon-services/mail",
+    "decopon-runtime/postgres",
+    "decopon-runtime/mail",
     "sea-orm/sqlx-postgres",
 ]
 
 [dependencies]
 migration = { path = "migration" } # depends on your needs
 decopon-services = { path = "../services", default-features = false }
+decopon-runtime = { path = "../runtime", default-features = false }
 
 axum = "~0.8.4"
 axum-macros = "0.5.0"
