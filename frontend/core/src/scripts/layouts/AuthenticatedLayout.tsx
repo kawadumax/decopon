@@ -41,8 +41,8 @@ import { isTauriEnvironment } from "@/scripts/lib/isTauriEnvironment";
 
 const links = [
   {
-    key: "dashboard",
-    href: "/auth/dashboard",
+    key: "statistics",
+    href: "/auth/statistics",
     icon: ActivitySquare,
   },
   {
@@ -70,6 +70,20 @@ const Drawer = ({
   const [open, setOpen] = useState(false);
   const { t } = useTranslation();
   const isTauri = useMemo(() => isTauriEnvironment(), []);
+  const drawerLinks = useMemo(() => {
+    const statisticsLink = links.find((link) => link.key === "statistics");
+    const withoutStatistics = links.filter((link) => link.key !== "statistics");
+    if (!statisticsLink) {
+      return withoutStatistics;
+    }
+    const insertAfter = withoutStatistics.findIndex((link) => link.key === "logs");
+    if (insertAfter === -1) {
+      return [...withoutStatistics, statisticsLink];
+    }
+    const reordered = [...withoutStatistics];
+    reordered.splice(insertAfter + 1, 0, statisticsLink);
+    return reordered;
+  }, []);
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -93,7 +107,7 @@ const Drawer = ({
           </>
         )}
         <div className="space-y-1 mt-4">
-          {links.map((link) => (
+          {drawerLinks.map((link) => (
             <ResponsiveNavLink key={link.href} to={link.href}>
               {t(`header.menu.${link.key}`)}
             </ResponsiveNavLink>
@@ -261,10 +275,15 @@ const HeaderNavigation = ({ user }: { user: User }) => {
 const FooterNavigation = () => {
   const matchRoute = useMatchRoute();
   const { t } = useTranslation();
+  const footerLinks = useMemo(() => {
+    const otherLinks = links.filter((link) => link.key !== "statistics");
+    const statisticsLink = links.find((link) => link.key === "statistics");
+    return statisticsLink ? [...otherLinks, statisticsLink] : links;
+  }, []);
 
   return (
     <nav className="sticky bottom-0 flex flex-row items-stretch justify-between divide-x border-gray-100 border-t border-b bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800">
-      {links.map((link) => {
+      {footerLinks.map((link) => {
         const isActive = !!matchRoute({ to: link.href, fuzzy: false });
         const activeClassName = isActive ? "text-amber-400" : "text-slate-700";
         return (

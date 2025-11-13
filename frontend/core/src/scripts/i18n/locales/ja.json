@@ -60,7 +60,7 @@
   },
   "header": {
     "menu": {
-      "dashboard": "ダッシュボード",
+      "statistics": "統計",
       "tasks": "タスク",
       "tags": "タグ",
       "logs": "ログ",
@@ -70,9 +70,41 @@
       "register": "登録"
     }
   },
-  "dashboard": {
-    "title": "ダッシュボード",
-    "greeting": "ログインしました！"
+  "statistics": {
+    "title": "タスク統計",
+    "description": "直近で実行したタスクの記録と進捗を確認できます。",
+    "cards": {
+      "totalTasks": "総タスク数",
+      "completedTasks": "完了タスク",
+      "completionRate": "完了率",
+      "lastExecution": "直近の実行",
+      "noRecord": "記録なし"
+    },
+    "sections": {
+      "completedTasks": {
+        "title": "完了済みタスク",
+        "description": "最新の更新順で完了済みタスクを表示します。"
+      },
+      "timeline": {
+        "title": "タスク実行ログ",
+        "description": "タスクに紐づいた最新のログを確認できます。"
+      }
+    },
+    "table": {
+      "headers": {
+        "task": "タスク",
+        "tags": "タグ",
+        "completedAt": "完了日時",
+        "description": "概要"
+      },
+      "noTags": "タグなし",
+      "noDescription": "説明なし",
+      "empty": "完了済みタスクの記録がまだありません。"
+    },
+    "timeline": {
+      "taskLabel": "タスクID: {{id}}",
+      "empty": "タスクに紐づくログがまだありません。"
+    }
   },
   "auth": {
     "login": {

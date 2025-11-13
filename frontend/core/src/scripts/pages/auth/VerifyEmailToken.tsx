@@ -25,7 +25,7 @@ export default function VerifyEmailToken() {
       const auth = { user: data.user };
       queryClient.setQueryData(["auth"], auth);
       authStorage.set(auth);
-      navigate({ to: "/auth/dashboard" });
+      navigate({ to: "/auth/tasks" });
     },
     onError: (error) => {
       console.error("Verify email error:", error);

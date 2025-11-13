@@ -67,7 +67,7 @@ export default function Login() {
           formApi.reset();
         },
         onSuccess: () => {
-          navigate({ to: "/auth/dashboard" });
+          navigate({ to: "/auth/tasks" });
         },
       });
     },

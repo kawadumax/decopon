@@ -60,7 +60,7 @@
   },
   "header": {
     "menu": {
-      "dashboard": "Dashboard",
+      "statistics": "Statistics",
       "tasks": "Tasks",
       "tags": "Tags",
       "logs": "Logs",
@@ -70,9 +70,41 @@
       "register": "Register"
     }
   },
-  "dashboard": {
-    "title": "Dashboard",
-    "greeting": "You're logged in!"
+  "statistics": {
+    "title": "Task Statistics",
+    "description": "Review the latest records of executed tasks and their progress.",
+    "cards": {
+      "totalTasks": "Total tasks",
+      "completedTasks": "Completed tasks",
+      "completionRate": "Completion rate",
+      "lastExecution": "Last execution",
+      "noRecord": "No completions yet"
+    },
+    "sections": {
+      "completedTasks": {
+        "title": "Completed tasks",
+        "description": "Tasks you have completed, ordered by the latest updates."
+      },
+      "timeline": {
+        "title": "Execution timeline",
+        "description": "Latest logs associated with tasks."
+      }
+    },
+    "table": {
+      "headers": {
+        "task": "Task",
+        "tags": "Tags",
+        "completedAt": "Completed at",
+        "description": "Description"
+      },
+      "noTags": "No tags",
+      "noDescription": "No description",
+      "empty": "There are no completed task records yet."
+    },
+    "timeline": {
+      "taskLabel": "Task #{{id}}",
+      "empty": "No task execution logs are available yet."
+    }
   },
   "auth": {
     "login": {

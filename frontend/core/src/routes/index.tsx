@@ -8,12 +8,12 @@ const SINGLE_USER_MODE_ENABLED =
 export const Route = createFileRoute("/")({
   loader: async () => {
     if (SINGLE_USER_MODE_ENABLED) {
-      throw redirect({ to: "/auth/dashboard" });
+      throw redirect({ to: "/auth/tasks" });
     }
 
     const auth = await queryClient.ensureQueryData(fetchAuthQueryOptions);
     if (auth?.user?.id) {
-      throw redirect({ to: "/auth/dashboard" });
+      throw redirect({ to: "/auth/tasks" });
     }
 
     throw redirect({ to: "/guest/login" });
