@@ -9,9 +9,7 @@ use axum::{
 use sea_orm::{ActiveModelTrait, Set};
 use tower::ServiceExt;
 
-use decopon_axum::{
-    dto::auth::GetAuthUserResponse, entities::users, routes, usecases,
-};
+use decopon_axum::{dto::auth::GetAuthUserResponse, entities::users, routes, usecases};
 
 use common::{build_app_state, setup_in_memory_db};
 

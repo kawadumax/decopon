@@ -6,13 +6,13 @@ use axum_password_worker::{Bcrypt, PasswordWorker};
 use decopon_axum::{AppState, ServiceContext};
 use lettre::SmtpTransport;
 use migration::{Migrator, MigratorTrait};
-use sea_orm::{
-    ConnectionTrait, Database, DatabaseConnection, DbBackend, Statement,
-};
+use sea_orm::{ConnectionTrait, Database, DatabaseConnection, DbBackend, Statement};
 
 /// Create an in-memory SQLite database, apply migrations, and optionally enable foreign keys.
 pub async fn setup_in_memory_db(enable_foreign_keys: bool) -> Arc<DatabaseConnection> {
-    let db = Database::connect("sqlite::memory:").await.expect("connect sqlite memory");
+    let db = Database::connect("sqlite::memory:")
+        .await
+        .expect("connect sqlite memory");
     Migrator::up(&db, None).await.expect("run migrations");
 
     if enable_foreign_keys {

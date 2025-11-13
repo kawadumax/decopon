@@ -6,9 +6,9 @@ use tracing::info;
 use tracing::warn;
 
 #[cfg(feature = "mail")]
-use lettre::message::{header::ContentType, Mailbox};
+use lettre::message::{Mailbox, header::ContentType};
 #[cfg(feature = "mail")]
-use lettre::{transport::smtp::response::Response, Message, SmtpTransport, Transport};
+use lettre::{Message, SmtpTransport, Transport, transport::smtp::response::Response};
 
 #[cfg(feature = "mail")]
 pub type Mailer = Arc<SmtpTransport>;

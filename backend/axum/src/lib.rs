@@ -4,10 +4,10 @@ pub mod extractors;
 pub mod middleware;
 pub mod routes;
 
+use decopon_runtime::ServiceRuntimeBuilder;
 pub use decopon_services::{
     ServiceContext, ServiceContextBuilder, ServiceError, entities, usecases,
 };
-use decopon_runtime::ServiceRuntimeBuilder;
 
 use axum::{
     extract::FromRef,
