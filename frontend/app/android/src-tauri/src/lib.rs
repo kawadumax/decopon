@@ -1,119 +1,17 @@
-use std::{collections::HashMap, sync::Mutex};
+use std::collections::HashMap;
 
 use decopon_app_ipc::{self as ipc, AppIpcState, IpcHttpResponse};
 use decopon_axum::AppState;
+use decopon_tauri_common::init_state::{AppInitializationState, ReadyListenerState};
+use decopon_tauri_common::services::AppServices;
 use decopon_tauri_common::{
     configure_environment, ensure_app_data_dir, resolve_single_user_mode_flag,
-    should_skip_service_bootstrap, sqlite_url_from_path, BACKEND_READY_EVENT,
-    FRONTEND_READY_EVENT,
+    should_skip_service_bootstrap, sqlite_url_from_path, FRONTEND_READY_EVENT,
 };
-use decopon_tauri_common::services::AppServices;
 use serde_json::Value;
-use tauri::{AppHandle, Emitter, EventId, EventTarget, Listener, Manager, State};
+use tauri::{Manager, State};
 use tracing::{error, info, warn};
 use tracing_subscriber::EnvFilter;
-
-struct ReadyListenerState {
-    listener_id: Mutex<Option<EventId>>,
-}
-
-impl ReadyListenerState {
-    fn new(listener_id: EventId) -> Self {
-        Self {
-            listener_id: Mutex::new(Some(listener_id)),
-        }
-    }
-
-    fn unlisten(&self, app_handle: &tauri::AppHandle) {
-        if let Ok(mut guard) = self.listener_id.lock() {
-            if let Some(listener_id) = guard.take() {
-                app_handle.unlisten(listener_id);
-            }
-        }
-    }
-}
-
-#[derive(Default)]
-struct InitFlags {
-    frontend_ready: bool,
-    backend_ready: bool,
-    notified: bool,
-    window_label: Option<String>,
-}
-
-struct AppInitializationState {
-    state: Mutex<InitFlags>,
-}
-
-impl AppInitializationState {
-    fn new(initial_label: Option<String>) -> Self {
-        Self {
-            state: Mutex::new(InitFlags {
-                window_label: initial_label,
-                ..Default::default()
-            }),
-        }
-    }
-
-    fn mark_frontend_ready(&self, app_handle: &AppHandle, window_label: String) {
-        {
-            let mut state = self.state.lock().unwrap_or_else(|poisoned| poisoned.into_inner());
-            info!("frontend-ready event received (label={})", window_label);
-            state.frontend_ready = true;
-            state.window_label.get_or_insert(window_label);
-        }
-        self.try_notify(app_handle);
-    }
-
-    fn mark_backend_ready(&self, app_handle: &AppHandle, window_label_hint: Option<String>) {
-        {
-            let mut state = self.state.lock().unwrap_or_else(|poisoned| poisoned.into_inner());
-            info!(
-                "backend initialization completed (label_hint={:?})",
-                window_label_hint
-            );
-            state.backend_ready = true;
-            if state.window_label.is_none() {
-                state.window_label = window_label_hint;
-            }
-        }
-        self.try_notify(app_handle);
-    }
-
-    fn try_notify(&self, app_handle: &AppHandle) {
-        let label = {
-            let mut state = self.state.lock().unwrap_or_else(|poisoned| poisoned.into_inner());
-            if state.frontend_ready && state.backend_ready && !state.notified {
-                info!("both frontend and backend flagged ready; notifying webview");
-                if let Some(label) = state.window_label.clone() {
-                    state.notified = true;
-                    Some(label)
-                } else {
-                    info!("window label missing; waiting for label update before notifying");
-                    None
-                }
-            } else {
-                None
-            }
-        };
-
-        if let Some(label) = label {
-            if let Err(error) = app_handle.emit_to(
-                EventTarget::webview_window(label.clone()),
-                BACKEND_READY_EVENT,
-                (),
-            ) {
-                warn!(error = ?error, "failed to emit backend ready event");
-                if let Ok(mut state) = self.state.lock() {
-                    state.notified = false;
-                    info!("will retry backend-ready emission when next state update arrives");
-                }
-            } else {
-                info!("emitted backend ready event to window {}", label);
-            }
-        }
-    }
-}
 
 fn init_tracing() {
     if let Err(error) = tracing_subscriber::fmt()
@@ -201,10 +99,7 @@ pub fn run() {
             info!("Environment variables configured");
 
             let single_user_mode = resolve_single_user_mode_flag();
-            info!(
-                "Single-user mode resolved to {}",
-                single_user_mode
-            );
+            info!("Single-user mode resolved to {}", single_user_mode);
 
             let init_database_url = database_url.clone();
             let init_jwt_secret = jwt_secret.clone();
@@ -215,13 +110,7 @@ pub fn run() {
                 let window = init_handle.get_webview_window(&init_window_label);
                 let database_url = init_database_url;
                 let jwt_secret = init_jwt_secret;
-                match AppServices::initialize(
-                    &database_url,
-                    jwt_secret,
-                    single_user_mode,
-                )
-                .await
-                {
+                match AppServices::initialize(&database_url, jwt_secret, single_user_mode).await {
                     Ok(services) => {
                         let app_state = AppState::from(services.service_context());
                         let router = decopon_axum::routes::create_routes(app_state.clone());
@@ -229,7 +118,8 @@ pub fn run() {
                         init_handle.manage(handler);
                         info!("Service layer initialized");
                         let init_state = init_handle.state::<AppInitializationState>();
-                        init_state.mark_backend_ready(&init_handle, Some(init_window_label.clone()));
+                        init_state
+                            .mark_backend_ready(&init_handle, Some(init_window_label.clone()));
                     }
                     Err(error) => {
                         error!(error = ?error, "failed to initialize service layer");
@@ -244,8 +134,7 @@ pub fn run() {
 
             let listener_handle = app_handle.clone();
             let listener_label = main_window_label.clone();
-            let ready_listener =
-                app_handle.listen_any(FRONTEND_READY_EVENT, move |_| {
+            let ready_listener = app_handle.listen_any(FRONTEND_READY_EVENT, move |_| {
                 let init_state = listener_handle.state::<AppInitializationState>();
                 init_state.mark_frontend_ready(&listener_handle, listener_label.clone());
 

@@ -1,37 +1,17 @@
-use std::{collections::HashMap, sync::Mutex};
+use std::collections::HashMap;
 
 use decopon_app_ipc::{self as ipc, AppIpcState, IpcHttpResponse};
 use decopon_axum::AppState;
+use decopon_tauri_common::init_state::{AppInitializationState, ReadyListenerState};
+use decopon_tauri_common::services::AppServices;
 use decopon_tauri_common::{
     configure_environment, ensure_app_data_dir, resolve_single_user_mode_flag,
-    should_skip_service_bootstrap, sqlite_url_from_path, BACKEND_READY_EVENT,
-    FRONTEND_READY_EVENT,
+    should_skip_service_bootstrap, sqlite_url_from_path, FRONTEND_READY_EVENT,
 };
-use decopon_tauri_common::services::AppServices;
 use serde_json::Value;
-use tauri::{Emitter, EventId, EventTarget, Listener, Manager, State};
+use tauri::{Listener, Manager, State};
 use tracing::{error, info, warn};
 use tracing_subscriber::EnvFilter;
-
-struct ReadyListenerState {
-    listener_id: Mutex<Option<EventId>>,
-}
-
-impl ReadyListenerState {
-    fn new(listener_id: EventId) -> Self {
-        Self {
-            listener_id: Mutex::new(Some(listener_id)),
-        }
-    }
-
-    fn unlisten(&self, app_handle: &tauri::AppHandle) {
-        if let Ok(mut guard) = self.listener_id.lock() {
-            if let Some(listener_id) = guard.take() {
-                app_handle.unlisten(listener_id);
-            }
-        }
-    }
-}
 
 fn notify_error(window: Option<&tauri::WebviewWindow>, message: &str) {
     if let Some(window) = window {
@@ -114,47 +94,57 @@ pub fn run() {
             })?;
 
             let single_user_mode = resolve_single_user_mode_flag();
-
-            let services = tauri::async_runtime::block_on(AppServices::initialize(
-                &database_url,
-                jwt_secret.clone(),
-                single_user_mode,
-            ))
-            .map_err(|error| {
-                error!(error = ?error, "failed to initialize service layer");
-                notify_error(
-                    main_window.as_ref(),
-                    &format!("サービスの初期化に失敗しました: {error}"),
-                );
-                Box::new(error) as Box<dyn std::error::Error>
-            })?;
-
-            let app_state = AppState::from(services.service_context());
-            let router = decopon_axum::routes::create_routes(app_state.clone());
-            let handler = AppIpcState::new(router, app_state);
-            app.manage(handler);
+            let main_window_label = main_window
+                .as_ref()
+                .map(|window| window.label().to_string());
+            app.manage(AppInitializationState::new(main_window_label.clone()));
 
             if let Some(window) = main_window {
                 let window_label = window.label().to_string();
-                let handle = app_handle.clone();
+                let listener_handle = app_handle.clone();
+                let ready_listener = app_handle.listen_any(FRONTEND_READY_EVENT, move |_| {
+                    let init_state = listener_handle.state::<AppInitializationState>();
+                    init_state.mark_frontend_ready(&listener_handle, window_label.clone());
 
-                let ready_listener =
-                    app_handle.listen_any(FRONTEND_READY_EVENT, move |_| {
-                    if let Err(error) = handle.emit_to(
-                        EventTarget::webview_window(window_label.clone()),
-                        BACKEND_READY_EVENT,
-                        (),
-                    ) {
-                        warn!(error = ?error, "failed to emit backend ready event");
-                    }
-
-                    if let Some(state) = handle.try_state::<ReadyListenerState>() {
-                        state.unlisten(&handle);
+                    if let Some(state) = listener_handle.try_state::<ReadyListenerState>() {
+                        state.unlisten(&listener_handle);
                     }
                 });
 
                 app.manage(ReadyListenerState::new(ready_listener));
             }
+
+            let init_database_url = database_url.clone();
+            let init_jwt_secret = jwt_secret.clone();
+            let init_handle = app_handle.clone();
+            let init_window_label = main_window_label
+                .clone()
+                .unwrap_or_else(|| "main".to_string());
+            tauri::async_runtime::spawn(async move {
+                info!("Starting asynchronous backend initialization");
+                let window = init_handle.get_webview_window(&init_window_label);
+                match AppServices::initialize(&init_database_url, init_jwt_secret, single_user_mode)
+                    .await
+                {
+                    Ok(services) => {
+                        let app_state = AppState::from(services.service_context());
+                        let router = decopon_axum::routes::create_routes(app_state.clone());
+                        let handler = AppIpcState::new(router, app_state);
+                        init_handle.manage(handler);
+                        info!("Service layer initialized");
+                        let init_state = init_handle.state::<AppInitializationState>();
+                        init_state
+                            .mark_backend_ready(&init_handle, Some(init_window_label.clone()));
+                    }
+                    Err(error) => {
+                        error!(error = ?error, "failed to initialize service layer");
+                        notify_error(
+                            window.as_ref(),
+                            &format!("サービスの初期化に失敗しました: {error}"),
+                        );
+                    }
+                }
+            });
 
             info!("application environment is ready");
             Ok(())

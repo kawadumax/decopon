@@ -1,17 +1,17 @@
 use rand::{distributions::Alphanumeric, Rng};
 use std::{
-    env,
-    fs,
+    env, fs,
     io::ErrorKind,
     path::{Path, PathBuf},
 };
 use tauri::{AppHandle, Manager};
 use url::Url;
 
-pub mod services;
-
 pub const BACKEND_READY_EVENT: &str = "decopon://backend-ready";
 pub const FRONTEND_READY_EVENT: &str = "decopon://frontend-ready";
+
+pub mod init_state;
+pub mod services;
 
 pub fn ensure_app_data_dir(app_handle: &AppHandle) -> Result<PathBuf, std::io::Error> {
     let data_dir = app_handle.path().app_data_dir().unwrap_or_else(|_| {
@@ -55,8 +55,9 @@ pub fn sqlite_url_from_path(path: &Path) -> Result<String, std::io::Error> {
                 if looks_like_windows_path(path_str) {
                     let normalized = path_str.replace('\\', "/");
                     let file_url = format!("file:///{}", normalized);
-                    let url = Url::parse(&file_url)
-                        .map_err(|err| std::io::Error::new(ErrorKind::InvalidInput, err.to_string()))?;
+                    let url = Url::parse(&file_url).map_err(|err| {
+                        std::io::Error::new(ErrorKind::InvalidInput, err.to_string())
+                    })?;
                     return Ok(format!("sqlite://{}", url.path()));
                 }
             }
@@ -147,10 +148,7 @@ pub fn env_flag_enabled(key: &str) -> bool {
     env::var(key)
         .map(|value| {
             let normalized = value.trim().to_ascii_lowercase();
-            matches!(
-                normalized.as_str(),
-                "1" | "true" | "yes" | "on" | "enabled"
-            )
+            matches!(normalized.as_str(), "1" | "true" | "yes" | "on" | "enabled")
         })
         .unwrap_or(false)
 }

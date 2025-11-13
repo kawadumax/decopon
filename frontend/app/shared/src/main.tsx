@@ -71,9 +71,7 @@ void (async () => {
 
   showBackendLoading();
 
-  const unlisten = await listen(BACKEND_READY_EVENT, async () => {
-    await unlisten();
-
+  await listen(BACKEND_READY_EVENT, async () => {
     try {
       await singleUserBootstrap();
     } catch (error) {

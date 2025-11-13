@@ -22,8 +22,7 @@ impl AppServices {
         let skip_bootstrap = should_skip_service_bootstrap();
         info!(
             skip_bootstrap,
-            "Initializing service runtime (skip_bootstrap={})",
-            skip_bootstrap
+            "Initializing service runtime (skip_bootstrap={})", skip_bootstrap
         );
 
         let db = Database::connect(database_url).await?;
