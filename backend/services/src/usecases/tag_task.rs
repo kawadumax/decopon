@@ -45,6 +45,14 @@ pub async fn attach_tags(
     txn.commit().await.map_err(Into::into)
 }
 
+pub async fn attach_tags_with_conn(
+    db: &impl ConnectionTrait,
+    task_id: i32,
+    tag_ids: Vec<i32>,
+) -> Result<(), ServiceError> {
+    attach_tags_inner(db, task_id, tag_ids).await
+}
+
 pub async fn sync_tags(
     db: &impl ConnectionTrait,
     task_id: i32,

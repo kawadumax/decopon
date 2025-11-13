@@ -24,6 +24,9 @@ export interface Task {
   created_at: string;
   updated_at: string;
   parent_task_id?: number;
+  root_task_id?: number;
+  depth?: number;
+  position?: number;
   tags?: Tag[];
 }
 

@@ -92,8 +92,23 @@ async fn destroy(
     Ok(StatusCode::NO_CONTENT)
 }
 
+#[tracing::instrument(skip(db, user))]
+async fn subtree(
+    Path(id): Path<i32>,
+    State(db): State<Arc<DatabaseConnection>>,
+    Extension(user): Extension<AuthenticatedUser>,
+) -> Result<Json<Vec<TaskSubtreeResponse>>, ApiError> {
+    let subtree = tasks::get_task_subtree(&db, user.id, id).await?;
+    let subtree = subtree
+        .into_iter()
+        .map(TaskSubtreeResponse::from)
+        .collect::<Vec<_>>();
+    Ok(Json(subtree))
+}
+
 pub fn routes() -> Router<AppState> {
     Router::<AppState>::new()
         .route("/", get(index).post(store))
         .route("/{id}", get(show).put(update).delete(destroy))
+        .route("/{id}/subtree", get(subtree))
 }

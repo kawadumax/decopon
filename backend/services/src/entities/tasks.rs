@@ -13,6 +13,9 @@ pub struct Model {
     pub created_at: DateTimeUtc,
     pub updated_at: DateTimeUtc,
     pub user_id: i32,
+    pub root_task_id: Option<i32>,
+    pub depth: i32,
+    pub position: i32,
     pub parent_task_id: Option<i32>,
 }
 
