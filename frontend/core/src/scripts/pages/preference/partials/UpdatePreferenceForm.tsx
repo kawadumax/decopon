@@ -63,11 +63,11 @@ export default function UpdatePreferenceForm({
     <section className={className}>
       <header>
         <h2 className="font-medium text-gray-900 text-lg dark:text-gray-100">
-          {t("profile.updatePreference.title")}
+          {t("preference.updatePreference.title")}
         </h2>
 
         <p className="mt-1 text-gray-600 text-sm dark:text-gray-400">
-          {t("profile.updatePreference.description")}
+          {t("preference.updatePreference.description")}
         </p>
       </header>
 
@@ -85,7 +85,7 @@ export default function UpdatePreferenceForm({
               <>
                 <InputLabel
                   htmlFor={field.name}
-                  value={t("profile.updatePreference.workTime")}
+                  value={t("preference.updatePreference.workTime")}
                 />
 
                 <TextInput
@@ -111,7 +111,7 @@ export default function UpdatePreferenceForm({
               <>
                 <InputLabel
                   htmlFor="break_time"
-                  value={t("profile.updatePreference.breakTime")}
+                  value={t("preference.updatePreference.breakTime")}
                 />
                 <TextInput
                   id="break_time"
@@ -135,7 +135,7 @@ export default function UpdatePreferenceForm({
               <>
                 <InputLabel
                   htmlFor="locale"
-                  value={t("profile.updatePreference.locale")}
+                  value={t("preference.updatePreference.locale")}
                 />
                 <Select
                   defaultValue={field.state.value}
@@ -145,7 +145,7 @@ export default function UpdatePreferenceForm({
                 >
                   <SelectTrigger id="locale">
                     <SelectValue
-                      placeholder={t("profile.updatePreference.locale")}
+                      placeholder={t("preference.updatePreference.locale")}
                     />
                   </SelectTrigger>
                   <SelectContent>

@@ -52,7 +52,7 @@ export default function UpdatePasswordForm({
           formApi.reset();
         },
         onError: () => {
-          setStatus(t("profile.updatePassword.error"));
+          setStatus(t("preference.updatePassword.error"));
         },
       });
     },
@@ -62,11 +62,11 @@ export default function UpdatePasswordForm({
     <section className={className}>
       <header>
         <h2 className="font-medium text-gray-900 text-lg dark:text-gray-100">
-          {t("profile.updatePassword.title")}
+          {t("preference.updatePassword.title")}
         </h2>
 
         <p className="mt-1 text-gray-600 text-sm dark:text-gray-400">
-          {t("profile.updatePassword.description")}
+          {t("preference.updatePassword.description")}
         </p>
       </header>
 
@@ -173,7 +173,7 @@ export default function UpdatePasswordForm({
             leaveTo="opacity-0"
           >
             <p className="text-gray-600 text-sm dark:text-gray-400">
-              {t("profile.updatePassword.saved")}
+              {t("preference.updatePassword.saved")}
             </p>
           </Transition>
         </div>

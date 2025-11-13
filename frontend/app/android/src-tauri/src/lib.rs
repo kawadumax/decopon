@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use decopon_app_ipc::{self as ipc, AppIpcState, IpcHttpResponse};
 use decopon_axum::AppState;
+use decopon_tauri_common::init_marker::{is_first_launch, mark_initialized};
 use decopon_tauri_common::init_state::{AppInitializationState, ReadyListenerState};
 use decopon_tauri_common::services::AppServices;
 use decopon_tauri_common::{
@@ -9,7 +10,7 @@ use decopon_tauri_common::{
     should_skip_service_bootstrap, sqlite_url_from_path, FRONTEND_READY_EVENT,
 };
 use serde_json::Value;
-use tauri::{Manager, State};
+use tauri::{Emitter, Listener, Manager, State};
 use tracing::{error, info, warn};
 use tracing_subscriber::EnvFilter;
 
@@ -44,6 +45,16 @@ async fn dispatch_http_request(
     ipc::dispatch_http_request(&state, method, path, body, headers).await
 }
 
+#[tauri::command]
+fn get_init_status(app: tauri::AppHandle) -> Result<serde_json::Value, String> {
+    decopon_tauri_common::commands::get_init_status(app)
+}
+
+#[tauri::command]
+fn reset_application_data(app: tauri::AppHandle) -> Result<(), String> {
+    decopon_tauri_common::commands::reset_application_data(app)
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     init_tracing();
@@ -52,7 +63,13 @@ pub fn run() {
 
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![dispatch_http_request])
+        .invoke_handler(
+            tauri::generate_handler![
+                dispatch_http_request,
+                get_init_status,
+                reset_application_data
+            ],
+        )
         .setup(|app| {
             let app_handle = app.handle();
             let main_window = app.get_webview_window("main");
@@ -76,6 +93,9 @@ pub fn run() {
                 Box::new(e) as Box<dyn std::error::Error>
             })?;
             info!("App data directory ready at {}", data_dir.display());
+
+            let first_launch = is_first_launch(&data_dir);
+            let package_version = Some(app.package_info().version.to_string());
 
             let db_path = data_dir.join("decopon.sqlite");
             let normalized_url = sqlite_url_from_path(&db_path).map_err(|e| {
@@ -105,6 +125,9 @@ pub fn run() {
             let init_jwt_secret = jwt_secret.clone();
             let init_handle = app_handle.clone();
             let init_window_label = main_window_label.clone();
+            let init_data_dir = data_dir.clone();
+            let init_first_launch = first_launch;
+            let init_package_version = package_version.clone();
             tauri::async_runtime::spawn(async move {
                 info!("Starting asynchronous backend initialization");
                 let window = init_handle.get_webview_window(&init_window_label);
@@ -120,6 +143,11 @@ pub fn run() {
                         let init_state = init_handle.state::<AppInitializationState>();
                         init_state
                             .mark_backend_ready(&init_handle, Some(init_window_label.clone()));
+                        if init_first_launch {
+                            if let Err(error) = mark_initialized(&init_data_dir, init_package_version.clone()) {
+                                warn!(error = ?error, "failed to write init_state.json");
+                            }
+                        }
                     }
                     Err(error) => {
                         error!(error = ?error, "failed to initialize service layer");

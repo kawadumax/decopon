@@ -29,6 +29,13 @@ Tauri + React で構築した Android 向けの Decopon クライアントです
 
 SMTP を利用する場合や単一ユーザーモードを解除したい場合は、適宜環境変数を明示的に設定してください。
 
+## 初回起動と Danger Zone
+
+- アプリデータディレクトリ配下に `init_state.json` を作成し、初期化済みフラグと最終バージョンを保持します。
+- プロフィール画面最下部に「Danger Zone (Tauri)」を表示しており、`get_init_status` / `reset_application_data` コマンド経由で状態確認と再初期化が可能です（Windows 版と同じ UI）。
+- `APP_MODE=local` では既存ユーザーを再生成せず、Danger Zone の「ローカルデータ削除」実行時のみデータベースを作り直します。`APP_MODE=web` を指定したサーバー起動時は従来通り `.env` 由来の値で上書きされます。
+- `reset_application_data` は `decopon.sqlite*` / `jwt_secret` / `init_state.json` を削除します。実行後はアプリを明示的に終了し、再起動してブートストラップをやり直してください。
+
 ## 謎の接続エラーについて
 
 Windows機で、Android Emulatorから開発版ビルドのviteサーバーにどうやってもアクセスできなかった。

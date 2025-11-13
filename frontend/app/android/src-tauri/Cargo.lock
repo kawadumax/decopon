@@ -1279,6 +1279,8 @@ dependencies = [
  "rand 0.8.5",
  "sea-orm",
  "sea-orm-migration",
+ "serde",
+ "serde_json",
  "tauri",
  "thiserror 1.0.69",
  "tracing",

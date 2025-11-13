@@ -64,7 +64,7 @@
       "tasks": "Tasks",
       "tags": "Tags",
       "logs": "Logs",
-      "profile": "Profile",
+      "preference": "Preferences",
       "login": "Log in",
       "logout": "Log Out",
       "register": "Register"
@@ -118,8 +118,8 @@
       "logout": "Log Out"
     }
   },
-  "profile": {
-    "title": "Profile",
+  "preference": {
+    "title": "Preferences",
     "updatePreference": {
       "title": "Preference Information",
       "description": "Update your account's preference.",
@@ -150,18 +150,40 @@
         "cancel": "Cancel",
         "confirm": "Delete Account"
       }
+    },
+    "dangerZone": {
+      "title": "Danger Zone (Tauri)",
+      "description": "These controls are available only in the Tauri single-user build. Use them to inspect or reset the embedded backend state.",
+      "loading": "Loading initialization status…",
+      "status": {
+        "label": "Initialization state",
+        "initialized": "Initialized",
+        "notInitialized": "Not initialized",
+        "dataDir": "Data directory",
+        "appVersion": "Last initialized version",
+        "unknown": "Unknown"
+      },
+      "actions": {
+        "refresh": "Refresh status",
+        "reset": "Reset local data",
+        "resetting": "Resetting…"
+      },
+      "confirm": "Resetting will delete the local SQLite database (including WAL/SHM files), the JWT secret, and the initialization marker. You must restart the app to bootstrap again. Continue?",
+      "note": "After deleting the data, close the app completely and reopen it so the backend can recreate the database.",
+      "toast": {
+        "resetSuccess": "Local data deleted. Restart the app to run the bootstrap again.",
+        "resetError": "Failed to reset local data: {{message}}"
+      },
+      "errors": {
+        "status": "Failed to read initialization status: {{message}}"
+      }
     }
   },
   "api": {
     "log": {},
     "preference": {
       "update": {
-        "200": "Preferences updated successfully."
-      }
-    },
-    "profile": {
-      "update": {
-        "200": "Profile updated successfully."
+        "200": "Settings updated successfully."
       },
       "updatePassword": {
         "200": "Password updated successfully."

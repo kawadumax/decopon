@@ -3,12 +3,15 @@ import { useLogout } from "@hooks/useLogout";
 import { Link, useMatchRoute } from "@tanstack/react-router";
 import { cn } from "@/scripts/lib/utils";
 
-type NavLinkProps = DecoponLinkProps & {
+type NavLinkProps = Omit<DecoponLinkProps, "to"> & {
+  to?: DecoponLinkProps["to"];
   active?: boolean;
   variant?: "button" | "link";
 };
 
-type NavLinkInnerProps = Omit<NavLinkProps, "variant">;
+type NavLinkInnerProps = Omit<NavLinkProps, "variant" | "to"> & {
+  to?: DecoponLinkProps["to"];
+};
 
 const commonClass = (active: boolean | undefined) =>
   cn(
@@ -33,13 +36,16 @@ const Btn = ({ children, active, className }: NavLinkInnerProps) => {
   );
 };
 
-const WrapLink = ({ active, className, children, to }: NavLinkInnerProps) => {
-  return (
-    <Link to={to} className={cn(commonClass(active), className)}>
-      {children}
-    </Link>
-  );
-};
+const WrapLink = ({
+  active,
+  className,
+  children,
+  to,
+}: NavLinkInnerProps & { to: DecoponLinkProps["to"] }) => (
+  <Link to={to} className={cn(commonClass(active), className)}>
+    {children}
+  </Link>
+);
 
 export default function ResponsiveNavLink({
   variant = "link",
@@ -48,12 +54,18 @@ export default function ResponsiveNavLink({
   to,
 }: NavLinkProps) {
   const matchRoute = useMatchRoute();
-  const isActive = !!matchRoute({ to, fuzzy: false });
-  return variant === "link" ? (
-    <WrapLink active={isActive} className={className} to={to}>
-      {children}
-    </WrapLink>
-  ) : (
+  const isLink = variant === "link" && typeof to === "string" && to.length > 0;
+  const isActive = isLink ? !!matchRoute({ to: to!, fuzzy: false }) : false;
+
+  if (isLink && to) {
+    return (
+      <WrapLink active={isActive} className={className} to={to}>
+        {children}
+      </WrapLink>
+    );
+  }
+
+  return (
     <Btn active={isActive} className={className}>
       {children}
     </Btn>

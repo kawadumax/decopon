@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use decopon_app_ipc::{self as ipc, AppIpcState, IpcHttpResponse};
 use decopon_axum::AppState;
+use decopon_tauri_common::init_marker::{is_first_launch, mark_initialized};
 use decopon_tauri_common::init_state::{AppInitializationState, ReadyListenerState};
 use decopon_tauri_common::services::AppServices;
 use decopon_tauri_common::{
@@ -49,13 +50,23 @@ async fn dispatch_http_request(
     ipc::dispatch_http_request(&state, method, path, body, headers).await
 }
 
+#[tauri::command]
+fn get_init_status(app: tauri::AppHandle) -> Result<serde_json::Value, String> {
+    decopon_tauri_common::commands::get_init_status(app)
+}
+
+#[tauri::command]
+fn reset_application_data(app: tauri::AppHandle) -> Result<(), String> {
+    decopon_tauri_common::commands::reset_application_data(app)
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     init_tracing();
 
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![dispatch_http_request])
+        .invoke_handler(tauri::generate_handler![dispatch_http_request, get_init_status, reset_application_data])
         .setup(|app| {
             let app_handle = app.handle();
             let main_window = app.get_webview_window("main");
@@ -94,6 +105,8 @@ pub fn run() {
             })?;
 
             let single_user_mode = resolve_single_user_mode_flag();
+            let first_launch = is_first_launch(&data_dir);
+            let package_version = Some(app.package_info().version.to_string());
             let main_window_label = main_window
                 .as_ref()
                 .map(|window| window.label().to_string());
@@ -120,6 +133,9 @@ pub fn run() {
             let init_window_label = main_window_label
                 .clone()
                 .unwrap_or_else(|| "main".to_string());
+            let init_first_launch = first_launch;
+            let init_data_dir = data_dir.clone();
+            let init_package_version = package_version.clone();
             tauri::async_runtime::spawn(async move {
                 info!("Starting asynchronous backend initialization");
                 let window = init_handle.get_webview_window(&init_window_label);
@@ -135,6 +151,12 @@ pub fn run() {
                         let init_state = init_handle.state::<AppInitializationState>();
                         init_state
                             .mark_backend_ready(&init_handle, Some(init_window_label.clone()));
+                        // Record initialized marker (version is optional here)
+                        if init_first_launch {
+                            if let Err(e) = mark_initialized(&init_data_dir, init_package_version.clone()) {
+                                warn!(error=?e, "failed to write init_state.json");
+                            }
+                        }
                     }
                     Err(error) => {
                         error!(error = ?error, "failed to initialize service layer");

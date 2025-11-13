@@ -49,6 +49,12 @@ impl SingleUserConfig {
     }
 }
 
+fn should_overwrite_existing_user() -> bool {
+    env::var("APP_MODE")
+        .map(|value| value.trim().eq_ignore_ascii_case("web"))
+        .unwrap_or(true)
+}
+
 fn parse_i32_env(key: &str, default: i32) -> i32 {
     match env::var(key) {
         Ok(value) => match value.parse::<i32>() {
@@ -76,17 +82,25 @@ pub async fn ensure_user(
         .one(db)
         .await?;
 
+    let overwrite_existing = should_overwrite_existing_user();
+
     let model = if let Some(existing) = existing {
-        let mut user: users_entity::ActiveModel = existing.into();
-        user.name = Set(config.name.clone());
-        user.password = Set(hashed_password.clone());
-        user.email_verified_at = Set(Some(now));
-        user.verification_token = Set(None);
-        user.work_time = Set(config.work_time);
-        user.break_time = Set(config.break_time);
-        user.locale = Set(config.locale.clone());
-        user.updated_at = Set(now);
-        user.update(db).await?
+        if overwrite_existing {
+            info!("Overwriting single-user profile with APP_MODE=web defaults");
+            let mut user: users_entity::ActiveModel = existing.into();
+            user.name = Set(config.name.clone());
+            user.password = Set(hashed_password.clone());
+            user.email_verified_at = Set(Some(now));
+            user.verification_token = Set(None);
+            user.work_time = Set(config.work_time);
+            user.break_time = Set(config.break_time);
+            user.locale = Set(config.locale.clone());
+            user.updated_at = Set(now);
+            user.update(db).await?
+        } else {
+            info!("Preserving existing single-user profile for local/Tauri mode");
+            existing
+        }
     } else {
         users_entity::ActiveModel {
             name: Set(config.name.clone()),

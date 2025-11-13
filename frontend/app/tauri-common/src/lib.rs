@@ -12,6 +12,8 @@ pub const FRONTEND_READY_EVENT: &str = "decopon://frontend-ready";
 
 pub mod init_state;
 pub mod services;
+pub mod init_marker;
+pub mod commands;
 
 pub fn ensure_app_data_dir(app_handle: &AppHandle) -> Result<PathBuf, std::io::Error> {
     let data_dir = app_handle.path().app_data_dir().unwrap_or_else(|_| {

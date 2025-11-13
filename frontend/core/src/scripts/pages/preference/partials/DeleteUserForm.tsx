@@ -47,16 +47,16 @@ export default function DeleteUserForm({
     <section className={cn("space-y-6", className)}>
       <header>
         <h2 className="font-medium text-gray-900 text-lg dark:text-gray-100">
-          {t("profile.deleteAccount.title")}
+          {t("preference.deleteAccount.title")}
         </h2>
 
         <p className="mt-1 text-gray-600 text-sm dark:text-gray-400">
-          {t("profile.deleteAccount.description")}
+          {t("preference.deleteAccount.description")}
         </p>
       </header>
 
       <DangerButton onClick={confirmUserDeletion}>
-        {t("profile.deleteAccount.button")}
+        {t("preference.deleteAccount.button")}
       </DangerButton>
 
       <Modal show={confirmingUserDeletion} onClose={closeModal}>
@@ -69,11 +69,11 @@ export default function DeleteUserForm({
           className="p-6"
         >
           <h2 className="font-medium text-gray-900 text-lg dark:text-gray-100">
-            {t("profile.deleteAccount.modal.title")}
+            {t("preference.deleteAccount.modal.title")}
           </h2>
 
           <p className="mt-1 text-gray-600 text-sm dark:text-gray-400">
-            {t("profile.deleteAccount.modal.description")}
+            {t("preference.deleteAccount.modal.description")}
           </p>
 
           <div className="mt-4">
@@ -105,11 +105,11 @@ export default function DeleteUserForm({
 
           <div className="mt-6 flex justify-end">
             <SecondaryButton onClick={closeModal}>
-              {t("profile.deleteAccount.modal.cancel")}
+              {t("preference.deleteAccount.modal.cancel")}
             </SecondaryButton>
 
             <DangerButton className="ms-3" disabled={form.state.isSubmitting}>
-              {t("profile.deleteAccount.modal.confirm")}
+              {t("preference.deleteAccount.modal.confirm")}
             </DangerButton>
           </div>
         </form>

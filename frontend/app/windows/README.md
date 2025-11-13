@@ -43,3 +43,18 @@ SMTP を利用する場合や単一ユーザーモードを解除したい場合
 - [VS Code](https://code.visualstudio.com/) + [Tauri 拡張](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
 - Rust toolchain（stable）および Node.js (推奨: 18 以降)
 - `pnpm`（リポジトリ全体で使用）
+
+## 初回起動と再初期化（Danger Zone）
+
+- 初期化フラグと状態表示
+  - アプリデータディレクトリに `init_state.json` を作成し、初期化済みかどうかと最終バージョンを保持します。
+  - プロフィール画面の最下部に「Danger Zone (Tauri)」カードを追加しました。`get_init_status` コマンドを経由して初期化状態・データディレクトリを表示し、同じ画面から再初期化を実行できます（Android 版も同一 UI）。
+- シングルユーザー初期化の挙動
+  - `APP_MODE=local`（Tauri ローカルビルド）の場合は既存ユーザーを上書きせず、Danger Zone でデータを削除したときのみ初期状態に戻ります。
+  - `APP_MODE=web`（サーバー/デモ環境）では従来通り `.env` 由来のプロフィールで毎回上書きされます。
+- 再初期化（データリセット）
+  - `reset_application_data` コマンドは以下を削除します。
+    - `decopon.sqlite` / `decopon.sqlite-wal` / `decopon.sqlite-shm`
+    - `jwt_secret`
+    - `init_state.json`
+  - コマンド実行後は手動でアプリを終了・再起動し、初期ブートストラップを再度走らせてください。

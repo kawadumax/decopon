@@ -64,11 +64,11 @@ export default function UpdateProfileInformation({
     <section className={className}>
       <header>
         <h2 className="font-medium text-gray-900 text-lg dark:text-gray-100">
-          {t("profile.updateProfileInformation.title")}
+          {t("preference.updateProfileInformation.title")}
         </h2>
 
         <p className="mt-1 text-gray-600 text-sm dark:text-gray-400">
-          {t("profile.updateProfileInformation.description")}
+          {t("preference.updateProfileInformation.description")}
         </p>
       </header>
 

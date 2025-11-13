@@ -33,9 +33,11 @@ import {
   type ReactNode,
   type SetStateAction,
   forwardRef,
+  useMemo,
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
+import { isTauriEnvironment } from "@/scripts/lib/isTauriEnvironment";
 
 const links = [
   {
@@ -67,6 +69,7 @@ const Drawer = ({
 }) => {
   const [open, setOpen] = useState(false);
   const { t } = useTranslation();
+  const isTauri = useMemo(() => isTauriEnvironment(), []);
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -74,18 +77,22 @@ const Drawer = ({
         <DrawerButton open={open} setOpen={setOpen} />
       </SheetTrigger>
       <SheetContent side={"left"}>
-        <SheetHeader>
-          <div className="px-4">
-            <div className="font-medium text-base text-gray-800 dark:text-gray-200">
-              {user.name}
-            </div>
-            <div className="font-medium text-gray-500 text-sm">
-              {user.email}
-            </div>
-          </div>
-        </SheetHeader>
-        <Separator className="my-4" />
-        <div className="space-y-1">
+        {!isTauri && (
+          <>
+            <SheetHeader>
+              <div className="px-4">
+                <div className="font-medium text-base text-gray-800 dark:text-gray-200">
+                  {user.name}
+                </div>
+                <div className="font-medium text-gray-500 text-sm">
+                  {user.email}
+                </div>
+              </div>
+            </SheetHeader>
+            <Separator className="my-4" />
+          </>
+        )}
+        <div className="space-y-1 mt-4">
           {links.map((link) => (
             <ResponsiveNavLink key={link.href} to={link.href}>
               {t(`header.menu.${link.key}`)}
@@ -95,8 +102,8 @@ const Drawer = ({
         <Separator className="my-4" />
         <div className="border-gray-200 dark:border-gray-600">
           <div className="space-y-1">
-            <ResponsiveNavLink to="/auth/profiles">
-              {t("header.menu.profile")}
+            <ResponsiveNavLink to="/auth/preferences">
+              {t("header.menu.preference")}
             </ResponsiveNavLink>
             <ResponsiveNavLink variant="button">
               {t("header.menu.logout")}
@@ -204,8 +211,8 @@ const HeaderNavigationPC = ({ user }: { user: User }) => {
                 </Dropdown.Trigger>
 
                 <Dropdown.Content>
-                  <Dropdown.Link to="/auth/profiles">
-                    {t("header.menu.profile")}
+                  <Dropdown.Link to="/auth/preferences">
+                    {t("header.menu.preference")}
                   </Dropdown.Link>
                   <Dropdown.Button>{t("header.menu.logout")}</Dropdown.Button>
                 </Dropdown.Content>
