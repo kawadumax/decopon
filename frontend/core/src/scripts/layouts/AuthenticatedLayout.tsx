@@ -39,7 +39,13 @@ import {
 import { useTranslation } from "react-i18next";
 import { isTauriEnvironment } from "@/scripts/lib/isTauriEnvironment";
 
-const links = [
+type DrawerLinkDefinition = {
+  key: "statistics" | "tasks" | "tags" | "logs";
+  href: "/auth/statistics" | "/auth/tasks" | "/auth/tags" | "/auth/logs";
+  icon: typeof ActivitySquare;
+};
+
+const links: DrawerLinkDefinition[] = [
   {
     key: "statistics",
     href: "/auth/statistics",
@@ -60,7 +66,7 @@ const links = [
     href: "/auth/logs",
     icon: Book,
   },
-] as const;
+];
 
 const Drawer = ({
   user,

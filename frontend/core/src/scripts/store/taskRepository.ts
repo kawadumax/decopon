@@ -3,6 +3,7 @@ import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 
 type TaskListKey = string;
+type TaskTag = NonNullable<Task["tags"]>[number];
 
 const allTasksKey = "all";
 
@@ -17,7 +18,7 @@ interface TaskRepositoryState {
   updateTask: (taskId: number, patch: Partial<Task>) => void;
   removeTask: (taskId: number) => void;
   addTaskToList: (tagId: number | undefined, taskId: number) => void;
-  appendTagToTask: (taskId: number, tag: Task["tags"][number]) => void;
+  appendTagToTask: (taskId: number, tag: TaskTag) => void;
   removeTagFromTask: (taskId: number, matcher: { id?: number; name?: string }) => void;
 }
 
@@ -46,7 +47,11 @@ export const useTaskRepository = create<TaskRepositoryState>()(
       set((state) => {
         delete state.tasksById[taskId];
         for (const key of Object.keys(state.taskLists)) {
-          state.taskLists[key] = state.taskLists[key].filter((id) => id !== taskId);
+          const currentList = state.taskLists[key];
+          if (!currentList) continue;
+          state.taskLists[key] = currentList.filter(
+            (id: number) => id !== taskId,
+          );
         }
       }),
     addTaskToList: (tagId, taskId) =>
@@ -75,7 +80,7 @@ export const useTaskRepository = create<TaskRepositoryState>()(
       set((state) => {
         const existing = state.tasksById[taskId];
         if (!existing || !existing.tags) return;
-        const shouldRemove = (tag: NonNullable<Task["tags"]>[number]) => {
+        const shouldRemove = (tag: TaskTag) => {
           if (matcher.id !== undefined) {
             return tag.id === matcher.id;
           }
@@ -86,7 +91,7 @@ export const useTaskRepository = create<TaskRepositoryState>()(
         };
         state.tasksById[taskId] = {
           ...existing,
-          tags: existing.tags.filter((tag) => !shouldRemove(tag)),
+          tags: existing.tags.filter((tag: TaskTag) => !shouldRemove(tag)),
         };
       }),
   })),

@@ -1,7 +1,13 @@
 import { TaskService } from "@/scripts/api/services/TaskService";
 import { logger } from "@/scripts/lib/utils";
 import type { Task, TaskStoreRequest } from "@/scripts/types";
-import { useMutation, useQuery, type MutationOptions } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery,
+  type MutationOptions,
+  type UseQueryOptions,
+} from "@tanstack/react-query";
+import { useEffect } from "react";
 
 import { useTaskStore } from "../store/task";
 import {
@@ -16,6 +22,8 @@ export const taskKeys = {
     tagId !== undefined ? (["tasks", tagId] as const) : (["tasks"] as const),
   detail: (taskId: number) => ["tasks", "detail", taskId] as const,
 };
+
+type TaskListQueryKey = ReturnType<typeof taskKeys.list>;
 
 export type CreateTaskVariables = TaskStoreRequest &
   Partial<Pick<Task, "completed" | "tags" | "created_at" | "updated_at">>;
@@ -54,7 +62,9 @@ const resolveTagIds = (variables: CreateTaskVariables, tagId?: number) => {
   return undefined;
 };
 
-export const tasksQueryOptions = (tagId?: number) => ({
+export const tasksQueryOptions = (
+  tagId?: number,
+): UseQueryOptions<Task[], Error, Task[], TaskListQueryKey> => ({
   queryKey: taskKeys.list(tagId),
   queryFn: async (): Promise<Task[]> => {
     if (tagId !== undefined) {
@@ -149,13 +159,15 @@ export const toggleCompleteMutationOptions = (): MutationOptions<
 });
 
 export const useTasks = (tagId?: number) => {
-  return useQuery({
-    ...tasksQueryOptions(tagId),
-    onSuccess: (tasks) => {
-      const { setTasksForFilter } = useTaskRepository.getState();
-      setTasksForFilter(tagId, tasks);
-    },
-  });
+  const queryResult = useQuery(tasksQueryOptions(tagId));
+
+  useEffect(() => {
+    if (!queryResult.data) return;
+    const { setTasksForFilter } = useTaskRepository.getState();
+    setTasksForFilter(tagId, queryResult.data);
+  }, [queryResult.data, tagId]);
+
+  return queryResult;
 };
 
 export const useTaskList = (tagId?: number) => {
