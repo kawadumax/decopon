@@ -4,6 +4,7 @@ packages:
   - frontend/app/shared
   - frontend/app/windows
   - frontend/app/android
+  - frontend/design-tokens
   - sites
 
 catalog:
