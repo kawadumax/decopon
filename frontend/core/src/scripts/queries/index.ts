@@ -91,6 +91,22 @@ export const fetchTagsQueryOptions = {
   placeholderData: [],
 };
 
+export const fetchTaskLogsQueryOptions = (taskId?: number) => ({
+  queryKey: ["logs", taskId],
+  enabled: !!taskId,
+  queryFn: async (): Promise<Log[]> => {
+    if (!taskId) return [];
+    try {
+      const logs = await LogService.task(taskId);
+      return logs ?? [];
+    } catch (error) {
+      logger("Failed to fetch task logs:", error);
+      return [];
+    }
+  },
+  placeholderData: [],
+});
+
 export const storeLogMutationOptions: MutationOptions<
   Log,
   unknown,
