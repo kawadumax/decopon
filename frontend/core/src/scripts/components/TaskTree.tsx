@@ -1,6 +1,5 @@
 import type { Task } from "@/scripts/types";
-import { tasksQueryOptions } from "@/scripts/queries";
-import { useQuery } from "@tanstack/react-query";
+import { useTaskList, useTasks } from "@/scripts/queries";
 import { useTagStore } from "@store/tag";
 import { t } from "i18next";
 import type React from "react";
@@ -47,10 +46,8 @@ const createTaskList = (
 export const TaskTree = () => {
   const currentTag = useTagStore((s) => s.currentTag);
   const tagId = currentTag?.id;
-  const { data: tasks = [] } = useQuery({
-    ...tasksQueryOptions(tagId),
-    select: (taskList) => taskList,
-  });
+  const { isLoading } = useTasks(tagId);
+  const tasks = useTaskList(tagId);
 
   const { taskChildrenMap, rootTasks } = useMemo(() => {
     const taskChildren = new Map<number | null, Task[]>();
@@ -75,7 +72,7 @@ export const TaskTree = () => {
     return { taskChildrenMap: taskChildren, rootTasks: roots };
   }, [tasks]);
 
-  if (tasks.length === 0) {
+  if (tasks.length === 0 && !isLoading) {
     return <li className="list-none pl-4">{t("task.noTasks")}</li>;
   }
 

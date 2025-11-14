@@ -4,10 +4,10 @@ import { LogInput } from "@components/LogInput";
 import { LogItem } from "@components/LogItem";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
-import { useTaskStore } from "@store/task";
+import { useCurrentTask } from "@store/task";
 
 export const TaskLogger = () => {
-  const task = useTaskStore((s) => s.currentTask);
+  const task = useCurrentTask();
   const { data, isLoading } = useQuery<Log[]>({
     queryKey: ["logs", task?.id],
     queryFn: async () => {
