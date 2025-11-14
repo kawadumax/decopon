@@ -8,274 +8,98 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-// Import Routes
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as GuestRouteRouteImport } from './routes/guest/route'
+import { Route as AuthRouteRouteImport } from './routes/auth/route'
+import { Route as IndexRouteImport } from './routes/index'
+import { Route as GuestRegisterRouteImport } from './routes/guest/register'
+import { Route as GuestLoginRouteImport } from './routes/guest/login'
+import { Route as GuestForgotPasswordRouteImport } from './routes/guest/forgot-password'
+import { Route as GuestConfirmPasswordRouteImport } from './routes/guest/confirm-password'
+import { Route as AuthTasksRouteImport } from './routes/auth/tasks'
+import { Route as AuthTagsRouteImport } from './routes/auth/tags'
+import { Route as AuthStatisticsRouteImport } from './routes/auth/statistics'
+import { Route as AuthPreferencesRouteImport } from './routes/auth/preferences'
+import { Route as AuthLogsRouteImport } from './routes/auth/logs'
+import { Route as GuestVerifyEmailIndexRouteImport } from './routes/guest/verify-email/index'
+import { Route as GuestVerifyEmailTokenRouteImport } from './routes/guest/verify-email/$token'
+import { Route as GuestResetPasswordTokenRouteImport } from './routes/guest/reset-password.$token'
 
-import { Route as rootRoute } from './routes/__root'
-import { Route as GuestRouteImport } from './routes/guest/route'
-import { Route as AuthRouteImport } from './routes/auth/route'
-import { Route as IndexImport } from './routes/index'
-import { Route as GuestRegisterImport } from './routes/guest/register'
-import { Route as GuestLoginImport } from './routes/guest/login'
-import { Route as GuestForgotPasswordImport } from './routes/guest/forgot-password'
-import { Route as GuestConfirmPasswordImport } from './routes/guest/confirm-password'
-import { Route as AuthTasksImport } from './routes/auth/tasks'
-import { Route as AuthTagsImport } from './routes/auth/tags'
-import { Route as AuthStatisticsImport } from './routes/auth/statistics'
-import { Route as AuthPreferencesImport } from './routes/auth/preferences'
-import { Route as AuthLogsImport } from './routes/auth/logs'
-import { Route as GuestVerifyEmailIndexImport } from './routes/guest/verify-email/index'
-import { Route as GuestVerifyEmailTokenImport } from './routes/guest/verify-email/$token'
-import { Route as GuestResetPasswordTokenImport } from './routes/guest/reset-password.$token'
-
-// Create/Update Routes
-
-const GuestRouteRoute = GuestRouteImport.update({
+const GuestRouteRoute = GuestRouteRouteImport.update({
   id: '/guest',
   path: '/guest',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const AuthRouteRoute = AuthRouteImport.update({
+const AuthRouteRoute = AuthRouteRouteImport.update({
   id: '/auth',
   path: '/auth',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const IndexRoute = IndexImport.update({
+const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const GuestRegisterRoute = GuestRegisterImport.update({
+const GuestRegisterRoute = GuestRegisterRouteImport.update({
   id: '/register',
   path: '/register',
   getParentRoute: () => GuestRouteRoute,
 } as any)
-
-const GuestLoginRoute = GuestLoginImport.update({
+const GuestLoginRoute = GuestLoginRouteImport.update({
   id: '/login',
   path: '/login',
   getParentRoute: () => GuestRouteRoute,
 } as any)
-
-const GuestForgotPasswordRoute = GuestForgotPasswordImport.update({
+const GuestForgotPasswordRoute = GuestForgotPasswordRouteImport.update({
   id: '/forgot-password',
   path: '/forgot-password',
   getParentRoute: () => GuestRouteRoute,
 } as any)
-
-const GuestConfirmPasswordRoute = GuestConfirmPasswordImport.update({
+const GuestConfirmPasswordRoute = GuestConfirmPasswordRouteImport.update({
   id: '/confirm-password',
   path: '/confirm-password',
   getParentRoute: () => GuestRouteRoute,
 } as any)
-
-const AuthTasksRoute = AuthTasksImport.update({
+const AuthTasksRoute = AuthTasksRouteImport.update({
   id: '/tasks',
   path: '/tasks',
   getParentRoute: () => AuthRouteRoute,
 } as any)
-
-const AuthTagsRoute = AuthTagsImport.update({
+const AuthTagsRoute = AuthTagsRouteImport.update({
   id: '/tags',
   path: '/tags',
   getParentRoute: () => AuthRouteRoute,
 } as any)
-
-const AuthStatisticsRoute = AuthStatisticsImport.update({
+const AuthStatisticsRoute = AuthStatisticsRouteImport.update({
   id: '/statistics',
   path: '/statistics',
   getParentRoute: () => AuthRouteRoute,
 } as any)
-
-const AuthPreferencesRoute = AuthPreferencesImport.update({
+const AuthPreferencesRoute = AuthPreferencesRouteImport.update({
   id: '/preferences',
   path: '/preferences',
   getParentRoute: () => AuthRouteRoute,
 } as any)
-
-const AuthLogsRoute = AuthLogsImport.update({
+const AuthLogsRoute = AuthLogsRouteImport.update({
   id: '/logs',
   path: '/logs',
   getParentRoute: () => AuthRouteRoute,
 } as any)
-
-const GuestVerifyEmailIndexRoute = GuestVerifyEmailIndexImport.update({
+const GuestVerifyEmailIndexRoute = GuestVerifyEmailIndexRouteImport.update({
   id: '/verify-email/',
   path: '/verify-email/',
   getParentRoute: () => GuestRouteRoute,
 } as any)
-
-const GuestVerifyEmailTokenRoute = GuestVerifyEmailTokenImport.update({
+const GuestVerifyEmailTokenRoute = GuestVerifyEmailTokenRouteImport.update({
   id: '/verify-email/$token',
   path: '/verify-email/$token',
   getParentRoute: () => GuestRouteRoute,
 } as any)
-
-const GuestResetPasswordTokenRoute = GuestResetPasswordTokenImport.update({
+const GuestResetPasswordTokenRoute = GuestResetPasswordTokenRouteImport.update({
   id: '/reset-password/$token',
   path: '/reset-password/$token',
   getParentRoute: () => GuestRouteRoute,
 } as any)
-
-// Populate the FileRoutesByPath interface
-
-declare module '@tanstack/react-router' {
-  interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexImport
-      parentRoute: typeof rootRoute
-    }
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
-      parentRoute: typeof rootRoute
-    }
-    '/guest': {
-      id: '/guest'
-      path: '/guest'
-      fullPath: '/guest'
-      preLoaderRoute: typeof GuestRouteImport
-      parentRoute: typeof rootRoute
-    }
-    '/auth/logs': {
-      id: '/auth/logs'
-      path: '/logs'
-      fullPath: '/auth/logs'
-      preLoaderRoute: typeof AuthLogsImport
-      parentRoute: typeof AuthRouteImport
-    }
-    '/auth/preferences': {
-      id: '/auth/preferences'
-      path: '/preferences'
-      fullPath: '/auth/preferences'
-      preLoaderRoute: typeof AuthPreferencesImport
-      parentRoute: typeof AuthRouteImport
-    }
-    '/auth/statistics': {
-      id: '/auth/statistics'
-      path: '/statistics'
-      fullPath: '/auth/statistics'
-      preLoaderRoute: typeof AuthStatisticsImport
-      parentRoute: typeof AuthRouteImport
-    }
-    '/auth/tags': {
-      id: '/auth/tags'
-      path: '/tags'
-      fullPath: '/auth/tags'
-      preLoaderRoute: typeof AuthTagsImport
-      parentRoute: typeof AuthRouteImport
-    }
-    '/auth/tasks': {
-      id: '/auth/tasks'
-      path: '/tasks'
-      fullPath: '/auth/tasks'
-      preLoaderRoute: typeof AuthTasksImport
-      parentRoute: typeof AuthRouteImport
-    }
-    '/guest/confirm-password': {
-      id: '/guest/confirm-password'
-      path: '/confirm-password'
-      fullPath: '/guest/confirm-password'
-      preLoaderRoute: typeof GuestConfirmPasswordImport
-      parentRoute: typeof GuestRouteImport
-    }
-    '/guest/forgot-password': {
-      id: '/guest/forgot-password'
-      path: '/forgot-password'
-      fullPath: '/guest/forgot-password'
-      preLoaderRoute: typeof GuestForgotPasswordImport
-      parentRoute: typeof GuestRouteImport
-    }
-    '/guest/login': {
-      id: '/guest/login'
-      path: '/login'
-      fullPath: '/guest/login'
-      preLoaderRoute: typeof GuestLoginImport
-      parentRoute: typeof GuestRouteImport
-    }
-    '/guest/register': {
-      id: '/guest/register'
-      path: '/register'
-      fullPath: '/guest/register'
-      preLoaderRoute: typeof GuestRegisterImport
-      parentRoute: typeof GuestRouteImport
-    }
-    '/guest/reset-password/$token': {
-      id: '/guest/reset-password/$token'
-      path: '/reset-password/$token'
-      fullPath: '/guest/reset-password/$token'
-      preLoaderRoute: typeof GuestResetPasswordTokenImport
-      parentRoute: typeof GuestRouteImport
-    }
-    '/guest/verify-email/$token': {
-      id: '/guest/verify-email/$token'
-      path: '/verify-email/$token'
-      fullPath: '/guest/verify-email/$token'
-      preLoaderRoute: typeof GuestVerifyEmailTokenImport
-      parentRoute: typeof GuestRouteImport
-    }
-    '/guest/verify-email/': {
-      id: '/guest/verify-email/'
-      path: '/verify-email'
-      fullPath: '/guest/verify-email'
-      preLoaderRoute: typeof GuestVerifyEmailIndexImport
-      parentRoute: typeof GuestRouteImport
-    }
-  }
-}
-
-// Create and export the route tree
-
-interface AuthRouteRouteChildren {
-  AuthLogsRoute: typeof AuthLogsRoute
-  AuthPreferencesRoute: typeof AuthPreferencesRoute
-  AuthStatisticsRoute: typeof AuthStatisticsRoute
-  AuthTagsRoute: typeof AuthTagsRoute
-  AuthTasksRoute: typeof AuthTasksRoute
-}
-
-const AuthRouteRouteChildren: AuthRouteRouteChildren = {
-  AuthLogsRoute: AuthLogsRoute,
-  AuthPreferencesRoute: AuthPreferencesRoute,
-  AuthStatisticsRoute: AuthStatisticsRoute,
-  AuthTagsRoute: AuthTagsRoute,
-  AuthTasksRoute: AuthTasksRoute,
-}
-
-const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(
-  AuthRouteRouteChildren,
-)
-
-interface GuestRouteRouteChildren {
-  GuestConfirmPasswordRoute: typeof GuestConfirmPasswordRoute
-  GuestForgotPasswordRoute: typeof GuestForgotPasswordRoute
-  GuestLoginRoute: typeof GuestLoginRoute
-  GuestRegisterRoute: typeof GuestRegisterRoute
-  GuestResetPasswordTokenRoute: typeof GuestResetPasswordTokenRoute
-  GuestVerifyEmailTokenRoute: typeof GuestVerifyEmailTokenRoute
-  GuestVerifyEmailIndexRoute: typeof GuestVerifyEmailIndexRoute
-}
-
-const GuestRouteRouteChildren: GuestRouteRouteChildren = {
-  GuestConfirmPasswordRoute: GuestConfirmPasswordRoute,
-  GuestForgotPasswordRoute: GuestForgotPasswordRoute,
-  GuestLoginRoute: GuestLoginRoute,
-  GuestRegisterRoute: GuestRegisterRoute,
-  GuestResetPasswordTokenRoute: GuestResetPasswordTokenRoute,
-  GuestVerifyEmailTokenRoute: GuestVerifyEmailTokenRoute,
-  GuestVerifyEmailIndexRoute: GuestVerifyEmailIndexRoute,
-}
-
-const GuestRouteRouteWithChildren = GuestRouteRoute._addFileChildren(
-  GuestRouteRouteChildren,
-)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -294,7 +118,6 @@ export interface FileRoutesByFullPath {
   '/guest/verify-email/$token': typeof GuestVerifyEmailTokenRoute
   '/guest/verify-email': typeof GuestVerifyEmailIndexRoute
 }
-
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRouteRouteWithChildren
@@ -312,9 +135,8 @@ export interface FileRoutesByTo {
   '/guest/verify-email/$token': typeof GuestVerifyEmailTokenRoute
   '/guest/verify-email': typeof GuestVerifyEmailIndexRoute
 }
-
 export interface FileRoutesById {
-  __root__: typeof rootRoute
+  __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/auth': typeof AuthRouteRouteWithChildren
   '/guest': typeof GuestRouteRouteWithChildren
@@ -331,7 +153,6 @@ export interface FileRoutesById {
   '/guest/verify-email/$token': typeof GuestVerifyEmailTokenRoute
   '/guest/verify-email/': typeof GuestVerifyEmailIndexRoute
 }
-
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
@@ -386,107 +207,171 @@ export interface FileRouteTypes {
     | '/guest/verify-email/'
   fileRoutesById: FileRoutesById
 }
-
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRouteRoute: typeof AuthRouteRouteWithChildren
   GuestRouteRoute: typeof GuestRouteRouteWithChildren
 }
 
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/guest': {
+      id: '/guest'
+      path: '/guest'
+      fullPath: '/guest'
+      preLoaderRoute: typeof GuestRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guest/register': {
+      id: '/guest/register'
+      path: '/register'
+      fullPath: '/guest/register'
+      preLoaderRoute: typeof GuestRegisterRouteImport
+      parentRoute: typeof GuestRouteRoute
+    }
+    '/guest/login': {
+      id: '/guest/login'
+      path: '/login'
+      fullPath: '/guest/login'
+      preLoaderRoute: typeof GuestLoginRouteImport
+      parentRoute: typeof GuestRouteRoute
+    }
+    '/guest/forgot-password': {
+      id: '/guest/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/guest/forgot-password'
+      preLoaderRoute: typeof GuestForgotPasswordRouteImport
+      parentRoute: typeof GuestRouteRoute
+    }
+    '/guest/confirm-password': {
+      id: '/guest/confirm-password'
+      path: '/confirm-password'
+      fullPath: '/guest/confirm-password'
+      preLoaderRoute: typeof GuestConfirmPasswordRouteImport
+      parentRoute: typeof GuestRouteRoute
+    }
+    '/auth/tasks': {
+      id: '/auth/tasks'
+      path: '/tasks'
+      fullPath: '/auth/tasks'
+      preLoaderRoute: typeof AuthTasksRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
+    '/auth/tags': {
+      id: '/auth/tags'
+      path: '/tags'
+      fullPath: '/auth/tags'
+      preLoaderRoute: typeof AuthTagsRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
+    '/auth/statistics': {
+      id: '/auth/statistics'
+      path: '/statistics'
+      fullPath: '/auth/statistics'
+      preLoaderRoute: typeof AuthStatisticsRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
+    '/auth/preferences': {
+      id: '/auth/preferences'
+      path: '/preferences'
+      fullPath: '/auth/preferences'
+      preLoaderRoute: typeof AuthPreferencesRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
+    '/auth/logs': {
+      id: '/auth/logs'
+      path: '/logs'
+      fullPath: '/auth/logs'
+      preLoaderRoute: typeof AuthLogsRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
+    '/guest/verify-email/': {
+      id: '/guest/verify-email/'
+      path: '/verify-email'
+      fullPath: '/guest/verify-email'
+      preLoaderRoute: typeof GuestVerifyEmailIndexRouteImport
+      parentRoute: typeof GuestRouteRoute
+    }
+    '/guest/verify-email/$token': {
+      id: '/guest/verify-email/$token'
+      path: '/verify-email/$token'
+      fullPath: '/guest/verify-email/$token'
+      preLoaderRoute: typeof GuestVerifyEmailTokenRouteImport
+      parentRoute: typeof GuestRouteRoute
+    }
+    '/guest/reset-password/$token': {
+      id: '/guest/reset-password/$token'
+      path: '/reset-password/$token'
+      fullPath: '/guest/reset-password/$token'
+      preLoaderRoute: typeof GuestResetPasswordTokenRouteImport
+      parentRoute: typeof GuestRouteRoute
+    }
+  }
+}
+
+interface AuthRouteRouteChildren {
+  AuthLogsRoute: typeof AuthLogsRoute
+  AuthPreferencesRoute: typeof AuthPreferencesRoute
+  AuthStatisticsRoute: typeof AuthStatisticsRoute
+  AuthTagsRoute: typeof AuthTagsRoute
+  AuthTasksRoute: typeof AuthTasksRoute
+}
+
+const AuthRouteRouteChildren: AuthRouteRouteChildren = {
+  AuthLogsRoute: AuthLogsRoute,
+  AuthPreferencesRoute: AuthPreferencesRoute,
+  AuthStatisticsRoute: AuthStatisticsRoute,
+  AuthTagsRoute: AuthTagsRoute,
+  AuthTasksRoute: AuthTasksRoute,
+}
+
+const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(
+  AuthRouteRouteChildren,
+)
+
+interface GuestRouteRouteChildren {
+  GuestConfirmPasswordRoute: typeof GuestConfirmPasswordRoute
+  GuestForgotPasswordRoute: typeof GuestForgotPasswordRoute
+  GuestLoginRoute: typeof GuestLoginRoute
+  GuestRegisterRoute: typeof GuestRegisterRoute
+  GuestResetPasswordTokenRoute: typeof GuestResetPasswordTokenRoute
+  GuestVerifyEmailTokenRoute: typeof GuestVerifyEmailTokenRoute
+  GuestVerifyEmailIndexRoute: typeof GuestVerifyEmailIndexRoute
+}
+
+const GuestRouteRouteChildren: GuestRouteRouteChildren = {
+  GuestConfirmPasswordRoute: GuestConfirmPasswordRoute,
+  GuestForgotPasswordRoute: GuestForgotPasswordRoute,
+  GuestLoginRoute: GuestLoginRoute,
+  GuestRegisterRoute: GuestRegisterRoute,
+  GuestResetPasswordTokenRoute: GuestResetPasswordTokenRoute,
+  GuestVerifyEmailTokenRoute: GuestVerifyEmailTokenRoute,
+  GuestVerifyEmailIndexRoute: GuestVerifyEmailIndexRoute,
+}
+
+const GuestRouteRouteWithChildren = GuestRouteRoute._addFileChildren(
+  GuestRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRouteRoute: AuthRouteRouteWithChildren,
   GuestRouteRoute: GuestRouteRouteWithChildren,
 }
-
-export const routeTree = rootRoute
+export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-/* ROUTE_MANIFEST_START
-{
-  "routes": {
-    "__root__": {
-      "filePath": "__root.tsx",
-      "children": [
-        "/",
-        "/auth",
-        "/guest"
-      ]
-    },
-    "/": {
-      "filePath": "index.tsx"
-    },
-    "/auth": {
-      "filePath": "auth/route.tsx",
-      "children": [
-        "/auth/logs",
-        "/auth/preferences",
-        "/auth/statistics",
-        "/auth/tags",
-        "/auth/tasks"
-      ]
-    },
-    "/guest": {
-      "filePath": "guest/route.tsx",
-      "children": [
-        "/guest/confirm-password",
-        "/guest/forgot-password",
-        "/guest/login",
-        "/guest/register",
-        "/guest/reset-password/$token",
-        "/guest/verify-email/$token",
-        "/guest/verify-email/"
-      ]
-    },
-    "/auth/logs": {
-      "filePath": "auth/logs.tsx",
-      "parent": "/auth"
-    },
-    "/auth/preferences": {
-      "filePath": "auth/preferences.tsx",
-      "parent": "/auth"
-    },
-    "/auth/statistics": {
-      "filePath": "auth/statistics.tsx",
-      "parent": "/auth"
-    },
-    "/auth/tags": {
-      "filePath": "auth/tags.tsx",
-      "parent": "/auth"
-    },
-    "/auth/tasks": {
-      "filePath": "auth/tasks.tsx",
-      "parent": "/auth"
-    },
-    "/guest/confirm-password": {
-      "filePath": "guest/confirm-password.tsx",
-      "parent": "/guest"
-    },
-    "/guest/forgot-password": {
-      "filePath": "guest/forgot-password.tsx",
-      "parent": "/guest"
-    },
-    "/guest/login": {
-      "filePath": "guest/login.tsx",
-      "parent": "/guest"
-    },
-    "/guest/register": {
-      "filePath": "guest/register.tsx",
-      "parent": "/guest"
-    },
-    "/guest/reset-password/$token": {
-      "filePath": "guest/reset-password.$token.tsx",
-      "parent": "/guest"
-    },
-    "/guest/verify-email/$token": {
-      "filePath": "guest/verify-email/$token.tsx",
-      "parent": "/guest"
-    },
-    "/guest/verify-email/": {
-      "filePath": "guest/verify-email/index.tsx",
-      "parent": "/guest"
-    }
-  }
-}
-ROUTE_MANIFEST_END */
