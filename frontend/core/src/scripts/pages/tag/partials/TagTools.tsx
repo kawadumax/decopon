@@ -1,12 +1,13 @@
-import { TagService } from "@/scripts/api/services/TagService";
 import AddItemInput from "@components/AddItemInput";
 import { Button } from "@components/ui/button";
 import { Trash } from "@mynaui/icons-react";
 import { t } from "i18next";
 import { useCallback } from "react";
 import { useMutation } from "@tanstack/react-query";
-import type { Tag } from "@/scripts/types";
-import { setTags } from "@/scripts/queries";
+import {
+  createTagMutationOptions,
+  deleteTagMutationOptions,
+} from "@/scripts/queries";
 import { useTagStore } from "@store/tag";
 
 export const TagTools = () => {
@@ -16,19 +17,11 @@ export const TagTools = () => {
   ];
   const setCurrentTag = useTagStore((s) => s.setCurrentTag);
 
-  const addTagMutation = useMutation<Tag, unknown, string>({
-    mutationFn: (newTagName: string) => TagService.store({ name: newTagName }),
-    onSuccess: (data) => {
-      setTags((prev: Tag[] = []) => [...prev, data]);
-    },
-  });
+  const addTagMutation = useMutation(createTagMutationOptions());
 
-  const deleteTagMutation = useMutation<void, unknown, number[]>({
-    mutationFn: (ids: number[]) => TagService.destroyMany({ tag_ids: ids }),
+  const deleteTagMutation = useMutation({
+    ...deleteTagMutationOptions(),
     onSuccess: (_data, variables) => {
-      setTags((prev: Tag[] = []) =>
-        prev.filter((tag) => !variables.some((id) => id === tag.id)),
-      );
       resetTagChecks();
       setCurrentTag(undefined);
     },
