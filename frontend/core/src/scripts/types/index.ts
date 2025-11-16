@@ -50,6 +50,7 @@ export interface Log {
   updated_at: string;
   user_id: number;
   task_id?: number;
+  tags: Tag[];
 }
 
 export enum DecoponSessionStatus {

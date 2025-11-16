@@ -41,7 +41,7 @@ const StatisticsPage = () => {
   const {
     data: logs = [],
     isPending: isLogsPending,
-  } = useQuery(fetchLogsQueryOptions);
+  } = useQuery(fetchLogsQueryOptions());
 
   const completedTasks = useMemo(
     () =>

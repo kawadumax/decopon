@@ -1,24 +1,39 @@
 use axum::{
     Extension, Json, Router,
-    extract::{Path, State},
+    extract::{Path, Query, State},
     routing::get,
 };
 use axum_macros::debug_handler;
 use sea_orm::DatabaseConnection;
+use serde::Deserialize;
 use std::sync::Arc;
 
 use crate::{
     AppState, dto::logs::*, errors::ApiError, extractors::authenticated_user::AuthenticatedUser,
-    usecases::logs,
+    usecases::logs::{self, LogFilters},
 };
+
+#[derive(Default, Deserialize)]
+struct LogsQueryParams {
+    #[serde(default)]
+    tag_ids: Vec<i32>,
+}
 
 #[debug_handler]
 #[tracing::instrument(skip(db, user))]
 async fn index(
     State(db): State<Arc<DatabaseConnection>>,
     Extension(user): Extension<AuthenticatedUser>,
+    Query(params): Query<LogsQueryParams>,
 ) -> Result<Json<Vec<LogResponse>>, ApiError> {
-    let logs_vec = logs::get_logs(&db, user.id).await?;
+    let logs_vec = logs::get_logs(
+        &db,
+        user.id,
+        LogFilters {
+            tag_ids: params.tag_ids,
+        },
+    )
+    .await?;
     let dto = logs_vec.into_iter().map(LogResponse::from).collect();
     Ok(Json(dto))
 }
@@ -47,6 +62,8 @@ async fn store(
         source: payload.source,
         task_id: payload.task_id,
         user_id: user.id,
+        tag_ids: payload.tag_ids,
+        tag_names: payload.tag_names,
     };
     let log = logs::insert_log(&db, params).await?;
     Ok(Json(LogResponse::from(log)))

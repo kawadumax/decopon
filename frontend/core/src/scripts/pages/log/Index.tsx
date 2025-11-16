@@ -59,7 +59,7 @@ const PCLayout = ({
 
 export default function Index() {
   const logContainerRef = useRef<HTMLUListElement>(null);
-  const { data: logs = [] } = useQuery(fetchLogsQueryOptions);
+  const { data: logs = [] } = useQuery(fetchLogsQueryOptions());
   const deviceSize = useDeviceSize();
 
   if (deviceSize === undefined) {

@@ -224,6 +224,8 @@ pub async fn update_task(
                 source: logs::LogSource::System,
                 task_id: Some(id),
                 user_id: params.user_id,
+                tag_ids: Vec::new(),
+                tag_names: Vec::new(),
             },
         )
         .await?;

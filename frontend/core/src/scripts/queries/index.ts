@@ -1,6 +1,6 @@
 import { type MutationOptions, type Updater } from "@tanstack/react-query";
 import { AuthService } from "../api/services/AuthService";
-import { LogService } from "../api/services/LogService";
+import { LogService, type LogQueryParams } from "../api/services/LogService";
 import { TagService } from "../api/services/TagService";
 import { useTaskRepository } from "../store/taskRepository";
 import { authStorage, AUTH_CACHE_TTL_MS } from "../lib/authStorage";
@@ -65,18 +65,18 @@ export const fetchAuthQueryOptions = {
   },
 };
 
-export const fetchLogsQueryOptions = {
-  queryKey: ["logs"],
+export const fetchLogsQueryOptions = (params?: LogQueryParams) => ({
+  queryKey: ["logs", params?.tagIds ?? []],
   queryFn: async (): Promise<Log[]> => {
     try {
-      return await LogService.index();
+      return await LogService.index(params);
     } catch (error) {
       logger("Failed to fetch logs:", error);
       return [];
     }
   },
   placeholderData: [],
-};
+});
 
 export const fetchTagsQueryOptions = {
   queryKey: ["tags"],

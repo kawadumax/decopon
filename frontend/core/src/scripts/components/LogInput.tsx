@@ -32,6 +32,7 @@ export const LogInput = ({ task }: { task: Task | undefined }) => {
         updated_at: new Date().toISOString(),
         user_id: 0,
         task_id: taskId,
+        tags: [],
       };
 
       queryClient.setQueryData<Log[]>(queryKey, (oldLogs) => [
