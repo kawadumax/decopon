@@ -31,7 +31,7 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [
       TanStackRouterVite({
-        autoCodeSplitting: true,
+        autoCodeSplitting: false,
         routesDirectory: path.resolve(coreRoot, "src/routes"),
         generatedRouteTree: path.resolve(coreRoot, "src/routeTree.gen.ts"),
       }),

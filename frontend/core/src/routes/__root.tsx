@@ -5,12 +5,16 @@ import {
   Outlet,
   createRootRouteWithContext,
 } from "@tanstack/react-router";
+import { Suspense } from "react";
+import { RouteSuspenseFallback } from "@/scripts/components/RouteSuspenseFallback";
 
 export const Route = createRootRouteWithContext<RouterContext>()({
   component: () => (
     <>
       <HeadContent />
-      <Outlet />
+      <Suspense fallback={<RouteSuspenseFallback />}>
+        <Outlet />
+      </Suspense>
       {/* <TanStackRouterDevtools /> */}
     </>
   ),

@@ -56,7 +56,8 @@
     "password": "Password",
     "confirmPassword": "Confirm Password",
     "name": "Name",
-    "placeholderInput": "Add New Item"
+    "placeholderInput": "Add New Item",
+    "loading": "Loading..."
   },
   "header": {
     "menu": {

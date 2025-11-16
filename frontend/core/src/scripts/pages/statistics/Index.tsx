@@ -1,6 +1,6 @@
+import { formatISODate } from "@/scripts/lib/utils";
 import { fetchLogsQueryOptions } from "@/scripts/queries";
 import { tasksQueryOptions } from "@/scripts/queries/task";
-import { formatISODate } from "@/scripts/lib/utils";
 import { Loading } from "@components/Loading";
 import { Badge } from "@components/ui/badge";
 import {
@@ -32,7 +32,7 @@ const EmptyState = ({ message }: { message: string }) => (
   </div>
 );
 
-export const Statistics = () => {
+const StatisticsPage = () => {
   const { t } = useTranslation();
   const {
     data: tasks = [],
@@ -223,3 +223,5 @@ export const Statistics = () => {
     </div>
   );
 };
+
+export default StatisticsPage;

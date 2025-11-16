@@ -100,7 +100,7 @@ export function createTauriViteConfig({
     },
     plugins: [
       TanStackRouterVite({
-        autoCodeSplitting: true,
+        autoCodeSplitting: false,
         routesDirectory: coreRoutesDir,
         generatedRouteTree: coreRouteTree,
       }),
@@ -137,4 +137,3 @@ export function createTauriViteConfig({
     },
   };
 }
-
