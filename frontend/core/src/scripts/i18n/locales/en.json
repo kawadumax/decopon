@@ -11,6 +11,10 @@
     "title": "Timeline",
     "type": {
       "system": "System Log"
+    },
+    "filter": {
+      "clear": "Clear filters",
+      "selected": "{{count}} tags selected"
     }
   },
   "tag": {

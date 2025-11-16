@@ -11,6 +11,10 @@
     "title": "タイムライン",
     "type": {
       "system": "システムログ"
+    },
+    "filter": {
+      "clear": "条件をクリア",
+      "selected": "{{count}}件のタグを選択中"
     }
   },
   "tag": {

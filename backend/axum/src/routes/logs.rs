@@ -13,7 +13,7 @@ use crate::{
     usecases::logs::{self, LogFilters},
 };
 
-#[derive(Default, Deserialize)]
+#[derive(Debug, Default, Deserialize)]
 struct LogsQueryParams {
     #[serde(default)]
     tag_ids: Vec<i32>,

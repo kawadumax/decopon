@@ -1,4 +1,8 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  type QueryKey,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { useRef, useState } from "react";
 import { storeLogMutationOptions } from "../queries";
 import { LogSource, type Log, type Task } from "../types";
@@ -7,9 +11,15 @@ import {
   AutosizeTextarea,
 } from "./ui/autosize-textarea";
 
-export const LogInput = ({ task }: { task: Task | undefined }) => {
+export const LogInput = ({
+  task,
+  queryKeyOverride,
+}: {
+  task: Task | undefined;
+  queryKeyOverride?: QueryKey;
+}) => {
   const taskId = task?.id;
-  const queryKey = taskId ? ["logs", taskId] : ["logs"];
+  const queryKey = queryKeyOverride ?? (taskId ? ["logs", taskId] : ["logs"]);
   const [tempIdCounter, setTempIdCounter] = useState(0);
   const [content, setContent] = useState("");
   const textareaRef = useRef<AutosizeTextAreaRef>(null);

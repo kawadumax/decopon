@@ -9,10 +9,11 @@ import {
   ResizablePanelGroup,
 } from "@components/ui/resizable";
 import { useDeviceSize } from "@hooks/useDeviceSize";
-import { useQuery } from "@tanstack/react-query";
+import { type QueryKey, useQuery } from "@tanstack/react-query";
 import { fetchLogsQueryOptions } from "@/scripts/queries";
 import { useRef } from "react";
 import { LogTagList } from "./partials/LogTagList";
+import { useLogFilterStore } from "@store/log";
 
 const LogList = ({
   logs,
@@ -37,7 +38,12 @@ const MobileLayout = ({
 const PCLayout = ({
   logs,
   logContainerRef,
-}: { logs: Log[]; logContainerRef: React.RefObject<HTMLUListElement> }) => {
+  queryKey,
+}: {
+  logs: Log[];
+  logContainerRef: React.RefObject<HTMLUListElement>;
+  queryKey: QueryKey;
+}) => {
   return (
     <ResizablePanelGroup
       direction="horizontal"
@@ -50,7 +56,7 @@ const PCLayout = ({
       <ResizablePanel className="h-full p-4">
         <div className="flex h-full flex-1 flex-col">
           <LogList logs={logs} logContainerRef={logContainerRef} />
-          <LogInput task={undefined} />
+          <LogInput task={undefined} queryKeyOverride={queryKey} />
         </div>
       </ResizablePanel>
     </ResizablePanelGroup>
@@ -59,7 +65,12 @@ const PCLayout = ({
 
 export default function Index() {
   const logContainerRef = useRef<HTMLUListElement>(null);
-  const { data: logs = [] } = useQuery(fetchLogsQueryOptions());
+  const selectedTagIds = useLogFilterStore((state) => state.selectedTagIds);
+  const logsQueryOptions = fetchLogsQueryOptions(
+    selectedTagIds.length > 0 ? { tagIds: selectedTagIds } : undefined,
+  );
+  const { data: logs = [] } = useQuery(logsQueryOptions);
+  const logsQueryKey = logsQueryOptions.queryKey as QueryKey;
   const deviceSize = useDeviceSize();
 
   if (deviceSize === undefined) {
@@ -70,5 +81,11 @@ export default function Index() {
     return <MobileLayout logs={logs} logContainerRef={logContainerRef} />;
   }
 
-  return <PCLayout logs={logs} logContainerRef={logContainerRef} />;
+  return (
+    <PCLayout
+      logs={logs}
+      logContainerRef={logContainerRef}
+      queryKey={logsQueryKey}
+    />
+  );
 }
