@@ -17,9 +17,9 @@ import { useTranslation } from "react-i18next";
 
 const StatisticsCard = ({ label, value }: { label: string; value: string }) => {
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-xs dark:border-gray-700 dark:bg-gray-800">
-      <p className="text-sm text-gray-500 dark:text-gray-400">{label}</p>
-      <p className="mt-2 text-2xl font-semibold text-gray-900 dark:text-gray-100">
+    <div className="rounded-lg border border-line bg-surface p-4 shadow-xs dark:border-line-subtle dark:bg-surface-inverse">
+      <p className="text-sm text-fg-muted dark:text-fg-muted">{label}</p>
+      <p className="mt-2 text-2xl font-semibold text-fg-strong dark:text-fg-inverse">
         {value}
       </p>
     </div>
@@ -27,7 +27,7 @@ const StatisticsCard = ({ label, value }: { label: string; value: string }) => {
 };
 
 const EmptyState = ({ message }: { message: string }) => (
-  <div className="rounded-lg border border-dashed border-gray-200 p-8 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
+  <div className="rounded-lg border border-dashed border-line p-8 text-center text-sm text-fg-muted dark:border-line-subtle dark:text-fg-muted">
     {message}
   </div>
 );
@@ -78,12 +78,12 @@ const StatisticsPage = () => {
   }
 
   return (
-    <div className="min-h-full space-y-10 bg-white px-4 py-12 sm:px-6 lg:px-8 dark:bg-gray-900">
+    <div className="min-h-full space-y-10 bg-surface px-4 py-12 sm:px-6 lg:px-8 dark:bg-surface-inverse">
       <div className="space-y-2">
-        <h1 className="text-3xl font-semibold text-gray-900 dark:text-gray-100">
+        <h1 className="text-3xl font-semibold text-fg-strong dark:text-fg-inverse">
           {t("statistics.title")}
         </h1>
-        <p className="text-gray-600 text-base dark:text-gray-300">
+        <p className="text-fg-secondary text-base dark:text-fg-secondary">
           {t("statistics.description")}
         </p>
       </div>
@@ -113,17 +113,17 @@ const StatisticsPage = () => {
 
       <section className="space-y-4">
         <div>
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+          <h2 className="text-xl font-semibold text-fg-strong dark:text-fg-inverse">
             {t("statistics.sections.completedTasks.title")}
           </h2>
-          <p className="text-gray-600 text-sm dark:text-gray-300">
+          <p className="text-fg-secondary text-sm dark:text-fg-secondary">
             {t("statistics.sections.completedTasks.description")}
           </p>
         </div>
         {completedTasks.length === 0 ? (
           <EmptyState message={t("statistics.table.empty")} />
         ) : (
-          <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-xs dark:border-gray-700 dark:bg-gray-800">
+          <div className="overflow-hidden rounded-lg border border-line bg-surface shadow-xs dark:border-line-subtle dark:bg-surface-inverse">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -140,7 +140,7 @@ const StatisticsPage = () => {
               <TableBody>
                 {completedTasks.map((task) => (
                   <TableRow key={task.id}>
-                    <TableCell className="font-medium text-gray-900 dark:text-gray-100">
+                    <TableCell className="font-medium text-fg-strong dark:text-fg-inverse">
                       {task.title}
                     </TableCell>
                     <TableCell>
@@ -157,21 +157,21 @@ const StatisticsPage = () => {
                           ))}
                         </div>
                       ) : (
-                        <span className="text-sm text-gray-500 dark:text-gray-400">
+                        <span className="text-sm text-fg-muted dark:text-fg-muted">
                           {t("statistics.table.noTags")}
                         </span>
                       )}
                     </TableCell>
-                    <TableCell className="whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">
+                    <TableCell className="whitespace-nowrap text-sm text-fg-secondary dark:text-fg-secondary">
                       {formatISODate(task.updated_at)}
                     </TableCell>
                     <TableCell className="max-w-xs">
                       {task.description ? (
-                        <p className="truncate text-sm text-gray-700 dark:text-gray-300">
+                        <p className="truncate text-sm text-fg dark:text-fg-secondary">
                           {task.description}
                         </p>
                       ) : (
-                        <span className="text-sm text-gray-500 dark:text-gray-400">
+                        <span className="text-sm text-fg-muted dark:text-fg-muted">
                           {t("statistics.table.noDescription")}
                         </span>
                       )}
@@ -186,33 +186,33 @@ const StatisticsPage = () => {
 
       <section className="space-y-4">
         <div>
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+          <h2 className="text-xl font-semibold text-fg-strong dark:text-fg-inverse">
             {t("statistics.sections.timeline.title")}
           </h2>
-          <p className="text-gray-600 text-sm dark:text-gray-300">
+          <p className="text-fg-secondary text-sm dark:text-fg-secondary">
             {t("statistics.sections.timeline.description")}
           </p>
         </div>
         {taskExecutionLogs.length === 0 ? (
           <EmptyState message={t("statistics.timeline.empty")} />
         ) : (
-          <ul className="divide-y divide-gray-100 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-xs dark:divide-gray-700 dark:border-gray-700 dark:bg-gray-800">
+          <ul className="divide-y divide-line overflow-hidden rounded-lg border border-line bg-surface shadow-xs dark:divide-line-subtle dark:border-line-subtle dark:bg-surface-inverse">
             {taskExecutionLogs.map((log) => (
               <li
                 key={log.id}
                 className="flex flex-col gap-1 p-4 sm:flex-row sm:items-center sm:justify-between"
               >
                 <div>
-                  <p className="font-medium text-gray-900 dark:text-gray-100">
+                  <p className="font-medium text-fg-strong dark:text-fg-inverse">
                     {log.content}
                   </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                  <p className="text-sm text-fg-muted dark:text-fg-muted">
                     {t("statistics.timeline.taskLabel", {
                       id: log.task_id,
                     })}
                   </p>
                 </div>
-                <span className="text-sm text-gray-600 dark:text-gray-300">
+                <span className="text-sm text-fg-secondary dark:text-fg-secondary">
                   {formatISODate(log.created_at)}
                 </span>
               </li>
@@ -225,3 +225,4 @@ const StatisticsPage = () => {
 };
 
 export default StatisticsPage;
+

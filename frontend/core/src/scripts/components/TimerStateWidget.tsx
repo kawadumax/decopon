@@ -25,13 +25,14 @@ export const TimerStateWidget = () => {
       : t("decoponSession.status.notStarted")
     : t("timer.break");
   return (
-    <div className="flex flex-col items-center justify-center rounded border-2 border-gray-500 border-solid px-2">
-      <span className="font-bold font-mono text-gray-700 text-sm">
+    <div className="flex flex-col items-center justify-center rounded border-2 border-line-strong border-solid px-2">
+      <span className="font-bold font-mono text-fg text-sm">
         {formatTime(remainTime)}
       </span>
-      <span className="text-gray-500 text-xs">
+      <span className="text-fg-muted text-xs">
         {statusText}
       </span>
     </div>
   );
 };
+

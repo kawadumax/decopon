@@ -52,15 +52,15 @@ export function LandingPage() {
   const { t } = useTranslation();
 
   return (
-    <div className="min-h-screen bg-stone-50 text-black/70 dark:bg-black dark:text-white/60">
+    <div className="min-h-screen bg-surface-muted text-fg/70 dark:bg-surface-inverse dark:text-fg-inverse/60">
       <ParticlesBackground />
-      <div className="relative flex min-h-screen flex-col items-center justify-center selection:bg-[#FF2D20] selection:text-white">
+      <div className="relative flex min-h-screen flex-col items-center justify-center">
         <div className="relative w-full max-w-2xl px-6 lg:max-w-7xl">
           <header className="py-10">
             <nav className="-mx-3 flex justify-end">
               <div className="flex flex-row items-center gap-3">
                 <a
-                  className="h-10 p-2 text-black transition hover:text-black/80 dark:text-white dark:hover:text-white/80"
+                  className="h-10 p-2 text-fg transition hover:text-fg/80 dark:text-fg-inverse dark:hover:text-fg-inverse/80"
                   href="https://github.com/kawadumax/decopon"
                 >
                   <BrandGithub className="h-6 w-6" />
@@ -74,7 +74,7 @@ export function LandingPage() {
             <div className="flex flex-col items-center justify-center">
               <div className="relative">
                 <ApplicationLogo className="mb-4 h-64 w-64" />
-                <h1 className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/3 transform font-cursive text-8xl font-bold text-amber-400 sm:text-9xl">
+                <h1 className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/3 transform font-cursive text-8xl font-bold text-primary sm:text-9xl">
                   {t("welcome.appName")}
                 </h1>
               </div>
@@ -101,17 +101,17 @@ export function LandingPage() {
             </div>
           </main>
 
-          <footer className="py-16 text-center text-sm text-black dark:text-white/70">
+          <footer className="py-16 text-center text-sm text-fg dark:text-fg-inverse/70">
             <div className="mb-4 flex items-center justify-center gap-4">
               <a
                 href="https://x.com/kawadumax"
-                className="text-black transition hover:text-black/80 dark:text-white dark:hover:text-white/80"
+                className="text-fg transition hover:text-fg/80 dark:text-fg-inverse dark:hover:text-fg-inverse/80"
               >
                 <BrandX className="h-6 w-6" />
               </a>
               <a
                 href="https://github.com/kawadumax/decopon"
-                className="text-black transition hover:text-black/80 dark:text-white dark:hover:text-white/80"
+                className="text-fg transition hover:text-fg/80 dark:text-fg-inverse dark:hover:text-fg-inverse/80"
               >
                 <BrandGithub className="h-6 w-6" />
               </a>

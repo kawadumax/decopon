@@ -5,7 +5,7 @@ export const RouteSuspenseFallback = () => {
   return (
     <div className="flex min-h-[50vh] w-full items-center justify-center py-10">
       <span className="sr-only">{t("common.loading")}</span>
-      <div className="h-14 w-14 animate-spin rounded-full border-4 border-amber-400 border-t-transparent border-b-transparent" />
+      <div className="h-14 w-14 animate-spin rounded-full border-4 border-primary border-t-transparent border-b-transparent" />
     </div>
   );
 };

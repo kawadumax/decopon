@@ -5,10 +5,6 @@ type SplashOptions = {
   message?: string;
 };
 
-const PRIMARY_YELLOW = "#FACC15";
-const BACKGROUND_COLOR = "#F8FAFC"; // slate-50
-const CARD_BACKGROUND = "rgba(248, 250, 252, 0.9)";
-
 const SPLASH_TEMPLATE_ID = "decopon-splash-template";
 
 const MARKUP_TEMPLATE = /* html */ `
@@ -32,8 +28,8 @@ const MARKUP_TEMPLATE = /* html */ `
       display: flex;
       align-items: center;
       justify-content: center;
-      background: ${BACKGROUND_COLOR};
-      color: #0f172a;
+      background: var(--surface-muted, #F8FAFC);
+      color: var(--text-body, #0f172a);
       z-index: 9999;
       pointer-events: none;
       font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
@@ -46,8 +42,8 @@ const MARKUP_TEMPLATE = /* html */ `
       gap: 24px;
       padding: 48px 40px;
       border-radius: 24px;
-      background: ${CARD_BACKGROUND};
-      box-shadow: 0 24px 80px rgba(15, 23, 42, 0.15);
+      background: color-mix(in srgb, var(--surface-base, #ffffff) 90%, transparent);
+      box-shadow: 0 24px 80px color-mix(in srgb, var(--text-strong, #0f172a) 15%, transparent);
       backdrop-filter: blur(18px);
     }
 
@@ -55,22 +51,22 @@ const MARKUP_TEMPLATE = /* html */ `
       width: 120px;
       height: 120px;
       object-fit: contain;
-      filter: drop-shadow(0 8px 20px rgba(15, 23, 42, 0.18));
+      filter: drop-shadow(0 8px 20px color-mix(in srgb, var(--text-strong, #0f172a) 18%, transparent));
     }
 
     .decopon-splash-spinner {
       width: 56px;
       height: 56px;
       border-radius: 9999px;
-      border: 6px solid rgba(15, 23, 42, 0.08);
-      border-top-color: ${PRIMARY_YELLOW};
+      border: 6px solid color-mix(in srgb, var(--text-body, #0f172a) 8%, transparent);
+      border-top-color: var(--primary, #FACC15);
       animation: decopon-splash-spin 1s linear infinite;
     }
 
     .decopon-splash-message {
       margin: 0;
       font-size: 15px;
-      color: rgba(15, 23, 42, 0.75);
+      color: color-mix(in srgb, var(--text-body, #0f172a) 75%, transparent);
       text-align: center;
       line-height: 1.5;
       max-width: 280px;

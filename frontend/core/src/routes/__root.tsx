@@ -29,7 +29,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
   },
   errorComponent: () => (
     <div className="flex h-screen flex-col items-center justify-center">
-      <p className="text-center font-cursive text-9xl text-black/50">
+      <p className="text-center font-cursive text-9xl text-fg-strong/50">
         Sorry, Some Errors Occured.
       </p>
     </div>

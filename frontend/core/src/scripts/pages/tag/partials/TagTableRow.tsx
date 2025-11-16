@@ -31,14 +31,14 @@ export const TagTableRow = ({
 
   const currentBgColor = useMemo(() => {
     if (currentTag?.id === tag.id) {
-      return "bg-stone-200";
+      return "bg-surface-elevated";
     }
     return "";
   }, [currentTag?.id, tag.id]);
   return (
     <TableRow
       className={cn(
-        "cursor-pointer px-2 hover:bg-stone-100",
+        "cursor-pointer px-2 hover:bg-surface-muted",
         currentBgColor,
       )}
       onClick={onClicked}
@@ -47,7 +47,7 @@ export const TagTableRow = ({
         <Checkbox onCheckedChange={onCheckedChange} checked={tag.checked} />
       </TableCell>
       <TableCell className="font-bold text-primary">
-        <span className="mr-2 rounded border-1 border-primary bg-stone-100 px-1 font-thin">
+        <span className="mr-2 rounded border-1 border-primary bg-surface-muted px-1 font-thin">
           #
         </span>
         <button

@@ -28,7 +28,7 @@ const ResizableLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <ResizablePanelGroup
       direction="horizontal"
-      className="flex max-h-full min-h-full flex-row bg-white"
+      className="flex max-h-full min-h-full flex-row bg-surface"
     >
       {children}
     </ResizablePanelGroup>
@@ -52,14 +52,14 @@ const PCLayout = () => {
         <ResizablePanelGroup direction="vertical">
           <ResizablePanel
             defaultSize={50}
-            className="hidden-scrollbar flex flex-col justify-start overflow-scroll shadow-xs dark:bg-gray-800"
+            className="hidden-scrollbar flex flex-col justify-start overflow-scroll shadow-xs dark:bg-surface-inverse"
           >
             <TaskTagList />
           </ResizablePanel>
 
           <ResizableHandle withHandle />
 
-          <ResizablePanel className="max-h-full shadow-xs dark:bg-gray-800">
+          <ResizablePanel className="max-h-full shadow-xs dark:bg-surface-inverse">
             <Timer />
           </ResizablePanel>
         </ResizablePanelGroup>
@@ -69,14 +69,14 @@ const PCLayout = () => {
 
       <ResizablePanel
         defaultSize={41.4}
-        className="hidden-scrollbar max-h-full overflow-auto shadow-xs dark:bg-gray-800"
+        className="hidden-scrollbar max-h-full overflow-auto shadow-xs dark:bg-surface-inverse"
       >
         <MainPanel />
       </ResizablePanel>
 
       <ResizableHandle withHandle />
 
-      <ResizablePanel className="max-h-full overflow-hidden shadow-xs dark:bg-gray-800">
+      <ResizablePanel className="max-h-full overflow-hidden shadow-xs dark:bg-surface-inverse">
         <TaskSideView />
       </ResizablePanel>
     </ResizableLayout>
@@ -88,14 +88,14 @@ const TabletLayout = () => {
     <ResizableLayout>
       <ResizablePanel
         defaultSize={50}
-        className="hidden-scrollbar max-h-full overflow-auto shadow-xs dark:bg-gray-800"
+        className="hidden-scrollbar max-h-full overflow-auto shadow-xs dark:bg-surface-inverse"
       >
         <MainPanel />
       </ResizablePanel>
 
       <ResizableHandle withHandle />
 
-      <ResizablePanel className="max-h-full overflow-hidden shadow-xs dark:bg-gray-800">
+      <ResizablePanel className="max-h-full overflow-hidden shadow-xs dark:bg-surface-inverse">
         <TaskSideView />
       </ResizablePanel>
     </ResizableLayout>
@@ -104,13 +104,13 @@ const TabletLayout = () => {
 
 const MobileLayout = () => {
   return (
-    <div className="flex min-h-full flex-col bg-white">
-      <div className="hidden-scrollbar flex max-h-full flex-1 flex-col overflow-auto shadow-xs dark:bg-gray-800">
+    <div className="flex min-h-full flex-col bg-surface">
+      <div className="hidden-scrollbar flex max-h-full flex-1 flex-col overflow-auto shadow-xs dark:bg-surface-inverse">
         <StackViewList initialPanelId="default">
-          <StackViewPanel panelId="default" className="size-full bg-white">
+          <StackViewPanel panelId="default" className="size-full bg-surface">
             <MainPanel />
           </StackViewPanel>
-          <StackViewPanel panelId="detail" className="size-full bg-white">
+          <StackViewPanel panelId="detail" className="size-full bg-surface">
             <TaskSideView />
           </StackViewPanel>
         </StackViewList>

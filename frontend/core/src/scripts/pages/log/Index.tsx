@@ -19,7 +19,7 @@ const LogList = ({
   logContainerRef,
 }: { logs: Log[]; logContainerRef: React.RefObject<HTMLUListElement> }) => {
   return (
-    <ul ref={logContainerRef} className="flex-1 overflow-y-auto bg-white">
+    <ul ref={logContainerRef} className="flex-1 overflow-y-auto bg-surface">
       {logs?.map((log) => (
         <LogItem key={log.id} log={log} />
       ))}
@@ -41,7 +41,7 @@ const PCLayout = ({
   return (
     <ResizablePanelGroup
       direction="horizontal"
-      className="flex max-h-full min-h-full flex-row bg-white"
+      className="flex max-h-full min-h-full flex-row bg-surface"
     >
       <ResizablePanel defaultSize={17.2}>
         <LogTagList />

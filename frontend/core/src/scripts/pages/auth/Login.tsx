@@ -131,7 +131,7 @@ export default function Login() {
         <div className="mt-4 flex items-center justify-end">
           <Link
             to="/guest/forgot-password"
-            className="rounded-md text-gray-600 text-sm underline hover:text-gray-900 focus:outline-hidden focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:text-gray-400 dark:focus:ring-offset-gray-800 dark:hover:text-gray-100"
+            className="rounded-md text-fg-secondary text-sm underline hover:text-fg-strong focus:outline-hidden focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:text-fg-muted dark:focus:ring-offset-surface-inverse dark:hover:text-fg-inverse"
           >
             {t("auth.login.forgotPassword")}
           </Link>

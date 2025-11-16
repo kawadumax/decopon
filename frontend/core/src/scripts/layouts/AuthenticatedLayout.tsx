@@ -101,10 +101,10 @@ const Drawer = ({
           <>
             <SheetHeader>
               <div className="px-4">
-                <div className="font-medium text-base text-gray-800 dark:text-gray-200">
+                <div className="font-medium text-base text-fg dark:text-fg-inverse">
                   {user.name}
                 </div>
-                <div className="font-medium text-gray-500 text-sm">
+                <div className="font-medium text-fg-muted text-sm">
                   {user.email}
                 </div>
               </div>
@@ -120,7 +120,7 @@ const Drawer = ({
           ))}
         </div>
         <Separator className="my-4" />
-        <div className="border-gray-200 dark:border-gray-600">
+        <div className="border-line dark:border-line-strong">
           <div className="space-y-1">
             <ResponsiveNavLink to="/auth/preferences">
               {t("header.menu.preference")}
@@ -149,7 +149,7 @@ const DrawerButton = forwardRef<
         {...props}
         type="button"
         onClick={() => setOpen((previousState) => !previousState)}
-        className="inline-flex items-center justify-center rounded-md p-2 text-gray-400 transition duration-150 ease-in-out hover:bg-gray-100 hover:text-gray-500 focus:bg-gray-100 focus:text-gray-500 focus:outline-hidden dark:text-gray-500 dark:focus:bg-gray-900 dark:focus:text-gray-400 dark:hover:bg-gray-900 dark:hover:text-gray-400"
+        className="inline-flex items-center justify-center rounded-md p-2 text-fg-muted transition duration-150 ease-in-out hover:bg-surface-muted hover:text-fg-muted focus:bg-surface-muted focus:text-fg-muted focus:outline-hidden dark:text-fg-muted dark:focus:bg-surface-inverse dark:focus:text-fg-muted dark:hover:bg-surface-inverse dark:hover:text-fg-muted"
       >
         <svg
           className="h-6 w-6"
@@ -182,13 +182,13 @@ const HeaderNavigationPC = ({ user }: { user: User }) => {
   const { t } = useTranslation();
 
   return (
-    <nav className="h-16 border-gray-100 border-b bg-white dark:border-gray-700 dark:bg-gray-800">
+    <nav className="h-16 border-line border-b bg-surface dark:border-line-subtle dark:bg-surface-inverse">
       <div className="mx-auto max-w-screen px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 justify-between">
           <div className="flex">
             <div className="flex shrink-0 items-center">
               <Link to="/">
-                <ApplicationLogo className="block h-9 w-auto fill-current text-gray-800 dark:text-gray-200" />
+                <ApplicationLogo className="block h-9 w-auto fill-current text-fg dark:text-fg-inverse" />
               </Link>
             </div>
 
@@ -209,7 +209,7 @@ const HeaderNavigationPC = ({ user }: { user: User }) => {
                   <span className="inline-flex rounded-md">
                     <button
                       type="button"
-                      className="inline-flex items-center rounded-md border border-transparent bg-white px-3 py-2 font-medium text-gray-500 text-sm leading-4 transition duration-150 ease-in-out hover:text-gray-700 focus:outline-hidden dark:bg-gray-800 dark:text-gray-400 dark:hover:text-gray-300"
+                      className="inline-flex items-center rounded-md border border-transparent bg-surface px-3 py-2 font-medium text-fg-muted text-sm leading-4 transition duration-150 ease-in-out hover:text-fg focus:outline-hidden dark:bg-surface-inverse dark:text-fg-muted dark:hover:text-fg-secondary"
                     >
                       {user.name}
 
@@ -260,7 +260,7 @@ const BackButton = () => {
 
 const HeaderNavigation = ({ user }: { user: User }) => {
   return (
-    <nav className="flex flex-row justify-between border-gray-100 border-b bg-white dark:border-gray-700 dark:bg-gray-800">
+    <nav className="flex flex-row justify-between border-line border-b bg-surface dark:border-line-subtle dark:bg-surface-inverse">
       <BackButton />
       <Sheet>
         <SheetTrigger>
@@ -288,10 +288,10 @@ const FooterNavigation = () => {
   }, []);
 
   return (
-    <nav className="sticky bottom-0 flex flex-row items-stretch justify-between divide-x border-gray-100 border-t border-b bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800">
+    <nav className="sticky bottom-0 flex flex-row items-stretch justify-between divide-x border-line border-t border-b bg-surface shadow-lg dark:border-line-subtle dark:bg-surface-inverse">
       {footerLinks.map((link) => {
         const isActive = !!matchRoute({ to: link.href, fuzzy: false });
-        const activeClassName = isActive ? "text-amber-400" : "text-slate-700";
+        const activeClassName = isActive ? "text-primary" : "text-fg";
         return (
           <Link
             key={link.href}
@@ -300,7 +300,7 @@ const FooterNavigation = () => {
           >
             <span
               className={cn([
-                "flex flex-col items-center text-center font-light text-xs focus:text-amber-400",
+                "flex flex-col items-center text-center font-light text-xs focus:text-primary",
                 activeClassName,
               ])}
             >
@@ -330,7 +330,7 @@ export default function Authenticated({
   setBreakTime(user?.break_time || 5);
 
   return (
-    <div className="flex h-screen flex-col bg-gray-100 dark:bg-gray-900">
+    <div className="flex h-screen flex-col bg-surface-muted dark:bg-surface-inverse">
       <StackViewProvider>
         <ResponsiveLayout user={user}>{children}</ResponsiveLayout>
       </StackViewProvider>
@@ -373,3 +373,4 @@ const ResponsiveLayout = ({
       );
   }
 };
+

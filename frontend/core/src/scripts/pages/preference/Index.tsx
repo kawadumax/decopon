@@ -18,18 +18,18 @@ export default function Index({
 
   return (
     <div className="flex min-h-full flex-col">
-      <header className="bg-white shadow-sm dark:bg-gray-800">
+      <header className="bg-surface shadow-sm dark:bg-surface-inverse">
         <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-          <h2 className="font-semibold text-gray-800 text-xl leading-tight dark:text-gray-200">
+          <h2 className="font-semibold text-fg text-xl leading-tight dark:text-fg-inverse">
             {t("preference.title")}
           </h2>
         </div>
       </header>
 
-      <main className="flex-1 bg-gray-100 py-12 dark:bg-gray-900">
+      <main className="flex-1 bg-surface-muted py-12 dark:bg-surface-inverse">
         <div className="mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8">
           {!isTauri && (
-            <div className="bg-white p-4 shadow-sm sm:rounded-lg sm:p-8 dark:bg-gray-800">
+            <div className="bg-surface p-4 shadow-sm sm:rounded-lg sm:p-8 dark:bg-surface-inverse">
               <UpdateProfileInformationForm
                 mustVerifyEmail={mustVerifyEmail}
                 status={status}
@@ -38,21 +38,21 @@ export default function Index({
             </div>
           )}
 
-          <div className="bg-white p-4 shadow-sm sm:rounded-lg sm:p-8 dark:bg-gray-800">
+          <div className="bg-surface p-4 shadow-sm sm:rounded-lg sm:p-8 dark:bg-surface-inverse">
             <UpdatePreferenceForm className="max-w-xl" />
           </div>
 
-          <div className="bg-white p-4 shadow-sm sm:rounded-lg sm:p-8 dark:bg-gray-800">
+          <div className="bg-surface p-4 shadow-sm sm:rounded-lg sm:p-8 dark:bg-surface-inverse">
             <UpdatePasswordForm className="max-w-xl" />
           </div>
 
           {!isTauri && (
-            <div className="bg-white p-4 shadow-sm sm:rounded-lg sm:p-8 dark:bg-gray-800">
+            <div className="bg-surface p-4 shadow-sm sm:rounded-lg sm:p-8 dark:bg-surface-inverse">
               <DeleteUserForm className="max-w-xl" />
             </div>
           )}
 
-          <div className="bg-white p-4 shadow-sm sm:rounded-lg sm:p-8 dark:bg-gray-800">
+          <div className="bg-surface p-4 shadow-sm sm:rounded-lg sm:p-8 dark:bg-surface-inverse">
             <TauriDangerZone className="max-w-xl" />
           </div>
         </div>

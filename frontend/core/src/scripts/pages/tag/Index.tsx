@@ -17,14 +17,14 @@ import { TagTools } from "./partials/TagTools";
 
 const MobileLayout = () => {
   return (
-    <div className="flex min-h-full flex-col bg-white">
-      <div className="hidden-scrollbar flex max-h-full flex-1 flex-col overflow-auto shadow-xs dark:bg-gray-800">
+    <div className="flex min-h-full flex-col bg-surface">
+      <div className="hidden-scrollbar flex max-h-full flex-1 flex-col overflow-auto shadow-xs dark:bg-surface-inverse">
         <StackViewList initialPanelId="default">
-          <StackViewPanel panelId="default" className="size-full bg-white p-4">
+          <StackViewPanel panelId="default" className="size-full bg-surface p-4">
             <TagTools />
             <TagTable />
           </StackViewPanel>
-          <StackViewPanel panelId="detail" className="size-full bg-white">
+          <StackViewPanel panelId="detail" className="size-full bg-surface">
             <TaskTree />
           </StackViewPanel>
         </StackViewList>
@@ -37,7 +37,7 @@ const PCLayout = () => {
   return (
     <ResizablePanelGroup
       direction="horizontal"
-      className="flex max-h-full min-h-full flex-row bg-white"
+      className="flex max-h-full min-h-full flex-row bg-surface"
     >
       <ResizablePanel className="p-8 py-2">
         <TagTools />

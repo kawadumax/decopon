@@ -43,11 +43,7 @@ export const TagTools = () => {
 
   return (
     <div className="my-4 flex justify-start gap-4">
-      <Button
-        variant={"destructive"}
-        className="bg-red-600"
-        onClick={handleDeleteTag}
-      >
+      <Button variant={"destructive"} onClick={handleDeleteTag}>
         <Trash />
         {t("common.delete")}
       </Button>

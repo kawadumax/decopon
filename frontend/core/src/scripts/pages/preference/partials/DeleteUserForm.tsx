@@ -46,11 +46,11 @@ export default function DeleteUserForm({
   return (
     <section className={cn("space-y-6", className)}>
       <header>
-        <h2 className="font-medium text-gray-900 text-lg dark:text-gray-100">
+        <h2 className="font-medium text-fg-strong text-lg dark:text-fg-inverse">
           {t("preference.deleteAccount.title")}
         </h2>
 
-        <p className="mt-1 text-gray-600 text-sm dark:text-gray-400">
+        <p className="mt-1 text-fg-secondary text-sm dark:text-fg-muted">
           {t("preference.deleteAccount.description")}
         </p>
       </header>
@@ -68,11 +68,11 @@ export default function DeleteUserForm({
           }}
           className="p-6"
         >
-          <h2 className="font-medium text-gray-900 text-lg dark:text-gray-100">
+          <h2 className="font-medium text-fg-strong text-lg dark:text-fg-inverse">
             {t("preference.deleteAccount.modal.title")}
           </h2>
 
-          <p className="mt-1 text-gray-600 text-sm dark:text-gray-400">
+          <p className="mt-1 text-fg-secondary text-sm dark:text-fg-muted">
             {t("preference.deleteAccount.modal.description")}
           </p>
 

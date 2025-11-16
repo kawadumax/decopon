@@ -20,11 +20,11 @@
   ::before,
   ::backdrop,
   ::file-selector-button {
-    border-color: var(--color-gray-200, currentcolor);
+    border-color: var(--color-line, currentcolor);
   }
 
   * {
-    @apply border-border;
+    @apply border-line;
   }
 
   body {

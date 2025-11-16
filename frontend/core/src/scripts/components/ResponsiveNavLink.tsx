@@ -17,8 +17,8 @@ const commonClass = (active: boolean | undefined) =>
   cn(
     "flex w-full items-start border-l-4 py-2 pe-4 ps-3 text-base font-medium transition duration-150 ease-in-out focus:outline-hidden",
     active
-      ? "border-amber-400 bg-amber-50 text-amber-700 focus:border-amber-700 focus:bg-amber-100 focus:text-amber-800 dark:border-amber-600 dark:bg-amber-900/50 dark:text-amber-300 dark:focus:border-amber-300 dark:focus:bg-amber-900 dark:focus:text-amber-200"
-      : "border-transparent text-gray-600 hover:border-gray-300 hover:bg-gray-50 hover:text-gray-800 focus:border-gray-300 focus:bg-gray-50 focus:text-gray-800 dark:text-gray-400 dark:hover:border-gray-600 dark:hover:bg-gray-700 dark:hover:text-gray-200 dark:focus:border-gray-600 dark:focus:bg-gray-700 dark:focus:text-gray-200",
+      ? "border-primary bg-primary/10 text-primary focus:border-primary focus:bg-primary/15 focus:text-primary dark:border-primary dark:bg-primary/20 dark:text-primary dark:focus:border-primary dark:focus:bg-primary/15 dark:focus:text-primary"
+      : "border-transparent text-fg-secondary hover:border-line-subtle hover:bg-surface-muted hover:text-fg focus:border-line-subtle focus:bg-surface-muted focus:text-fg dark:text-fg-muted dark:hover:border-line-strong dark:hover:bg-surface-inverse-muted dark:hover:text-fg-inverse dark:focus:border-line-strong dark:focus:bg-surface-inverse-muted dark:focus:text-fg-inverse",
   );
 
 const Btn = ({ children, active, className }: NavLinkInnerProps) => {

@@ -81,7 +81,7 @@ export default function TauriDangerZone({ className = "" }: Props) {
   const renderStatus = () => {
     if (statusQuery.isLoading) {
       return (
-        <p className="text-sm text-gray-700 dark:text-gray-300">
+        <p className="text-sm text-fg dark:text-fg-secondary">
           {t("preference.dangerZone.loading")}
         </p>
       );
@@ -89,7 +89,7 @@ export default function TauriDangerZone({ className = "" }: Props) {
 
     if (statusQuery.error) {
       return (
-        <p className="text-sm text-red-700 dark:text-red-400">
+        <p className="text-sm text-destructive">
           {t("preference.dangerZone.errors.status", {
             message: statusQuery.error.message,
           })}
@@ -112,24 +112,24 @@ export default function TauriDangerZone({ className = "" }: Props) {
     return (
       <dl className="space-y-3 text-sm">
         <div>
-          <dt className="font-medium text-gray-900 dark:text-gray-100">
+          <dt className="font-medium text-fg-strong dark:text-fg-inverse">
             {t("preference.dangerZone.status.label")}
           </dt>
-          <dd className="text-gray-700 dark:text-gray-300">{initializedLabel}</dd>
+          <dd className="text-fg dark:text-fg-secondary">{initializedLabel}</dd>
         </div>
         <div>
-          <dt className="font-medium text-gray-900 dark:text-gray-100">
+          <dt className="font-medium text-fg-strong dark:text-fg-inverse">
             {t("preference.dangerZone.status.dataDir")}
           </dt>
-          <dd className="break-all font-mono text-xs text-gray-700 dark:text-gray-300">
+          <dd className="break-all font-mono text-xs text-fg dark:text-fg-secondary">
             {dataDir}
           </dd>
         </div>
         <div>
-          <dt className="font-medium text-gray-900 dark:text-gray-100">
+          <dt className="font-medium text-fg-strong dark:text-fg-inverse">
             {t("preference.dangerZone.status.appVersion")}
           </dt>
-          <dd className="text-gray-700 dark:text-gray-300">{appVersion}</dd>
+          <dd className="text-fg dark:text-fg-secondary">{appVersion}</dd>
         </div>
       </dl>
     );
@@ -138,15 +138,15 @@ export default function TauriDangerZone({ className = "" }: Props) {
   return (
     <section className={cn("space-y-4", className)}>
       <header>
-        <h2 className="font-semibold text-red-700 text-lg dark:text-red-300">
+        <h2 className="font-semibold text-destructive text-lg">
           {t("preference.dangerZone.title")}
         </h2>
-        <p className="mt-1 text-sm text-gray-700 dark:text-gray-300">
+        <p className="mt-1 text-sm text-fg dark:text-fg-secondary">
           {t("preference.dangerZone.description")}
         </p>
       </header>
 
-      <div className="rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-900 dark:bg-red-950/40">
+      <div className="rounded-lg border border-destructive-border bg-destructive-muted p-4">
         {renderStatus()}
 
         <div className="mt-4 flex flex-wrap gap-3">
@@ -168,7 +168,7 @@ export default function TauriDangerZone({ className = "" }: Props) {
         </div>
       </div>
 
-      <p className="text-xs text-red-700 dark:text-red-400">
+      <p className="text-xs text-destructive">
         {t("preference.dangerZone.note")}
       </p>
     </section>

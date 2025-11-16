@@ -13,7 +13,7 @@ export function LangSwitch() {
     <label className="flex items-center gap-2 text-sm font-semibold">
       <span className="sr-only sm:not-sr-only">{t("welcome.lang")}</span>
       <select
-        className="rounded-md border border-stone-300 bg-transparent py-1 text-sm shadow-sm transition hover:border-stone-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary dark:border-stone-700 dark:text-white"
+        className="rounded-md border border-line-subtle bg-transparent py-1 text-sm text-fg shadow-sm transition hover:border-line-subtle focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface-muted dark:border-line-subtle dark:text-fg-inverse dark:focus-visible:ring-offset-surface-inverse"
         value={locales.some((locale) => locale.value === currentLanguage) ? currentLanguage : "en"}
         onChange={(event) => {
           void i18n.changeLanguage(event.target.value);

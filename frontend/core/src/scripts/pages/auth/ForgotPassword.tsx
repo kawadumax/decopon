@@ -29,7 +29,7 @@ export default function ForgotPassword() {
 
   return (
     <>
-      <div className="mb-4 text-gray-600 text-sm dark:text-gray-400">
+      <div className="mb-4 text-fg-secondary text-sm dark:text-fg-muted">
         {t("auth.forgotPassword.description")}
       </div>
 
