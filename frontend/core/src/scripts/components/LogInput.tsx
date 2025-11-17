@@ -3,13 +3,15 @@ import {
   useMutation,
   useQueryClient,
 } from "@tanstack/react-query";
-import { useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { storeLogMutationOptions } from "../queries";
-import { LogSource, type Log, type Task } from "../types";
+import { LogSource, type Log, type Tag, type Task } from "../types";
 import {
   type AutosizeTextAreaRef,
   AutosizeTextarea,
 } from "./ui/autosize-textarea";
+import { extractTagsFromMarkdown } from "@/scripts/lib/markdown";
+import { useLogFilterStore } from "@store/log";
 
 export const LogInput = ({
   task,
@@ -24,9 +26,40 @@ export const LogInput = ({
   const [content, setContent] = useState("");
   const textareaRef = useRef<AutosizeTextAreaRef>(null);
   const queryClient = useQueryClient();
+  const selectedTagIds = useLogFilterStore((state) => state.selectedTagIds);
+  const cachedTags = queryClient.getQueryData<Tag[]>(["tags"]) ?? [];
+  const tagMap = useMemo(() => {
+    const map = new Map<string, Tag>();
+    for (const tag of cachedTags) {
+      map.set(tag.name.toLowerCase(), tag);
+    }
+    return map;
+  }, [cachedTags]);
 
   // useMutationでPOSTリクエストを管理
   const storeLogMutation = useMutation(storeLogMutationOptions);
+
+  const buildTagPayload = useCallback(
+    (body: string) => {
+      const extracted = extractTagsFromMarkdown(body);
+      const mergedIds = new Set<number>(selectedTagIds);
+      const tagNames = new Set<string>();
+      for (const name of extracted) {
+        const normalized = name.toLowerCase();
+        const tag = tagMap.get(normalized);
+        if (tag) {
+          mergedIds.add(tag.id);
+        } else {
+          tagNames.add(name);
+        }
+      }
+      return {
+        tag_ids: Array.from(mergedIds),
+        tag_names: Array.from(tagNames),
+      };
+    },
+    [selectedTagIds, tagMap],
+  );
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (!content.trim()) return;
@@ -50,11 +83,14 @@ export const LogInput = ({
         newLog,
       ]);
 
+      const tagPayload = buildTagPayload(content);
+
       // ここでAPIにPOSTリクエストを送信
       storeLogMutation.mutate({
         content: content,
         task_id: taskId,
         source: LogSource.User,
+        ...tagPayload,
       } as Partial<Log>);
 
       setContent("");

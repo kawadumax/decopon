@@ -48,7 +48,13 @@
     "react-dom": "catalog:",
     "react-i18next": "^15.4.1",
     "react-resizable-panels": "^2.1.7",
+    "rehype-sanitize": "^6.0.0",
+    "rehype-stringify": "^10.0.1",
+    "remark": "^15.0.1",
+    "remark-parse": "^11.0.0",
+    "remark-rehype": "^11.1.2",
     "sonner": "^1.7.4",
+    "unified": "^11.0.5",
     "zustand": "^4.5.7"
   },
   "devDependencies": {
