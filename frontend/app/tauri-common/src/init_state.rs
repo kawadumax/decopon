@@ -1,6 +1,6 @@
 use std::sync::Mutex;
 
-use tauri::{AppHandle, Emitter, EventId, Listener};
+use tauri::{AppHandle, Emitter, EventId, Listener, Manager};
 use tracing::{info, warn};
 
 use crate::BACKEND_READY_EVENT;
@@ -32,6 +32,7 @@ struct InitFlags {
     backend_ready: bool,
     notified: bool,
     window_label: Option<String>,
+    splash_label: Option<String>,
 }
 
 /// フロントとバックエンドの起動シーケンスを調整し、再送を保証する状態型。
@@ -40,10 +41,11 @@ pub struct AppInitializationState {
 }
 
 impl AppInitializationState {
-    pub fn new(initial_label: Option<String>) -> Self {
+    pub fn new(initial_label: Option<String>, splash_label: Option<String>) -> Self {
         Self {
             state: Mutex::new(InitFlags {
                 window_label: initial_label,
+                splash_label,
                 ..Default::default()
             }),
         }
@@ -81,7 +83,7 @@ impl AppInitializationState {
     }
 
     fn try_notify(&self, app_handle: &AppHandle) {
-        let label = {
+        let (label, splash_label) = {
             let mut state = self
                 .state
                 .lock()
@@ -90,17 +92,31 @@ impl AppInitializationState {
                 info!("both frontend and backend flagged ready; notifying webview");
                 if let Some(label) = state.window_label.clone() {
                     state.notified = true;
-                    Some(label)
+                    (Some(label), state.splash_label.clone())
                 } else {
                     info!("window label missing; waiting for label update before notifying");
-                    None
+                    (None, None)
                 }
             } else {
-                None
+                (None, None)
             }
         };
 
         if let Some(label) = label {
+            if let Some(window) = app_handle.get_webview_window(&label) {
+                if let Err(error) = window.show() {
+                    warn!(error = ?error, "failed to show main window");
+                }
+            }
+
+            if let Some(splash_label) = splash_label {
+                if let Some(splash) = app_handle.get_webview_window(&splash_label) {
+                    if let Err(error) = splash.close() {
+                        warn!(error = ?error, "failed to close splashscreen window");
+                    }
+                }
+            }
+
             if let Err(error) = app_handle.emit(BACKEND_READY_EVENT, ()) {
                 warn!(error = ?error, "failed to emit backend ready event");
                 if let Ok(mut state) = self.state.lock() {

@@ -27,7 +27,7 @@ sea-orm = { version = "1.1", features = ["sqlx-sqlite", "runtime-tokio-rustls", 
 sea-orm-migration = { version = "1.1", features = ["sqlx-sqlite", "runtime-tokio-rustls"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-tauri = { version = "2", features = ["test"] }
+tauri = { version = "2", features = ["test", "webview-data-url"] }
 tauri-plugin-opener = "2"
 thiserror = "1"
 tracing = "0.1"

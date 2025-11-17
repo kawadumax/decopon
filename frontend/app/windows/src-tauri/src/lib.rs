@@ -9,6 +9,7 @@ use decopon_tauri_common::{
     configure_environment, ensure_app_data_dir, resolve_single_user_mode_flag,
     should_skip_service_bootstrap, sqlite_url_from_path, FRONTEND_READY_EVENT,
 };
+use decopon_tauri_common::splashscreen::{create_splashscreen, DEFAULT_SPLASH_LABEL};
 use serde_json::Value;
 use tauri::{Listener, Manager, State};
 use tracing::{error, info, warn};
@@ -69,6 +70,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![dispatch_http_request, get_init_status, reset_application_data])
         .setup(|app| {
             let app_handle = app.handle();
+            let splash_label = create_splashscreen(&app_handle, DEFAULT_SPLASH_LABEL);
             let main_window = app.get_webview_window("main");
             let skip_service_bootstrap = should_skip_service_bootstrap();
             info!(
@@ -110,7 +112,10 @@ pub fn run() {
             let main_window_label = main_window
                 .as_ref()
                 .map(|window| window.label().to_string());
-            app.manage(AppInitializationState::new(main_window_label.clone()));
+            app.manage(AppInitializationState::new(
+                main_window_label.clone(),
+                splash_label.clone(),
+            ));
 
             if let Some(window) = main_window {
                 let window_label = window.label().to_string();

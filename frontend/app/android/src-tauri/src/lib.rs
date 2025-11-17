@@ -9,6 +9,7 @@ use decopon_tauri_common::{
     configure_environment, ensure_app_data_dir, resolve_single_user_mode_flag,
     should_skip_service_bootstrap, sqlite_url_from_path, FRONTEND_READY_EVENT,
 };
+use decopon_tauri_common::splashscreen::{create_splashscreen, DEFAULT_SPLASH_LABEL};
 use serde_json::Value;
 use tauri::{Emitter, Listener, Manager, State};
 use tracing::{error, info, warn};
@@ -72,6 +73,7 @@ pub fn run() {
         )
         .setup(|app| {
             let app_handle = app.handle();
+            let splash_label = create_splashscreen(&app_handle, DEFAULT_SPLASH_LABEL);
             let main_window = app.get_webview_window("main");
             let main_window_label = main_window
                 .as_ref()
@@ -83,7 +85,10 @@ pub fn run() {
                 "Preparing application environment (skip_service_bootstrap={})",
                 skip_service_bootstrap
             );
-            app.manage(AppInitializationState::new(Some(main_window_label.clone())));
+            app.manage(AppInitializationState::new(
+                Some(main_window_label.clone()),
+                splash_label.clone(),
+            ));
             let data_dir = ensure_app_data_dir(&app_handle).map_err(|e| {
                 error!(error = ?e, "failed to create app data directory");
                 notify_error(
