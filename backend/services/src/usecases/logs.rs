@@ -1,12 +1,12 @@
 use crate::{
-    entities::{log_tag, logs, prelude::*, tags},
+    entities::{log_tag, logs, prelude::*, tags, tasks},
     errors::ServiceError,
 };
 
 use sea_orm::prelude::DateTimeUtc;
 use sea_orm::{
-    ActiveValue, ColumnTrait, DatabaseConnection, DatabaseTransaction, EntityTrait, QueryFilter,
-    QueryOrder, TransactionTrait,
+    ActiveValue, ColumnTrait, DatabaseConnection, DatabaseTransaction, EntityTrait, JoinType,
+    QueryFilter, QueryOrder, QuerySelect, RelationTrait, TransactionTrait,
 };
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
@@ -68,6 +68,8 @@ pub struct NewLog {
 #[derive(Default)]
 pub struct LogFilters {
     pub tag_ids: Vec<i32>,
+    pub task_id: Option<i32>,
+    pub task_name: Option<String>,
 }
 
 pub struct Log {
@@ -123,6 +125,22 @@ pub async fn get_logs(
     filters: LogFilters,
 ) -> Result<Vec<Log>, ServiceError> {
     let mut query = Logs::find().filter(logs::Column::UserId.eq(user_id));
+
+    if let Some(task_id) = filters.task_id {
+        query = query.filter(logs::Column::TaskId.eq(task_id));
+    }
+
+    if let Some(task_name) = filters
+        .task_name
+        .as_ref()
+        .map(|s| s.trim())
+        .filter(|s| !s.is_empty())
+    {
+        query = query
+            .join(JoinType::InnerJoin, logs::Relation::Tasks.def())
+            .filter(tasks::Column::Title.contains(task_name));
+    }
+
     let normalized_tag_ids = normalize_tag_ids(filters.tag_ids);
     if !normalized_tag_ids.is_empty() {
         let log_ids =
@@ -445,6 +463,7 @@ mod tests {
             user.id,
             LogFilters {
                 tag_ids: vec![tag_a.id, tag_b.id],
+                ..Default::default()
             },
         )
         .await
@@ -458,6 +477,7 @@ mod tests {
             user.id,
             LogFilters {
                 tag_ids: vec![tag_a.id],
+                ..Default::default()
             },
         )
         .await

@@ -47,11 +47,6 @@ type DrawerLinkDefinition = {
 
 const links: DrawerLinkDefinition[] = [
   {
-    key: "statistics",
-    href: "/auth/statistics",
-    icon: ActivitySquare,
-  },
-  {
     key: "tasks",
     href: "/auth/tasks",
     icon: ListCheck,
@@ -66,6 +61,11 @@ const links: DrawerLinkDefinition[] = [
     href: "/auth/logs",
     icon: Book,
   },
+  {
+    key: "statistics",
+    href: "/auth/statistics",
+    icon: ActivitySquare,
+  },
 ];
 
 const Drawer = ({
@@ -76,20 +76,7 @@ const Drawer = ({
   const [open, setOpen] = useState(false);
   const { t } = useTranslation();
   const isTauri = useMemo(() => isTauriEnvironment(), []);
-  const drawerLinks = useMemo(() => {
-    const statisticsLink = links.find((link) => link.key === "statistics");
-    const withoutStatistics = links.filter((link) => link.key !== "statistics");
-    if (!statisticsLink) {
-      return withoutStatistics;
-    }
-    const insertAfter = withoutStatistics.findIndex((link) => link.key === "logs");
-    if (insertAfter === -1) {
-      return [...withoutStatistics, statisticsLink];
-    }
-    const reordered = [...withoutStatistics];
-    reordered.splice(insertAfter + 1, 0, statisticsLink);
-    return reordered;
-  }, []);
+  const drawerLinks = useMemo(() => links, []);
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -281,11 +268,7 @@ const HeaderNavigation = ({ user }: { user: User }) => {
 const FooterNavigation = () => {
   const matchRoute = useMatchRoute();
   const { t } = useTranslation();
-  const footerLinks = useMemo(() => {
-    const otherLinks = links.filter((link) => link.key !== "statistics");
-    const statisticsLink = links.find((link) => link.key === "statistics");
-    return statisticsLink ? [...otherLinks, statisticsLink] : links;
-  }, []);
+  const footerLinks = useMemo(() => links, []);
 
   return (
     <nav className="sticky bottom-0 flex flex-row items-stretch justify-between divide-x border-line border-t border-b bg-surface shadow-lg dark:border-line-subtle dark:bg-surface-inverse">

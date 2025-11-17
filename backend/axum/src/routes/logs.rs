@@ -17,6 +17,8 @@ use crate::{
 struct LogsQueryParams {
     #[serde(default)]
     tag_ids: Vec<i32>,
+    task_id: Option<i32>,
+    task_name: Option<String>,
 }
 
 #[debug_handler]
@@ -31,6 +33,8 @@ async fn index(
         user.id,
         LogFilters {
             tag_ids: params.tag_ids,
+            task_id: params.task_id,
+            task_name: params.task_name,
         },
     )
     .await?;

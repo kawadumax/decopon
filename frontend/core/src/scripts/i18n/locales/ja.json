@@ -14,7 +14,13 @@
     },
     "filter": {
       "clear": "条件をクリア",
-      "selected": "{{count}}件のタグを選択中"
+      "selected": "{{count}}件のタグを選択中",
+      "task": {
+        "title": "タスクで絞り込み",
+        "idPlaceholder": "タスクIDで検索",
+        "namePlaceholder": "タスク名で検索",
+        "clear": "タスク条件をクリア"
+      }
     }
   },
   "tag": {

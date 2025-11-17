@@ -140,3 +140,55 @@ div#nprogress {
     box-shadow: 0 0 10px var(--primary), 0 0 5px var(--primary);
   }
 }
+
+@layer components {
+  .log-content {
+    @apply space-y-2 leading-relaxed;
+  }
+
+  .log-content h1,
+  .log-content h2,
+  .log-content h3,
+  .log-content h4 {
+    @apply font-semibold text-lg;
+    margin: 0.5rem 0;
+  }
+
+  .log-content ul {
+    list-style: disc;
+    margin: 0.5rem 0;
+    padding-inline-start: 1.25rem;
+  }
+
+  .log-content ol {
+    list-style: decimal;
+    margin: 0.5rem 0;
+    padding-inline-start: 1.25rem;
+  }
+
+  .log-content li {
+    margin: 0.25rem 0;
+  }
+
+  .log-content p {
+    margin: 0.25rem 0;
+  }
+
+  /* remarkがli内にpを挿入するため、段落の縦余白を抑制 */
+  .log-content li > p {
+    margin: 0.15rem 0;
+  }
+
+  .log-content code {
+    @apply rounded bg-surface-muted px-1 py-0.5 font-mono text-xs text-fg;
+  }
+
+  .log-content pre {
+    @apply rounded bg-surface-muted p-3 font-mono text-sm text-fg;
+    overflow-x: auto;
+  }
+
+  .log-content .log-hashtag {
+    @apply font-semibold text-primary;
+  }
+}

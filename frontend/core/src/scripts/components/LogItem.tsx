@@ -6,8 +6,8 @@ import { useLogFilterStore } from "@store/log";
 import { useTranslation } from "react-i18next";
 
 const MarkdownContent = ({ content }: { content: string }) => (
-  <span
-    className="whitespace-pre-wrap break-words"
+  <div
+    className="log-content whitespace-pre-wrap break-words"
     dangerouslySetInnerHTML={{ __html: renderMarkdown(content) }}
   />
 );

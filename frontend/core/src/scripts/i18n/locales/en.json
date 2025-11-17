@@ -14,7 +14,13 @@
     },
     "filter": {
       "clear": "Clear filters",
-      "selected": "{{count}} tags selected"
+      "selected": "{{count}} tags selected",
+      "task": {
+        "title": "Filter by task",
+        "idPlaceholder": "Search by Task ID",
+        "namePlaceholder": "Search by Task Name",
+        "clear": "Clear task filter"
+      }
     }
   },
   "tag": {

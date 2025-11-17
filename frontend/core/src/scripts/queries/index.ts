@@ -1,6 +1,11 @@
 import { type MutationOptions, type Updater } from "@tanstack/react-query";
 import { AuthService } from "../api/services/AuthService";
 import { LogService, type LogQueryParams } from "../api/services/LogService";
+import {
+  buildLogListKey,
+  normalizeLogParams,
+  useLogRepository,
+} from "../store/logRepository";
 import { TagService } from "../api/services/TagService";
 import { useTaskRepository } from "../store/taskRepository";
 import { authStorage, AUTH_CACHE_TTL_MS } from "../lib/authStorage";
@@ -65,18 +70,31 @@ export const fetchAuthQueryOptions = {
   },
 };
 
-export const fetchLogsQueryOptions = (params?: LogQueryParams) => ({
-  queryKey: ["logs", params?.tagIds ?? []],
-  queryFn: async (): Promise<Log[]> => {
-    try {
-      return await LogService.index(params);
-    } catch (error) {
-      logger("Failed to fetch logs:", error);
-      return [];
-    }
-  },
-  placeholderData: [],
-});
+export const fetchLogsQueryOptions = (params?: LogQueryParams) => {
+  const normalized = normalizeLogParams(params);
+  const queryKey = ["logs", buildLogListKey(normalized)];
+  const queryParams: LogQueryParams = {
+    tagIds: normalized.tagIds,
+    taskId: normalized.taskId ?? undefined,
+    taskName: normalized.taskName || undefined,
+  };
+
+  return {
+    queryKey,
+    queryFn: async (): Promise<Log[]> => {
+      try {
+        const logs = await LogService.index(queryParams);
+        const { setLogsForParams } = useLogRepository.getState();
+        setLogsForParams(normalized, logs);
+        return logs;
+      } catch (error) {
+        logger("Failed to fetch logs:", error);
+        return [];
+      }
+    },
+    placeholderData: [],
+  };
+};
 
 export const fetchTagsQueryOptions = {
   queryKey: ["tags"],

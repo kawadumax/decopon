@@ -4,16 +4,27 @@ import { callApi } from "../client";
 
 export type LogQueryParams = {
   tagIds?: number[];
+  taskId?: number | null;
+  taskName?: string;
 };
 
 const buildLogQueryString = (params?: LogQueryParams): string => {
-  if (!params?.tagIds || params.tagIds.length === 0) {
-    return "";
-  }
   const searchParams = new URLSearchParams();
-  for (const tagId of params.tagIds) {
-    searchParams.append("tag_ids", tagId.toString());
+  if (params?.tagIds && params.tagIds.length > 0) {
+    for (const tagId of params.tagIds) {
+      searchParams.append("tag_ids", tagId.toString());
+    }
   }
+
+  if (params?.taskId !== undefined && params.taskId !== null) {
+    searchParams.append("task_id", params.taskId.toString());
+  }
+
+  const taskName = params?.taskName?.trim();
+  if (taskName) {
+    searchParams.append("task_name", taskName);
+  }
+
   const query = searchParams.toString();
   return query ? `?${query}` : "";
 };
