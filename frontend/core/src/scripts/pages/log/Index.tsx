@@ -34,7 +34,7 @@ const ResizableLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <ResizablePanelGroup
       direction="horizontal"
-      className="flex max-h-full min-h-full flex-row bg-surface"
+      className="flex max-h-full min-h-full flex-row divide-x divide-line bg-surface dark:divide-line-subtle dark:bg-surface-inverse"
     >
       {children}
     </ResizablePanelGroup>
@@ -56,13 +56,18 @@ const TwoPaneLayout = ({
 }) => {
   return (
     <ResizableLayout>
-      <ResizablePanel defaultSize={20}>
+      <ResizablePanel
+        defaultSize={20}
+        className="bg-surface-muted dark:bg-surface-inverse border-r border-line dark:border-line-subtle"
+      >
         {leftPanel}
       </ResizablePanel>
 
       <ResizableHandle withHandle />
 
-      <ResizablePanel className={`h-full ${rightPadding}`}>
+      <ResizablePanel
+        className={`h-full bg-surface dark:bg-surface-inverse ${rightPadding}`}
+      >
         <div className="flex h-full min-h-0 flex-1 flex-col gap-4">
           <LogTaskFilter />
           <div className="flex min-h-0 flex-1">

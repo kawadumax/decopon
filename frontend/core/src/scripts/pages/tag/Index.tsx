@@ -37,14 +37,14 @@ const PCLayout = () => {
   return (
     <ResizablePanelGroup
       direction="horizontal"
-      className="flex max-h-full min-h-full flex-row bg-surface"
+      className="flex max-h-full min-h-full flex-row divide-x divide-line bg-surface dark:divide-line-subtle dark:bg-surface-inverse"
     >
-      <ResizablePanel className="p-8 py-2">
+      <ResizablePanel className="border-r border-line bg-surface-muted p-8 py-2 dark:border-line-subtle dark:bg-surface-inverse">
         <TagTools />
         <TagTable />
       </ResizablePanel>
       <ResizableHandle withHandle />
-      <ResizablePanel>
+      <ResizablePanel className="bg-surface dark:bg-surface-inverse">
         <TagHeader />
         <TaskTree />
       </ResizablePanel>
