@@ -2,7 +2,6 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import type { StorybookConfig } from "@storybook/react-vite";
 import tailwindcss from "@tailwindcss/vite";
-import { TanStackRouterVite } from "@tanstack/router-plugin/vite";
 import react from "@vitejs/plugin-react-swc";
 import { mergeConfig } from "vite";
 import type { Plugin, PluginOption } from "vite";
@@ -10,12 +9,6 @@ import svgr from "vite-plugin-svgr";
 
 const plugins: (Plugin<unknown> | PluginOption[])[] = [
   tailwindcss(),
-  TanStackRouterVite({
-    target: "react",
-    autoCodeSplitting: true,
-    routesDirectory: "../core/src/routes",
-    generatedRouteTree: "../core/src/routeTree.gen.ts",
-  }),
   react(),
   svgr({
     svgrOptions: {
@@ -39,7 +32,7 @@ const alias = {
 };
 
 const config: StorybookConfig = {
-  stories: ["../stories/*.stories.@(js|jsx|mjs|ts|tsx)"],
+  stories: ["../stories/**/*.stories.@(js|jsx|mjs|ts|tsx)"],
   addons: [
     "@storybook/addon-essentials",
     "@chromatic-com/storybook",
