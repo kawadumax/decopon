@@ -45,7 +45,13 @@ void (async () => {
     return;
   }
 
+  let bootstrapped = false;
+
   await listen(BACKEND_READY_EVENT, async () => {
+    if (bootstrapped) {
+      return;
+    }
+    bootstrapped = true;
     try {
       await singleUserBootstrap();
     } catch (error) {

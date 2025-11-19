@@ -30,7 +30,8 @@ impl ReadyListenerState {
 struct InitFlags {
     frontend_ready: bool,
     backend_ready: bool,
-    notified: bool,
+    /// すでに BACKEND_READY_EVENT を emit 済みかどうか
+    emitted_once: bool,
     window_label: Option<String>,
     splash_label: Option<String>,
 }
@@ -83,48 +84,53 @@ impl AppInitializationState {
     }
 
     fn try_notify(&self, app_handle: &AppHandle) {
-        let (label, splash_label) = {
+        let (label, splash_label, emitted_once) = {
             let mut state = self
                 .state
                 .lock()
                 .unwrap_or_else(|poisoned| poisoned.into_inner());
-            if state.frontend_ready && state.backend_ready && !state.notified {
+            if state.frontend_ready && state.backend_ready {
                 info!("both frontend and backend flagged ready; notifying webview");
                 if let Some(label) = state.window_label.clone() {
-                    state.notified = true;
-                    (Some(label), state.splash_label.clone())
+                    (
+                        Some(label),
+                        state.splash_label.clone(),
+                        state.emitted_once,
+                    )
                 } else {
                     info!("window label missing; waiting for label update before notifying");
-                    (None, None)
+                    (None, None, state.emitted_once)
                 }
             } else {
-                (None, None)
+                (None, None, state.emitted_once)
             }
         };
 
         if let Some(label) = label {
-            if let Some(window) = app_handle.get_webview_window(&label) {
-                if let Err(error) = window.show() {
-                    warn!(error = ?error, "failed to show main window");
+            if !emitted_once {
+                if let Some(window) = app_handle.get_webview_window(&label) {
+                    if let Err(error) = window.show() {
+                        warn!(error = ?error, "failed to show main window");
+                    }
                 }
-            }
 
-            if let Some(splash_label) = splash_label {
-                if let Some(splash) = app_handle.get_webview_window(&splash_label) {
-                    if let Err(error) = splash.close() {
-                        warn!(error = ?error, "failed to close splashscreen window");
+                if let Some(splash_label) = splash_label {
+                    if let Some(splash) = app_handle.get_webview_window(&splash_label) {
+                        if let Err(error) = splash.close() {
+                            warn!(error = ?error, "failed to close splashscreen window");
+                        }
                     }
                 }
             }
 
             if let Err(error) = app_handle.emit(BACKEND_READY_EVENT, ()) {
                 warn!(error = ?error, "failed to emit backend ready event");
-                if let Ok(mut state) = self.state.lock() {
-                    state.notified = false;
-                    info!("will retry backend-ready emission when next state update arrives");
-                }
+                info!("will retry backend-ready emission when next state update arrives");
             } else {
                 info!("emitted backend ready event to window {}", label);
+                if let Ok(mut state) = self.state.lock() {
+                    state.emitted_once = true;
+                }
             }
         }
     }

@@ -123,10 +123,6 @@ pub fn run() {
                 let ready_listener = app_handle.listen_any(FRONTEND_READY_EVENT, move |_| {
                     let init_state = listener_handle.state::<AppInitializationState>();
                     init_state.mark_frontend_ready(&listener_handle, window_label.clone());
-
-                    if let Some(state) = listener_handle.try_state::<ReadyListenerState>() {
-                        state.unlisten(&listener_handle);
-                    }
                 });
 
                 app.manage(ReadyListenerState::new(ready_listener));
