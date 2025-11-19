@@ -97,8 +97,9 @@
   --foreground: oklch(0.2 0.01 20);
 
   --surface-base: oklch(1 0 0);
-  --surface-muted: oklch(0.97 0.01 240);
-  --surface-elevated: oklch(0.94 0.01 240);
+  /* 暖色寄りで白に近いグレーに調整 */
+  --surface-muted: oklch(0.985 0.006 80);
+  --surface-elevated: oklch(0.96 0.008 80);
   --surface-inverse: oklch(0.2 0.02 260);
   --surface-inverse-muted: oklch(0.3 0.02 260);
 
@@ -148,8 +149,9 @@
   --foreground: oklch(0.98 0.005 60);
 
   --surface-base: oklch(0.2 0.01 20);
-  --surface-muted: oklch(0.25 0.015 260);
-  --surface-elevated: oklch(0.32 0.015 260);
+  /* ダーク時もわずかに暖色寄りに振る */
+  --surface-muted: oklch(0.28 0.015 60);
+  --surface-elevated: oklch(0.35 0.015 60);
   --surface-inverse: oklch(0.98 0.005 60);
   --surface-inverse-muted: oklch(0.85 0.01 80);
 
