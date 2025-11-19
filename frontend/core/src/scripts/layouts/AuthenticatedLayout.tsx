@@ -10,6 +10,7 @@ import { Separator } from "@components/ui/separator";
 import {
   Sheet,
   SheetContent,
+  SheetDescription,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
@@ -84,6 +85,10 @@ const Drawer = ({
         <DrawerButton open={open} setOpen={setOpen} />
       </SheetTrigger>
       <SheetContent side={"left"}>
+        <SheetHeader className="sr-only">
+          <SheetTitle>ナビゲーションメニュー</SheetTitle>
+          <SheetDescription>主要ページへのリンクを表示しています</SheetDescription>
+        </SheetHeader>
         {!isTauri && (
           <>
             <SheetHeader>
@@ -99,7 +104,7 @@ const Drawer = ({
             <Separator className="my-4" />
           </>
         )}
-        <div className="space-y-1 mt-4">
+        <div className="space-y-1 mt-8">
           {drawerLinks.map((link) => (
             <ResponsiveNavLink key={link.href} to={link.href}>
               {t(`header.menu.${link.key}`)}
@@ -127,7 +132,7 @@ const DrawerButton = forwardRef<
   {
     open: boolean;
     setOpen: Dispatch<SetStateAction<boolean>>;
-  } & React.HTMLProps<HTMLButtonElement> // ← button props も追加
+  } & React.HTMLProps<HTMLButtonElement>
 >(({ open, setOpen, ...props }, ref) => {
   return (
     <div className="flex items-center">
@@ -254,8 +259,9 @@ const HeaderNavigation = ({ user }: { user: User }) => {
           <TimerStateWidget />
         </SheetTrigger>
         <SheetContent side={"top"} className="size-full p-0">
-          <SheetHeader className="hidden">
+          <SheetHeader className="sr-only">
             <SheetTitle>Timer</SheetTitle>
+            <SheetDescription>タイマー用の操作パネルを開きます</SheetDescription>
           </SheetHeader>
           <Timer />
         </SheetContent>
@@ -356,4 +362,3 @@ const ResponsiveLayout = ({
       );
   }
 };
-

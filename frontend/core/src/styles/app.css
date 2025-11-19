@@ -25,6 +25,7 @@
 
   * {
     @apply border-line;
+    overscroll-behavior: none;
   }
 
   body {

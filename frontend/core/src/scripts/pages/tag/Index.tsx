@@ -17,14 +17,20 @@ import { TagTools } from "./partials/TagTools";
 
 const MobileLayout = () => {
   return (
-    <div className="flex min-h-full flex-col bg-surface">
+    <div className="flex min-h-full flex-col bg-surface dark:bg-surface-inverse">
       <div className="hidden-scrollbar flex max-h-full flex-1 flex-col overflow-auto shadow-xs dark:bg-surface-inverse">
         <StackViewList initialPanelId="default">
-          <StackViewPanel panelId="default" className="size-full bg-surface p-4">
+          <StackViewPanel
+            panelId="default"
+            className="size-full bg-surface p-4 dark:bg-surface-inverse"
+          >
             <TagTools />
             <TagTable />
           </StackViewPanel>
-          <StackViewPanel panelId="detail" className="size-full bg-surface">
+          <StackViewPanel
+            panelId="detail"
+            className="size-full bg-surface dark:bg-surface-inverse"
+          >
             <TaskTree />
           </StackViewPanel>
         </StackViewList>

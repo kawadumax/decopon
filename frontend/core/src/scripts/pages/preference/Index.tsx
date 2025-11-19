@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
+import { isSingleUserModeEnabled } from "@/scripts/lib/singleUserBootstrap";
 import { isTauriEnvironment } from "@/scripts/lib/isTauriEnvironment";
 
 import DeleteUserForm from "./partials/DeleteUserForm";
@@ -15,6 +16,7 @@ export default function Index({
 }: { mustVerifyEmail: boolean; status?: string }) {
   const { t } = useTranslation();
   const isTauri = useMemo(() => isTauriEnvironment(), []);
+  const isSingleUserMode = useMemo(() => isSingleUserModeEnabled(), []);
 
   return (
     <div className="flex min-h-full flex-col">
@@ -42,9 +44,11 @@ export default function Index({
             <UpdatePreferenceForm className="max-w-xl" />
           </div>
 
-          <div className="bg-surface p-4 shadow-sm sm:rounded-lg sm:p-8 dark:bg-surface-inverse">
-            <UpdatePasswordForm className="max-w-xl" />
-          </div>
+          {!isSingleUserMode && (
+            <div className="bg-surface p-4 shadow-sm sm:rounded-lg sm:p-8 dark:bg-surface-inverse">
+              <UpdatePasswordForm className="max-w-xl" />
+            </div>
+          )}
 
           {!isTauri && (
             <div className="bg-surface p-4 shadow-sm sm:rounded-lg sm:p-8 dark:bg-surface-inverse">

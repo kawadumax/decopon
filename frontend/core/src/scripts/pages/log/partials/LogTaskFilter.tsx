@@ -32,7 +32,7 @@ export const LogTaskFilter = () => {
         </h3>
         <Button
           type="button"
-          variant="ghost"
+          variant="outline"
           size="sm"
           onClick={clearTaskFilter}
           disabled={!hasTaskFilter}

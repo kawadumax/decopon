@@ -165,11 +165,17 @@
     "title": "Preferences",
     "updatePreference": {
       "title": "Preference Information",
-      "description": "Update your account's preference.",
-      "workTime": "Work Time (minutes)",
-      "breakTime": "Break Time (minutes)",
-      "locale": "Locale"
-    },
+    "description": "Update your account's preference.",
+    "workTime": "Work Time (minutes)",
+    "breakTime": "Break Time (minutes)",
+    "locale": "Locale",
+    "theme": "Theme",
+    "themeOptions": {
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System default"
+    }
+  },
     "updateProfileInformation": {
       "title": "Profile Information",
       "description": "Update your account's profile information and email address.",

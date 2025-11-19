@@ -165,11 +165,17 @@
     "title": "設定",
     "updatePreference": {
       "title": "設定情報",
-      "description": "アカウントの設定を更新します。",
-      "workTime": "作業時間（分）",
-      "breakTime": "休憩時間（分）",
-      "locale": "言語"
-    },
+    "description": "アカウントの設定を更新します。",
+    "workTime": "作業時間（分）",
+    "breakTime": "休憩時間（分）",
+    "locale": "言語",
+    "theme": "テーマ",
+    "themeOptions": {
+      "light": "ライト",
+      "dark": "ダーク",
+      "system": "システム設定に従う"
+    }
+  },
     "updateProfileInformation": {
       "title": "プロフィール情報",
       "description": "アカウントのプロフィール情報とメールアドレスを更新します。",

@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 
 const MarkdownContent = ({ content }: { content: string }) => (
   <div
-    className="log-content whitespace-pre-wrap break-words"
+    className="log-content whitespace-normal break-all"
     dangerouslySetInnerHTML={{ __html: renderMarkdown(content) }}
   />
 );
@@ -37,7 +37,7 @@ const LogTags = ({ tags }: { tags: Log["tags"] }) => {
 
 const DefaultItem = ({ log }: { log: Log }) => {
   return (
-    <li className="flex flex-col gap-2 border-1 border-hidden p-3 hover:border-primary hover:border-solid">
+    <li className="flex flex-col gap-2 border-solid border-1 border-transparent p-3 hover:border-primary">
       <div className="flex flex-row items-start justify-between gap-4">
         <MarkdownContent content={log.content} />
         <p className="whitespace-nowrap font-mono text-fg-strong text-xs text-opacity-50">

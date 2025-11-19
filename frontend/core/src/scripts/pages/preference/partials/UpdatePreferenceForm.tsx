@@ -1,8 +1,11 @@
+import { useEffect, useState } from "react";
+
 import { ProfileService } from "@/scripts/api/services/ProfileService";
 import { authStorage } from "@/scripts/lib/authStorage";
 import type { Auth, Locale } from "@/scripts/types";
 
 const locales = { ENGLISH: "en", JAPANESE: "ja" } as const;
+const themes = { light: "light", dark: "dark", system: "system" } as const;
 import InputLabel from "@components/InputLabel";
 import PrimaryButton from "@components/PrimaryButton";
 import TextInput from "@components/TextInput";
@@ -16,8 +19,8 @@ import {
 import { Transition } from "@headlessui/react";
 import { useForm } from "@tanstack/react-form";
 import { useQueryClient } from "@tanstack/react-query";
+import { useTheme } from "next-themes";
 import { useTranslation } from "react-i18next";
-
 
 export default function UpdatePreferenceForm({
   className = "",
@@ -28,6 +31,13 @@ export default function UpdatePreferenceForm({
   const queryClient = useQueryClient();
   const auth = queryClient.getQueryData(["auth"]) as Auth;
   const user = auth.user;
+  const { theme, setTheme } = useTheme();
+  const [selectedTheme, setSelectedTheme] = useState(theme ?? themes.light);
+
+  useEffect(() => {
+    setSelectedTheme(theme ?? themes.light);
+  }, [theme]);
+
   const form = useForm({
     defaultValues: {
       work_time: user?.work_time || 25,
@@ -161,6 +171,37 @@ export default function UpdatePreferenceForm({
               </>
             )}
           </form.Field>
+        </div>
+
+        <div className="mt-4">
+          <InputLabel
+            htmlFor="theme"
+            value={t("preference.updatePreference.theme")}
+          />
+          <Select
+            value={selectedTheme}
+            onValueChange={(value) => {
+              setSelectedTheme(value as (typeof themes)[keyof typeof themes]);
+              setTheme(value);
+            }}
+          >
+            <SelectTrigger id="theme">
+              <SelectValue
+                placeholder={t("preference.updatePreference.theme")}
+              />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={themes.light}>
+                {t("preference.updatePreference.themeOptions.light")}
+              </SelectItem>
+              <SelectItem value={themes.dark}>
+                {t("preference.updatePreference.themeOptions.dark")}
+              </SelectItem>
+              <SelectItem value={themes.system}>
+                {t("preference.updatePreference.themeOptions.system")}
+              </SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         <div className="flex items-center gap-4">

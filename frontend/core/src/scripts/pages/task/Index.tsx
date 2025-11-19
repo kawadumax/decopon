@@ -107,13 +107,19 @@ const TabletLayout = () => {
 
 const MobileLayout = () => {
   return (
-    <div className="flex min-h-full flex-col bg-surface">
+    <div className="flex min-h-full flex-col bg-surface dark:bg-surface-inverse">
       <div className="hidden-scrollbar flex max-h-full flex-1 flex-col overflow-auto shadow-xs dark:bg-surface-inverse">
         <StackViewList initialPanelId="default">
-          <StackViewPanel panelId="default" className="size-full bg-surface">
+          <StackViewPanel
+            panelId="default"
+            className="size-full bg-surface dark:bg-surface-inverse"
+          >
             <MainPanel />
           </StackViewPanel>
-          <StackViewPanel panelId="detail" className="size-full bg-surface">
+          <StackViewPanel
+            panelId="detail"
+            className="size-full bg-surface dark:bg-surface-inverse"
+          >
             <TaskSideView />
           </StackViewPanel>
         </StackViewList>

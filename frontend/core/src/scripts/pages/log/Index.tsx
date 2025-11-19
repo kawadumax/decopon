@@ -22,7 +22,10 @@ const LogList = ({
   logContainerRef,
 }: { logs: Log[]; logContainerRef: React.RefObject<HTMLUListElement> }) => {
   return (
-    <ul ref={logContainerRef} className="flex-1 overflow-y-auto bg-surface">
+    <ul
+      ref={logContainerRef}
+      className="flex-1 overflow-y-auto bg-surface dark:bg-surface-inverse"
+    >
       {logs?.map((log) => (
         <LogItem key={log.id} log={log} />
       ))}
@@ -130,7 +133,7 @@ const MobileLayout = ({
   queryKey: QueryKey;
 }) => {
   return (
-    <div className="flex min-h-full flex-col bg-surface">
+    <div className="flex min-h-full flex-col bg-surface dark:bg-surface-inverse">
       <div className="shadow-xs dark:bg-surface-inverse">
         <LogTagList />
       </div>

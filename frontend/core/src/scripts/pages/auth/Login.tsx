@@ -76,7 +76,9 @@ export default function Login() {
   return (
     <>
       {status && (
-        <div className="mb-4 font-medium text-green-600 text-sm">{status}</div>
+        <div className="mb-4 font-medium text-success-foreground text-sm dark:text-success">
+          {status}
+        </div>
       )}
 
       <form

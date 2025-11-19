@@ -71,7 +71,7 @@ export default function UpdatePasswordForm({
       </header>
 
       {status && (
-        <div className="mb-4 font-medium text-green-600 text-sm dark:text-green-400">
+        <div className="mb-4 font-medium text-success-foreground text-sm dark:text-success">
           {status}
         </div>
       )}
