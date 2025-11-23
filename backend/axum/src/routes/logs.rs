@@ -15,7 +15,7 @@ use crate::{
 
 #[derive(Debug, Default, Deserialize)]
 struct LogsQueryParams {
-    #[serde(default)]
+    #[serde(default, alias = "tag_ids[]")]
     tag_ids: Vec<i32>,
     task_id: Option<i32>,
     task_name: Option<String>,

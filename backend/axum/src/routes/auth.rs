@@ -71,7 +71,6 @@ async fn get_auth_user(
     headers: HeaderMap,
 ) -> Result<impl IntoResponse, ApiError> {
     let token = extract_bearer_token(&headers)?;
-    tracing::info!(%token, "extracted token");
 
     let user =
         usecases::auth::get_auth_user_from_token(app_state.db(), token, app_state.jwt_secret())

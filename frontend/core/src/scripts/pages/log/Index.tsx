@@ -8,9 +8,9 @@ import {
   ResizablePanelGroup,
 } from "@components/ui/resizable";
 import { useDeviceSize } from "@hooks/useDeviceSize";
-import { type QueryKey, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { fetchLogsQueryOptions } from "@/scripts/queries";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import type React from "react";
 import { LogTagList } from "./partials/LogTagList";
 import { LogTaskFilter } from "./partials/LogTaskFilter";
@@ -21,6 +21,12 @@ const LogList = ({
   logs,
   logContainerRef,
 }: { logs: Log[]; logContainerRef: React.RefObject<HTMLUListElement> }) => {
+  useEffect(() => {
+    const element = logContainerRef.current;
+    if (!element) return;
+    element.scrollTop = element.scrollHeight;
+  }, [logContainerRef, logs.length, logs[logs.length - 1]?.id]);
+
   return (
     <ul
       ref={logContainerRef}
@@ -47,13 +53,11 @@ const ResizableLayout = ({ children }: { children: React.ReactNode }) => {
 const TwoPaneLayout = ({
   logs,
   logContainerRef,
-  queryKey,
   leftPanel,
   rightPadding = "p-4",
 }: {
   logs: Log[];
   logContainerRef: React.RefObject<HTMLUListElement>;
-  queryKey: QueryKey;
   leftPanel: React.ReactNode;
   rightPadding?: string;
 }) => {
@@ -76,7 +80,7 @@ const TwoPaneLayout = ({
           <div className="flex min-h-0 flex-1">
             <LogList logs={logs} logContainerRef={logContainerRef} />
           </div>
-          <LogInput task={undefined} queryKeyOverride={queryKey} />
+          <LogInput task={undefined} />
         </div>
       </ResizablePanel>
     </ResizableLayout>
@@ -86,17 +90,14 @@ const TwoPaneLayout = ({
 const PCLayout = ({
   logs,
   logContainerRef,
-  queryKey,
 }: {
   logs: Log[];
   logContainerRef: React.RefObject<HTMLUListElement>;
-  queryKey: QueryKey;
 }) => {
   return (
     <TwoPaneLayout
       logs={logs}
       logContainerRef={logContainerRef}
-      queryKey={queryKey}
       leftPanel={<LogTagList />}
       rightPadding="p-4"
     />
@@ -106,17 +107,14 @@ const PCLayout = ({
 const TabletLayout = ({
   logs,
   logContainerRef,
-  queryKey,
 }: {
   logs: Log[];
   logContainerRef: React.RefObject<HTMLUListElement>;
-  queryKey: QueryKey;
 }) => {
   return (
     <TwoPaneLayout
       logs={logs}
       logContainerRef={logContainerRef}
-      queryKey={queryKey}
       leftPanel={<LogTagList />}
       rightPadding="p-3"
     />
@@ -126,11 +124,9 @@ const TabletLayout = ({
 const MobileLayout = ({
   logs,
   logContainerRef,
-  queryKey,
 }: {
   logs: Log[];
   logContainerRef: React.RefObject<HTMLUListElement>;
-  queryKey: QueryKey;
 }) => {
   return (
     <div className="flex min-h-full flex-col bg-surface dark:bg-surface-inverse">
@@ -146,7 +142,7 @@ const MobileLayout = ({
       </div>
 
       <div className="sticky bottom-0 border-line border-t bg-surface px-4 pb-4 pt-2 dark:border-line-subtle dark:bg-surface-inverse">
-        <LogInput task={undefined} queryKeyOverride={queryKey} />
+        <LogInput task={undefined} />
       </div>
     </div>
   );
@@ -162,14 +158,12 @@ export default function Index() {
     taskId: selectedTaskId ?? undefined,
     taskName: taskName || undefined,
   });
-  const { data: logs = [] } = useQuery(logsQueryOptions);
-  const repositoryLogs = useLogList({
+  useQuery(logsQueryOptions);
+  const logs = useLogList({
     tagIds: selectedTagIds,
     taskId: selectedTaskId ?? undefined,
     taskName: taskName || undefined,
   });
-  const logsForView = repositoryLogs.length > 0 ? repositoryLogs : logs;
-  const logsQueryKey = logsQueryOptions.queryKey as QueryKey;
   const deviceSize = useDeviceSize();
 
   if (deviceSize === undefined) {
@@ -184,7 +178,7 @@ export default function Index() {
   const Layout = deviceSize ? layouts[deviceSize] : undefined;
 
   return Layout ? (
-    <Layout logs={logsForView} logContainerRef={logContainerRef} queryKey={logsQueryKey} />
+    <Layout logs={logs} logContainerRef={logContainerRef} />
   ) : (
     <Loading />
   );

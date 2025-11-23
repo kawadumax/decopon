@@ -20,7 +20,7 @@ schema.attributes.span = [
 ];
 
 const hashtagHighlighter = () => (tree: unknown) => {
-  visit(tree, "text", (node: { value: string }, index, parent: any) => {
+  visit(tree as any, "text", (node: { value: string }, index, parent: any) => {
     const value = node.value;
     if (!value) return;
     const parts: any[] = [];

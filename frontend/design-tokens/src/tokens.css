@@ -98,7 +98,7 @@
 
   --surface-base: oklch(1 0 0);
   /* 暖色寄りで白に近いグレーに調整 */
-  --surface-muted: oklch(0.985 0.006 80);
+  --surface-muted: oklch(0.99 0.002 80);
   --surface-elevated: oklch(0.96 0.008 80);
   --surface-inverse: oklch(0.2 0.02 260);
   --surface-inverse-muted: oklch(0.3 0.02 260);

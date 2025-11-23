@@ -51,7 +51,8 @@ export const TaskEditableTagList = () => {
           body: "h-6 p-2",
           closeButton: "p-1 pr-0 hover:text-primary-foreground",
         },
-        inlineTagsContainer: "border-0 px-0",
+        inlineTagsContainer: "border-0 px-0 bg-surface-muted",
+
       }}
       tags={emblorTags}
       setTags={setEmblorTags}

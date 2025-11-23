@@ -1,8 +1,13 @@
-import { type MutationOptions, type Updater } from "@tanstack/react-query";
+import {
+  type MutationOptions,
+  type QueryKey,
+  type Updater,
+} from "@tanstack/react-query";
 import { AuthService } from "../api/services/AuthService";
 import { LogService, type LogQueryParams } from "../api/services/LogService";
 import {
   buildLogListKey,
+  type NormalizedLogParams,
   normalizeLogParams,
   useLogRepository,
 } from "../store/logRepository";
@@ -70,9 +75,16 @@ export const fetchAuthQueryOptions = {
   },
 };
 
+export const buildLogsQueryKey = (
+  params?: LogQueryParams | NormalizedLogParams,
+): QueryKey => {
+  const normalized = normalizeLogParams(params);
+  return ["logs", buildLogListKey(normalized)];
+};
+
 export const fetchLogsQueryOptions = (params?: LogQueryParams) => {
   const normalized = normalizeLogParams(params);
-  const queryKey = ["logs", buildLogListKey(normalized)];
+  const queryKey = buildLogsQueryKey(normalized);
   const queryParams: LogQueryParams = {
     tagIds: normalized.tagIds,
     taskId: normalized.taskId ?? undefined,

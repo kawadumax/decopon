@@ -12,7 +12,7 @@ const buildLogQueryString = (params?: LogQueryParams): string => {
   const searchParams = new URLSearchParams();
   if (params?.tagIds && params.tagIds.length > 0) {
     for (const tagId of params.tagIds) {
-      searchParams.append("tag_ids", tagId.toString());
+      searchParams.append("tag_ids[]", tagId.toString());
     }
   }
 

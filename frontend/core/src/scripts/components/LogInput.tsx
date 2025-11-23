@@ -1,10 +1,6 @@
-import {
-  type QueryKey,
-  useMutation,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { type QueryKey, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useMemo, useRef, useState } from "react";
-import { storeLogMutationOptions } from "../queries";
+import { buildLogsQueryKey, fetchTaskLogsQueryOptions, storeLogMutationOptions } from "../queries";
 import { LogSource, type Log, type Tag, type Task } from "../types";
 import {
   type AutosizeTextAreaRef,
@@ -12,6 +8,7 @@ import {
 } from "./ui/autosize-textarea";
 import { extractTagsFromMarkdown } from "@/scripts/lib/markdown";
 import { useLogFilterStore } from "@store/log";
+import { useLogRepository } from "@store/logRepository";
 
 export const LogInput = ({
   task,
@@ -21,12 +18,13 @@ export const LogInput = ({
   queryKeyOverride?: QueryKey;
 }) => {
   const taskId = task?.id;
-  const queryKey = queryKeyOverride ?? (taskId ? ["logs", taskId] : ["logs"]);
   const [tempIdCounter, setTempIdCounter] = useState(0);
   const [content, setContent] = useState("");
   const textareaRef = useRef<AutosizeTextAreaRef>(null);
   const queryClient = useQueryClient();
   const selectedTagIds = useLogFilterStore((state) => state.selectedTagIds);
+  const selectedTaskId = useLogFilterStore((state) => state.selectedTaskId);
+  const taskName = useLogFilterStore((state) => state.taskName);
   const cachedTags = queryClient.getQueryData<Tag[]>(["tags"]) ?? [];
   const tagMap = useMemo(() => {
     const map = new Map<string, Tag>();
@@ -36,8 +34,30 @@ export const LogInput = ({
     return map;
   }, [cachedTags]);
 
+  const repositoryParams = useMemo(
+    () => ({
+      tagIds: selectedTagIds,
+      taskId: taskId ?? selectedTaskId ?? undefined,
+      taskName: taskName || undefined,
+    }),
+    [selectedTagIds, selectedTaskId, taskName, taskId],
+  );
+  const logsQueryKey = useMemo<QueryKey>(() => {
+    if (queryKeyOverride) return queryKeyOverride;
+    if (taskId) return fetchTaskLogsQueryOptions(taskId).queryKey as QueryKey;
+    return buildLogsQueryKey(repositoryParams);
+  }, [queryKeyOverride, taskId, repositoryParams]);
+
   // useMutationでPOSTリクエストを管理
-  const storeLogMutation = useMutation(storeLogMutationOptions);
+  const storeLogMutation = useMutation({
+    ...storeLogMutationOptions,
+    onSuccess: async (data, variables, context) => {
+      await queryClient.invalidateQueries({ queryKey: logsQueryKey });
+      if (storeLogMutationOptions.onSuccess) {
+        await storeLogMutationOptions.onSuccess(data, variables, context);
+      }
+    },
+  });
 
   const buildTagPayload = useCallback(
     (body: string) => {
@@ -78,7 +98,11 @@ export const LogInput = ({
         tags: [],
       };
 
-      queryClient.setQueryData<Log[]>(queryKey, (oldLogs) => [
+      const { addLogToList, upsertLog } = useLogRepository.getState();
+      upsertLog(newLog);
+      addLogToList(repositoryParams, newLog.id);
+
+      queryClient.setQueryData<Log[]>(logsQueryKey, (oldLogs) => [
         ...(oldLogs ?? []),
         newLog,
       ]);

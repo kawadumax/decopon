@@ -22,7 +22,7 @@ export const TagItem = ({
         }
       }}
     >
-      <span className="mr-2 rounded border-1 border-primary bg-surface-muted dark:bg-surface-inverse-muted px-1 font-thin">
+      <span className="mr-2 rounded border-1 border-primary bg-surface dark:bg-surface-inverse-muted px-1 font-thin">
         #
       </span>
       <span>{tag.name}</span>

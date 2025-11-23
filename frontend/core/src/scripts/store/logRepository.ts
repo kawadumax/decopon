@@ -29,8 +29,7 @@ export const normalizeLogParams = (
 export const buildLogListKey = (
   params?: LogQueryParams | NormalizedLogParams,
 ): LogListKey => {
-  const normalized =
-    "tagIds" in (params ?? {}) ? (params as NormalizedLogParams) : normalizeLogParams(params);
+  const normalized = normalizeLogParams(params);
   const { tagIds, taskId, taskName } = normalized;
   const tagsKey = tagIds.length > 0 ? tagIds.join(",") : "none";
   const taskIdKey = taskId === null ? "none" : String(taskId);
@@ -81,5 +80,8 @@ export const useLogList = (params?: LogQueryParams) =>
   useLogRepository((state) => {
     const key = buildLogListKey(params);
     const ids = state.logLists[key] ?? [];
-    return ids.map((id) => state.logsById[id]).filter(Boolean);
+    return ids
+      .map((id) => state.logsById[id])
+      .filter(Boolean) // undefinedやnullを取り除く
+      .sort((a, b) => Date.parse(a.created_at) - Date.parse(b.created_at));
   });
