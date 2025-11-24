@@ -117,9 +117,17 @@ const Drawer = ({
             <ResponsiveNavLink to="/auth/preferences">
               {t("header.menu.preference")}
             </ResponsiveNavLink>
-            <ResponsiveNavLink variant="button">
-              {t("header.menu.logout")}
-            </ResponsiveNavLink>
+            <a
+              href="https://kawadumax.github.io/decopon/"
+              target="_blank"
+              rel="noreferrer"
+              className={cn(
+                "flex w-full items-start border-l-4 py-2 pe-4 ps-3 text-base font-medium transition duration-150 ease-in-out focus:outline-hidden",
+                "border-transparent text-fg-secondary hover:border-line-subtle hover:bg-surface-muted hover:text-fg focus:border-line-subtle focus:bg-surface-muted focus:text-fg dark:text-fg-muted dark:hover:border-line-strong dark:hover:bg-surface-inverse-muted dark:hover:text-fg-inverse dark:focus:border-line-strong dark:focus:bg-surface-inverse-muted dark:focus:text-fg-inverse",
+              )}
+            >
+              {t("header.menu.about")}
+            </a>
           </div>
         </div>
       </SheetContent>
@@ -141,7 +149,7 @@ const DrawerButton = forwardRef<
         {...props}
         type="button"
         onClick={() => setOpen((previousState) => !previousState)}
-        className="inline-flex items-center justify-center rounded-md p-2 text-fg-muted transition duration-150 ease-in-out hover:bg-surface-muted hover:text-fg-muted focus:bg-surface-muted focus:text-fg-muted focus:outline-hidden dark:text-fg-muted dark:focus:bg-surface-inverse dark:focus:text-fg-muted dark:hover:bg-surface-inverse dark:hover:text-fg-muted"
+        className="inline-flex items-center justify-center rounded-md p-2 text-fg-muted transition duration-150 ease-in-out hover:bg-surface-muted hover:text-fg-muted focus:bg-surface-muted focus:text-fg-muted focus:outline-hidden dark:text-fg-muted dark:focus:bg-surface-elevated dark:focus:text-fg-muted dark:hover:bg-surface-elevated dark:hover:text-fg-muted"
       >
         <svg
           className="h-6 w-6"
@@ -226,7 +234,13 @@ const HeaderNavigationPC = ({ user }: { user: User }) => {
                   <Dropdown.Link to="/auth/preferences">
                     {t("header.menu.preference")}
                   </Dropdown.Link>
-                  <Dropdown.Button>{t("header.menu.logout")}</Dropdown.Button>
+                  <Dropdown.ExternalLink
+                    href="https://kawadumax.github.io/decopon/"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {t("header.menu.about")}
+                  </Dropdown.ExternalLink>
                 </Dropdown.Content>
               </Dropdown>
             </div>

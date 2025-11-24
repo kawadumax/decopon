@@ -153,8 +153,34 @@ const DropdownButton = ({
   );
 };
 
+const DropdownExternalLink = ({
+  className = "",
+  children,
+  href,
+  target = "_blank",
+  rel = "noreferrer",
+}: {
+  className?: string;
+  children: ReactNode;
+  href: string;
+  target?: string;
+  rel?: string;
+}) => {
+  return (
+    <a
+      href={href}
+      target={target}
+      rel={rel}
+      className={commonClassis(className)}
+    >
+      {children}
+    </a>
+  );
+};
+
 Dropdown.Trigger = Trigger;
 Dropdown.Content = Content;
 Dropdown.Link = DropdownLink;
 Dropdown.Button = DropdownButton;
+Dropdown.ExternalLink = DropdownExternalLink;
 export default Dropdown;
