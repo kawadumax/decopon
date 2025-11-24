@@ -18,6 +18,11 @@ export const LogInput = ({
   queryKeyOverride?: QueryKey;
 }) => {
   const taskId = task?.id;
+  const taskTags = useMemo(() => task?.tags ?? [], [task]);
+  const taskTagIds = useMemo(
+    () => taskTags.map((tag) => tag.id),
+    [taskTags],
+  );
   const [tempIdCounter, setTempIdCounter] = useState(0);
   const [content, setContent] = useState("");
   const textareaRef = useRef<AutosizeTextAreaRef>(null);
@@ -25,6 +30,7 @@ export const LogInput = ({
   const selectedTagIds = useLogFilterStore((state) => state.selectedTagIds);
   const selectedTaskId = useLogFilterStore((state) => state.selectedTaskId);
   const taskName = useLogFilterStore((state) => state.taskName);
+  const effectiveTaskId = taskId ?? selectedTaskId ?? undefined;
   const cachedTags = queryClient.getQueryData<Tag[]>(["tags"]) ?? [];
   const tagMap = useMemo(() => {
     const map = new Map<string, Tag>();
@@ -33,14 +39,24 @@ export const LogInput = ({
     }
     return map;
   }, [cachedTags]);
+  const tagIdMap = useMemo(() => {
+    const map = new Map<number, Tag>();
+    for (const tag of cachedTags) {
+      map.set(tag.id, tag);
+    }
+    for (const tag of taskTags) {
+      map.set(tag.id, tag);
+    }
+    return map;
+  }, [cachedTags, taskTags]);
 
   const repositoryParams = useMemo(
     () => ({
       tagIds: selectedTagIds,
-      taskId: taskId ?? selectedTaskId ?? undefined,
+      taskId: effectiveTaskId,
       taskName: taskName || undefined,
     }),
-    [selectedTagIds, selectedTaskId, taskName, taskId],
+    [selectedTagIds, selectedTaskId, taskName, effectiveTaskId],
   );
   const logsQueryKey = useMemo<QueryKey>(() => {
     if (queryKeyOverride) return queryKeyOverride;
@@ -62,7 +78,7 @@ export const LogInput = ({
   const buildTagPayload = useCallback(
     (body: string) => {
       const extracted = extractTagsFromMarkdown(body);
-      const mergedIds = new Set<number>(selectedTagIds);
+      const mergedIds = new Set<number>([...selectedTagIds, ...taskTagIds]);
       const tagNames = new Set<string>();
       for (const name of extracted) {
         const normalized = name.toLowerCase();
@@ -78,13 +94,22 @@ export const LogInput = ({
         tag_names: Array.from(tagNames),
       };
     },
-    [selectedTagIds, tagMap],
+    [selectedTagIds, tagMap, taskTagIds],
+  );
+
+  const resolveTagsByIds = useCallback(
+    (ids: number[]) =>
+      ids
+        .map((id) => tagIdMap.get(id))
+        .filter((tag): tag is Tag => Boolean(tag)),
+    [tagIdMap],
   );
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (!content.trim()) return;
     if (event.key === "Enter" && !event.shiftKey) {
       event.preventDefault();
+      const tagPayload = buildTagPayload(content);
       const tempId = -1 - tempIdCounter; // 負の値を使用して一時的なIDを生成
       setTempIdCounter((prev) => prev + 1);
       const newLog: Log = {
@@ -94,8 +119,8 @@ export const LogInput = ({
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
         user_id: 0,
-        task_id: taskId,
-        tags: [],
+        task_id: effectiveTaskId,
+        tags: resolveTagsByIds(tagPayload.tag_ids),
       };
 
       const { addLogToList, upsertLog } = useLogRepository.getState();
@@ -107,12 +132,10 @@ export const LogInput = ({
         newLog,
       ]);
 
-      const tagPayload = buildTagPayload(content);
-
       // ここでAPIにPOSTリクエストを送信
       storeLogMutation.mutate({
         content: content,
-        task_id: taskId,
+        task_id: effectiveTaskId,
         source: LogSource.User,
         ...tagPayload,
       } as Partial<Log>);

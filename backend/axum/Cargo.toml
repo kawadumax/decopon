@@ -24,6 +24,7 @@ decopon-services = { path = "../services", default-features = false }
 decopon-runtime = { path = "../runtime", default-features = false }
 
 axum = "~0.8.4"
+axum-extra = { version = "~0.10.0", default-features = false, features = ["query"] }
 axum-macros = "0.5.0"
 axum-password-worker = "0.4.1"
 chrono = { version = "0.4.41", features = ["serde"] }

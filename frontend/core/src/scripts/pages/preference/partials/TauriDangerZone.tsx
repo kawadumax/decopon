@@ -112,13 +112,13 @@ export default function TauriDangerZone({ className = "" }: Props) {
     return (
       <dl className="space-y-3 text-sm">
         <div>
-          <dt className="font-medium text-fg-strong dark:text-fg-inverse">
+          <dt className="font-medium text-fg-strong dark:text-fg">
             {t("preference.dangerZone.status.label")}
           </dt>
           <dd className="text-fg dark:text-fg-secondary">{initializedLabel}</dd>
         </div>
         <div>
-          <dt className="font-medium text-fg-strong dark:text-fg-inverse">
+          <dt className="font-medium text-fg-strong dark:text-fg">
             {t("preference.dangerZone.status.dataDir")}
           </dt>
           <dd className="break-all font-mono text-xs text-fg dark:text-fg-secondary">
@@ -126,7 +126,7 @@ export default function TauriDangerZone({ className = "" }: Props) {
           </dd>
         </div>
         <div>
-          <dt className="font-medium text-fg-strong dark:text-fg-inverse">
+          <dt className="font-medium text-fg-strong dark:text-fg">
             {t("preference.dangerZone.status.appVersion")}
           </dt>
           <dd className="text-fg dark:text-fg-secondary">{appVersion}</dd>
@@ -141,7 +141,7 @@ export default function TauriDangerZone({ className = "" }: Props) {
         <h2 className="font-semibold text-destructive text-lg">
           {t("preference.dangerZone.title")}
         </h2>
-        <p className="mt-1 text-sm text-fg dark:text-fg-secondary">
+        <p className="mt-1 text-sm text-destructive">
           {t("preference.dangerZone.description")}
         </p>
       </header>

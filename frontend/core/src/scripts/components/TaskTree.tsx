@@ -33,7 +33,7 @@ const createTaskList = (
       .reverse(); // idの数値の大きいもの（より直近に作られたものを上に配置する）
     return createTaskItem(
       task,
-      <ul className="ml-[6px] flex border-collapse list-inside flex-col border-line-subtle border-l-2 border-dashed hover:border-l-primary hover:border-solid dark:text-fg-inverse">
+      <ul className="ml-[6px] flex border-collapse list-inside flex-col border-line-subtle border-l-2 border-dashed hover:border-l-primary hover:border-solid dark:text-fg">
         {items}
       </ul>,
     );
@@ -77,7 +77,7 @@ export const TaskTree = () => {
   }
 
   return (
-    <ul className="flex list-inside flex-col dark:text-fg-inverse">
+    <ul className="flex list-inside flex-col dark:text-fg">
       {createTaskList(rootTasks, taskChildrenMap)}
     </ul>
   );

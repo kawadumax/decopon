@@ -48,10 +48,13 @@ export const TaskEditableTagList = () => {
       styleClasses={{
         input: "w-full shadow-none",
         tag: {
-          body: "h-6 p-2",
-          closeButton: "p-1 pr-0 hover:text-primary-foreground",
+          body:
+            "h-6 p-2 rounded bg-surface-muted text-fg dark:bg-surface dark:text-fg",
+          closeButton:
+            "p-1 pr-0 hover:text-primary-foreground dark:hover:text-primary",
         },
-        inlineTagsContainer: "border-0 px-0 bg-surface-muted",
+        inlineTagsContainer:
+          "border-0 px-0 bg-surface-muted dark:bg-surface-muted",
 
       }}
       tags={emblorTags}

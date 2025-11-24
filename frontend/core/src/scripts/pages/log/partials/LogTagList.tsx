@@ -50,7 +50,7 @@ export const LogTagList = () => {
                     className={`flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition ${
                       isActive
                         ? "bg-primary/10 text-primary"
-                        : "hover:bg-surface-muted dark:hover:bg-surface-inverse"
+                        : "hover:bg-surface-elevated hover:text-fg dark:hover:bg-surface-elevated dark:hover:text-fg"
                     }`}
                     onClick={() => toggleTag(tag.id)}
                   >

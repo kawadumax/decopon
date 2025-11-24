@@ -43,7 +43,11 @@ const AddItemInput: React.FC<AddItemInputProps> = ({
         onChange={handleInputChange}
         onKeyDown={handleKeyDown}
       />
-      <Button className="rounded-l-none" onClick={handleAddNewItem}>
+      <Button
+        variant="secondary"
+        className="rounded-l-none"
+        onClick={handleAddNewItem}
+      >
         <Plus /> {buttonText}
       </Button>
     </div>

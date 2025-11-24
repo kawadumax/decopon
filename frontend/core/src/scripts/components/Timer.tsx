@@ -64,26 +64,27 @@ export const Timer = () => {
   }, []);
 
   return (
-    <div className="flex h-full flex-col justify-center gap-2 bg-[url(/images/decopon-icon-300x300.png)] bg-center bg-surface/50 dark:bg-surface-inverse/50 bg-no-repeat bg-blend-lighten">
-      <div className="self-center rounded border border-primary border-solid bg-surface dark:bg-surface-inverse p-2 text-center font-mono text-4xl">
+    <div className="flex h-full flex-col justify-center gap-2 bg-[url(/images/decopon-icon-300x300.png)] bg-center bg-surface/50 dark:bg-surface/50 bg-no-repeat bg-blend-lighten">
+      <div className="self-center rounded border border-primary border-solid bg-surface dark:bg-surface p-2 text-center font-mono text-4xl">
         {formatTime(remainTime)}
       </div>
       <div className="flex flex-row justify-center gap-2">
         <Badge
           className={cn(
-            "bg-surface dark:bg-surface-inverse text-center text-fg-strong",
+            "bg-surface dark:bg-surface text-center text-fg-strong",
             isRunning ? "cursor-not-allowed" : "cursor-pointer",
           )}
           onClick={toggleWorkOrBreak}
         >
           {isWorkTime ? t("timer.workTime") : t("timer.breakTime")}
         </Badge>
-        <Badge className="cursor-default bg-surface dark:bg-surface-inverse text-center text-fg-strong">
+        <Badge className="cursor-default bg-surface dark:bg-surface text-center text-fg-strong">
           {t("timer.cycles")}: {timeState.cycles.count}
         </Badge>
       </div>
 
       <Button
+        variant="secondary"
         className="w-fit self-center"
         onClick={startTimer}
         disabled={isRunning}
@@ -91,11 +92,12 @@ export const Timer = () => {
         {t("timer.start")}
       </Button>
       <div className="flex flex-row justify-center gap-2">
-        <Button onClick={stopTimer} disabled={!isRunning}>
+        <Button variant="secondary" onClick={stopTimer} disabled={!isRunning}>
           {t("timer.stop")}
         </Button>
         <Button
-          className="bg-success text-success-foreground focus:bg-success/90 focus:outline-2 focus:outline-success focus:outline-offset-2"
+          variant="secondary"
+          className="border border-success text-success focus:outline-2 focus:outline-success focus:outline-offset-2"
           onClick={resetTimer}
         >
           {t("timer.reset")}

@@ -17,19 +17,19 @@ import { TagTools } from "./partials/TagTools";
 
 const MobileLayout = () => {
   return (
-    <div className="flex min-h-full flex-col bg-surface dark:bg-surface-inverse">
-      <div className="hidden-scrollbar flex max-h-full flex-1 flex-col overflow-auto shadow-xs dark:bg-surface-inverse">
+    <div className="flex min-h-full flex-col bg-surface dark:bg-surface">
+      <div className="hidden-scrollbar flex max-h-full flex-1 flex-col overflow-auto shadow-xs dark:bg-surface">
         <StackViewList initialPanelId="default">
           <StackViewPanel
             panelId="default"
-            className="size-full bg-surface p-4 dark:bg-surface-inverse"
+            className="size-full bg-surface p-4 dark:bg-surface"
           >
             <TagTools />
             <TagTable />
           </StackViewPanel>
           <StackViewPanel
             panelId="detail"
-            className="size-full bg-surface dark:bg-surface-inverse"
+            className="size-full bg-surface dark:bg-surface"
           >
             <TaskTree />
           </StackViewPanel>
@@ -43,14 +43,14 @@ const PCLayout = () => {
   return (
     <ResizablePanelGroup
       direction="horizontal"
-      className="flex max-h-full min-h-full flex-row divide-x divide-line bg-surface dark:divide-line-subtle dark:bg-surface-inverse"
+      className="flex max-h-full min-h-full flex-row divide-x divide-line bg-surface dark:divide-line-subtle dark:bg-surface"
     >
-      <ResizablePanel className="border-r border-line bg-surface-muted p-8 py-2 dark:border-line-subtle dark:bg-surface-inverse">
+      <ResizablePanel className="border-r border-line bg-surface-muted p-8 py-2 dark:border-line-subtle dark:bg-surface-muted">
         <TagTools />
         <TagTable />
       </ResizablePanel>
       <ResizableHandle withHandle />
-      <ResizablePanel className="bg-surface dark:bg-surface-inverse">
+      <ResizablePanel className="bg-surface dark:bg-surface">
         <TagHeader />
         <TaskTree />
       </ResizablePanel>

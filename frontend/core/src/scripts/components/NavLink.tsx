@@ -15,7 +15,7 @@ export default function NavLink({
       className={cn(
         "inline-flex items-center border-b-2 px-1 pt-1 font-medium text-sm leading-5 transition duration-150 ease-in-out focus:outline-hidden",
         isActive
-          ? "border-primary text-fg-strong dark:border-primary dark:text-fg-inverse"
+          ? "border-primary text-fg-strong dark:border-primary dark:text-fg"
           : "border-transparent text-fg-muted hover:border-line-subtle hover:text-fg focus:border-primary focus:text-fg dark:text-fg-muted dark:focus:border-line-subtle dark:focus:text-fg-secondary dark:hover:border-line-subtle dark:hover:text-fg-secondary",
         className,
       )}

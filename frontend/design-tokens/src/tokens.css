@@ -148,10 +148,10 @@
   --background: oklch(0.2 0.01 20);
   --foreground: oklch(0.98 0.005 60);
 
-  --surface-base: oklch(0.2 0.01 20);
-  /* ダーク時もわずかに暖色寄りに振る */
-  --surface-muted: oklch(0.28 0.015 60);
-  --surface-elevated: oklch(0.35 0.015 60);
+  /* 暖色寄りにわずかに明るく */
+  --surface-base: oklch(0.23 0.015 60);
+  --surface-muted: oklch(0.3 0.02 60);
+  --surface-elevated: oklch(0.36 0.02 60);
   --surface-inverse: oklch(0.98 0.005 60);
   --surface-inverse-muted: oklch(0.85 0.01 80);
 
@@ -161,18 +161,18 @@
   --text-muted: oklch(0.65 0.01 260);
   --text-on-inverse: oklch(0.2 0.01 20);
 
-  --border: oklch(0.2 0.02 12);
+  --border: oklch(0.28 0.015 60);
   --border-subtle: var(--border);
   --border-strong: oklch(0.83 0.01 24);
-  --input: oklch(0.2 0.02 12);
+  --input: oklch(0.28 0.015 60);
   --ring: oklch(0.83 0.01 24);
 
   --selection-bg: oklch(0.75 0.22 30);
   --selection-text: oklch(0.2 0.01 20);
   --brand-accent: var(--selection-bg);
 
-  --primary: oklch(0.98 0.005 60);
-  --primary-foreground: oklch(0.25 0.02 24);
+  --primary: oklch(0.64 0.14 70);
+  --primary-foreground: oklch(0.2 0.03 260);
 
   --secondary: oklch(0.2 0.02 12);
   --secondary-foreground: oklch(0.98 0.005 60);
@@ -180,18 +180,19 @@
   --muted-foreground: oklch(0.65 0.01 24);
   --accent: oklch(0.2 0.02 12);
   --accent-foreground: oklch(0.98 0.005 60);
-  --destructive: oklch(0.3 0.1 0);
+  --destructive: oklch(0.46 0.18 25);
   --destructive-foreground: oklch(0.98 0.005 60);
-  --destructive-muted: oklch(0.28 0.03 20);
-  --destructive-border: oklch(0.5 0.08 25);
+  --destructive-muted: oklch(0.32 0.05 25);
+  --destructive-border: oklch(0.62 0.12 25);
 
-  --success: oklch(0.85 0.1 150);
-  --success-foreground: oklch(0.25 0.05 150);
-  --success-muted: oklch(0.32 0.03 150);
-  --success-border: oklch(0.55 0.07 150);
+  /* Coffee-ish warm success/warning */
+  --success: oklch(0.78 0.09 135);
+  --success-foreground: oklch(0.24 0.04 135);
+  --success-muted: oklch(0.34 0.03 135);
+  --success-border: oklch(0.52 0.05 135);
 
-  --warning: oklch(0.85 0.12 80);
-  --warning-foreground: oklch(0.3 0.05 80);
-  --warning-muted: oklch(0.35 0.04 80);
-  --warning-border: oklch(0.6 0.08 80);
+  --warning: oklch(0.76 0.11 80);
+  --warning-foreground: oklch(0.28 0.04 80);
+  --warning-muted: oklch(0.36 0.04 80);
+  --warning-border: oklch(0.56 0.07 80);
 }

@@ -35,7 +35,7 @@ export const TaskEditableDescription = () => {
   return (
     <div>
       <Textarea
-        className="bg-surface"
+        className="bg-surface text-fg dark:bg-surface dark:text-fg"
         value={description}
         onChange={handleOnChange}
         onBlur={handleOnBlur}

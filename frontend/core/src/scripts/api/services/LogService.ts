@@ -10,9 +10,11 @@ export type LogQueryParams = {
 
 const buildLogQueryString = (params?: LogQueryParams): string => {
   const searchParams = new URLSearchParams();
+
   if (params?.tagIds && params.tagIds.length > 0) {
     for (const tagId of params.tagIds) {
-      searchParams.append("tag_ids[]", tagId.toString());
+      // 同名キーを反復させる形式（例: ?tag_ids=1&tag_ids=2）でVecを送る
+      searchParams.append("tag_ids", tagId.toString());
     }
   }
 

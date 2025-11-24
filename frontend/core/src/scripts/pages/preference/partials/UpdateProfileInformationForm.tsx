@@ -63,7 +63,7 @@ export default function UpdateProfileInformation({
   return (
     <section className={className}>
       <header>
-        <h2 className="font-medium text-fg-strong text-lg dark:text-fg-inverse">
+        <h2 className="font-medium text-fg-strong text-lg dark:text-fg">
           {t("preference.updateProfileInformation.title")}
         </h2>
 

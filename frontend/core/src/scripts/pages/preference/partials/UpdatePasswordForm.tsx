@@ -61,7 +61,7 @@ export default function UpdatePasswordForm({
   return (
     <section className={className}>
       <header>
-        <h2 className="font-medium text-fg-strong text-lg dark:text-fg-inverse">
+        <h2 className="font-medium text-fg-strong text-lg dark:text-fg">
           {t("preference.updatePassword.title")}
         </h2>
 

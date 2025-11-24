@@ -30,7 +30,7 @@ const LogList = ({
   return (
     <ul
       ref={logContainerRef}
-      className="flex-1 overflow-y-auto bg-surface dark:bg-surface-inverse"
+      className="flex-1 overflow-y-auto bg-surface dark:bg-surface"
     >
       {logs?.map((log) => (
         <LogItem key={log.id} log={log} />
@@ -43,7 +43,7 @@ const ResizableLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <ResizablePanelGroup
       direction="horizontal"
-      className="flex max-h-full min-h-full flex-row divide-x divide-line bg-surface dark:divide-line-subtle dark:bg-surface-inverse"
+      className="flex max-h-full min-h-full flex-row divide-x divide-line bg-surface dark:divide-line-subtle dark:bg-surface"
     >
       {children}
     </ResizablePanelGroup>
@@ -65,7 +65,7 @@ const TwoPaneLayout = ({
     <ResizableLayout>
       <ResizablePanel
         defaultSize={20}
-        className="bg-surface-muted dark:bg-surface-inverse border-r border-line dark:border-line-subtle"
+        className="bg-surface-muted dark:bg-surface-muted border-r border-line dark:border-line-subtle"
       >
         {leftPanel}
       </ResizablePanel>
@@ -73,7 +73,7 @@ const TwoPaneLayout = ({
       <ResizableHandle withHandle />
 
       <ResizablePanel
-        className={`h-full bg-surface dark:bg-surface-inverse ${rightPadding}`}
+        className={`h-full bg-surface dark:bg-surface ${rightPadding}`}
       >
         <div className="flex h-full min-h-0 flex-1 flex-col gap-4">
           <LogTaskFilter />
@@ -129,8 +129,8 @@ const MobileLayout = ({
   logContainerRef: React.RefObject<HTMLUListElement>;
 }) => {
   return (
-    <div className="flex min-h-full flex-col bg-surface dark:bg-surface-inverse">
-      <div className="shadow-xs dark:bg-surface-inverse">
+    <div className="flex min-h-full flex-col bg-surface dark:bg-surface">
+      <div className="shadow-xs dark:bg-surface">
         <LogTagList />
       </div>
 
@@ -141,7 +141,7 @@ const MobileLayout = ({
         </div>
       </div>
 
-      <div className="sticky bottom-0 border-line border-t bg-surface px-4 pb-4 pt-2 dark:border-line-subtle dark:bg-surface-inverse">
+      <div className="sticky bottom-0 border-line border-t bg-surface px-4 pb-4 pt-2 dark:border-line-subtle dark:bg-surface">
         <LogInput task={undefined} />
       </div>
     </div>

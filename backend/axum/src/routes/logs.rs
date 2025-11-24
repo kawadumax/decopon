@@ -1,12 +1,14 @@
 use axum::{
     Extension, Json, Router,
-    extract::{Path, Query, State},
+    extract::{Path, State},
     routing::get,
 };
+use axum_extra::extract::Query;
 use axum_macros::debug_handler;
 use sea_orm::DatabaseConnection;
 use serde::Deserialize;
 use std::sync::Arc;
+use tracing::info;
 
 use crate::{
     AppState, dto::logs::*, errors::ApiError, extractors::authenticated_user::AuthenticatedUser,
@@ -28,6 +30,7 @@ async fn index(
     Extension(user): Extension<AuthenticatedUser>,
     Query(params): Query<LogsQueryParams>,
 ) -> Result<Json<Vec<LogResponse>>, ApiError> {
+    info!(?params, "logs.index params");
     let logs_vec = logs::get_logs(
         &db,
         user.id,

@@ -17,9 +17,9 @@ import { useTranslation } from "react-i18next";
 
 const StatisticsCard = ({ label, value }: { label: string; value: string }) => {
   return (
-    <div className="rounded-lg border border-line bg-surface p-4 shadow-xs dark:border-line-subtle dark:bg-surface-inverse">
+    <div className="rounded-lg border border-line bg-surface p-4 shadow-xs dark:border-line-subtle dark:bg-surface">
       <p className="text-sm text-fg-muted dark:text-fg-muted">{label}</p>
-      <p className="mt-2 text-2xl font-semibold text-fg-strong dark:text-fg-inverse">
+      <p className="mt-2 text-2xl font-semibold text-fg-strong dark:text-fg">
         {value}
       </p>
     </div>
@@ -78,9 +78,9 @@ const StatisticsPage = () => {
   }
 
   return (
-    <div className="min-h-full space-y-10 bg-surface px-4 py-12 sm:px-6 lg:px-8 dark:bg-surface-inverse">
+    <div className="min-h-full space-y-10 bg-surface px-4 py-12 sm:px-6 lg:px-8 dark:bg-surface">
       <div className="space-y-2">
-        <h1 className="text-3xl font-semibold text-fg-strong dark:text-fg-inverse">
+        <h1 className="text-3xl font-semibold text-fg-strong dark:text-fg">
           {t("statistics.title")}
         </h1>
         <p className="text-fg-secondary text-base dark:text-fg-secondary">
@@ -113,7 +113,7 @@ const StatisticsPage = () => {
 
       <section className="space-y-4">
         <div>
-          <h2 className="text-xl font-semibold text-fg-strong dark:text-fg-inverse">
+          <h2 className="text-xl font-semibold text-fg-strong dark:text-fg">
             {t("statistics.sections.completedTasks.title")}
           </h2>
           <p className="text-fg-secondary text-sm dark:text-fg-secondary">
@@ -123,16 +123,20 @@ const StatisticsPage = () => {
         {completedTasks.length === 0 ? (
           <EmptyState message={t("statistics.table.empty")} />
         ) : (
-          <div className="overflow-hidden rounded-lg border border-line bg-surface shadow-xs dark:border-line-subtle dark:bg-surface-inverse">
+          <div className="overflow-hidden rounded-lg border border-line bg-surface shadow-xs dark:border-line-subtle dark:bg-surface">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>{t("statistics.table.headers.task")}</TableHead>
-                  <TableHead>{t("statistics.table.headers.tags")}</TableHead>
-                  <TableHead>
+                  <TableHead className="text-fg dark:text-fg">
+                    {t("statistics.table.headers.task")}
+                  </TableHead>
+                  <TableHead className="text-fg dark:text-fg">
+                    {t("statistics.table.headers.tags")}
+                  </TableHead>
+                  <TableHead className="text-fg dark:text-fg">
                     {t("statistics.table.headers.completedAt")}
                   </TableHead>
-                  <TableHead>
+                  <TableHead className="text-fg dark:text-fg">
                     {t("statistics.table.headers.description")}
                   </TableHead>
                 </TableRow>
@@ -140,7 +144,7 @@ const StatisticsPage = () => {
               <TableBody>
                 {completedTasks.map((task) => (
                   <TableRow key={task.id}>
-                    <TableCell className="font-medium text-fg-strong dark:text-fg-inverse">
+                    <TableCell className="font-medium text-fg-strong dark:text-fg">
                       {task.title}
                     </TableCell>
                     <TableCell>
@@ -186,7 +190,7 @@ const StatisticsPage = () => {
 
       <section className="space-y-4">
         <div>
-          <h2 className="text-xl font-semibold text-fg-strong dark:text-fg-inverse">
+          <h2 className="text-xl font-semibold text-fg-strong dark:text-fg">
             {t("statistics.sections.timeline.title")}
           </h2>
           <p className="text-fg-secondary text-sm dark:text-fg-secondary">
@@ -196,14 +200,14 @@ const StatisticsPage = () => {
         {taskExecutionLogs.length === 0 ? (
           <EmptyState message={t("statistics.timeline.empty")} />
         ) : (
-          <ul className="divide-y divide-line overflow-hidden rounded-lg border border-line bg-surface shadow-xs dark:divide-line-subtle dark:border-line-subtle dark:bg-surface-inverse">
+          <ul className="divide-y divide-line overflow-hidden rounded-lg border border-line bg-surface shadow-xs dark:divide-line-subtle dark:border-line-subtle dark:bg-surface">
             {taskExecutionLogs.map((log) => (
               <li
                 key={log.id}
                 className="flex flex-col gap-1 p-4 sm:flex-row sm:items-center sm:justify-between"
               >
                 <div>
-                  <p className="font-medium text-fg-strong dark:text-fg-inverse">
+                  <p className="font-medium text-fg-strong dark:text-fg">
                     {log.content}
                   </p>
                   <p className="text-sm text-fg-muted dark:text-fg-muted">

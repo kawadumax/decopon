@@ -100,6 +100,10 @@ export const fetchLogsQueryOptions = (params?: LogQueryParams) => {
         setLogsForParams(normalized, logs);
         return logs;
       } catch (error) {
+        const axiosLikeError = error as {
+          response?: { status?: number; data?: unknown };
+          message?: string;
+        };
         logger("Failed to fetch logs:", error);
         return [];
       }
@@ -128,6 +132,9 @@ export const fetchTaskLogsQueryOptions = (taskId?: number) => ({
     if (!taskId) return [];
     try {
       const logs = await LogService.task(taskId);
+      const normalized = normalizeLogParams({ taskId });
+      const { setLogsForParams } = useLogRepository.getState();
+      setLogsForParams(normalized, logs ?? []);
       return logs ?? [];
     } catch (error) {
       logger("Failed to fetch task logs:", error);

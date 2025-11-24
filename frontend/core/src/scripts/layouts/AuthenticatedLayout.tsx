@@ -174,7 +174,7 @@ const HeaderNavigationPC = ({ user }: { user: User }) => {
   const { t } = useTranslation();
 
   return (
-    <nav className="h-16 border-line border-b bg-surface dark:border-line-subtle dark:bg-surface-inverse">
+    <nav className="h-16 border-line border-b bg-surface dark:border-line-subtle dark:bg-surface">
       <div className="mx-auto max-w-screen px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 justify-between">
           <div className="flex">
@@ -201,7 +201,7 @@ const HeaderNavigationPC = ({ user }: { user: User }) => {
                   <span className="inline-flex rounded-md">
                     <button
                       type="button"
-                      className="inline-flex items-center rounded-md border border-transparent bg-surface px-3 py-2 font-medium text-fg-muted text-sm leading-4 transition duration-150 ease-in-out hover:text-fg focus:outline-hidden dark:bg-surface-inverse dark:text-fg-muted dark:hover:text-fg-secondary"
+                      className="inline-flex items-center rounded-md border border-transparent bg-surface px-3 py-2 font-medium text-fg-muted text-sm leading-4 transition duration-150 ease-in-out hover:text-fg focus:outline-hidden dark:bg-surface dark:text-fg-muted dark:hover:text-fg-secondary"
                     >
                       {user.name}
 
@@ -252,7 +252,7 @@ const BackButton = () => {
 
 const HeaderNavigation = ({ user }: { user: User }) => {
   return (
-    <nav className="flex flex-row justify-between border-line border-b bg-surface dark:border-line-subtle dark:bg-surface-inverse">
+    <nav className="flex flex-row justify-between border-line border-b bg-surface dark:border-line-subtle dark:bg-surface">
       <BackButton />
       <Sheet>
         <SheetTrigger>
@@ -277,7 +277,7 @@ const FooterNavigation = () => {
   const footerLinks = useMemo(() => links, []);
 
   return (
-    <nav className="sticky bottom-0 flex flex-row items-stretch justify-between divide-x border-line border-t border-b bg-surface shadow-lg dark:border-line-subtle dark:bg-surface-inverse">
+    <nav className="sticky bottom-0 flex flex-row items-stretch justify-between divide-x border-line border-t border-b bg-surface shadow-lg dark:border-line-subtle dark:bg-surface">
       {footerLinks.map((link) => {
         const isActive = !!matchRoute({ to: link.href, fuzzy: false });
         const activeClassName = isActive ? "text-primary" : "text-fg";
@@ -319,7 +319,7 @@ export default function Authenticated({
   setBreakTime(user?.break_time || 5);
 
   return (
-    <div className="flex h-screen flex-col bg-surface-muted dark:bg-surface-inverse">
+    <div className="flex h-screen flex-col bg-surface-muted dark:bg-surface-muted">
       <StackViewProvider>
         <ResponsiveLayout user={user}>{children}</ResponsiveLayout>
       </StackViewProvider>
