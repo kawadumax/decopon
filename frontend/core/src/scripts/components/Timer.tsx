@@ -64,7 +64,7 @@ export const Timer = () => {
   }, []);
 
   return (
-    <div className="flex h-full flex-col justify-center gap-2 bg-[url(/images/decopon-icon-300x300.png)] bg-center bg-surface/50 dark:bg-surface/50 bg-no-repeat bg-blend-lighten">
+    <div className="flex h-full flex-col justify-center gap-2 bg-[url(/images/decopon-plain.svg)] bg-center bg-surface/50 dark:bg-surface/50 bg-no-repeat bg-blend-lighten">
       <div className="self-center rounded border border-primary border-solid bg-surface dark:bg-surface p-2 text-center font-mono text-4xl">
         {formatTime(remainTime)}
       </div>
