@@ -35,7 +35,7 @@ jobs:
         run: cargo check --manifest-path backend/services/Cargo.toml --all-targets
 
       - name: Cargo check (runtime crate)
-        run: cargo check -p decopon-runtime
+        run: cargo check --manifest-path backend/runtime/Cargo.toml --all-targets
 
       - name: Cargo check (axum default features)
         run: cargo check --manifest-path backend/axum/Cargo.toml --all-targets
