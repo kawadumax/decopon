@@ -60,7 +60,7 @@ const Trigger = ({ children }: PropsWithChildren) => {
 const Content = ({
   align = "right",
   width = "48",
-  contentClasses = "py-1 bg-white dark:bg-gray-700",
+  contentClasses = "py-1 bg-surface dark:bg-surface-muted",
   children,
 }: PropsWithChildren<{
   align?: "left" | "right";
@@ -118,7 +118,7 @@ const Content = ({
 };
 const commonClassis = (additionalClasses: string) =>
   cn(
-    "block w-full px-4 py-2 text-start text-sm leading-5 text-gray-700 transition duration-150 ease-in-out hover:bg-gray-100 focus:bg-gray-100 focus:outline-hidden dark:text-gray-300 dark:hover:bg-gray-800 dark:focus:bg-gray-800",
+    "block w-full px-4 py-2 text-start text-sm leading-5 text-fg transition duration-150 ease-in-out hover:bg-surface-muted focus:bg-surface-muted focus:outline-hidden dark:text-fg-secondary dark:hover:bg-surface-muted dark:focus:bg-surface-muted",
     additionalClasses,
   );
 
@@ -153,8 +153,34 @@ const DropdownButton = ({
   );
 };
 
+const DropdownExternalLink = ({
+  className = "",
+  children,
+  href,
+  target = "_blank",
+  rel = "noreferrer",
+}: {
+  className?: string;
+  children: ReactNode;
+  href: string;
+  target?: string;
+  rel?: string;
+}) => {
+  return (
+    <a
+      href={href}
+      target={target}
+      rel={rel}
+      className={commonClassis(className)}
+    >
+      {children}
+    </a>
+  );
+};
+
 Dropdown.Trigger = Trigger;
 Dropdown.Content = Content;
 Dropdown.Link = DropdownLink;
 Dropdown.Button = DropdownButton;
+Dropdown.ExternalLink = DropdownExternalLink;
 export default Dropdown;

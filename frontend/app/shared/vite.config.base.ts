@@ -2,7 +2,8 @@ import path from "node:path";
 import { createRequire } from "node:module";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react-swc";
-import type { ServerOptions, UserConfig } from "vite";
+import TanStackRouterVite from "@tanstack/router-plugin/vite";
+import { loadEnv, type ServerOptions, type UserConfig } from "vite";
 import svgr from "vite-plugin-svgr";
 import { alias } from "../../vite.aliases";
 
@@ -29,6 +30,10 @@ type CreateTauriViteConfigOptions = {
    * Custom server overrides (merged shallowly).
    */
   serverOverrides?: Partial<ServerOptions>;
+  /**
+   * Preferred env mode (e.g., `windows`, `android`).
+   */
+  envMode?: string;
 };
 
 const require = createRequire(import.meta.url);
@@ -46,12 +51,21 @@ export function createTauriViteConfig({
   resolveHost,
   extraAllowedDirs = [],
   serverOverrides = {},
+  envMode,
 }: CreateTauriViteConfigOptions): UserConfig {
   const sharedFallback = path.resolve(platformDir, "../shared");
   const coreFallback = path.resolve(platformDir, "../../core");
 
   const sharedRoot = resolvePackageRoot("@decopon/app-shared", sharedFallback);
   const coreRoot = resolvePackageRoot("@decopon/core", coreFallback);
+  const coreRoutesDir = path.resolve(coreRoot, "src/routes");
+  const coreRouteTree = path.resolve(coreRoot, "src/routeTree.gen.ts");
+  const repoRoot = path.resolve(platformDir, "../../..");
+
+  const resolvedEnvMode =
+    envMode ?? process.env.VITE_PLATFORM?.trim() ?? "windows";
+  const env = loadEnv(resolvedEnvMode, repoRoot, "");
+  Object.assign(process.env, env);
 
   const envHost = process.env.TAURI_DEV_HOST;
   const hostConfig: HostConfig = resolveHost
@@ -74,6 +88,10 @@ export function createTauriViteConfig({
     ...extraAllowedDirs,
   ];
 
+  const normalizedMode = (env.APP_MODE ?? "local").trim().toLowerCase();
+  const fallbackSingleUser = normalizedMode === "web" ? "0" : "1";
+  const singleUserModeFlag = env.VITE_APP_SINGLE_USER_MODE ?? fallbackSingleUser;
+
   return {
     root: sharedRoot,
     build: {
@@ -81,6 +99,11 @@ export function createTauriViteConfig({
       emptyOutDir: true,
     },
     plugins: [
+      TanStackRouterVite({
+        autoCodeSplitting: false,
+        routesDirectory: coreRoutesDir,
+        generatedRouteTree: coreRouteTree,
+      }),
       tailwindcss(),
       react(),
       svgr({
@@ -92,6 +115,7 @@ export function createTauriViteConfig({
     ],
     publicDir: path.resolve(coreRoot, "public"),
     clearScreen: false,
+    envDir: repoRoot,
     server: {
       port: 1420,
       strictPort: true,
@@ -108,7 +132,7 @@ export function createTauriViteConfig({
     resolve: { alias },
     define: {
       "import.meta.env.VITE_APP_SINGLE_USER_MODE": JSON.stringify(
-        process.env.VITE_APP_SINGLE_USER_MODE ?? "1",
+        singleUserModeFlag,
       ),
     },
   };

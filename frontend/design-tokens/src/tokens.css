@@ -1,0 +1,198 @@
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-sans:
+    Figtree, IBM Plex Sans JP, ui-sans-serif, system-ui, sans-serif,
+    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  --font-cursive: 'Caveat', cursive;
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-surface: var(--surface-base);
+  --color-surface-muted: var(--surface-muted);
+  --color-surface-elevated: var(--surface-elevated);
+  --color-surface-inverse: var(--surface-inverse);
+  --color-surface-inverse-muted: var(--surface-inverse-muted);
+
+  --color-fg: var(--text-body);
+  --color-fg-strong: var(--text-strong);
+  --color-fg-secondary: var(--text-secondary);
+  --color-fg-muted: var(--text-muted);
+  --color-fg-inverse: var(--text-on-inverse);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-destructive-muted: var(--destructive-muted);
+  --color-destructive-border: var(--destructive-border);
+
+  --color-line: var(--border);
+  --color-line-subtle: var(--border-subtle);
+  --color-line-strong: var(--border-strong);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-selection: var(--selection-bg);
+  --color-selection-text: var(--selection-text);
+  --color-brand-accent: var(--brand-accent);
+
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-success-muted: var(--success-muted);
+  --color-success-border: var(--success-border);
+
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-warning-muted: var(--warning-muted);
+  --color-warning-border: var(--warning-border);
+
+  --shadow-floating: 0 35px 80px color-mix(in srgb, var(--text-strong) 12%, transparent);
+}
+
+@theme {
+  --animate-push-left: slide-in-left 0.3s ease-in-out;
+  --animate-pop-left: slide-out-left 0.3s ease-in-out;
+  --animate-push-none: none;
+  --animate-pop-none: none;
+
+  @keyframes slide-in-left {
+    0% {
+      transform: translateX(100%);
+    }
+    100% {
+      transform: translateX(0%);
+    }
+  }
+
+  @keyframes slide-out-left {
+    0% {
+      transform: translateX(0%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+}
+
+:root {
+  --radius: 0.5rem;
+
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.2 0.01 20);
+
+  --surface-base: oklch(1 0 0);
+  /* 暖色寄りで白に近いグレーに調整 */
+  --surface-muted: oklch(0.99 0.002 80);
+  --surface-elevated: oklch(0.96 0.008 80);
+  --surface-inverse: oklch(0.2 0.02 260);
+  --surface-inverse-muted: oklch(0.3 0.02 260);
+
+  --text-body: var(--foreground);
+  --text-strong: oklch(0.12 0.015 240);
+  --text-secondary: oklch(0.4 0.02 240);
+  --text-muted: oklch(0.55 0.015 240);
+  --text-on-inverse: oklch(0.98 0.005 60);
+
+  --border: oklch(0.95 0 0);
+  --border-subtle: var(--border);
+  --border-strong: oklch(0.32 0.02 260);
+  --input: oklch(0.9 0.01 20);
+  --ring: oklch(0.2 0.01 20);
+
+  --selection-bg: oklch(0.75 0.22 30);
+  --selection-text: oklch(1 0 0);
+  --brand-accent: var(--selection-bg);
+
+  --primary: oklch(0.828 0.189 84.429);
+  --primary-foreground: oklch(0.98 0.005 60);
+
+  --secondary: oklch(0.841 0.238 128.85);
+  --secondary-foreground: oklch(0.25 0.02 24);
+  --muted: oklch(0.96 0.01 60);
+  --muted-foreground: oklch(0.45 0.01 25);
+  --accent: oklch(0.96 0.01 60);
+  --accent-foreground: oklch(0.25 0.02 24);
+  --destructive: oklch(0.55 0.15 0);
+  --destructive-foreground: oklch(0.98 0.005 60);
+  --destructive-muted: oklch(0.97 0.02 20);
+  --destructive-border: oklch(0.65 0.12 25);
+
+  --success: oklch(0.75 0.12 150);
+  --success-foreground: oklch(0.28 0.05 150);
+  --success-muted: oklch(0.94 0.03 150);
+  --success-border: oklch(0.7 0.08 150);
+
+  --warning: oklch(0.82 0.16 80);
+  --warning-foreground: oklch(0.33 0.06 80);
+  --warning-muted: oklch(0.96 0.04 80);
+  --warning-border: oklch(0.78 0.12 80);
+}
+
+.dark {
+  --background: oklch(0.2 0.01 20);
+  --foreground: oklch(0.98 0.005 60);
+
+  /* 暖色寄りにわずかに明るく */
+  --surface-base: oklch(0.23 0.015 60);
+  --surface-muted: oklch(0.3 0.02 60);
+  --surface-elevated: oklch(0.36 0.02 60);
+  --surface-inverse: oklch(0.98 0.005 60);
+  --surface-inverse-muted: oklch(0.85 0.01 80);
+
+  --text-body: var(--foreground);
+  --text-strong: var(--foreground);
+  --text-secondary: oklch(0.75 0.01 240);
+  --text-muted: oklch(0.65 0.01 260);
+  --text-on-inverse: oklch(0.2 0.01 20);
+
+  --border: oklch(0.28 0.015 60);
+  --border-subtle: var(--border);
+  --border-strong: oklch(0.83 0.01 24);
+  --input: oklch(0.28 0.015 60);
+  --ring: oklch(0.83 0.01 24);
+
+  --selection-bg: oklch(0.75 0.22 30);
+  --selection-text: oklch(0.2 0.01 20);
+  --brand-accent: var(--selection-bg);
+
+  --primary: oklch(0.64 0.14 70);
+  --primary-foreground: oklch(0.2 0.03 260);
+
+  --secondary: oklch(0.2 0.02 12);
+  --secondary-foreground: oklch(0.98 0.005 60);
+  --muted: oklch(0.2 0.02 12);
+  --muted-foreground: oklch(0.65 0.01 24);
+  --accent: oklch(0.2 0.02 12);
+  --accent-foreground: oklch(0.98 0.005 60);
+  --destructive: oklch(0.46 0.18 25);
+  --destructive-foreground: oklch(0.98 0.005 60);
+  --destructive-muted: oklch(0.32 0.05 25);
+  --destructive-border: oklch(0.62 0.12 25);
+
+  /* Coffee-ish warm success/warning */
+  --success: oklch(0.78 0.09 135);
+  --success-foreground: oklch(0.24 0.04 135);
+  --success-muted: oklch(0.34 0.03 135);
+  --success-border: oklch(0.52 0.05 135);
+
+  --warning: oklch(0.76 0.11 80);
+  --warning-foreground: oklch(0.28 0.04 80);
+  --warning-muted: oklch(0.36 0.04 80);
+  --warning-border: oklch(0.56 0.07 80);
+}

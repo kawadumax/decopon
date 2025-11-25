@@ -12,7 +12,7 @@ export default function InputLabel({
     <label
       {...props}
       className={cn(
-        "block font-medium text-gray-700 text-sm dark:text-gray-300",
+        "block font-medium text-fg text-sm dark:text-fg-secondary",
         className,
       )}
     >

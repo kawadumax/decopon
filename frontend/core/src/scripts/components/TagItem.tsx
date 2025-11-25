@@ -11,7 +11,7 @@ export const TagItem = ({
 }) => {
   return (
     <li
-      className="cursor-pointer px-2 hover:bg-stone-100"
+      className="cursor-pointer px-2 hover:bg-surface-elevated hover:text-fg dark:hover:bg-surface-elevated dark:hover:text-fg"
       onClick={onClick}
       tabIndex={0}
       onKeyDown={(event) => {
@@ -22,10 +22,10 @@ export const TagItem = ({
         }
       }}
     >
-      <span className="mr-2 rounded border-1 border-primary bg-stone-100 px-1 font-thin">
+      <span className="mr-2 rounded border-1 border-primary bg-surface-muted dark:bg-surface px-1 font-thin">
         #
       </span>
-      <span>{tag.name}</span>
+      <span className="transition-colors">{tag.name}</span>
       {typeof taskCount === "number" && (
         <span className="ml-1 font-normal text-muted-foreground text-sm">
           ({taskCount})

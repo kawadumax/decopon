@@ -1,7 +1,6 @@
 import "@decopon/core/styles/app.css";
-import { bootstrap, renderSplash, singleUserBootstrap } from "@decopon/core";
-
-const BACKEND_READY_EVENT = "decopon://backend-ready";
+import { bootstrap, singleUserBootstrap } from "@decopon/core";
+import { BACKEND_READY_EVENT, FRONTEND_READY_EVENT } from "./events";
 
 const sleep = (ms: number) =>
   new Promise((resolve) => {
@@ -26,28 +25,6 @@ const waitForTauriAvailability = async (timeoutMs = 8000) => {
 };
 
 void (async () => {
-  const root = document.getElementById("root");
-  const showInitialSplash = () => {
-    if (root) {
-      renderSplash(root, { variant: "initial" });
-    }
-  };
-  const showBackendLoading = () => {
-    if (root) {
-      renderSplash(root, {
-        variant: "loading",
-        message: "バックエンドの初期化を実行しています。しばらくお待ちください…",
-      });
-    }
-  };
-  const clearStartupMessage = () => {
-    if (root) {
-      root.innerHTML = "";
-    }
-  };
-
-  showInitialSplash();
-
   const tauriReady = await waitForTauriAvailability();
   let emit: typeof import("@tauri-apps/api/event").emit | undefined;
   let listen: typeof import("@tauri-apps/api/event").listen | undefined;
@@ -56,7 +33,6 @@ void (async () => {
     console.error(
       "Tauri APIs are unavailable. Skipping mobile bootstrap sequence.",
     );
-    clearStartupMessage();
     bootstrap();
     return;
   }
@@ -65,30 +41,29 @@ void (async () => {
     ({ emit, listen } = await import("@tauri-apps/api/event"));
   } catch (error) {
     console.error("Failed to load Tauri event APIs", error);
-    clearStartupMessage();
     bootstrap();
     return;
   }
 
-  showBackendLoading();
+  let bootstrapped = false;
 
-  const unlisten = await listen(BACKEND_READY_EVENT, async () => {
-    await unlisten();
-
+  await listen(BACKEND_READY_EVENT, async () => {
+    if (bootstrapped) {
+      return;
+    }
+    bootstrapped = true;
     try {
       await singleUserBootstrap();
     } catch (error) {
       console.error("Failed to run single user bootstrap", error);
     }
 
-    clearStartupMessage();
     bootstrap();
   });
 
   try {
-    await emit("decopon://frontend-ready");
+    await emit(FRONTEND_READY_EVENT);
   } catch (error) {
     console.error("Failed to notify backend about frontend readiness", error);
-    clearStartupMessage();
   }
 })();

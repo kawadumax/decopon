@@ -11,6 +11,16 @@
     "title": "Timeline",
     "type": {
       "system": "System Log"
+    },
+    "filter": {
+      "clear": "Clear filters",
+      "selected": "{{count}} tags selected",
+      "task": {
+        "title": "Filter by task",
+        "idPlaceholder": "Search by Task ID",
+        "namePlaceholder": "Search by Task Name",
+        "clear": "Clear task filter"
+      }
     }
   },
   "tag": {
@@ -56,23 +66,57 @@
     "password": "Password",
     "confirmPassword": "Confirm Password",
     "name": "Name",
-    "placeholderInput": "Add New Item"
+    "placeholderInput": "Add New Item",
+    "loading": "Loading..."
   },
   "header": {
     "menu": {
-      "dashboard": "Dashboard",
+      "statistics": "Statistics",
       "tasks": "Tasks",
       "tags": "Tags",
       "logs": "Logs",
-      "profile": "Profile",
+      "preference": "Preferences",
+      "about": "About this app",
       "login": "Log in",
       "logout": "Log Out",
       "register": "Register"
     }
   },
-  "dashboard": {
-    "title": "Dashboard",
-    "greeting": "You're logged in!"
+  "statistics": {
+    "title": "Task Statistics",
+    "description": "Review the latest records of executed tasks and their progress.",
+    "cards": {
+      "totalTasks": "Total tasks",
+      "completedTasks": "Completed tasks",
+      "completionRate": "Completion rate",
+      "lastExecution": "Last execution",
+      "noRecord": "No completions yet"
+    },
+    "sections": {
+      "completedTasks": {
+        "title": "Completed tasks",
+        "description": "Tasks you have completed, ordered by the latest updates."
+      },
+      "timeline": {
+        "title": "Execution timeline",
+        "description": "Latest logs associated with tasks."
+      }
+    },
+    "table": {
+      "headers": {
+        "task": "Task",
+        "tags": "Tags",
+        "completedAt": "Completed at",
+        "description": "Description"
+      },
+      "noTags": "No tags",
+      "noDescription": "No description",
+      "empty": "There are no completed task records yet."
+    },
+    "timeline": {
+      "taskLabel": "Task #{{id}}",
+      "empty": "No task execution logs are available yet."
+    }
   },
   "auth": {
     "login": {
@@ -90,7 +134,10 @@
       "alreadyRegistered": "Already registered?",
       "submit": "Register",
       "caution": "Caution",
-      "demo": "You are trying to sign up to a demo version of a service. In the demo version, data may be deleted without prior notice. Additionally, in the demo version, it is possible to log in as a guest account."
+      "demo": "You are trying to sign up to a demo version of a service. In the demo version, data may be deleted without prior notice. Additionally, in the demo version, it is possible to log in as a guest account.",
+      "error": {
+        "notMatch": "These credentials do not match our records."
+      }
     },
     "forgotPassword": {
       "title": "Forgot Password",
@@ -115,15 +162,21 @@
       "logout": "Log Out"
     }
   },
-  "profile": {
-    "title": "Profile",
+  "preference": {
+    "title": "Preferences",
     "updatePreference": {
       "title": "Preference Information",
-      "description": "Update your account's preference.",
-      "workTime": "Work Time (minutes)",
-      "breakTime": "Break Time (minutes)",
-      "locale": "Locale"
-    },
+    "description": "Update your account's preference.",
+    "workTime": "Work Time (minutes)",
+    "breakTime": "Break Time (minutes)",
+    "locale": "Locale",
+    "theme": "Theme",
+    "themeOptions": {
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System default"
+    }
+  },
     "updateProfileInformation": {
       "title": "Profile Information",
       "description": "Update your account's profile information and email address.",
@@ -147,18 +200,40 @@
         "cancel": "Cancel",
         "confirm": "Delete Account"
       }
+    },
+    "dangerZone": {
+      "title": "Danger Zone (Tauri)",
+      "description": "These controls are available only in the Tauri single-user build. Use them to inspect or reset the embedded backend state.",
+      "loading": "Loading initialization status…",
+      "status": {
+        "label": "Initialization state",
+        "initialized": "Initialized",
+        "notInitialized": "Not initialized",
+        "dataDir": "Data directory",
+        "appVersion": "Last initialized version",
+        "unknown": "Unknown"
+      },
+      "actions": {
+        "refresh": "Refresh status",
+        "reset": "Reset local data",
+        "resetting": "Resetting…"
+      },
+      "confirm": "Resetting will delete the local SQLite database (including WAL/SHM files), the JWT secret, and the initialization marker. You must restart the app to bootstrap again. Continue?",
+      "note": "After deleting the data, close the app completely and reopen it so the backend can recreate the database.",
+      "toast": {
+        "resetSuccess": "Local data deleted. Restart the app to run the bootstrap again.",
+        "resetError": "Failed to reset local data: {{message}}"
+      },
+      "errors": {
+        "status": "Failed to read initialization status: {{message}}"
+      }
     }
   },
   "api": {
     "log": {},
     "preference": {
       "update": {
-        "200": "Preferences updated successfully."
-      }
-    },
-    "profile": {
-      "update": {
-        "200": "Profile updated successfully."
+        "200": "Settings updated successfully."
       },
       "updatePassword": {
         "200": "Password updated successfully."

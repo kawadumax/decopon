@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      color-scheme: light;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+    }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #ffffff;
+      color: #374151;
+      font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .splash {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .splash svg {
+      width: 160px;
+      height: 160px;
+      display: block;
+    }
+
+    .spinner {
+      width: 56px;
+      height: 56px;
+      border-radius: 9999px;
+      border: 6px solid #e5e7eb;
+      border-top-color: #f97316;
+      animation: spin 1s linear infinite;
+    }
+
+    .message {
+      margin: 0;
+      font-size: 14px;
+      color: #6b7280;
+      text-align: center;
+      line-height: 1.5;
+      max-width: 280px;
+    }
+
+    @keyframes spin {
+      from {
+        transform: rotate(0deg);
+      }
+
+      to {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="splash" aria-live="polite">
+    <svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Decopon logo">
+      <g transform="matrix(1,0,0,1,-743,0)">
+        <g transform="matrix(0.375,0,0,0.5,743,0)">
+          <rect x="0" y="0" width="800" height="600" style="fill:none;" />
+          <g transform="matrix(1,0,0,1,0,-38)">
+            <g transform="matrix(3.76648,0,0,2.82486,-276.083,-247.458)">
+              <circle cx="179.5" cy="211.5" r="88.5" style="fill:url(#_Linear1);" />
+            </g>
+            <g transform="matrix(2.66667,0,0,2,0,0)">
+              <path d="M116.51,33C123.426,31.75 136.255,42.5 150,42.5C163.745,42.5 176.574,31.75 183.49,33C190.407,34.25 191.5,40.841 191.5,50C191.5,72.904 172.904,91.5 150,91.5C127.096,91.5 108.5,72.904 108.5,50C108.5,40.841 109.593,34.25 116.51,33Z" style="fill:url(#_Linear2);" />
+            </g>
+            <g transform="matrix(2.66667,0,0,2,0,0)">
+              <path d="M150,42.5C148.989,42.972 211.394,78.219 227,144C242.606,209.781 200,228 200,228C200,228 160.798,57.773 150,42.5" style="fill:url(#_Linear3);" />
+            </g>
+          </g>
+        </g>
+      </g>
+      <defs>
+        <linearGradient id="_Linear1" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(177,0,0,267.101,91,166.449)">
+          <stop offset="0" style="stop-color:rgb(231,255,0);stop-opacity:1" />
+          <stop offset="1" style="stop-color:rgb(255,203,131);stop-opacity:1" />
+        </linearGradient>
+        <linearGradient id="_Linear2" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(177,0,0,267.101,91,166.449)">
+          <stop offset="0" style="stop-color:rgb(231,255,0);stop-opacity:1" />
+          <stop offset="1" style="stop-color:rgb(255,203,131);stop-opacity:1" />
+        </linearGradient>
+        <linearGradient id="_Linear3" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(80.4489,0,0,185.5,149.988,135.25)">
+          <stop offset="0" style="stop-color:rgb(225,255,0);stop-opacity:1" />
+          <stop offset="1" style="stop-color:rgb(57,255,48);stop-opacity:1" />
+        </linearGradient>
+      </defs>
+    </svg>
+    <div class="spinner" aria-hidden="true"></div>
+    <p class="message">{{MESSAGE}}</p>
+  </div>
+</body>
+
+</html>

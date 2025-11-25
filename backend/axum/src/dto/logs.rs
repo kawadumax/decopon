@@ -1,7 +1,28 @@
 use sea_orm::prelude::DateTimeUtc;
 use serde::{Deserialize, Serialize};
 
-use crate::usecases::logs::{Log, LogSource};
+use crate::usecases::logs::{Log, LogSource, LogTagInfo};
+
+#[derive(Serialize)]
+pub struct LogTagResponse {
+    pub id: i32,
+    pub name: String,
+    pub created_at: DateTimeUtc,
+    pub updated_at: DateTimeUtc,
+    pub user_id: i32,
+}
+
+impl From<LogTagInfo> for LogTagResponse {
+    fn from(tag: LogTagInfo) -> Self {
+        Self {
+            id: tag.id,
+            name: tag.name,
+            created_at: tag.created_at,
+            updated_at: tag.updated_at,
+            user_id: tag.user_id,
+        }
+    }
+}
 
 #[derive(Serialize)]
 pub struct LogResponse {
@@ -12,6 +33,7 @@ pub struct LogResponse {
     pub updated_at: DateTimeUtc,
     pub user_id: i32,
     pub task_id: Option<i32>,
+    pub tags: Vec<LogTagResponse>,
 }
 
 impl From<Log> for LogResponse {
@@ -24,6 +46,7 @@ impl From<Log> for LogResponse {
             updated_at: log.updated_at,
             user_id: log.user_id,
             task_id: log.task_id,
+            tags: log.tags.into_iter().map(LogTagResponse::from).collect(),
         }
     }
 }
@@ -33,4 +56,8 @@ pub struct StoreLogRequest {
     pub content: String,
     pub source: LogSource,
     pub task_id: Option<i32>,
+    #[serde(default)]
+    pub tag_ids: Vec<i32>,
+    #[serde(default)]
+    pub tag_names: Vec<String>,
 }

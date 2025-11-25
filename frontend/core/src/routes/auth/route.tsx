@@ -1,8 +1,12 @@
-import Authenticated from "@/scripts/layouts/AuthenticatedLayout";
 import { SingleUserBootstrapUnavailableError } from "@/scripts/lib/singleUserBootstrap";
 import { fetchAuthQueryOptions, queryClient } from "@/scripts/queries";
 import { decoponSessionCyclesQueryOptions } from "@/scripts/queries/decoponSession";
 import { Outlet, createFileRoute, redirect } from "@tanstack/react-router";
+import { lazy } from "react";
+
+const AuthenticatedLayout = lazy(
+  () => import("@/scripts/layouts/AuthenticatedLayout"),
+);
 
 // 失敗時にはリダイレクト
 const requireAuth = async () => {
@@ -25,13 +29,9 @@ const requireAuth = async () => {
 
 export const Route = createFileRoute("/auth")({
   loader: requireAuth,
-  component: RouteComponent,
-});
-
-function RouteComponent() {
-  return (
-    <Authenticated>
+  component: () => (
+    <AuthenticatedLayout>
       <Outlet />
-    </Authenticated>
-  );
-}
+    </AuthenticatedLayout>
+  ),
+});

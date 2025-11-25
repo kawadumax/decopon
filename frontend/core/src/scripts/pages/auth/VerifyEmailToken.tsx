@@ -25,7 +25,7 @@ export default function VerifyEmailToken() {
       const auth = { user: data.user };
       queryClient.setQueryData(["auth"], auth);
       authStorage.set(auth);
-      navigate({ to: "/auth/dashboard" });
+      navigate({ to: "/auth/tasks" });
     },
     onError: (error) => {
       console.error("Verify email error:", error);
@@ -37,7 +37,7 @@ export default function VerifyEmailToken() {
   }, [token]);
 
   return (
-    <div className="text-gray-600 text-sm dark:text-gray-400">
+    <div className="text-fg-secondary text-sm dark:text-fg-muted">
       メールを確認しています...
     </div>
   );

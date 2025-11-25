@@ -1,7 +1,18 @@
-import { type MutationOptions, type Updater } from "@tanstack/react-query";
+import {
+  type MutationOptions,
+  type QueryKey,
+  type Updater,
+} from "@tanstack/react-query";
 import { AuthService } from "../api/services/AuthService";
-import { LogService } from "../api/services/LogService";
+import { LogService, type LogQueryParams } from "../api/services/LogService";
+import {
+  buildLogListKey,
+  type NormalizedLogParams,
+  normalizeLogParams,
+  useLogRepository,
+} from "../store/logRepository";
 import { TagService } from "../api/services/TagService";
+import { useTaskRepository } from "../store/taskRepository";
 import { authStorage, AUTH_CACHE_TTL_MS } from "../lib/authStorage";
 import {
   isSingleUserModeEnabled,
@@ -64,17 +75,41 @@ export const fetchAuthQueryOptions = {
   },
 };
 
-export const fetchLogsQueryOptions = {
-  queryKey: ["logs"],
-  queryFn: async (): Promise<Log[]> => {
-    try {
-      return await LogService.index();
-    } catch (error) {
-      logger("Failed to fetch logs:", error);
-      return [];
-    }
-  },
-  placeholderData: [],
+export const buildLogsQueryKey = (
+  params?: LogQueryParams | NormalizedLogParams,
+): QueryKey => {
+  const normalized = normalizeLogParams(params);
+  return ["logs", buildLogListKey(normalized)];
+};
+
+export const fetchLogsQueryOptions = (params?: LogQueryParams) => {
+  const normalized = normalizeLogParams(params);
+  const queryKey = buildLogsQueryKey(normalized);
+  const queryParams: LogQueryParams = {
+    tagIds: normalized.tagIds,
+    taskId: normalized.taskId ?? undefined,
+    taskName: normalized.taskName || undefined,
+  };
+
+  return {
+    queryKey,
+    queryFn: async (): Promise<Log[]> => {
+      try {
+        const logs = await LogService.index(queryParams);
+        const { setLogsForParams } = useLogRepository.getState();
+        setLogsForParams(normalized, logs);
+        return logs;
+      } catch (error) {
+        const axiosLikeError = error as {
+          response?: { status?: number; data?: unknown };
+          message?: string;
+        };
+        logger("Failed to fetch logs:", error);
+        return [];
+      }
+    },
+    placeholderData: [],
+  };
 };
 
 export const fetchTagsQueryOptions = {
@@ -89,6 +124,25 @@ export const fetchTagsQueryOptions = {
   },
   placeholderData: [],
 };
+
+export const fetchTaskLogsQueryOptions = (taskId?: number) => ({
+  queryKey: ["logs", taskId],
+  enabled: !!taskId,
+  queryFn: async (): Promise<Log[]> => {
+    if (!taskId) return [];
+    try {
+      const logs = await LogService.task(taskId);
+      const normalized = normalizeLogParams({ taskId });
+      const { setLogsForParams } = useLogRepository.getState();
+      setLogsForParams(normalized, logs ?? []);
+      return logs ?? [];
+    } catch (error) {
+      logger("Failed to fetch task logs:", error);
+      return [];
+    }
+  },
+  placeholderData: [],
+});
 
 export const storeLogMutationOptions: MutationOptions<
   Log,
@@ -115,6 +169,73 @@ export const setTags = (
 ) => {
   queryClient.setQueryData<Tag[]>(["tags"], updater);
 };
+
+export const attachTagToTask = async (taskId: number, tagName: string) => {
+  const newTag = await TagService.relation({
+    task_id: taskId,
+    name: tagName,
+  });
+  setTags((prev: Tag[] = []) => {
+    const exists = prev.find((tag) => tag.id === newTag.id);
+    if (exists) {
+      return prev.map((tag) => (tag.id === newTag.id ? newTag : tag));
+    }
+    return [newTag, ...prev];
+  });
+  const { appendTagToTask } = useTaskRepository.getState();
+  appendTagToTask(taskId, newTag);
+  await queryClient.invalidateQueries({ queryKey: ["tasks"] });
+  return newTag;
+};
+
+export const detachTagFromTask = async (taskId: number, tagName: string) => {
+  const removedTag = await TagService.relationDestroy({
+    task_id: taskId,
+    name: tagName,
+  });
+  const { removeTagFromTask } = useTaskRepository.getState();
+  if (removedTag) {
+    setTags((prev: Tag[] = []) =>
+      prev.map((tag) => (tag.id === removedTag.id ? removedTag : tag)),
+    );
+    removeTagFromTask(taskId, { id: removedTag.id });
+  } else {
+    removeTagFromTask(taskId, { name: tagName });
+  }
+  await queryClient.invalidateQueries({ queryKey: ["tasks"] });
+  return removedTag;
+};
+
+export const createTag = async (name: string): Promise<Tag> => {
+  const tag = await TagService.store({ name });
+  setTags((prev: Tag[] = []) => [...prev, tag]);
+  return tag;
+};
+
+export const deleteTags = async (ids: number[]): Promise<void> => {
+  await TagService.destroyMany({ tag_ids: ids });
+  setTags((prev: Tag[] = []) =>
+    prev.filter((tag) => !ids.includes(tag.id)),
+  );
+};
+
+export const createTagMutationOptions = (): MutationOptions<
+  Tag,
+  unknown,
+  string,
+  unknown
+> => ({
+  mutationFn: async (name: string) => await createTag(name),
+});
+
+export const deleteTagMutationOptions = (): MutationOptions<
+  void,
+  unknown,
+  number[],
+  unknown
+> => ({
+  mutationFn: deleteTags,
+});
 
 export * from "./task";
 export { queryClient } from "./client";

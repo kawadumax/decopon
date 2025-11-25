@@ -49,7 +49,7 @@ export default function Modal({
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="absolute inset-0 bg-gray-500/75 dark:bg-gray-900/75" />
+          <div className="absolute inset-0 bg-text-secondary/75 dark:bg-surface-inverse/75" />
         </TransitionChild>
 
         <TransitionChild
@@ -62,7 +62,7 @@ export default function Modal({
         >
           <DialogPanel
             className={cn(
-              "mb-6 transform overflow-hidden rounded-lg bg-white shadow-xl transition-all sm:mx-auto sm:w-full dark:bg-gray-800",
+              "mb-6 transform overflow-hidden rounded-lg bg-surface shadow-xl transition-all sm:mx-auto sm:w-full dark:bg-surface-inverse",
               maxWidthClass,
             )}
           >
@@ -73,3 +73,4 @@ export default function Modal({
     </Transition>
   );
 }
+

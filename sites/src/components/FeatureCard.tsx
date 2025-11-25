@@ -28,7 +28,7 @@ export function FeatureCard({
   return (
     <div
       className={cn(
-        "flex gap-6 rounded-lg bg-stone-200 p-6 shadow-lg shadow-stone-300/50 transition dark:bg-stone-900/70 dark:shadow-none",
+        "flex gap-6 rounded-lg bg-surface-elevated p-6 shadow-floating transition dark:bg-surface-inverse/70 dark:shadow-none",
         layout === "left" ? "flex-row" : "flex-row-reverse",
       )}
     >
@@ -75,4 +75,3 @@ export function FeatureCard({
     </div>
   );
 }
-

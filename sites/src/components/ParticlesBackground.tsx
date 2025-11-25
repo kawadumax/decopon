@@ -8,6 +8,19 @@ interface Particle {
   speed: number;
 }
 
+const getBrandAccent = () => {
+  const style = window.getComputedStyle(window.document.documentElement);
+  const accent = style.getPropertyValue("--brand-accent").trim();
+  if (accent) {
+    return accent;
+  }
+  const primary = style.getPropertyValue("--primary").trim();
+  if (primary) {
+    return primary;
+  }
+  return style.getPropertyValue("--text-body").trim();
+};
+
 export const ParticlesBackground: FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -37,6 +50,8 @@ export const ParticlesBackground: FC = () => {
       }
     };
 
+    const accentColor = getBrandAccent();
+
     const drawParticles = (scrollY: number) => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       for (const particle of particles) {
@@ -48,8 +63,10 @@ export const ParticlesBackground: FC = () => {
           particle.size,
           particle.size / 5,
         );
-        ctx.fillStyle = `rgba(${255} , ${255}, 0, ${particle.speed * 0.1})`;
+        ctx.fillStyle = accentColor;
+        ctx.globalAlpha = Math.min(1, particle.speed * 0.1);
         ctx.fill();
+        ctx.globalAlpha = 1;
       }
     };
 

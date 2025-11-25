@@ -1,22 +1,16 @@
-import { LogService } from "@/scripts/api/services/LogService";
 import type { Log } from "@/scripts/types";
 import { LogInput } from "@components/LogInput";
 import { LogItem } from "@components/LogItem";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
-import { useTaskStore } from "@store/task";
+import { useCurrentTask } from "@store/task";
+import { fetchTaskLogsQueryOptions } from "@/scripts/queries";
 
 export const TaskLogger = () => {
-  const task = useTaskStore((s) => s.currentTask);
-  const { data, isLoading } = useQuery<Log[]>({
-    queryKey: ["logs", task?.id],
-    queryFn: async () => {
-      if (!task) return [];
-      const response = await LogService.task(task.id);
-      return response ?? [];
-    },
-    enabled: !!task,
-  });
+  const task = useCurrentTask();
+  const { data = [], isLoading } = useQuery<Log[]>(
+    fetchTaskLogsQueryOptions(task?.id),
+  );
 
   const logContainerRef = useRef<HTMLUListElement>(null);
 

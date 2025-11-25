@@ -4,6 +4,7 @@ pub mod extractors;
 pub mod middleware;
 pub mod routes;
 
+use decopon_runtime::ServiceRuntimeBuilder;
 pub use decopon_services::{
     ServiceContext, ServiceContextBuilder, ServiceError, entities, usecases,
 };
@@ -16,23 +17,42 @@ use axum::{
     },
 };
 use axum_password_worker::{Bcrypt, PasswordWorker};
-use dotenvy::{dotenv, from_filename};
-use sea_orm::{Database, DatabaseConnection};
-use std::{env, io::ErrorKind, net::SocketAddr, sync::Arc};
+use dotenvy::{dotenv, from_path};
+use sea_orm::DatabaseConnection;
+use std::{
+    env,
+    io::ErrorKind,
+    net::SocketAddr,
+    path::{Path, PathBuf},
+    sync::Arc,
+};
 use tower_http::cors::{Any, CorsLayer};
 use tracing_subscriber::{EnvFilter, fmt, layer::SubscriberExt, util::SubscriberInitExt};
 
-use tracing::info;
 use usecases::{mails::Mailer, single_user::SingleUserSession};
 
+fn resolve_env_candidates(primary: &str) -> Vec<PathBuf> {
+    let manifest_dir = Path::new(env!("CARGO_MANIFEST_DIR"));
+    vec![
+        PathBuf::from(primary),
+        manifest_dir.join(primary),
+        manifest_dir.join("..").join(primary),
+        manifest_dir.join("..").join("..").join(primary),
+    ]
+}
+
 pub fn load_env_with_fallback(primary: &str) -> Result<(), dotenvy::Error> {
-    match from_filename(primary) {
+    for candidate in resolve_env_candidates(primary) {
+        match from_path(&candidate) {
+            Ok(_) => return Ok(()),
+            Err(dotenvy::Error::Io(err)) if err.kind() == ErrorKind::NotFound => continue,
+            Err(err) => return Err(err),
+        }
+    }
+
+    match dotenv() {
         Ok(_) => Ok(()),
-        Err(dotenvy::Error::Io(err)) if err.kind() == ErrorKind::NotFound => match dotenv() {
-            Ok(_) => Ok(()),
-            Err(dotenvy::Error::Io(err)) if err.kind() == ErrorKind::NotFound => Ok(()),
-            Err(err) => Err(err),
-        },
+        Err(dotenvy::Error::Io(err)) if err.kind() == ErrorKind::NotFound => Ok(()),
         Err(err) => Err(err),
     }
 }
@@ -136,20 +156,6 @@ impl FromRef<AppState> for Option<SingleUserSession> {
     }
 }
 
-pub async fn setup_database() -> Result<Arc<DatabaseConnection>, sea_orm::DbErr> {
-    let database_url: String = env::var("AXUM_DATABASE_URL").expect(
-        "環境変数 'AXUM_DATABASE_URL' が設定されていません。'.env'ファイルを確認してください。",
-    );
-    let conn = Database::connect(database_url).await?;
-    Ok(Arc::new(conn))
-}
-
-pub fn setup_password_worker() -> Result<Arc<PasswordWorker<Bcrypt>>, Box<dyn std::error::Error>> {
-    let max_threads = 4;
-    let worker = PasswordWorker::new_bcrypt(max_threads)?;
-    Ok(Arc::new(worker))
-}
-
 pub fn setup_jwt_secret() -> Result<String, env::VarError> {
     env::var("AXUM_JWT_SECRET")
 }
@@ -195,48 +201,34 @@ pub fn setup_cors() -> CorsLayer {
     .allow_credentials(true)
 }
 
+fn resolve_app_mode_flags(default_local: bool) -> (bool, bool) {
+    let fallback = if default_local { "local" } else { "web" }.to_string();
+    let normalized = env::var("APP_MODE")
+        .unwrap_or(fallback)
+        .trim()
+        .to_ascii_lowercase();
+    let is_local = normalized != "web";
+    (is_local, !is_local)
+}
+
 pub async fn build_app_state(
     config: BootstrapConfig,
 ) -> Result<AppState, Box<dyn std::error::Error>> {
-    let db = setup_database().await?;
-    let password_worker = setup_password_worker()?;
-
-    let mailer = if config.enable_mailer {
-        match usecases::mails::setup_mailer() {
-            Ok(mailer) => {
-                if mailer.is_none() {
-                    info!(
-                        "SMTP transport is disabled or not configured; email features are inactive"
-                    );
-                }
-                mailer
-            }
-            Err(err) => return Err(Box::new(err)),
-        }
-    } else {
-        info!("Mailer is disabled for this build; email features are inactive");
-        None
-    };
-
+    let database_url: String = env::var("AXUM_DATABASE_URL").expect(
+        "環境変数 'AXUM_DATABASE_URL' が設定されていません。'.env'ファイルを確認してください。",
+    );
     let jwt_secret = setup_jwt_secret()?;
+    let (ensure_single_user_session, enable_mailer) =
+        resolve_app_mode_flags(config.ensure_single_user_session);
 
-    let single_user_session = if config.ensure_single_user_session {
-        Some(
-            usecases::single_user::ensure_user(db.as_ref(), password_worker.as_ref(), &jwt_secret)
-                .await
-                .map_err(|err| -> Box<dyn std::error::Error> { Box::new(err) })?,
-        )
-    } else {
-        None
-    };
+    let runtime = ServiceRuntimeBuilder::new(database_url, jwt_secret.clone())
+        .ensure_single_user_session(ensure_single_user_session)
+        .enable_mailer(enable_mailer)
+        .build()
+        .await
+        .map_err(|err| -> Box<dyn std::error::Error> { Box::new(err) })?;
 
-    let service_context =
-        ServiceContext::builder(db.clone(), password_worker.clone(), jwt_secret.clone())
-            .mailer(mailer.clone())
-            .single_user_session(single_user_session)
-            .build();
-
-    Ok(AppState::new(Arc::new(service_context)))
+    Ok(AppState::new(runtime.service_context()))
 }
 
 pub fn resolve_socket_addr() -> Result<SocketAddr, Box<dyn std::error::Error>> {

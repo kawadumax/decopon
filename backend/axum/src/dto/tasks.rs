@@ -1,7 +1,7 @@
 use sea_orm::prelude::DateTimeUtc;
 use serde::{Deserialize, Serialize};
 
-use crate::usecases::tasks::{Task, TaskTag};
+use crate::usecases::tasks::{Task, TaskSubtreeNode, TaskTag};
 
 #[derive(Serialize)]
 pub struct TaskResponse {
@@ -10,6 +10,9 @@ pub struct TaskResponse {
     pub description: String,
     pub completed: bool,
     pub parent_task_id: Option<i32>,
+    pub root_task_id: Option<i32>,
+    pub depth: i32,
+    pub position: i32,
     pub created_at: DateTimeUtc,
     pub updated_at: DateTimeUtc,
     pub tags: Vec<TaskTagResponse>,
@@ -23,9 +26,27 @@ impl From<Task> for TaskResponse {
             description: task.description,
             completed: task.completed,
             parent_task_id: task.parent_task_id,
+            root_task_id: task.root_task_id,
+            depth: task.depth,
+            position: task.position,
             created_at: task.created_at,
             updated_at: task.updated_at,
             tags: task.tags.into_iter().map(TaskTagResponse::from).collect(),
+        }
+    }
+}
+
+#[derive(Serialize)]
+pub struct TaskSubtreeResponse {
+    pub task: TaskResponse,
+    pub relative_depth: i32,
+}
+
+impl From<TaskSubtreeNode> for TaskSubtreeResponse {
+    fn from(node: TaskSubtreeNode) -> Self {
+        Self {
+            task: TaskResponse::from(node.task),
+            relative_depth: node.relative_depth,
         }
     }
 }

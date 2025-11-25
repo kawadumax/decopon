@@ -11,6 +11,16 @@
     "title": "タイムライン",
     "type": {
       "system": "システムログ"
+    },
+    "filter": {
+      "clear": "条件をクリア",
+      "selected": "{{count}}件のタグを選択中",
+      "task": {
+        "title": "タスクで絞り込み",
+        "idPlaceholder": "タスクIDで検索",
+        "namePlaceholder": "タスク名で検索",
+        "clear": "タスク条件をクリア"
+      }
     }
   },
   "tag": {
@@ -56,23 +66,57 @@
     "password": "パスワード",
     "confirmPassword": "パスワード（確認）",
     "name": "名前",
-    "placeholderInput": "新しい項目を追加"
+    "placeholderInput": "新しい項目を追加",
+    "loading": "読み込み中..."
   },
   "header": {
     "menu": {
-      "dashboard": "ダッシュボード",
+      "statistics": "統計",
       "tasks": "タスク",
       "tags": "タグ",
       "logs": "ログ",
-      "profile": "プロフィール",
+      "preference": "設定",
+      "about": "このアプリについて",
       "login": "ログイン",
       "logout": "ログアウト",
       "register": "登録"
     }
   },
-  "dashboard": {
-    "title": "ダッシュボード",
-    "greeting": "ログインしました！"
+  "statistics": {
+    "title": "タスク統計",
+    "description": "直近で実行したタスクの記録と進捗を確認できます。",
+    "cards": {
+      "totalTasks": "総タスク数",
+      "completedTasks": "完了タスク",
+      "completionRate": "完了率",
+      "lastExecution": "直近の実行",
+      "noRecord": "記録なし"
+    },
+    "sections": {
+      "completedTasks": {
+        "title": "完了済みタスク",
+        "description": "最新の更新順で完了済みタスクを表示します。"
+      },
+      "timeline": {
+        "title": "タスク実行ログ",
+        "description": "タスクに紐づいた最新のログを確認できます。"
+      }
+    },
+    "table": {
+      "headers": {
+        "task": "タスク",
+        "tags": "タグ",
+        "completedAt": "完了日時",
+        "description": "概要"
+      },
+      "noTags": "タグなし",
+      "noDescription": "説明なし",
+      "empty": "完了済みタスクの記録がまだありません。"
+    },
+    "timeline": {
+      "taskLabel": "タスクID: {{id}}",
+      "empty": "タスクに紐づくログがまだありません。"
+    }
   },
   "auth": {
     "login": {
@@ -80,7 +124,10 @@
       "forgotPassword": "パスワードをお忘れですか？",
       "submit": "ログイン",
       "caution": "注意",
-      "demo": "あなたはデモ版のサービスにログインしようとしています。デモ版ではデータが予告なく消されることがあります。また、デモ版ではゲストアカウントとしてログインすることが可能です。"
+      "demo": "あなたはデモ版のサービスにログインしようとしています。デモ版ではデータが予告なく消されることがあります。また、デモ版ではゲストアカウントとしてログインすることが可能です。",
+      "error": {
+        "notMatch": "入力された情報が正しくありません"
+      }
     },
     "register": {
       "title": "登録",
@@ -115,15 +162,21 @@
       "logout": "ログアウト"
     }
   },
-  "profile": {
-    "title": "プロフィール",
+  "preference": {
+    "title": "設定",
     "updatePreference": {
       "title": "設定情報",
-      "description": "アカウントの設定を更新します。",
-      "workTime": "作業時間（分）",
-      "breakTime": "休憩時間（分）",
-      "locale": "言語"
-    },
+    "description": "アカウントの設定を更新します。",
+    "workTime": "作業時間（分）",
+    "breakTime": "休憩時間（分）",
+    "locale": "言語",
+    "theme": "テーマ",
+    "themeOptions": {
+      "light": "ライト",
+      "dark": "ダーク",
+      "system": "システム設定に従う"
+    }
+  },
     "updateProfileInformation": {
       "title": "プロフィール情報",
       "description": "アカウントのプロフィール情報とメールアドレスを更新します。",
@@ -147,6 +200,33 @@
         "cancel": "キャンセル",
         "confirm": "アカウントを削除"
       }
+    },
+    "dangerZone": {
+      "title": "デンジャーゾーン（Tauri）",
+      "description": "Tauri の単一ユーザービルド専用の操作です。組み込みバックエンドの状態確認や再初期化に使用してください。",
+      "loading": "初期化状態を読み込んでいます…",
+      "status": {
+        "label": "初期化ステータス",
+        "initialized": "初期化済み",
+        "notInitialized": "未初期化",
+        "dataDir": "データディレクトリ",
+        "appVersion": "前回初期化したバージョン",
+        "unknown": "不明"
+      },
+      "actions": {
+        "refresh": "状態を再取得",
+        "reset": "ローカルデータを削除",
+        "resetting": "削除中…"
+      },
+      "confirm": "この操作ではローカルの SQLite データベース（WAL/SHM を含む）、JWT シークレット、初期化フラグを削除します。完了後はアプリを再起動して初期化を再実行してください。続行しますか？",
+      "note": "データを削除したらアプリを完全に終了し、再度起動してバックエンドの再初期化を行ってください。",
+      "toast": {
+        "resetSuccess": "ローカルデータを削除しました。再起動後に初期化が再実行されます。",
+        "resetError": "ローカルデータの削除に失敗しました: {{message}}"
+      },
+      "errors": {
+        "status": "初期化状態の取得に失敗しました: {{message}}"
+      }
     }
   },
   "api": {
@@ -154,11 +234,6 @@
     "preference": {
       "update": {
         "200": "設定が正常に更新されました。"
-      }
-    },
-    "profile": {
-      "update": {
-        "200": "プロフィールが正常に更新されました。"
       },
       "updatePassword": {
         "200": "パスワードが正常に更新されました。"

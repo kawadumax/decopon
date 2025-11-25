@@ -6,9 +6,9 @@ use tracing::info;
 use tracing::warn;
 
 #[cfg(feature = "mail")]
-use lettre::message::{header::ContentType, Mailbox};
+use lettre::message::{Mailbox, header::ContentType};
 #[cfg(feature = "mail")]
-use lettre::{transport::smtp::response::Response, Message, SmtpTransport, Transport};
+use lettre::{Message, SmtpTransport, Transport, transport::smtp::response::Response};
 
 #[cfg(feature = "mail")]
 pub type Mailer = Arc<SmtpTransport>;
@@ -36,13 +36,10 @@ fn smtp_disabled() -> bool {
         }
     }
 
-    if let Ok(value) = env::var("APP_SINGLE_USER_MODE") {
-        if is_truthy(&value) {
-            return true;
-        }
-    }
-
-    false
+    let app_mode = env::var("APP_MODE")
+        .unwrap_or_else(|_| "local".to_string())
+        .to_ascii_lowercase();
+    app_mode != "web"
 }
 
 #[cfg(feature = "mail")]
@@ -176,7 +173,7 @@ mod tests {
         dotenv().ok();
         unsafe {
             std::env::set_var("AXUM_DISABLE_SMTP", "0");
-            std::env::set_var("APP_SINGLE_USER_MODE", "0");
+            std::env::set_var("APP_MODE", "web");
         }
 
         let from = get_from().expect("from address");

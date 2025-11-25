@@ -1,5 +1,5 @@
 import { endpoints } from "../endpoints";
-import { callApi } from "../httpClient";
+import { callApi } from "../client";
 import type {
   ApiRequestData,
   PreferenceResponse,
@@ -14,8 +14,8 @@ export const ProfileService = {
   updateProfile(data: ApiRequestData): Promise<User> {
     return callApi<User>("put", endpoints.profiles.update, data, {
       toast: {
-        success: "api.profile.update",
-        error: "api.profile.update",
+        success: "api.preference.update",
+        error: "api.preference.update",
       },
     });
   },
@@ -35,16 +35,16 @@ export const ProfileService = {
   updatePassword(data: ApiRequestData): Promise<void> {
     return callApi<void>("put", endpoints.profiles.passwordUpdate, data, {
       toast: {
-        success: "api.profile.updatePassword",
-        error: "api.profile.updatePassword",
+        success: "api.preference.updatePassword",
+        error: "api.preference.updatePassword",
       },
     });
   },
   deleteUser(data: ApiRequestData): Promise<void> {
     return callApi<void>("delete", endpoints.profiles.destroy, data, {
       toast: {
-        success: "api.profile.destroy",
-        error: "api.profile.destroy",
+        success: "api.preference.destroy",
+        error: "api.preference.destroy",
       },
     });
   },

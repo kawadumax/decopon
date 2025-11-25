@@ -20,6 +20,9 @@ impl MigrationTrait for Migration {
                     .col(timestamp(Tasks::CreatedAt).default(Expr::current_timestamp()))
                     .col(timestamp(Tasks::UpdatedAt).default(Expr::current_timestamp()))
                     .col(integer(Tasks::UserId))
+                    .col(integer_null(Tasks::RootTaskId))
+                    .col(integer(Tasks::Depth).not_null().default(0))
+                    .col(integer(Tasks::Position).not_null().default(0))
                     .col(integer_null(Tasks::ParentTaskId))
                     .foreign_key(
                         foreign_key::ForeignKey::create()
@@ -54,8 +57,11 @@ pub enum Tasks {
     Title,
     Description,
     Completed,
-    UserId,
-    ParentTaskId,
     CreatedAt,
     UpdatedAt,
+    UserId,
+    RootTaskId,
+    Depth,
+    Position,
+    ParentTaskId,
 }

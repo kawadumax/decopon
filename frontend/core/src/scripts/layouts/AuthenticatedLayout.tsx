@@ -10,6 +10,7 @@ import { Separator } from "@components/ui/separator";
 import {
   Sheet,
   SheetContent,
+  SheetDescription,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
@@ -33,16 +34,19 @@ import {
   type ReactNode,
   type SetStateAction,
   forwardRef,
+  useMemo,
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
+import { isTauriEnvironment } from "@/scripts/lib/isTauriEnvironment";
 
-const links = [
-  {
-    key: "dashboard",
-    href: "/auth/dashboard",
-    icon: ActivitySquare,
-  },
+type DrawerLinkDefinition = {
+  key: "statistics" | "tasks" | "tags" | "logs";
+  href: "/auth/statistics" | "/auth/tasks" | "/auth/tags" | "/auth/logs";
+  icon: typeof ActivitySquare;
+};
+
+const links: DrawerLinkDefinition[] = [
   {
     key: "tasks",
     href: "/auth/tasks",
@@ -58,7 +62,12 @@ const links = [
     href: "/auth/logs",
     icon: Book,
   },
-] as const;
+  {
+    key: "statistics",
+    href: "/auth/statistics",
+    icon: ActivitySquare,
+  },
+];
 
 const Drawer = ({
   user,
@@ -67,6 +76,8 @@ const Drawer = ({
 }) => {
   const [open, setOpen] = useState(false);
   const { t } = useTranslation();
+  const isTauri = useMemo(() => isTauriEnvironment(), []);
+  const drawerLinks = useMemo(() => links, []);
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -74,33 +85,49 @@ const Drawer = ({
         <DrawerButton open={open} setOpen={setOpen} />
       </SheetTrigger>
       <SheetContent side={"left"}>
-        <SheetHeader>
-          <div className="px-4">
-            <div className="font-medium text-base text-gray-800 dark:text-gray-200">
-              {user.name}
-            </div>
-            <div className="font-medium text-gray-500 text-sm">
-              {user.email}
-            </div>
-          </div>
+        <SheetHeader className="sr-only">
+          <SheetTitle>ナビゲーションメニュー</SheetTitle>
+          <SheetDescription>主要ページへのリンクを表示しています</SheetDescription>
         </SheetHeader>
-        <Separator className="my-4" />
-        <div className="space-y-1">
-          {links.map((link) => (
+        {!isTauri && (
+          <>
+            <SheetHeader>
+              <div className="px-4">
+                <div className="font-medium text-base text-fg dark:text-fg-inverse">
+                  {user.name}
+                </div>
+                <div className="font-medium text-fg-muted text-sm">
+                  {user.email}
+                </div>
+              </div>
+            </SheetHeader>
+            <Separator className="my-4" />
+          </>
+        )}
+        <div className="space-y-1 mt-8">
+          {drawerLinks.map((link) => (
             <ResponsiveNavLink key={link.href} to={link.href}>
               {t(`header.menu.${link.key}`)}
             </ResponsiveNavLink>
           ))}
         </div>
         <Separator className="my-4" />
-        <div className="border-gray-200 dark:border-gray-600">
+        <div className="border-line dark:border-line-strong">
           <div className="space-y-1">
-            <ResponsiveNavLink to="/auth/profiles">
-              {t("header.menu.profile")}
+            <ResponsiveNavLink to="/auth/preferences">
+              {t("header.menu.preference")}
             </ResponsiveNavLink>
-            <ResponsiveNavLink variant="button">
-              {t("header.menu.logout")}
-            </ResponsiveNavLink>
+            <a
+              href="https://kawadumax.github.io/decopon/"
+              target="_blank"
+              rel="noreferrer"
+              className={cn(
+                "flex w-full items-start border-l-4 py-2 pe-4 ps-3 text-base font-medium transition duration-150 ease-in-out focus:outline-hidden",
+                "border-transparent text-fg-secondary hover:border-line-subtle hover:bg-surface-muted hover:text-fg focus:border-line-subtle focus:bg-surface-muted focus:text-fg dark:text-fg-muted dark:hover:border-line-strong dark:hover:bg-surface-inverse-muted dark:hover:text-fg-inverse dark:focus:border-line-strong dark:focus:bg-surface-inverse-muted dark:focus:text-fg-inverse",
+              )}
+            >
+              {t("header.menu.about")}
+            </a>
           </div>
         </div>
       </SheetContent>
@@ -113,7 +140,7 @@ const DrawerButton = forwardRef<
   {
     open: boolean;
     setOpen: Dispatch<SetStateAction<boolean>>;
-  } & React.HTMLProps<HTMLButtonElement> // ← button props も追加
+  } & React.HTMLProps<HTMLButtonElement>
 >(({ open, setOpen, ...props }, ref) => {
   return (
     <div className="flex items-center">
@@ -122,7 +149,7 @@ const DrawerButton = forwardRef<
         {...props}
         type="button"
         onClick={() => setOpen((previousState) => !previousState)}
-        className="inline-flex items-center justify-center rounded-md p-2 text-gray-400 transition duration-150 ease-in-out hover:bg-gray-100 hover:text-gray-500 focus:bg-gray-100 focus:text-gray-500 focus:outline-hidden dark:text-gray-500 dark:focus:bg-gray-900 dark:focus:text-gray-400 dark:hover:bg-gray-900 dark:hover:text-gray-400"
+        className="inline-flex items-center justify-center rounded-md p-2 text-fg-muted transition duration-150 ease-in-out hover:bg-surface-muted hover:text-fg-muted focus:bg-surface-muted focus:text-fg-muted focus:outline-hidden dark:text-fg-muted dark:focus:bg-surface-elevated dark:focus:text-fg-muted dark:hover:bg-surface-elevated dark:hover:text-fg-muted"
       >
         <svg
           className="h-6 w-6"
@@ -155,13 +182,13 @@ const HeaderNavigationPC = ({ user }: { user: User }) => {
   const { t } = useTranslation();
 
   return (
-    <nav className="h-16 border-gray-100 border-b bg-white dark:border-gray-700 dark:bg-gray-800">
+    <nav className="h-16 border-line border-b bg-surface dark:border-line-subtle dark:bg-surface">
       <div className="mx-auto max-w-screen px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 justify-between">
           <div className="flex">
             <div className="flex shrink-0 items-center">
               <Link to="/">
-                <ApplicationLogo className="block h-9 w-auto fill-current text-gray-800 dark:text-gray-200" />
+                <ApplicationLogo className="block h-9 w-auto fill-current text-fg dark:text-fg-inverse" />
               </Link>
             </div>
 
@@ -182,7 +209,7 @@ const HeaderNavigationPC = ({ user }: { user: User }) => {
                   <span className="inline-flex rounded-md">
                     <button
                       type="button"
-                      className="inline-flex items-center rounded-md border border-transparent bg-white px-3 py-2 font-medium text-gray-500 text-sm leading-4 transition duration-150 ease-in-out hover:text-gray-700 focus:outline-hidden dark:bg-gray-800 dark:text-gray-400 dark:hover:text-gray-300"
+                      className="inline-flex items-center rounded-md border border-transparent bg-surface px-3 py-2 font-medium text-fg-muted text-sm leading-4 transition duration-150 ease-in-out hover:text-fg focus:outline-hidden dark:bg-surface dark:text-fg-muted dark:hover:text-fg-secondary"
                     >
                       {user.name}
 
@@ -204,10 +231,16 @@ const HeaderNavigationPC = ({ user }: { user: User }) => {
                 </Dropdown.Trigger>
 
                 <Dropdown.Content>
-                  <Dropdown.Link to="/auth/profiles">
-                    {t("header.menu.profile")}
+                  <Dropdown.Link to="/auth/preferences">
+                    {t("header.menu.preference")}
                   </Dropdown.Link>
-                  <Dropdown.Button>{t("header.menu.logout")}</Dropdown.Button>
+                  <Dropdown.ExternalLink
+                    href="https://kawadumax.github.io/decopon/"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {t("header.menu.about")}
+                  </Dropdown.ExternalLink>
                 </Dropdown.Content>
               </Dropdown>
             </div>
@@ -233,15 +266,16 @@ const BackButton = () => {
 
 const HeaderNavigation = ({ user }: { user: User }) => {
   return (
-    <nav className="flex flex-row justify-between border-gray-100 border-b bg-white dark:border-gray-700 dark:bg-gray-800">
+    <nav className="flex flex-row justify-between border-line border-b bg-surface dark:border-line-subtle dark:bg-surface">
       <BackButton />
       <Sheet>
         <SheetTrigger>
           <TimerStateWidget />
         </SheetTrigger>
         <SheetContent side={"top"} className="size-full p-0">
-          <SheetHeader className="hidden">
+          <SheetHeader className="sr-only">
             <SheetTitle>Timer</SheetTitle>
+            <SheetDescription>タイマー用の操作パネルを開きます</SheetDescription>
           </SheetHeader>
           <Timer />
         </SheetContent>
@@ -254,12 +288,13 @@ const HeaderNavigation = ({ user }: { user: User }) => {
 const FooterNavigation = () => {
   const matchRoute = useMatchRoute();
   const { t } = useTranslation();
+  const footerLinks = useMemo(() => links, []);
 
   return (
-    <nav className="sticky bottom-0 flex flex-row items-stretch justify-between divide-x border-gray-100 border-t border-b bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800">
-      {links.map((link) => {
+    <nav className="sticky bottom-0 flex flex-row items-stretch justify-between divide-x border-line border-t border-b bg-surface shadow-lg dark:border-line-subtle dark:bg-surface">
+      {footerLinks.map((link) => {
         const isActive = !!matchRoute({ to: link.href, fuzzy: false });
-        const activeClassName = isActive ? "text-amber-400" : "text-slate-700";
+        const activeClassName = isActive ? "text-primary" : "text-fg";
         return (
           <Link
             key={link.href}
@@ -268,7 +303,7 @@ const FooterNavigation = () => {
           >
             <span
               className={cn([
-                "flex flex-col items-center text-center font-light text-xs focus:text-amber-400",
+                "flex flex-col items-center text-center font-light text-xs focus:text-primary",
                 activeClassName,
               ])}
             >
@@ -298,7 +333,7 @@ export default function Authenticated({
   setBreakTime(user?.break_time || 5);
 
   return (
-    <div className="flex h-screen flex-col bg-gray-100 dark:bg-gray-900">
+    <div className="flex h-screen flex-col bg-surface-muted dark:bg-surface-muted">
       <StackViewProvider>
         <ResponsiveLayout user={user}>{children}</ResponsiveLayout>
       </StackViewProvider>

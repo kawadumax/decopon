@@ -1,11 +1,11 @@
 import { Textarea } from "@components/ui/textarea";
-import { useTaskStore } from "@store/task";
+import { useCurrentTask } from "@store/task";
 import type React from "react";
 import { useEffect, useState } from "react";
 import { useTaskMutations } from "@/scripts/queries";
 
 export const TaskEditableDescription = () => {
-  const task = useTaskStore((s) => s.currentTask);
+  const task = useCurrentTask();
   const [description, setDescription] = useState(task?.description ?? "");
   const { updateTask } = useTaskMutations();
   const updateTaskMutate = updateTask.mutate;
@@ -35,6 +35,7 @@ export const TaskEditableDescription = () => {
   return (
     <div>
       <Textarea
+        className="bg-surface text-fg dark:bg-surface dark:text-fg"
         value={description}
         onChange={handleOnChange}
         onBlur={handleOnBlur}

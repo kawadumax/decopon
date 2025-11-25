@@ -24,6 +24,9 @@ export interface Task {
   created_at: string;
   updated_at: string;
   parent_task_id?: number;
+  root_task_id?: number;
+  depth?: number;
+  position?: number;
   tags?: Tag[];
 }
 
@@ -47,6 +50,7 @@ export interface Log {
   updated_at: string;
   user_id: number;
   task_id?: number;
+  tags: Tag[];
 }
 
 export enum DecoponSessionStatus {

@@ -1,6 +1,6 @@
 import type { ApiRequestData, Task } from "@/scripts/types";
 import { endpoints } from "../endpoints";
-import { callApi } from "../httpClient";
+import { callApi } from "../client";
 
 export const TaskService = {
   index(): Promise<Task[]> {

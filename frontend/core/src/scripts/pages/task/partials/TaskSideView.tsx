@@ -3,9 +3,9 @@ import { TaskEditableDescription } from "./TaskEditableDescription";
 import { TaskEditableTagList } from "./TaskEditableTagList";
 import { TaskEditableTitle } from "./TaskEditableTitle";
 import { TaskLogger } from "./TaskLogger";
-import { useTaskStore } from "@store/task";
+import { useCurrentTask } from "@store/task";
 export const TaskSideView = () => {
-  const currentTask = useTaskStore((s) => s.currentTask);
+  const currentTask = useCurrentTask();
   const { t } = useTranslation();
   const renderTaskContent = () => {
     if (!currentTask) {

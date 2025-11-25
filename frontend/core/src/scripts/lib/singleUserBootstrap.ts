@@ -1,4 +1,4 @@
-import { callApi } from "@/scripts/api/httpClient";
+import { callApi } from "@/scripts/api/client";
 import { endpoints } from "@/scripts/api/endpoints";
 import { authStorage } from "@/scripts/lib/authStorage";
 import { tokenStorage } from "@/scripts/lib/tokenStorage";

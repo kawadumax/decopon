@@ -13,7 +13,7 @@ export default function SecondaryButton({
       {...props}
       type={type}
       className={cn(
-        "inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 font-semibold text-gray-700 text-xs uppercase tracking-widest shadow-sm transition duration-150 ease-in-out hover:bg-gray-50 focus:outline-hidden focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 disabled:opacity-25 dark:border-gray-500 dark:bg-gray-800 dark:text-gray-300 dark:focus:ring-offset-gray-800 dark:hover:bg-gray-700",
+        "inline-flex items-center rounded-md border border-line-subtle bg-surface px-4 py-2 font-semibold text-fg text-xs uppercase tracking-widest shadow-sm transition duration-150 ease-in-out hover:bg-surface-muted focus:outline-hidden focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:opacity-25 dark:border-line-strong dark:bg-surface dark:text-fg dark:focus:ring-offset-surface dark:hover:bg-surface-elevated",
         disabled && "opacity-25",
         className,
       )}
@@ -23,3 +23,4 @@ export default function SecondaryButton({
     </button>
   );
 }
+
