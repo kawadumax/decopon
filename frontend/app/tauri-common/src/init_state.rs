@@ -85,7 +85,7 @@ impl AppInitializationState {
 
     fn try_notify(&self, app_handle: &AppHandle) {
         let (label, splash_label, emitted_once) = {
-            let mut state = self
+            let state = self
                 .state
                 .lock()
                 .unwrap_or_else(|poisoned| poisoned.into_inner());
@@ -108,18 +108,26 @@ impl AppInitializationState {
 
         if let Some(label) = label {
             if !emitted_once {
-                if let Some(window) = app_handle.get_webview_window(&label) {
-                    if let Err(error) = window.show() {
-                        warn!(error = ?error, "failed to show main window");
+                #[cfg(not(any(target_os = "android", target_os = "ios")))]
+                {
+                    if let Some(window) = app_handle.get_webview_window(&label) {
+                        if let Err(error) = window.show() {
+                            warn!(error = ?error, "failed to show main window");
+                        }
+                    }
+
+                    if let Some(splash_label) = splash_label {
+                        if let Some(splash) = app_handle.get_webview_window(&splash_label) {
+                            if let Err(error) = splash.close() {
+                                warn!(error = ?error, "failed to close splashscreen window");
+                            }
+                        }
                     }
                 }
 
-                if let Some(splash_label) = splash_label {
-                    if let Some(splash) = app_handle.get_webview_window(&splash_label) {
-                        if let Err(error) = splash.close() {
-                            warn!(error = ?error, "failed to close splashscreen window");
-                        }
-                    }
+                #[cfg(any(target_os = "android", target_os = "ios"))]
+                {
+                    let _ = &splash_label;
                 }
             }
 

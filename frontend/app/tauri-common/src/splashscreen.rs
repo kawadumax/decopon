@@ -23,6 +23,13 @@ fn build_splashscreen_url() -> Result<Url, url::ParseError> {
     Url::parse(&format!("data:text/html;base64,{}", encoded))
 }
 
+#[cfg(any(target_os = "android", target_os = "ios"))]
+pub fn create_splashscreen(_: &tauri::AppHandle, _: &str) -> Option<String> {
+    tracing::info!("splashscreen is disabled on mobile targets");
+    None
+}
+
+#[cfg(not(any(target_os = "android", target_os = "ios")))]
 pub fn create_splashscreen(app_handle: &tauri::AppHandle, label: &str) -> Option<String> {
     let splash_url = match build_splashscreen_url() {
         Ok(url) => url,
@@ -32,15 +39,16 @@ pub fn create_splashscreen(app_handle: &tauri::AppHandle, label: &str) -> Option
         }
     };
 
-    match tauri::WebviewWindowBuilder::new(app_handle, label, WebviewUrl::External(splash_url))
-        .title("Decopon")
-        .resizable(false)
-        .inner_size(420.0, 420.0)
-        .center()
-        .decorations(false)
-        .always_on_top(true)
-        .build()
-    {
+    let builder =
+        tauri::WebviewWindowBuilder::new(app_handle, label, WebviewUrl::External(splash_url))
+            .title("Decopon")
+            .resizable(false)
+            .inner_size(420.0, 420.0)
+            .center()
+            .decorations(false)
+            .always_on_top(true);
+
+    match builder.build() {
         Ok(window) => Some(window.label().to_string()),
         Err(error) => {
             tracing::warn!(error = ?error, "failed to create splashscreen window");
