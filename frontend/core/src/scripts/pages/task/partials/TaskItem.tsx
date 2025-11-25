@@ -23,7 +23,7 @@ export const TaskItem = ({
 
   const [isExpanded, setIsExpanded] = useState(true);
 
-  const setCurrentTask = useTaskStore((s) => s.setCurrentTask);
+  const setCurrentTaskId = useTaskStore((s) => s.setCurrentTaskId);
   const deviceSize = useDeviceSize();
   const [_state, dispatch] = useStackView();
 
@@ -33,7 +33,7 @@ export const TaskItem = ({
 
   const handleItemClicked = (event: React.MouseEvent) => {
     event.stopPropagation();
-    setCurrentTask(task);
+    setCurrentTaskId(task.id);
 
     if (deviceSize === "mobile") {
       dispatch({
@@ -50,7 +50,7 @@ export const TaskItem = ({
   const handleItemKeyDowned = (event: React.KeyboardEvent) => {
     if (event.key !== "Enter") return;
     event.stopPropagation();
-    setCurrentTask(task);
+    setCurrentTaskId(task.id);
   };
 
   const handleFold = (event: React.MouseEvent) => {

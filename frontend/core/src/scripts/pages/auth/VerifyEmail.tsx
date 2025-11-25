@@ -40,18 +40,18 @@ export default function VerifyEmail() {
 
   return (
     <>
-      <div className="mb-4 text-gray-600 text-sm dark:text-gray-400">
+      <div className="mb-4 text-fg-secondary text-sm dark:text-fg-muted">
         {t("auth.verifyEmail.description")}
       </div>
 
       {status === "verification-link-sent" && (
-        <div className="mb-4 font-medium text-green-600 text-sm dark:text-green-400">
+        <div className="mb-4 font-medium text-success text-sm">
           {t("auth.verifyEmail.linkSent")}
         </div>
       )}
 
       {error && (
-        <div className="mb-4 font-medium text-red-600 text-sm dark:text-red-400">
+        <div className="mb-4 font-medium text-destructive text-sm">
           {error}
         </div>
       )}
@@ -91,7 +91,7 @@ export default function VerifyEmail() {
 
           <a
             href="/logout"
-            className="rounded-md text-gray-600 text-sm underline hover:text-gray-900 focus:outline-hidden focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:text-gray-400 dark:focus:ring-offset-gray-800 dark:hover:text-gray-100"
+            className="rounded-md text-fg-secondary text-sm underline hover:text-fg-strong focus:outline-hidden focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:text-fg-muted dark:focus:ring-offset-surface-inverse dark:hover:text-fg-inverse"
           >
             {t("auth.verifyEmail.logout")}
           </a>

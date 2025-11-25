@@ -8,7 +8,7 @@ import type {
 import { authStorage } from "../../lib/authStorage";
 import { tokenStorage } from "../../lib/tokenStorage";
 import { endpoints } from "../endpoints";
-import { callApi } from "../httpClient";
+import { callApi } from "../client";
 
 export const AuthService = {
   getUser(): Promise<User> {

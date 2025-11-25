@@ -6,9 +6,7 @@ use axum::{
     body::{Body, to_bytes},
     http::{Request, StatusCode, header::CONTENT_TYPE},
 };
-use sea_orm::{
-    ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, Set,
-};
+use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, Set};
 use tower::ServiceExt;
 
 use decopon_axum::{

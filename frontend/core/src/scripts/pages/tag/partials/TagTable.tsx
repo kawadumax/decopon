@@ -1,7 +1,6 @@
 import { useCallback, useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { TagTableRow } from "@/scripts/pages/tag/partials/TagTableRow";
-import type { TagWithCheck, Task } from "@/scripts/types";
+import type { TagWithCheck } from "@/scripts/types";
 import { Checkbox } from "@components/ui/checkbox";
 import {
   Table,
@@ -12,7 +11,7 @@ import {
 } from "@components/ui/table";
 import { useTranslation } from "react-i18next";
 import { useTagStore } from "@store/tag";
-import { TaskService } from "@/scripts/api/services/TaskService";
+import { useTaskList, useTasks } from "@/scripts/queries";
 
 export const TagTable = () => {
   const { t } = useTranslation();
@@ -20,10 +19,8 @@ export const TagTable = () => {
     useTagStore((s) => s.getCheckableTags()),
     useTagStore((s) => s.addTagChecks),
   ];
-  const { data: tasks = [] } = useQuery<Task[]>({
-    queryKey: ["tasks"],
-    queryFn: () => TaskService.index(),
-  });
+  useTasks();
+  const tasks = useTaskList();
   const tagTaskCountMap = useMemo(() => {
     const counts = new Map<number, number>();
     for (const task of tasks) {

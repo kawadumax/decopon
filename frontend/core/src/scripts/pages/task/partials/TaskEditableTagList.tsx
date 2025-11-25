@@ -1,69 +1,39 @@
-import { TagService } from "@/scripts/api/services/TagService";
-import type { Tag } from "@/scripts/types";
 import { logger, toEmblorTags } from "@lib/utils";
-import { setTags } from "@/scripts/queries";
+import {
+  attachTagToTask,
+  detachTagFromTask,
+} from "@/scripts/queries";
 import { type Tag as EmblorTag, TagInput } from "emblor";
 import { useCallback, useEffect, useState } from "react";
-import { useTaskStore } from "@store/task";
-import { useQueryClient } from "@tanstack/react-query";
+import { useCurrentTask } from "@store/task";
 
 export const TaskEditableTagList = () => {
-  const queryClient = useQueryClient();
   const [activeTagIndex, setActiveTagIndex] = useState<number | null>(null);
-  const currentTask = useTaskStore((s) => s.currentTask);
-  const setCurrentTask = useTaskStore((s) => s.setCurrentTask);
+  const currentTask = useCurrentTask();
   const [emblorTags, setEmblorTags] = useState<EmblorTag[]>(
     toEmblorTags(currentTask?.tags ?? []),
   );
-
   const handleTagAdded = useCallback(
     (tagText: string) => {
       if (!currentTask) return;
-      TagService.relation({
-        task_id: currentTask.id,
-        name: tagText,
-      }).then((newTag) => {
-        setTags((prev: Tag[] = []) => {
-          const exists = prev.find((tag) => tag.id === newTag.id);
-          if (exists) {
-            return prev.map((tag) => (tag.id === newTag.id ? newTag : tag));
-          }
-          return [newTag, ...prev];
+      attachTagToTask(currentTask.id, tagText)
+        .catch((error) => {
+          logger("failed to add tag relation", error);
         });
-        setCurrentTask({
-          ...currentTask,
-          tags: [...(currentTask.tags ?? []), newTag],
-        });
-        queryClient.invalidateQueries({ queryKey: ["tasks"] });
-      });
     },
-    [currentTask, queryClient, setCurrentTask, setTags],
+    [currentTask],
   );
 
   const handleTagRemoved = useCallback(
     (tagText: string) => {
       if (!currentTask) return;
       logger("tag removed", tagText, currentTask);
-      TagService.relationDestroy({
-        task_id: currentTask.id,
-        name: tagText,
-      }).then((tag) => {
-        if (tag) {
-          setTags((prev: Tag[] = []) =>
-            prev.map((t) => (t.id === tag.id ? tag : t)),
-          );
-        }
-        const newTags = currentTask.tags
-          ? currentTask.tags.filter((t) => t.name !== tagText)
-          : [];
-        setCurrentTask({
-          ...currentTask,
-          tags: [...newTags],
+      detachTagFromTask(currentTask.id, tagText)
+        .catch((error) => {
+          logger("failed to remove tag relation", error);
         });
-        queryClient.invalidateQueries({ queryKey: ["tasks"] });
-      });
     },
-    [currentTask, queryClient, setCurrentTask, setTags],
+    [currentTask],
   );
 
   useEffect(() => {
@@ -78,10 +48,14 @@ export const TaskEditableTagList = () => {
       styleClasses={{
         input: "w-full shadow-none",
         tag: {
-          body: "h-6 p-2",
-          closeButton: "p-1 pr-0 hover:text-primary-foreground",
+          body:
+            "h-6 p-2 rounded bg-surface-muted text-fg dark:bg-surface dark:text-fg",
+          closeButton:
+            "p-1 pr-0 hover:text-primary-foreground dark:hover:text-primary",
         },
-        inlineTagsContainer: "border-0 px-0",
+        inlineTagsContainer:
+          "border-0 px-0 bg-surface-muted dark:bg-surface-muted",
+
       }}
       tags={emblorTags}
       setTags={setEmblorTags}

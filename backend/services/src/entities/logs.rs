@@ -56,4 +56,14 @@ impl Related<super::users::Entity> for Entity {
     }
 }
 
+impl Related<super::tags::Entity> for Entity {
+    fn to() -> RelationDef {
+        super::log_tag::Relation::Tags.def()
+    }
+
+    fn via() -> Option<RelationDef> {
+        Some(Relation::LogTag.def())
+    }
+}
+
 impl ActiveModelBehavior for ActiveModel {}

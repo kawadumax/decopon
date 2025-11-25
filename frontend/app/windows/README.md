@@ -10,6 +10,7 @@ Windows 版では `src-tauri/src/lib.rs` 内のセットアップ処理で以下
 
 - `AXUM_DATABASE_URL`: アプリデータディレクトリ直下の `decopon.sqlite` を指す SQLite DSN。
 - `AXUM_JWT_SECRET`: `AppData\\Roaming\\com.decopon.windows\\jwt_secret` に保存された値を読み込みます。ファイルが存在しない場合は 64 文字のランダム文字列を生成して保存します。
+- `APP_MODE`: ローカルクライアントとして動作させるため `local` をセットします。
 - `APP_SINGLE_USER_MODE`: 単一ユーザー前提の動作をさせるため `1` をセットします。
 - `APP_SINGLE_USER_EMAIL`: 単一ユーザー用のメールアドレスとして `single-user@localhost` をセットします。
 - `APP_SINGLE_USER_PASSWORD`: ローカル用の既定パスワードとして `decopon-local-password` をセットします。
@@ -20,7 +21,7 @@ Windows 版では `src-tauri/src/lib.rs` 内のセットアップ処理で以下
 
 SMTP を利用する場合や単一ユーザーモードを解除したい場合は、Tauri アプリを起動する前に任意の値を環境変数へ設定してください。
 
-なお、`DATABASE_URL`、`AXUM_DISABLE_SMTP`、`AXUM_IP` / `AXUM_PORT` / `AXUM_ALLOWED_ORIGINS` などは自動では注入されません。必要に応じて `.env` やシステム環境変数で個別に設定してください（Axum 側には未設定時のフォールバック値が用意されています）。
+なお、`DATABASE_URL`、`AXUM_DISABLE_SMTP`、`AXUM_IP` / `AXUM_PORT` / `AXUM_ALLOWED_ORIGINS` などは自動では注入されません。必要に応じて `.env.windows` などのファイルやシステム環境変数で個別に設定してください（Axum 側には未設定時のフォールバック値が用意されています）。
 
 ## 開発・ビルド手順
 
@@ -34,7 +35,7 @@ SMTP を利用する場合や単一ユーザーモードを解除したい場合
 ## ローカル配布のポイント
 
 - 初回起動時にアプリデータディレクトリ（例: `%APPDATA%\\com.decopon.windows`）が作成され、データベース・JWT シークレット・ログなどが格納されます。
-- `.env.example` にある `APP_SINGLE_USER_MODE` と `AXUM_DISABLE_SMTP` を `1` に設定すると、サーバー単体で起動した場合でもデスクトップアプリ同様の挙動になります。
+- ルート直下の `.env.windows` で `APP_MODE=local`（および必要なら `AXUM_DISABLE_SMTP=1`）を設定すると、サーバー単体で起動した場合でもデスクトップアプリ同様の挙動になります。
 - メール機能が無効な状態でもサーバーは起動し、認証ルートではメール送信をスキップして処理が継続されます。
 
 ## 推奨ツールチェーン
@@ -42,3 +43,18 @@ SMTP を利用する場合や単一ユーザーモードを解除したい場合
 - [VS Code](https://code.visualstudio.com/) + [Tauri 拡張](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
 - Rust toolchain（stable）および Node.js (推奨: 18 以降)
 - `pnpm`（リポジトリ全体で使用）
+
+## 初回起動と再初期化（Danger Zone）
+
+- 初期化フラグと状態表示
+  - アプリデータディレクトリに `init_state.json` を作成し、初期化済みかどうかと最終バージョンを保持します。
+  - プロフィール画面の最下部に「Danger Zone (Tauri)」カードを追加しました。`get_init_status` コマンドを経由して初期化状態・データディレクトリを表示し、同じ画面から再初期化を実行できます（Android 版も同一 UI）。
+- シングルユーザー初期化の挙動
+  - `APP_MODE=local`（Tauri ローカルビルド）の場合は既存ユーザーを上書きせず、Danger Zone でデータを削除したときのみ初期状態に戻ります。
+  - `APP_MODE=web`（サーバー/デモ環境）では従来通り `.env` 由来のプロフィールで毎回上書きされます。
+- 再初期化（データリセット）
+  - `reset_application_data` コマンドは以下を削除します。
+    - `decopon.sqlite` / `decopon.sqlite-wal` / `decopon.sqlite-shm`
+    - `jwt_secret`
+    - `init_state.json`
+  - コマンド実行後は手動でアプリを終了・再起動し、初期ブートストラップを再度走らせてください。

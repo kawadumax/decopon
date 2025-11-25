@@ -1,14 +1,12 @@
-import Guest from "@/scripts/layouts/GuestLayout";
 import { Outlet, createFileRoute } from "@tanstack/react-router";
+import { lazy } from "react";
+
+const GuestLayout = lazy(() => import("@/scripts/layouts/GuestLayout"));
 
 export const Route = createFileRoute("/guest")({
-  component: RouteComponent,
-});
-
-function RouteComponent() {
-  return (
-    <Guest>
+  component: () => (
+    <GuestLayout>
       <Outlet />
-    </Guest>
-  );
-}
+    </GuestLayout>
+  ),
+});

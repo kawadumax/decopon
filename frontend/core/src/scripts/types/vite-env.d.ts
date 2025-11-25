@@ -28,6 +28,7 @@ interface ImportMetaEnv {
   readonly VITE_API_BASE_URL?: string;
   readonly VITE_GUEST_EMAIL: string;
   readonly VITE_GUEST_PASSWORD: string;
+  readonly VITE_APP_TRANSPORT?: "http" | "ipc";
   readonly VITE_APP_SINGLE_USER_MODE?: string;
 }
 

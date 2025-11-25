@@ -64,26 +64,27 @@ export const Timer = () => {
   }, []);
 
   return (
-    <div className="flex h-full flex-col justify-center gap-2 bg-[url(/images/decopon-icon-300x300.png)] bg-center bg-white/50 bg-no-repeat bg-blend-lighten">
-      <div className="self-center rounded border border-amber-400 border-solid bg-white p-2 text-center font-mono text-4xl">
+    <div className="flex h-full flex-col justify-center gap-2 bg-[url(/images/decopon-plain.svg)] bg-center bg-surface/50 dark:bg-surface/50 bg-no-repeat bg-blend-lighten">
+      <div className="self-center rounded border border-primary border-solid bg-surface dark:bg-surface p-2 text-center font-mono text-4xl">
         {formatTime(remainTime)}
       </div>
       <div className="flex flex-row justify-center gap-2">
         <Badge
           className={cn(
-            "bg-white text-center text-black",
+            "bg-surface dark:bg-surface text-center text-fg-strong",
             isRunning ? "cursor-not-allowed" : "cursor-pointer",
           )}
           onClick={toggleWorkOrBreak}
         >
           {isWorkTime ? t("timer.workTime") : t("timer.breakTime")}
         </Badge>
-        <Badge className="cursor-default bg-white text-center text-black">
+        <Badge className="cursor-default bg-surface dark:bg-surface text-center text-fg-strong">
           {t("timer.cycles")}: {timeState.cycles.count}
         </Badge>
       </div>
 
       <Button
+        variant="secondary"
         className="w-fit self-center"
         onClick={startTimer}
         disabled={isRunning}
@@ -91,11 +92,12 @@ export const Timer = () => {
         {t("timer.start")}
       </Button>
       <div className="flex flex-row justify-center gap-2">
-        <Button onClick={stopTimer} disabled={!isRunning}>
+        <Button variant="secondary" onClick={stopTimer} disabled={!isRunning}>
           {t("timer.stop")}
         </Button>
         <Button
-          className="bg-lime-400 text-white focus:bg-lime-300 focus:outline-2 focus:outline-lime-400 focus:outline-offset-2"
+          variant="secondary"
+          className="border border-success text-success focus:outline-2 focus:outline-success focus:outline-offset-2"
           onClick={resetTimer}
         >
           {t("timer.reset")}
@@ -103,7 +105,7 @@ export const Timer = () => {
       </div>
       {import.meta.env.VITE_APP_ENV === "local" && (
         <Button
-          className="w-fit self-center bg-red-400 text-white focus:bg-red-300 focus:outline-2 focus:outline-red-400 focus:outline-offset-2"
+          className="w-fit self-center bg-destructive text-destructive-foreground focus:bg-destructive/90 focus:outline-2 focus:outline-destructive focus:outline-offset-2"
           onClick={completeTimer}
         >
           {t("timer.complete")}

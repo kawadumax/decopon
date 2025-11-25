@@ -1,5 +1,5 @@
 import { endpoints } from "../endpoints";
-import { callApi } from "../httpClient";
+import { callApi } from "../client";
 import type { ApiRequestData, Tag } from "@/scripts/types";
 
 export const TagService = {

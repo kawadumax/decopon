@@ -39,18 +39,18 @@ export default function ConfirmPassword() {
 
   return (
     <>
-      <div className="mb-4 text-gray-600 text-sm dark:text-gray-400">
+      <div className="mb-4 text-fg-secondary text-sm dark:text-fg-muted">
         {t("auth.confirmPassword.description")}
       </div>
 
       {status === "password-confirmed" && (
-        <div className="mb-4 font-medium text-green-600 text-sm dark:text-green-400">
+        <div className="mb-4 font-medium text-success text-sm">
           {t("auth.confirmPassword.success")}
         </div>
       )}
 
       {error && (
-        <div className="mb-4 font-medium text-red-600 text-sm dark:text-red-400">
+        <div className="mb-4 font-medium text-destructive text-sm">
           {error}
         </div>
       )}
