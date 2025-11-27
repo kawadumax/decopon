@@ -8,12 +8,8 @@ interface Particle {
   speed: number;
 }
 
-const getBrandAccent = () => {
+const getPrimaryColor = () => {
   const style = window.getComputedStyle(window.document.documentElement);
-  const accent = style.getPropertyValue("--brand-accent").trim();
-  if (accent) {
-    return accent;
-  }
   const primary = style.getPropertyValue("--primary").trim();
   if (primary) {
     return primary;
@@ -50,7 +46,7 @@ export const ParticlesBackground: FC = () => {
       }
     };
 
-    const accentColor = getBrandAccent();
+    const accentColor = getPrimaryColor();
 
     const drawParticles = (scrollY: number) => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
