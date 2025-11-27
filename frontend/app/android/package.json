@@ -7,7 +7,8 @@
     "dev": "vite dev --debug transform",
     "build": "vite build",
     "preview": "vite preview",
-    "tauri": "tauri"
+    "tauri": "tauri",
+    "tauri:android:build:arm64": "pnpm run tauri -- android build --target aarch64"
   },
   "dependencies": {
     "@decopon/app-shared": "workspace:*",

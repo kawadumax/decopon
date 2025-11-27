@@ -7,6 +7,11 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[features]
+default = ["android-release"]
+android-release = []
+android-dev = ["android-release", "tauri/test"]
+
 [lib]
 name = "android_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
@@ -24,10 +29,18 @@ sea-orm = { version = "1.1", features = ["sqlx-sqlite", "runtime-tokio-rustls", 
 sea-orm-migration = { version = "1.1", features = ["sqlx-sqlite", "runtime-tokio-rustls"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-tauri = { version = "2", features = ["test", "webview-data-url"] }
+tauri = { version = "2", features = ["webview-data-url"] }
 tauri-plugin-opener = "2"
 thiserror = "1"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["fmt", "env-filter"] }
 rand = { version = "0.8", default-features = false, features = ["std", "std_rng"] }
 url = "2"
+
+[profile.release]
+codegen-units = 1
+debug = false
+lto = "fat"
+opt-level = "z"
+panic = "abort"
+strip = "symbols"
