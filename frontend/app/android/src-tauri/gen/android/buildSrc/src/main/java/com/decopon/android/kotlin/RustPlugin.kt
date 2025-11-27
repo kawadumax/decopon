@@ -17,13 +17,42 @@ open class RustPlugin : Plugin<Project> {
     override fun apply(project: Project) = with(project) {
         config = extensions.create("rust", Config::class.java)
 
-        val defaultAbiList = listOf("arm64-v8a", "armeabi-v7a", "x86", "x86_64");
-        val abiList = (findProperty("abiList") as? String)?.split(',') ?: defaultAbiList
+        val useFullAbiMatrix = (findProperty("fullAbiMatrix") as? String)?.toBoolean() ?: false
+        val defaultAbiList = if (useFullAbiMatrix) {
+            listOf("arm64-v8a", "armeabi-v7a", "x86", "x86_64")
+        } else {
+            listOf("arm64-v8a")
+        }
+        val abiList = (findProperty("abiList") as? String)
+            ?.split(',')
+            ?.mapNotNull { it.trim().ifBlank { null } }
+            ?.toList()
+            .orEmpty()
 
-        val defaultArchList = listOf("arm64", "arm", "x86", "x86_64");
-        val archList = (findProperty("archList") as? String)?.split(',') ?: defaultArchList
+        val defaultArchList = if (useFullAbiMatrix) {
+            listOf("arm64", "arm", "x86", "x86_64")
+        } else {
+            listOf("arm64")
+        }
+        val archList = (findProperty("archList") as? String)
+            ?.split(',')
+            ?.mapNotNull { it.trim().ifBlank { null } }
+            ?.toList()
+            .orEmpty()
 
-        val targetsList = (findProperty("targetList") as? String)?.split(',') ?: listOf("aarch64", "armv7", "i686", "x86_64")
+        val defaultTargetsList = if (useFullAbiMatrix) {
+            listOf("aarch64", "armv7", "i686", "x86_64")
+        } else {
+            listOf("aarch64")
+        }
+        val targetsList = (findProperty("targetList") as? String)
+            ?.split(',')
+            ?.mapNotNull { it.trim().ifBlank { null } }
+            ?.toList()
+            .orEmpty()
+
+        val archAbiPairs = archList.zip(abiList).ifEmpty { defaultArchList.zip(defaultAbiList) }
+        val resolvedTargets = targetsList.ifEmpty { defaultTargetsList }
 
         extensions.configure<ApplicationExtension> {
             @Suppress("UnstableApiUsage")
@@ -32,14 +61,16 @@ open class RustPlugin : Plugin<Project> {
                 create("universal") {
                     dimension = "abi"
                     ndk {
-                        abiFilters += abiList
+                        abiFilters.clear()
+                        abiFilters += archAbiPairs.map { it.second }
                     }
                 }
-                defaultArchList.forEachIndexed { index, arch ->
+                archAbiPairs.forEach { (arch, abi) ->
                     create(arch) {
                         dimension = "abi"
                         ndk {
-                            abiFilters.add(defaultAbiList[index])
+                            abiFilters.clear()
+                            abiFilters.add(abi)
                         }
                     }
                 }
@@ -59,9 +90,9 @@ open class RustPlugin : Plugin<Project> {
 
                 tasks["mergeUniversal${profileCapitalized}JniLibFolders"].dependsOn(buildTask)
 
-                for (targetPair in targetsList.withIndex()) {
-                    val targetName = targetPair.value
-                    val targetArch = archList[targetPair.index]
+                archAbiPairs.forEachIndexed { index, archAbiPair ->
+                    val targetName = resolvedTargets.getOrNull(index) ?: resolvedTargets.last()
+                    val targetArch = archAbiPair.first
                     val targetArchCapitalized = targetArch.replaceFirstChar { it.uppercase() }
                     val targetBuildTask = project.tasks.maybeCreate(
                         "rustBuild$targetArchCapitalized$profileCapitalized",

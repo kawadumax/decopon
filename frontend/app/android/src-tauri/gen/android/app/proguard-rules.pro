@@ -19,3 +19,11 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# Keep Tauri/WebView classes that are accessed via reflection
+-keep class app.tauri.** { *; }
+-keep class app.tauri.plugin.** { *; }
+-keep class androidx.webkit.** { *; }
+-keepclassmembers class android.webkit.WebView { *; }
+# Suppress warnings from Chromium/WebView implementation classes
+-dontwarn org.chromium.**
