@@ -2,7 +2,7 @@
 
 Tauri + React で構築した Android 向けの Decopon クライアントです。Windows 版と同じくバックエンド（Axum）をアプリ内 IPC で直接呼び出し、アプリデータディレクトリに SQLite データベースや JWT シークレットを配置します。
 
-フロントエンドのエントリーポイントや Vite 設定は `../shared` に集約されており、Android 固有の設定は本ディレクトリの `vite.config.ts` と `src-tauri` 以下で管理します。
+フロントエンドのエントリーポイントや Vite 設定は `../tauri-ui` に集約されており、Android 固有の設定は本ディレクトリの `vite.config.ts` と `src-tauri` 以下で管理します。
 
 ## 開発環境の準備
 

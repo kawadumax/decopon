@@ -57,6 +57,22 @@
     "reset": "リセット",
     "complete": "完了"
   },
+  "notification": {
+    "permissionPrompt": "タスクの締切を OS 通知でお知らせしてもいいですか？",
+    "settings": {
+      "label": "ネイティブ通知を有効にする",
+      "description": "タイマーの開始・終了を OS 通知で知らせます。この設定は OS の通知許可とは別にアプリ内で保持します。"
+    },
+    "timerStarted": {
+      "title": "{{mode}}を開始しました",
+      "body": "残り時間: {{remaining}}"
+    },
+    "timerFinished": {
+      "title": "タイマーが終了しました",
+      "bodyWork": "作業時間が終了しました。休憩に入りましょう。",
+      "bodyBreak": "休憩時間が終了しました。次の作業を始めましょう。"
+    }
+  },
   "common": {
     "add": "追加",
     "delete": "削除",

@@ -101,9 +101,9 @@ importers:
 
   frontend/app/android:
     dependencies:
-      '@decopon/app-shared':
+      '@decopon/app-tauri-ui':
         specifier: workspace:*
-        version: link:../shared
+        version: link:../tauri-ui
       '@decopon/core':
         specifier: workspace:*
         version: link:../../core
@@ -130,11 +130,14 @@ importers:
         specifier: 'catalog:'
         version: 4.3.0(rollup@4.52.5)(typescript@5.8.3)(vite@5.4.21(@types/node@22.15.21)(lightningcss@1.30.1))
 
-  frontend/app/shared:
+  frontend/app/tauri-ui:
     dependencies:
       '@tauri-apps/api':
         specifier: ^2.9.0
         version: 2.9.0
+      '@tauri-apps/plugin-notification':
+        specifier: ^2.2.0
+        version: 2.3.3
     devDependencies:
       '@tailwindcss/vite':
         specifier: 'catalog:'
@@ -154,9 +157,9 @@ importers:
 
   frontend/app/windows:
     dependencies:
-      '@decopon/app-shared':
+      '@decopon/app-tauri-ui':
         specifier: workspace:*
-        version: link:../shared
+        version: link:../tauri-ui
       '@decopon/core':
         specifier: workspace:*
         version: link:../../core
@@ -2540,6 +2543,9 @@ packages:
     resolution: {integrity: sha512-kKi2/WWsNXKoMdatBl4xrT7e1Ce27JvsetBVfWuIb6D3ep/Y0WO5SIr70yarXOSWam8NyDur4ipzjZkg6m7VDg==}
     engines: {node: '>= 10'}
     hasBin: true
+
+  '@tauri-apps/plugin-notification@2.3.3':
+    resolution: {integrity: sha512-Zw+ZH18RJb41G4NrfHgIuofJiymusqN+q8fGUIIV7vyCH+5sSn5coqRv/MWB9qETsUs97vmU045q7OyseCV3Qg==}
 
   '@tauri-apps/plugin-opener@2.5.0':
     resolution: {integrity: sha512-B0LShOYae4CZjN8leiNDbnfjSrTwoZakqKaWpfoH6nXiJwt6Rgj6RnVIffG3DoJiKsffRhMkjmBV9VeilSb4TA==}
@@ -6558,6 +6564,10 @@ snapshots:
       '@tauri-apps/cli-win32-arm64-msvc': 2.9.1
       '@tauri-apps/cli-win32-ia32-msvc': 2.9.1
       '@tauri-apps/cli-win32-x64-msvc': 2.9.1
+
+  '@tauri-apps/plugin-notification@2.3.3':
+    dependencies:
+      '@tauri-apps/api': 2.9.0
 
   '@tauri-apps/plugin-opener@2.5.0':
     dependencies:

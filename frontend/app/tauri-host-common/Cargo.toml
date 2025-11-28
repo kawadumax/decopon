@@ -1,9 +1,11 @@
 [package]
-name = "decopon-tauri-common"
+name = "decopon-tauri-host-common"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+axum = "0.8"
+decopon-axum = { path = "../../../backend/axum" }
 decopon-runtime = { path = "../../../backend/runtime", features = ["sqlite"] }
 migration = { path = "../../../backend/axum/migration" }
 rand = { version = "0.8", default-features = false, features = ["std", "std_rng"] }
@@ -11,6 +13,7 @@ sea-orm = { version = "1.1", features = ["sqlx-sqlite", "runtime-tokio-rustls", 
 sea-orm-migration = { version = "1.1", features = ["sqlx-sqlite", "runtime-tokio-rustls"] }
 tauri = { version = "2", features = ["test"] }
 thiserror = "1"
+tower = { version = "0.5", features = ["util"] }
 tracing = "0.1"
 url = "2"
 serde = { version = "1", features = ["derive"] }

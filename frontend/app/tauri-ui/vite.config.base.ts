@@ -53,10 +53,13 @@ export function createTauriViteConfig({
   serverOverrides = {},
   envMode,
 }: CreateTauriViteConfigOptions): UserConfig {
-  const sharedFallback = path.resolve(platformDir, "../shared");
+  const uiFallback = path.resolve(platformDir, "../tauri-ui");
   const coreFallback = path.resolve(platformDir, "../../core");
 
-  const sharedRoot = resolvePackageRoot("@decopon/app-shared", sharedFallback);
+  const tauriUiRoot = resolvePackageRoot(
+    "@decopon/app-tauri-ui",
+    uiFallback,
+  );
   const coreRoot = resolvePackageRoot("@decopon/core", coreFallback);
   const coreRoutesDir = path.resolve(coreRoot, "src/routes");
   const coreRouteTree = path.resolve(coreRoot, "src/routeTree.gen.ts");
@@ -82,7 +85,7 @@ export function createTauriViteConfig({
       : { host: false };
 
   const allowList = [
-    sharedRoot,
+    tauriUiRoot,
     coreRoot,
     path.resolve(platformDir, "../../"),
     ...extraAllowedDirs,
@@ -93,7 +96,7 @@ export function createTauriViteConfig({
   const singleUserModeFlag = env.VITE_APP_SINGLE_USER_MODE ?? fallbackSingleUser;
 
   return {
-    root: sharedRoot,
+    root: tauriUiRoot,
     build: {
       outDir: path.resolve(platformDir, "dist"),
       emptyOutDir: true,

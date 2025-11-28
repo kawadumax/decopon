@@ -1,5 +1,5 @@
 import { defineConfig } from "vite";
-import { createTauriViteConfig } from "../shared/vite.config.base";
+import { createTauriViteConfig } from "../tauri-ui/vite.config.base";
 
 const RESERVED_MODES = new Set(["development", "production", "test"]);
 
