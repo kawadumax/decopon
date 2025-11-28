@@ -67,6 +67,7 @@ pub fn run() {
 
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_notification::init())
         .invoke_handler(tauri::generate_handler![dispatch_http_request, get_init_status, reset_application_data])
         .setup(|app| {
             let app_handle = app.handle();

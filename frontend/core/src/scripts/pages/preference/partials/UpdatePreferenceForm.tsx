@@ -2,6 +2,10 @@ import { useEffect, useState } from "react";
 
 import { ProfileService } from "@/scripts/api/services/ProfileService";
 import { authStorage } from "@/scripts/lib/authStorage";
+import {
+  ensureNativeNotificationPermission,
+  hasNativeNotificationAdapter,
+} from "@/scripts/lib/nativeNotification";
 import type { Auth, Locale } from "@/scripts/types";
 
 const locales = { ENGLISH: "en", JAPANESE: "ja" } as const;
@@ -9,6 +13,7 @@ const themes = { light: "light", dark: "dark", system: "system" } as const;
 import InputLabel from "@components/InputLabel";
 import PrimaryButton from "@components/PrimaryButton";
 import TextInput from "@components/TextInput";
+import { Checkbox } from "@components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -21,6 +26,7 @@ import { useForm } from "@tanstack/react-form";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTheme } from "next-themes";
 import { useTranslation } from "react-i18next";
+import { useNativeNotificationSettingsStore } from "@store/nativeNotification";
 
 export default function UpdatePreferenceForm({
   className = "",
@@ -33,10 +39,36 @@ export default function UpdatePreferenceForm({
   const user = auth.user;
   const { theme, setTheme } = useTheme();
   const [selectedTheme, setSelectedTheme] = useState(theme ?? themes.light);
+  const notificationEnabled = useNativeNotificationSettingsStore(
+    (state) => state.enabled,
+  );
+  const setNotificationEnabled = useNativeNotificationSettingsStore(
+    (state) => state.setEnabled,
+  );
 
   useEffect(() => {
     setSelectedTheme(theme ?? themes.light);
   }, [theme]);
+
+  const handleNotificationToggle = async (checked: boolean) => {
+    setNotificationEnabled(checked);
+
+    if (!checked) {
+      return;
+    }
+
+    if (!hasNativeNotificationAdapter()) {
+      return;
+    }
+
+    const granted = await ensureNativeNotificationPermission({
+      prompt: () => window.confirm(t("notification.permissionPrompt")),
+    });
+
+    if (!granted) {
+      setNotificationEnabled(false);
+    }
+  };
 
   const form = useForm({
     defaultValues: {
@@ -202,6 +234,27 @@ export default function UpdatePreferenceForm({
               </SelectItem>
             </SelectContent>
           </Select>
+        </div>
+
+        <div className="mt-4 space-y-2">
+          <div className="flex items-center gap-3">
+            <Checkbox
+              id="native-notification-enabled"
+              checked={notificationEnabled}
+              onCheckedChange={(checked) => {
+                void handleNotificationToggle(checked === true);
+              }}
+            />
+            <div className="space-y-1">
+              <InputLabel
+                htmlFor="native-notification-enabled"
+                value={t("notification.settings.label")}
+              />
+              <p className="text-sm text-fg-secondary dark:text-fg-muted">
+                {t("notification.settings.description")}
+              </p>
+            </div>
+          </div>
         </div>
 
         <div className="flex items-center gap-4">

@@ -4,7 +4,8 @@
   "version": "0.1.0",
   "type": "module",
   "dependencies": {
-    "@tauri-apps/api": "^2.9.0"
+    "@tauri-apps/api": "^2.9.0",
+    "@tauri-apps/plugin-notification": "^2.2.0"
   },
   "devDependencies": {
     "@tanstack/router-plugin": "catalog:",

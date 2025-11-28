@@ -57,6 +57,22 @@
     "reset": "Reset",
     "complete": "Complete"
   },
+  "notification": {
+    "permissionPrompt": "Allow Decopon to send OS notifications for task deadlines?",
+    "settings": {
+      "label": "Enable native notifications",
+      "description": "Send OS notifications when the timer starts or finishes. This preference is stored in the app separately from the OS notification permission."
+    },
+    "timerStarted": {
+      "title": "{{mode}} started",
+      "body": "Remaining time: {{remaining}}"
+    },
+    "timerFinished": {
+      "title": "Timer finished",
+      "bodyWork": "Work session finished. Time for a break.",
+      "bodyBreak": "Break finished. Let's get back to work."
+    }
+  },
   "common": {
     "add": "Add",
     "delete": "Delete",
