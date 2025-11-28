@@ -1,15 +1,15 @@
 use std::collections::HashMap;
 
-use decopon_app_ipc::{self as ipc, AppIpcState, IpcHttpResponse};
 use decopon_axum::AppState;
-use decopon_tauri_common::init_marker::{is_first_launch, mark_initialized};
-use decopon_tauri_common::init_state::{AppInitializationState, ReadyListenerState};
-use decopon_tauri_common::services::AppServices;
-use decopon_tauri_common::{
-    configure_environment, ensure_app_data_dir, resolve_single_user_mode_flag,
-    should_skip_service_bootstrap, sqlite_url_from_path, FRONTEND_READY_EVENT,
+use decopon_tauri_host_common::init_marker::{is_first_launch, mark_initialized};
+use decopon_tauri_host_common::init_state::{AppInitializationState, ReadyListenerState};
+use decopon_tauri_host_common::services::AppServices;
+use decopon_tauri_host_common::splashscreen::{create_splashscreen, DEFAULT_SPLASH_LABEL};
+use decopon_tauri_host_common::{
+    commands, configure_environment, dispatch_http_request as dispatch_ipc_http_request,
+    ensure_app_data_dir, resolve_single_user_mode_flag, should_skip_service_bootstrap,
+    sqlite_url_from_path, AppIpcState, IpcHttpResponse, FRONTEND_READY_EVENT,
 };
-use decopon_tauri_common::splashscreen::{create_splashscreen, DEFAULT_SPLASH_LABEL};
 use serde_json::Value;
 use tauri::{Listener, Manager, State};
 use tracing::{error, info, warn};
@@ -48,17 +48,17 @@ async fn dispatch_http_request(
     body: Option<Value>,
     headers: Option<HashMap<String, String>>,
 ) -> Result<IpcHttpResponse, String> {
-    ipc::dispatch_http_request(&state, method, path, body, headers).await
+    dispatch_ipc_http_request(&state, method, path, body, headers).await
 }
 
 #[tauri::command]
 fn get_init_status(app: tauri::AppHandle) -> Result<serde_json::Value, String> {
-    decopon_tauri_common::commands::get_init_status(app)
+    commands::get_init_status(app)
 }
 
 #[tauri::command]
 fn reset_application_data(app: tauri::AppHandle) -> Result<(), String> {
-    decopon_tauri_common::commands::reset_application_data(app)
+    commands::reset_application_data(app)
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]

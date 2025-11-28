@@ -1,5 +1,5 @@
 {
-  "name": "@decopon/app-shared",
+  "name": "@decopon/app-tauri-ui",
   "private": true,
   "version": "0.1.0",
   "type": "module",

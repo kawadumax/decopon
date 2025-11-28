@@ -10,7 +10,7 @@
     "tauri": "tauri"
   },
   "dependencies": {
-    "@decopon/app-shared": "workspace:*",
+    "@decopon/app-tauri-ui": "workspace:*",
     "@decopon/core": "workspace:*",
     "@tauri-apps/api": "^2.9.0",
     "@tauri-apps/plugin-opener": "^2.5.0"

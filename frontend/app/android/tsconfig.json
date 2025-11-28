@@ -17,10 +17,10 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "baseUrl": "../shared"
+    "baseUrl": "../tauri-ui"
   },
 
   /* Type checking */
-  "include": ["../shared/src/**/*"],
+  "include": ["../tauri-ui/src/**/*"],
   "exclude": ["node_modules", "dist", "vite.config.ts"],
 }
