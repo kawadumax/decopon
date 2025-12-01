@@ -1,5 +1,9 @@
 import "@decopon/core/styles/app.css";
-import { bootstrap, singleUserBootstrap } from "@decopon/core";
+import {
+  bootstrap,
+  registerNativeNotificationAdapter,
+  singleUserBootstrap,
+} from "@decopon/core";
 import { BACKEND_READY_EVENT, FRONTEND_READY_EVENT } from "./events";
 
 const sleep = (ms: number) =>
@@ -43,6 +47,15 @@ void (async () => {
     console.error("Failed to load Tauri event APIs", error);
     bootstrap();
     return;
+  }
+
+  try {
+    const { tauriNotificationAdapter } = await import(
+      "./notifications/tauriNotificationAdapter"
+    );
+    registerNativeNotificationAdapter(tauriNotificationAdapter);
+  } catch (error) {
+    console.error("Failed to initialize native notification adapter", error);
   }
 
   let bootstrapped = false;

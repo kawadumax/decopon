@@ -15,6 +15,8 @@ pub mod services;
 pub mod init_marker;
 pub mod commands;
 pub mod splashscreen;
+pub mod ipc;
+pub use ipc::{dispatch_http_request, AppIpcState, IpcHttpResponse};
 
 pub fn ensure_app_data_dir(app_handle: &AppHandle) -> Result<PathBuf, std::io::Error> {
     let data_dir = app_handle.path().app_data_dir().unwrap_or_else(|_| {

@@ -162,6 +162,9 @@ jobs:
 
       - name: Build Android Tauri bundle
         run: pnpm android:build
+        env:
+          # ARM64 専用ビルドに限定
+          TAURI_ANDROID_TARGETS: aarch64
 
       - name: Rename Android APK
         env:

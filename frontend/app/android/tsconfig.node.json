@@ -9,7 +9,7 @@
   },
   "include": [
     "vite.config.ts",
-    "../shared/vite.config.base.ts",
+    "../tauri-ui/vite.config.base.ts",
     "../../vite.aliases.ts"
   ]
 }

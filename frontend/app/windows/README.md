@@ -2,7 +2,7 @@
 
 Tauri + React で構築した Windows 向けの Decopon クライアントです。バックエンド（Axum）はアプリ内 IPC で直接呼び出され、ローカルのアプリデータディレクトリに SQLite データベースや JWT シークレットを保存します。
 
-Windows/Android などのデスクトップ・モバイルアプリで共通利用するフロントエンドのエントリーポイントや Vite 設定は `../shared` に集約しています。Windows 固有の設定は本ディレクトリにある `vite.config.ts` と `src-tauri` 以下で管理します。
+Windows/Android などのデスクトップ・モバイルアプリで共通利用するフロントエンドのエントリーポイントや Vite 設定は `../tauri-ui` に集約しています。Windows 固有の設定は本ディレクトリにある `vite.config.ts` と `src-tauri` 以下で管理します。
 
 ## 必要な環境変数と自動設定
 

@@ -7,10 +7,11 @@
     "dev": "vite dev --debug transform",
     "build": "vite build",
     "preview": "vite preview",
-    "tauri": "tauri"
+    "tauri": "tauri",
+    "tauri:android:build:arm64": "pnpm run tauri -- android build --target aarch64"
   },
   "dependencies": {
-    "@decopon/app-shared": "workspace:*",
+    "@decopon/app-tauri-ui": "workspace:*",
     "@decopon/core": "workspace:*",
     "@tauri-apps/api": "^2.9.0",
     "@tauri-apps/plugin-opener": "^2.5.0"

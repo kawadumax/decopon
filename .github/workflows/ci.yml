@@ -46,8 +46,8 @@ jobs:
       - name: Cargo check (migration crate)
         run: cargo check --manifest-path backend/axum/migration/Cargo.toml
 
-      - name: Cargo check (app IPC crate)
-        run: cargo check --manifest-path frontend/app/ipc/Cargo.toml
+      - name: Cargo check (tauri host common crate)
+        run: cargo check --manifest-path frontend/app/tauri-host-common/Cargo.toml
 
       - name: Cargo check (windows tauri crate)
         run: cargo check --manifest-path frontend/app/windows/src-tauri/Cargo.toml
@@ -87,7 +87,7 @@ jobs:
       - name: Type check packages
         run: |
           pnpm exec tsc --pretty false --noEmit --project frontend/web/tsconfig.json
-          pnpm exec tsc --pretty false --noEmit --project frontend/app/shared/tsconfig.json
-          pnpm exec tsc --pretty false --noEmit --project frontend/app/windows/tsconfig.json --rootDir frontend/app/shared
-          pnpm exec tsc --pretty false --noEmit --project frontend/app/android/tsconfig.json --rootDir frontend/app/shared
+          pnpm exec tsc --pretty false --noEmit --project frontend/app/tauri-ui/tsconfig.json
+          pnpm exec tsc --pretty false --noEmit --project frontend/app/windows/tsconfig.json --rootDir frontend/app/tauri-ui
+          pnpm exec tsc --pretty false --noEmit --project frontend/app/android/tsconfig.json --rootDir frontend/app/tauri-ui
           pnpm exec tsc --pretty false --noEmit --project sites/tsconfig.json
