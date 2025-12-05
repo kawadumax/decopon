@@ -22,6 +22,7 @@ web = [
 migration = { path = "migration" } # depends on your needs
 decopon-services = { path = "../services", default-features = false }
 decopon-runtime = { path = "../runtime", default-features = false }
+decopon-config = { path = "../config" }
 
 axum = "~0.8.4"
 axum-extra = { version = "~0.10.0", default-features = false, features = ["query"] }

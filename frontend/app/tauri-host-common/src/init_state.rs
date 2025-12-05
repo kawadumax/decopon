@@ -26,7 +26,6 @@ impl ReadyListenerState {
     }
 }
 
-#[derive(Default)]
 struct InitFlags {
     frontend_ready: bool,
     backend_ready: bool,
@@ -65,12 +64,14 @@ impl AppInitializationState {
     ) -> Self {
         Self {
             state: Mutex::new(InitFlags {
+                frontend_ready: false,
+                backend_ready: false,
+                emitted_once: false,
                 window_label: initial_label,
                 splash_label,
                 failed_reason: None,
                 started_at: Instant::now(),
                 timeout,
-                ..Default::default()
             }),
         }
     }

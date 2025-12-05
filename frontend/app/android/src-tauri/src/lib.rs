@@ -6,7 +6,7 @@ use decopon_tauri_host_common::init_state::{AppInitializationState, ReadyListene
 use decopon_tauri_host_common::splashscreen::{create_splashscreen, DEFAULT_SPLASH_LABEL};
 use decopon_tauri_host_common::{
     commands, dispatch_http_request as dispatch_ipc_http_request, ensure_app_data_dir,
-    should_skip_service_bootstrap, IpcHttpResponse, FRONTEND_READY_EVENT,
+    should_skip_service_bootstrap, AppIpcState, IpcHttpResponse, FRONTEND_READY_EVENT,
 };
 use serde_json::Value;
 use tauri::{Emitter, Listener, Manager, State};
@@ -96,13 +96,13 @@ pub fn run() {
                 Some(main_window_label.clone()),
                 splash_label.clone(),
             ));
-            let data_dir = ensure_app_data_dir(&app_handle).map_err(|e| {
+            let data_dir = ensure_app_data_dir(&app_handle).map_err(|e| -> Box<dyn std::error::Error> {
                 error!(error = ?e, "failed to create app data directory");
                 notify_error(
                     main_window.as_ref(),
                     &format!("データディレクトリの作成に失敗しました: {e}"),
                 );
-                Box::new(e) as Box<dyn std::error::Error>
+                Box::new(e)
             })?;
             info!("App data directory ready at {}", data_dir.display());
 
@@ -115,7 +115,7 @@ pub fn run() {
                     main_window.as_ref(),
                     &format!("環境の準備に失敗しました: {e}"),
                 );
-                Box::new(e) as Box<dyn std::error::Error>
+                e
             })?;
             info!("Single-user mode resolved to {}", prepared.env_config.single_user.enabled);
 
@@ -124,7 +124,6 @@ pub fn run() {
             let init_env_config = prepared.env_config.clone();
             spawn_backend_initializer(
                 app_handle.clone(),
-                app_handle.state::<AppInitializationState>(),
                 init_window_label.clone(),
                 package_version.clone(),
                 data_dir.clone(),

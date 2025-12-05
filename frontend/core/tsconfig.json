@@ -1,6 +1,7 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    "types": ["vite/client"],
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "allowJs": true,

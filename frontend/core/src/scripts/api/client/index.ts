@@ -111,8 +111,24 @@ export function createApiClient(hooks: ApiClientHooks = defaultHooks) {
   return { callApi };
 }
 
-const defaultClient = createApiClient();
-export const callApi = defaultClient.callApi;
+let currentClient = createApiClient();
+
+export function configureApiClient(hooks?: ApiClientHooks) {
+  currentClient = createApiClient(hooks);
+}
+
+export function getApiClient() {
+  return currentClient;
+}
+
+export async function callApi<T = unknown>(
+  method: ApiMethod,
+  url: string,
+  requestData?: ApiRequestData,
+  options?: CallApiOptions,
+): Promise<T> {
+  return currentClient.callApi<T>(method, url, requestData, options);
+}
 
 export { baseURL, httpClient, ApiError };
-export type { CallApiOptions };
+export type { CallApiOptions, TransportResponse };

@@ -1231,6 +1231,7 @@ dependencies = [
  "axum-macros",
  "axum-password-worker",
  "chrono",
+ "decopon-config",
  "decopon-runtime",
  "decopon-services",
  "dotenvy",

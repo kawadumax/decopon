@@ -1,4 +1,9 @@
 import "@decopon/core/styles/app.css";
-import { bootstrap } from "@decopon/core";
+import {
+  bootstrap,
+  configureApiClient,
+  createWebApiHooks,
+} from "@decopon/core";
 
+configureApiClient(createWebApiHooks());
 bootstrap();

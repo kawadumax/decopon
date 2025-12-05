@@ -3,6 +3,7 @@ use decopon_axum::{
     BootstrapConfig, build_app_state, load_env_with_fallback, resolve_socket_addr, routes,
     setup_cors, setup_tracing_subscriber,
 };
+use decopon_config::AppMode;
 use tower_http::trace::TraceLayer;
 use tracing::{info, info_span};
 
@@ -13,7 +14,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let app_state = build_app_state(BootstrapConfig::app()).await?;
 
-    let app = routes::create_app_routes(app_state.clone())
+    let app = routes::create_routes(app_state.clone(), AppMode::Local)
         .layer(setup_cors())
         .with_state(app_state.clone())
         .layer(TraceLayer::new_for_http().make_span_with(|request: &Request<_>| {

@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 use decopon_axum::AppState;
-use decopon_config::{sqlite_url_from_path, ConfigError, EnvConfig};
+use decopon_config::{sqlite_url_from_path, EnvConfig};
 use decopon_runtime::ServiceContext;
 use crate::ipc::AppIpcState;
 use crate::services::AppServices;
@@ -23,7 +23,7 @@ pub struct PreparedEnvironment {
 }
 
 pub fn prepare_environment(
-    app_handle: &AppHandle,
+    _app_handle: &AppHandle,
     data_dir: PathBuf,
 ) -> Result<PreparedEnvironment, Box<dyn std::error::Error>> {
     let db_path = data_dir.join("decopon.sqlite");
@@ -40,23 +40,23 @@ pub fn prepare_environment(
 
 pub fn spawn_backend_initializer(
     app_handle: AppHandle,
-    init_state: AppInitializationState,
     main_window_label: String,
     package_version: Option<String>,
     data_dir: PathBuf,
     first_launch: bool,
     env_config: EnvConfig,
-    main_window: Option<WebviewWindow>,
+    _main_window: Option<WebviewWindow>,
     notify_error: impl Fn(Option<&WebviewWindow>, &str) + Send + 'static + Sync,
 ) {
     let app_handle_clone = app_handle.clone();
     tauri::async_runtime::spawn(async move {
         info!("Starting asynchronous backend initialization");
         let window = app_handle_clone.get_webview_window(&main_window_label);
+        let init_state = app_handle_clone.state::<AppInitializationState>();
         match initialize_backend(&env_config).await {
             Ok(service_context) => {
                 let app_state = AppState::from(service_context);
-                let router = decopon_axum::routes::create_routes(app_state.clone());
+                let router = decopon_axum::routes::create_routes(app_state.clone(), env_config.app_mode);
                 let handler = AppIpcState::new(router, app_state);
                 app_handle_clone.manage(handler);
                 info!("Service layer initialized");
@@ -80,10 +80,4 @@ pub fn spawn_backend_initializer(
 async fn initialize_backend(env_config: &EnvConfig) -> Result<ServiceContext, ServiceInitError> {
     let services = AppServices::initialize(env_config.clone()).await?;
     Ok(services.service_context())
-}
-
-impl From<ConfigError> for Box<dyn std::error::Error> {
-    fn from(value: ConfigError) -> Self {
-        Box::new(value)
-    }
 }
