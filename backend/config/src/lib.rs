@@ -1,6 +1,7 @@
 use std::env;
 
 use thiserror::Error;
+use url::Url;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum AppMode {
@@ -37,6 +38,8 @@ pub struct EnvConfig {
 pub enum ConfigError {
     #[error("required environment variable '{0}' is missing")]
     MissingVar(String),
+    #[error("invalid database path: {0}")]
+    InvalidDatabasePath(String),
 }
 
 impl EnvConfig {
@@ -59,6 +62,37 @@ impl EnvConfig {
             },
         })
     }
+}
+
+/// sqlite パスを file URL から SeaORM/SQLx が受け付ける DSN 形式へ正規化する。
+pub fn sqlite_url_from_path(path: &std::path::Path) -> Result<String, ConfigError> {
+    match Url::from_file_path(path) {
+        Ok(url) => Ok(format!("sqlite://{}", url.path())),
+        Err(_) => {
+            if let Some(path_str) = path.to_str() {
+                if looks_like_windows_path(path_str) {
+                    let normalized = path_str.replace('\\', "/");
+                    let file_url = format!("file:///{}", normalized);
+                    let url =
+                        Url::parse(&file_url).map_err(|e| ConfigError::InvalidDatabasePath(e.to_string()))?;
+                    return Ok(format!("sqlite://{}", url.path()));
+                }
+            }
+
+            Err(ConfigError::InvalidDatabasePath(path.display().to_string()))
+        }
+    }
+}
+
+fn looks_like_windows_path(path: &str) -> bool {
+    let bytes = path.as_bytes();
+    if bytes.len() < 3 {
+        return false;
+    }
+
+    matches!(bytes[0], b'a'..=b'z' | b'A'..=b'Z')
+        && bytes[1] == b':'
+        && (bytes[2] == b'\\' || bytes[2] == b'/')
 }
 
 fn required_var(key: &str) -> Result<String, ConfigError> {

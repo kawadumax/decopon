@@ -5,7 +5,6 @@ use std::{
     path::{Path, PathBuf},
 };
 use tauri::{AppHandle, Manager};
-use url::Url;
 
 pub const BACKEND_READY_EVENT: &str = "decopon://backend-ready";
 pub const FRONTEND_READY_EVENT: &str = "decopon://frontend-ready";
@@ -15,6 +14,7 @@ pub mod services;
 pub mod init_marker;
 pub mod commands;
 pub mod splashscreen;
+pub mod bootstrap;
 pub mod ipc;
 pub use ipc::{dispatch_http_request, AppIpcState, IpcHttpResponse};
 
@@ -50,40 +50,6 @@ pub fn load_or_generate_jwt_secret(data_dir: &Path) -> Result<String, std::io::E
         .collect();
     fs::write(&secret_path, format!("{secret}\n"))?;
     Ok(secret)
-}
-
-pub fn sqlite_url_from_path(path: &Path) -> Result<String, std::io::Error> {
-    match Url::from_file_path(path) {
-        Ok(url) => Ok(format!("sqlite://{}", url.path())),
-        Err(_) => {
-            if let Some(path_str) = path.to_str() {
-                if looks_like_windows_path(path_str) {
-                    let normalized = path_str.replace('\\', "/");
-                    let file_url = format!("file:///{}", normalized);
-                    let url = Url::parse(&file_url).map_err(|err| {
-                        std::io::Error::new(ErrorKind::InvalidInput, err.to_string())
-                    })?;
-                    return Ok(format!("sqlite://{}", url.path()));
-                }
-            }
-
-            Err(std::io::Error::new(
-                ErrorKind::InvalidInput,
-                format!("invalid database path: {}", path.display()),
-            ))
-        }
-    }
-}
-
-fn looks_like_windows_path(path: &str) -> bool {
-    let bytes = path.as_bytes();
-    if bytes.len() < 3 {
-        return false;
-    }
-
-    matches!(bytes[0], b'a'..=b'z' | b'A'..=b'Z')
-        && bytes[1] == b':'
-        && (bytes[2] == b'\\' || bytes[2] == b'/')
 }
 
 pub fn normalized_app_mode() -> String {
