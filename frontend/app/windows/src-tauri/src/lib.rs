@@ -1,13 +1,14 @@
 use std::collections::HashMap;
 
 use decopon_axum::AppState;
+use decopon_config::EnvConfig;
 use decopon_tauri_host_common::init_marker::{is_first_launch, mark_initialized};
 use decopon_tauri_host_common::init_state::{AppInitializationState, ReadyListenerState};
 use decopon_tauri_host_common::services::AppServices;
 use decopon_tauri_host_common::splashscreen::{create_splashscreen, DEFAULT_SPLASH_LABEL};
 use decopon_tauri_host_common::{
     commands, configure_environment, dispatch_http_request as dispatch_ipc_http_request,
-    ensure_app_data_dir, resolve_single_user_mode_flag, should_skip_service_bootstrap,
+    ensure_app_data_dir, should_skip_service_bootstrap,
     sqlite_url_from_path, AppIpcState, IpcHttpResponse, FRONTEND_READY_EVENT,
 };
 use serde_json::Value;
@@ -98,7 +99,7 @@ pub fn run() {
                 Box::new(e) as Box<dyn std::error::Error>
             })?;
             let database_url = format!("{normalized_url}?mode=rwc");
-            let jwt_secret = configure_environment(&data_dir, &database_url).map_err(|e| {
+            configure_environment(&data_dir, &database_url).map_err(|e| {
                 error!(error = ?e, "failed to configure environment");
                 notify_error(
                     main_window.as_ref(),
@@ -107,7 +108,15 @@ pub fn run() {
                 Box::new(e) as Box<dyn std::error::Error>
             })?;
 
-            let single_user_mode = resolve_single_user_mode_flag();
+            let env_config = EnvConfig::from_env(true).map_err(|e| {
+                error!(error = ?e, "failed to load environment config");
+                notify_error(
+                    main_window.as_ref(),
+                    &format!("設定の読み込みに失敗しました: {e}"),
+                );
+                Box::new(e) as Box<dyn std::error::Error>
+            })?;
+
             let first_launch = is_first_launch(&data_dir);
             let package_version = Some(app.package_info().version.to_string());
             let main_window_label = main_window
@@ -129,8 +138,6 @@ pub fn run() {
                 app.manage(ReadyListenerState::new(ready_listener));
             }
 
-            let init_database_url = database_url.clone();
-            let init_jwt_secret = jwt_secret.clone();
             let init_handle = app_handle.clone();
             let init_window_label = main_window_label
                 .clone()
@@ -138,12 +145,11 @@ pub fn run() {
             let init_first_launch = first_launch;
             let init_data_dir = data_dir.clone();
             let init_package_version = package_version.clone();
+            let init_env_config = env_config.clone();
             tauri::async_runtime::spawn(async move {
                 info!("Starting asynchronous backend initialization");
                 let window = init_handle.get_webview_window(&init_window_label);
-                match AppServices::initialize(&init_database_url, init_jwt_secret, single_user_mode)
-                    .await
-                {
+                match AppServices::initialize(init_env_config).await {
                     Ok(services) => {
                         let app_state = AppState::from(services.service_context());
                         let router = decopon_axum::routes::create_routes(app_state.clone());

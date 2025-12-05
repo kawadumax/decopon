@@ -12,6 +12,7 @@ mail = ["decopon-services/mail"]
 [dependencies]
 axum-password-worker = "0.4.1"
 decopon-services = { path = "../services", default-features = false }
+decopon-config = { path = "../config" }
 migration = { path = "../axum/migration" }
 sea-orm = { version = "~1.1.14", default-features = false, features = ["runtime-tokio-rustls", "macros", "with-chrono"] }
 sea-orm-migration = { version = "~1.1.14", default-features = false, features = ["runtime-tokio-rustls", "sqlx-postgres", "sqlx-sqlite"] }

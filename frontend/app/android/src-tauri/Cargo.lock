@@ -81,6 +81,7 @@ name = "android"
 version = "0.1.0"
 dependencies = [
  "decopon-axum",
+ "decopon-config",
  "decopon-runtime",
  "decopon-tauri-host-common",
  "migration",
@@ -1273,12 +1274,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "decopon-config"
+version = "0.1.0"
+dependencies = [
+ "thiserror 2.0.17",
+]
+
+[[package]]
 name = "decopon-runtime"
 version = "0.1.0"
 dependencies = [
  "axum-password-worker",
+ "decopon-config",
  "decopon-services",
+ "migration",
  "sea-orm",
+ "sea-orm-migration",
  "thiserror 2.0.17",
  "tracing",
 ]
@@ -1305,11 +1316,9 @@ dependencies = [
  "axum",
  "base64 0.22.1",
  "decopon-axum",
+ "decopon-config",
  "decopon-runtime",
- "migration",
  "rand 0.8.5",
- "sea-orm",
- "sea-orm-migration",
  "serde",
  "serde_json",
  "sys-locale",

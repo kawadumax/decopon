@@ -1250,10 +1250,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "decopon-config"
+version = "0.1.0"
+dependencies = [
+ "thiserror 2.0.17",
+]
+
+[[package]]
 name = "decopon-runtime"
 version = "0.1.0"
 dependencies = [
  "axum-password-worker",
+ "decopon-config",
  "decopon-services",
  "migration",
  "sea-orm",
@@ -1284,6 +1292,7 @@ dependencies = [
  "axum",
  "base64 0.22.1",
  "decopon-axum",
+ "decopon-config",
  "decopon-runtime",
  "rand 0.8.5",
  "serde",
@@ -6748,6 +6757,7 @@ name = "windows"
 version = "0.1.0"
 dependencies = [
  "decopon-axum",
+ "decopon-config",
  "decopon-runtime",
  "decopon-tauri-host-common",
  "migration",

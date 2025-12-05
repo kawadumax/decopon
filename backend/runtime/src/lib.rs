@@ -1,6 +1,7 @@
 use std::{env, sync::Arc};
 
 use axum_password_worker::{Bcrypt, PasswordWorker};
+use decopon_config::EnvConfig;
 pub use decopon_services::{
     entities, usecases, ServiceContext, ServiceContextBuilder, ServiceError,
 };
@@ -154,19 +155,14 @@ pub struct RuntimeConfig {
 
 impl RuntimeConfig {
     pub fn from_env(options: RuntimeBootstrapOptions) -> Result<Self, RuntimeError> {
-        let database_url = env::var("AXUM_DATABASE_URL")
-            .map_err(|_| RuntimeError::MissingEnvVar("AXUM_DATABASE_URL".to_string()))?;
-        let jwt_secret = env::var("AXUM_JWT_SECRET")
-            .map_err(|_| RuntimeError::MissingEnvVar("AXUM_JWT_SECRET".to_string()))?;
-        let (ensure_single_user_session, enable_mailer) =
-            resolve_runtime_flags(options.default_local_app_mode);
+        let env_config = EnvConfig::from_env(options.default_local_app_mode)?;
         let run_migrations = options.run_migrations && !env_flag_enabled("DECO_SKIP_SERVICE_BOOTSTRAP");
 
         Ok(Self {
-            database_url,
-            jwt_secret,
-            ensure_single_user_session,
-            enable_mailer,
+            database_url: env_config.database_url,
+            jwt_secret: env_config.jwt_secret,
+            ensure_single_user_session: env_config.single_user.enabled,
+            enable_mailer: env_config.smtp.enabled,
             run_migrations,
             password_worker_threads: options.password_worker_threads.max(1),
         })
@@ -192,46 +188,10 @@ fn env_flag_enabled(key: &str) -> bool {
         .unwrap_or(false)
 }
 
-fn resolve_runtime_flags(default_local_app_mode: bool) -> (bool, bool) {
-    let fallback = if default_local_app_mode {
-        "local".to_string()
-    } else {
-        "web".to_string()
-    };
-    let normalized_mode = env::var("APP_MODE")
-        .unwrap_or(fallback)
-        .trim()
-        .to_ascii_lowercase();
-    let is_local_mode = normalized_mode != "web";
-
-    let ensure_single_user_session = env::var("APP_SINGLE_USER_MODE")
-        .ok()
-        .and_then(|value| {
-            let normalized = value.trim().to_ascii_lowercase();
-            matches!(
-                normalized.as_str(),
-                "1" | "true" | "yes" | "on" | "enabled"
-            )
-            .then_some(true)
-            .or_else(|| {
-                matches!(
-                    normalized.as_str(),
-                    "0" | "false" | "no" | "off" | "disabled"
-                )
-                .then_some(false)
-            })
-        })
-        .unwrap_or(is_local_mode);
-
-    let enable_mailer = !is_local_mode && !env_flag_enabled("AXUM_DISABLE_SMTP");
-
-    (ensure_single_user_session, enable_mailer)
-}
-
 #[derive(Debug, Error)]
 pub enum RuntimeError {
-    #[error("required environment variable '{0}' is missing")]
-    MissingEnvVar(String),
+    #[error(transparent)]
+    Config(#[from] decopon_config::ConfigError),
     #[error(transparent)]
     Database(#[from] sea_orm::DbErr),
     #[error(transparent)]
