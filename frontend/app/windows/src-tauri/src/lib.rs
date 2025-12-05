@@ -62,6 +62,13 @@ fn reset_application_data(app: tauri::AppHandle) -> Result<(), String> {
     commands::reset_application_data(app)
 }
 
+#[tauri::command]
+fn get_bootstrap_state(
+    init_state: State<'_, AppInitializationState>,
+) -> Result<serde_json::Value, String> {
+    commands::get_bootstrap_state(init_state)
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     init_tracing();
@@ -69,7 +76,7 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_notification::init())
-        .invoke_handler(tauri::generate_handler![dispatch_http_request, get_init_status, reset_application_data])
+        .invoke_handler(tauri::generate_handler![dispatch_http_request, get_init_status, reset_application_data, get_bootstrap_state])
         .setup(|app| {
             let app_handle = app.handle();
             let splash_label = create_splashscreen(&app_handle, DEFAULT_SPLASH_LABEL);
@@ -168,6 +175,8 @@ pub fn run() {
                     }
                     Err(error) => {
                         error!(error = ?error, "failed to initialize service layer");
+                        let init_state = init_handle.state::<AppInitializationState>();
+                        init_state.mark_failed(format!("service initialization failed: {error}"));
                         notify_error(
                             window.as_ref(),
                             &format!("サービスの初期化に失敗しました: {error}"),
