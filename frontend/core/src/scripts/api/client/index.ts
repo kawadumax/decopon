@@ -1,11 +1,6 @@
 import axios from "axios";
 
 import { NProgressManager } from "@lib/nProgressManager";
-import { router } from "@lib/router";
-import { ToastMessageManager } from "@/scripts/lib/toastMessageManager";
-
-import { authStorage } from "@/scripts/lib/authStorage";
-import { tokenStorage } from "@/scripts/lib/tokenStorage";
 
 import type { ApiRequestData } from "@/scripts/types";
 
@@ -57,74 +52,67 @@ class TransportResolver {
   }
 }
 
-const resolver = new TransportResolver();
+export type ApiClientHooks = {
+  onSuccess?: (response: TransportResponse<unknown>, options?: CallApiOptions) => void;
+  onError?: (error: unknown, options?: CallApiOptions) => void;
+  onUnauthorized?: (error: ApiError) => void;
+};
 
-export async function callApi<T = unknown>(
-  method: ApiMethod,
-  url: string,
-  requestData?: ApiRequestData,
-  options?: CallApiOptions,
-): Promise<T> {
-  const request: ApiRequest = { method, url, data: requestData };
-  const transport = resolver.resolve(request);
+const defaultHooks: ApiClientHooks = {
+  onSuccess: () => {},
+  onError: () => {},
+  onUnauthorized: () => {},
+};
 
-  try {
-    progressManager.incrementRequests();
-    const response = await transport.send<T>(request);
-    notifySuccess(response, options);
-    return response.data;
-  } catch (error) {
-    handleError(error, options);
-  } finally {
-    progressManager.decrementRequests();
+export function createApiClient(hooks: ApiClientHooks = defaultHooks) {
+  const resolver = new TransportResolver();
+
+  async function callApi<T = unknown>(
+    method: ApiMethod,
+    url: string,
+    requestData?: ApiRequestData,
+    options?: CallApiOptions,
+  ): Promise<T> {
+    const request: ApiRequest = { method, url, data: requestData };
+    const transport = resolver.resolve(request);
+
+    try {
+      progressManager.incrementRequests();
+      const response = await transport.send<T>(request);
+      hooks.onSuccess?.(response, options);
+      return response.data;
+    } catch (error) {
+      handleError(error, options);
+    } finally {
+      progressManager.decrementRequests();
+    }
+
+    throw new Error("Unreachable");
   }
 
-  throw new Error("Unreachable");
-}
+  function handleError(error: unknown, options?: CallApiOptions): never {
+    if (axios.isAxiosError(error)) {
+      hooks.onError?.(error, options);
+      throw error;
+    }
 
-function notifySuccess<T>(
-  response: TransportResponse<T>,
-  options?: CallApiOptions,
-) {
-  ToastMessageManager.notifyWithFallback("success", {
-    baseKeys: [options?.toast?.success],
-    status: response.status,
-  });
-}
+    if (error instanceof ApiError) {
+      if (error.response?.status === 401) {
+        hooks.onUnauthorized?.(error);
+      }
+      hooks.onError?.(error, options);
+      throw error;
+    }
 
-function handleError(error: unknown, options?: CallApiOptions): never {
-  if (axios.isAxiosError(error)) {
-    ToastMessageManager.notifyWithFallback("error", {
-      baseKeys: [options?.toast?.error, options?.toast?.success, "api.unknown"],
-      status: error.response?.status,
-      fallbackMessage: error.response?.data?.message,
-    });
+    hooks.onError?.(error, options);
     throw error;
   }
 
-  if (error instanceof ApiError) {
-    const status = error.response?.status;
-
-    if (status === 401) {
-      tokenStorage.removeToken();
-      authStorage.clear();
-    }
-
-    ToastMessageManager.notifyWithFallback("error", {
-      baseKeys: [options?.toast?.error, options?.toast?.success, "api.unknown"],
-      status,
-      fallbackMessage: error.response?.data?.message ?? error.message,
-    });
-
-    if (status === 401) {
-      router.navigate({ to: "/guest/login" });
-    }
-
-    throw error;
-  }
-
-  throw error;
+  return { callApi };
 }
+
+const defaultClient = createApiClient();
+export const callApi = defaultClient.callApi;
 
 export { baseURL, httpClient, ApiError };
 export type { CallApiOptions };
