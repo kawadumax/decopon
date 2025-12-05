@@ -1,8 +1,6 @@
 use std::sync::Arc;
 
-use decopon_runtime::{ServiceContext, ServiceRuntimeBuilder};
-use migration::{Migrator, MigratorTrait};
-use sea_orm::Database;
+use decopon_runtime::{RuntimeConfig, ServiceContext, ServiceRuntimeBuilder};
 use thiserror::Error;
 use tracing::info;
 
@@ -25,16 +23,6 @@ impl AppServices {
             "Initializing service runtime (skip_bootstrap={})", skip_bootstrap
         );
 
-        let db = Database::connect(database_url).await?;
-        if skip_bootstrap {
-            info!("DECO_SKIP_SERVICE_BOOTSTRAP=1 detected; skipping database migrations");
-        } else {
-            info!("Running database migrations");
-            Migrator::up(&db, None)
-                .await
-                .map_err(ServiceInitError::Migration)?;
-        }
-
         if single_user_mode && !skip_bootstrap {
             info!("Ensuring single-user bootstrap data is present");
         } else if single_user_mode {
@@ -43,9 +31,16 @@ impl AppServices {
             info!("Single-user bootstrap disabled via APP_SINGLE_USER_MODE");
         }
 
-        let runtime = ServiceRuntimeBuilder::new(database_url.to_string(), jwt_secret)
-            .ensure_single_user_session(single_user_mode && !skip_bootstrap)
-            .enable_mailer(false)
+        let runtime_config = RuntimeConfig {
+            database_url: database_url.to_string(),
+            jwt_secret,
+            ensure_single_user_session: single_user_mode && !skip_bootstrap,
+            enable_mailer: false,
+            run_migrations: !skip_bootstrap,
+            password_worker_threads: 4,
+        };
+
+        let runtime = ServiceRuntimeBuilder::from_config(runtime_config)
             .build()
             .await?;
 
@@ -61,10 +56,6 @@ impl AppServices {
 
 #[derive(Debug, Error)]
 pub enum ServiceInitError {
-    #[error(transparent)]
-    Database(#[from] sea_orm::DbErr),
-    #[error("migration failed: {0}")]
-    Migration(#[source] sea_orm_migration::DbErr),
     #[error(transparent)]
     Runtime(#[from] decopon_runtime::RuntimeError),
 }

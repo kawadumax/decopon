@@ -1255,7 +1255,9 @@ version = "0.1.0"
 dependencies = [
  "axum-password-worker",
  "decopon-services",
+ "migration",
  "sea-orm",
+ "sea-orm-migration",
  "thiserror 2.0.17",
  "tracing",
 ]
@@ -1283,10 +1285,7 @@ dependencies = [
  "base64 0.22.1",
  "decopon-axum",
  "decopon-runtime",
- "migration",
  "rand 0.8.5",
- "sea-orm",
- "sea-orm-migration",
  "serde",
  "serde_json",
  "sys-locale",

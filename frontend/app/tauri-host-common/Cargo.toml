@@ -7,10 +7,7 @@ edition = "2021"
 axum = "0.8"
 decopon-axum = { path = "../../../backend/axum" }
 decopon-runtime = { path = "../../../backend/runtime", features = ["sqlite"] }
-migration = { path = "../../../backend/axum/migration" }
 rand = { version = "0.8", default-features = false, features = ["std", "std_rng"] }
-sea-orm = { version = "1.1", features = ["sqlx-sqlite", "runtime-tokio-rustls", "macros"] }
-sea-orm-migration = { version = "1.1", features = ["sqlx-sqlite", "runtime-tokio-rustls"] }
 tauri = { version = "2", features = ["test"] }
 thiserror = "1"
 tower = { version = "0.5", features = ["util"] }

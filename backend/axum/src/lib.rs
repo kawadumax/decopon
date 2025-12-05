@@ -4,7 +4,7 @@ pub mod extractors;
 pub mod middleware;
 pub mod routes;
 
-use decopon_runtime::ServiceRuntimeBuilder;
+use decopon_runtime::{bootstrap_runtime_from_env, RuntimeBootstrapOptions};
 pub use decopon_services::{
     ServiceContext, ServiceContextBuilder, ServiceError, entities, usecases,
 };
@@ -156,10 +156,6 @@ impl FromRef<AppState> for Option<SingleUserSession> {
     }
 }
 
-pub fn setup_jwt_secret() -> Result<String, env::VarError> {
-    env::var("AXUM_JWT_SECRET")
-}
-
 pub fn setup_tracing_subscriber() -> Result<(), Box<dyn std::error::Error>> {
     let filter = EnvFilter::builder()
         .with_default_directive(tracing::level_filters::LevelFilter::INFO.into())
@@ -201,32 +197,15 @@ pub fn setup_cors() -> CorsLayer {
     .allow_credentials(true)
 }
 
-fn resolve_app_mode_flags(default_local: bool) -> (bool, bool) {
-    let fallback = if default_local { "local" } else { "web" }.to_string();
-    let normalized = env::var("APP_MODE")
-        .unwrap_or(fallback)
-        .trim()
-        .to_ascii_lowercase();
-    let is_local = normalized != "web";
-    (is_local, !is_local)
-}
-
 pub async fn build_app_state(
     config: BootstrapConfig,
 ) -> Result<AppState, Box<dyn std::error::Error>> {
-    let database_url: String = env::var("AXUM_DATABASE_URL").expect(
-        "環境変数 'AXUM_DATABASE_URL' が設定されていません。'.env'ファイルを確認してください。",
-    );
-    let jwt_secret = setup_jwt_secret()?;
-    let (ensure_single_user_session, enable_mailer) =
-        resolve_app_mode_flags(config.ensure_single_user_session);
-
-    let runtime = ServiceRuntimeBuilder::new(database_url, jwt_secret.clone())
-        .ensure_single_user_session(ensure_single_user_session)
-        .enable_mailer(enable_mailer)
-        .build()
-        .await
-        .map_err(|err| -> Box<dyn std::error::Error> { Box::new(err) })?;
+    let runtime = bootstrap_runtime_from_env(RuntimeBootstrapOptions {
+        default_local_app_mode: config.ensure_single_user_session,
+        run_migrations: true,
+        ..Default::default()
+    })
+    .await?;
 
     Ok(AppState::new(runtime.service_context()))
 }
