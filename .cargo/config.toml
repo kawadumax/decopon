@@ -1,0 +1,21 @@
+# Enable Cranelift backend for dev builds across the workspace.
+[unstable]
+codegen-backend = true
+
+[profile.dev]
+codegen-backend = "cranelift"
+
+[build]
+rustflags = ["--cfg", "no_zerocopy_simd_x86_avx12_1_89_0"]
+
+[target.x86_64-linux-android]
+rustflags = ["--cfg", "no_zerocopy_simd_x86_avx12_1_89_0"]
+
+[target.x86_64-pc-windows-msvc]
+rustflags = ["--cfg", "no_zerocopy_simd_x86_avx12_1_89_0"]
+
+[build-override]
+rustflags = ["--cfg", "no_zerocopy_simd_x86_avx12_1_89_0"]
+
+[env]
+RUSTFLAGS = "--cfg no_zerocopy_simd_x86_avx12_1_89_0"

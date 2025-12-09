@@ -238,4 +238,5 @@ export const deleteTagMutationOptions = (): MutationOptions<
 });
 
 export * from "./task";
+export * from "./decoponSession";
 export { queryClient } from "./client";

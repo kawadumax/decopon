@@ -1,20 +1,35 @@
 use axum::{
     body::Body,
     extract::State,
-    http::{Request, StatusCode, header::AUTHORIZATION},
+    http::{header::AUTHORIZATION, Request, StatusCode},
     middleware::Next,
     response::Response,
 };
 
 use crate::{
-    AppState,
     usecases::auth::{decode_jwt, verify_jwt},
+    AppState,
 };
 
 #[derive(Clone, Debug)]
 pub struct AuthenticatedUser {
     pub id: i32,
     pub exp: usize,
+}
+
+/// ローカル（シングルユーザー）モードで JWT を要求せず固定ユーザーを注入するミドルウェア
+pub async fn local_single_user_middleware(
+    State(app_state): State<AppState>,
+    mut req: Request<Body>,
+    next: Next,
+) -> Result<Response, StatusCode> {
+    let session = app_state.single_user_session().ok_or(StatusCode::UNAUTHORIZED)?;
+    let user = AuthenticatedUser {
+        id: session.user.id,
+        exp: usize::MAX,
+    };
+    req.extensions_mut().insert(user);
+    Ok(next.run(req).await)
 }
 
 pub async fn auth_middleware(

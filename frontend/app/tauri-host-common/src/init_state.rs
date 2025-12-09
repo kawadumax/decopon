@@ -1,4 +1,4 @@
-use std::sync::Mutex;
+use std::{sync::Mutex, time::{Duration, Instant}};
 
 use tauri::{AppHandle, Emitter, EventId, Listener, Manager};
 use tracing::{info, warn};
@@ -26,7 +26,6 @@ impl ReadyListenerState {
     }
 }
 
-#[derive(Default)]
 struct InitFlags {
     frontend_ready: bool,
     backend_ready: bool,
@@ -34,6 +33,9 @@ struct InitFlags {
     emitted_once: bool,
     window_label: Option<String>,
     splash_label: Option<String>,
+    failed_reason: Option<String>,
+    started_at: Instant,
+    timeout: Duration,
 }
 
 /// フロントとバックエンドの起動シーケンスを調整し、再送を保証する状態型。
@@ -41,13 +43,35 @@ pub struct AppInitializationState {
     state: Mutex<InitFlags>,
 }
 
+#[derive(Debug, Clone)]
+pub struct InitSnapshot {
+    pub frontend_ready: bool,
+    pub backend_ready: bool,
+    pub emitted_once: bool,
+    pub timed_out: bool,
+    pub failed_reason: Option<String>,
+}
+
 impl AppInitializationState {
     pub fn new(initial_label: Option<String>, splash_label: Option<String>) -> Self {
+        Self::with_timeout(initial_label, splash_label, Duration::from_secs(15))
+    }
+
+    pub fn with_timeout(
+        initial_label: Option<String>,
+        splash_label: Option<String>,
+        timeout: Duration,
+    ) -> Self {
         Self {
             state: Mutex::new(InitFlags {
+                frontend_ready: false,
+                backend_ready: false,
+                emitted_once: false,
                 window_label: initial_label,
                 splash_label,
-                ..Default::default()
+                failed_reason: None,
+                started_at: Instant::now(),
+                timeout,
             }),
         }
     }
@@ -81,6 +105,30 @@ impl AppInitializationState {
             }
         }
         self.try_notify(app_handle);
+    }
+
+    pub fn mark_failed(&self, reason: impl Into<String>) {
+        if let Ok(mut state) = self.state.lock() {
+            state.failed_reason = Some(reason.into());
+        }
+    }
+
+    pub fn snapshot(&self) -> InitSnapshot {
+        let mut state = self
+            .state
+            .lock()
+            .unwrap_or_else(|poisoned| poisoned.into_inner());
+        let timed_out = state.started_at.elapsed() >= state.timeout;
+        if timed_out && state.failed_reason.is_none() {
+            state.failed_reason = Some("Initialization timed out".to_string());
+        }
+        InitSnapshot {
+            frontend_ready: state.frontend_ready,
+            backend_ready: state.backend_ready,
+            emitted_once: state.emitted_once,
+            timed_out,
+            failed_reason: state.failed_reason.clone(),
+        }
     }
 
     fn try_notify(&self, app_handle: &AppHandle) {

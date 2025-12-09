@@ -84,7 +84,7 @@ const Drawer = ({
       <SheetTrigger asChild>
         <DrawerButton open={open} setOpen={setOpen} />
       </SheetTrigger>
-      <SheetContent side={"left"}>
+      <SheetContent side="right">
         <SheetHeader className="sr-only">
           <SheetTitle>ナビゲーションメニュー</SheetTitle>
           <SheetDescription>主要ページへのリンクを表示しています</SheetDescription>
@@ -266,7 +266,7 @@ const BackButton = () => {
 
 const HeaderNavigation = ({ user }: { user: User }) => {
   return (
-    <nav className="flex flex-row justify-between border-line border-b bg-surface dark:border-line-subtle dark:bg-surface">
+    <nav className="flex flex-row justify-between border-line border-b bg-surface ps-safe pe-safe pt-safe dark:border-line-subtle dark:bg-surface">
       <BackButton />
       <Sheet>
         <SheetTrigger>
@@ -291,7 +291,7 @@ const FooterNavigation = () => {
   const footerLinks = useMemo(() => links, []);
 
   return (
-    <nav className="sticky bottom-0 flex flex-row items-stretch justify-between divide-x border-line border-t border-b bg-surface shadow-lg dark:border-line-subtle dark:bg-surface">
+    <nav className="sticky bottom-0 flex flex-row items-stretch justify-between divide-x border-line border-t border-b bg-surface px-safe pb-safe shadow-lg dark:border-line-subtle dark:bg-surface">
       {footerLinks.map((link) => {
         const isActive = !!matchRoute({ to: link.href, fuzzy: false });
         const activeClassName = isActive ? "text-primary" : "text-fg";

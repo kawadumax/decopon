@@ -23,6 +23,7 @@ tauri-build = { version = "2", features = [] }
 decopon-axum = { path = "../../../../backend/axum" }
 decopon-tauri-host-common = { path = "../../tauri-host-common" }
 decopon-runtime = { path = "../../../../backend/runtime", features = ["sqlite"] }
+decopon-config = { path = "../../../../backend/config" }
 migration = { path = "../../../../backend/axum/migration" }
 sea-orm = { version = "1.1", features = ["sqlx-sqlite", "runtime-tokio-rustls", "macros"] }
 sea-orm-migration = { version = "1.1", features = ["sqlx-sqlite", "runtime-tokio-rustls"] }

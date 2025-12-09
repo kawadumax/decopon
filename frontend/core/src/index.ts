@@ -10,3 +10,10 @@ export {
 } from "./scripts/lib/nativeNotification";
 export { singleUserBootstrap } from "./scripts/lib/singleUserBootstrap";
 export { renderSplash } from "./scripts/lib/splash";
+export {
+  callApi,
+  configureApiClient,
+  createApiClient,
+  getApiClient,
+} from "./scripts/api/client";
+export { createWebApiHooks } from "./scripts/api/client/hooks";

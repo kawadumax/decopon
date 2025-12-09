@@ -1,5 +1,6 @@
 @import "@decopon/design-tokens/tokens.css";
-@import 'tailwindcss';
+@import "tailwindcss";
+@import "tailwindcss-safe-area";
 @import "tw-animate-css";
 @plugin '@tailwindcss/forms';
 
