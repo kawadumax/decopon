@@ -11,6 +11,7 @@ yarn-error.log
 /.zed
 node_modules
 /tmp
+.cargo/config.local.toml
 # パッケージ配下の pnpm-lock.yaml を禁止し、ルートのみ許可する
 pnpm-lock.yaml
 !/pnpm-lock.yaml
