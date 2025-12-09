@@ -1,1 +1,1 @@
-{"default":{"identifier":"default","description":"Capability for the main window during development","remote":{"urls":["http://localhost:1420/*","ws://*:*/*"]},"local":true,"windows":["main"],"webviews":["main","*"],"permissions":["core:default","opener:default"]}}
+{"default":{"identifier":"default","description":"Capability for the main window during development","remote":{"urls":["http://localhost:1420/*","ws://*:*/*"]},"local":true,"windows":["main"],"webviews":["main","*"],"permissions":["core:default","opener:default","notification:default"]}}

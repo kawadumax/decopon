@@ -1,8 +1,7 @@
 use std::sync::Arc;
 
-use decopon_runtime::{ServiceContext, ServiceRuntimeBuilder};
-use migration::{Migrator, MigratorTrait};
-use sea_orm::Database;
+use decopon_config::EnvConfig;
+use decopon_runtime::{RuntimeConfig, ServiceContext, ServiceRuntimeBuilder};
 use thiserror::Error;
 use tracing::info;
 
@@ -14,38 +13,31 @@ pub struct AppServices {
 }
 
 impl AppServices {
-    pub async fn initialize(
-        database_url: &str,
-        jwt_secret: String,
-        single_user_mode: bool,
-    ) -> Result<Self, ServiceInitError> {
+    pub async fn initialize(env_config: EnvConfig) -> Result<Self, ServiceInitError> {
         let skip_bootstrap = should_skip_service_bootstrap();
         info!(
             skip_bootstrap,
             "Initializing service runtime (skip_bootstrap={})", skip_bootstrap
         );
 
-        let db = Database::connect(database_url).await?;
-        if skip_bootstrap {
-            info!("DECO_SKIP_SERVICE_BOOTSTRAP=1 detected; skipping database migrations");
-        } else {
-            info!("Running database migrations");
-            Migrator::up(&db, None)
-                .await
-                .map_err(ServiceInitError::Migration)?;
-        }
-
-        if single_user_mode && !skip_bootstrap {
+        if env_config.single_user.enabled && !skip_bootstrap {
             info!("Ensuring single-user bootstrap data is present");
-        } else if single_user_mode {
+        } else if env_config.single_user.enabled {
             info!("Single-user bootstrap skipped because DECO_SKIP_SERVICE_BOOTSTRAP=1");
         } else {
             info!("Single-user bootstrap disabled via APP_SINGLE_USER_MODE");
         }
 
-        let runtime = ServiceRuntimeBuilder::new(database_url.to_string(), jwt_secret)
-            .ensure_single_user_session(single_user_mode && !skip_bootstrap)
-            .enable_mailer(false)
+        let runtime_config = RuntimeConfig {
+            database_url: env_config.database_url,
+            jwt_secret: env_config.jwt_secret,
+            ensure_single_user_session: env_config.single_user.enabled && !skip_bootstrap,
+            enable_mailer: env_config.smtp.enabled,
+            run_migrations: !skip_bootstrap,
+            password_worker_threads: 4,
+        };
+
+        let runtime = ServiceRuntimeBuilder::from_config(runtime_config)
             .build()
             .await?;
 
@@ -61,10 +53,6 @@ impl AppServices {
 
 #[derive(Debug, Error)]
 pub enum ServiceInitError {
-    #[error(transparent)]
-    Database(#[from] sea_orm::DbErr),
-    #[error("migration failed: {0}")]
-    Migration(#[source] sea_orm_migration::DbErr),
     #[error(transparent)]
     Runtime(#[from] decopon_runtime::RuntimeError),
 }

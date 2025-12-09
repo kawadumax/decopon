@@ -33,6 +33,9 @@ export const DecoponSessionService = {
       DecoponSessionService.interruptPayload(),
     );
   },
+  index(): Promise<DecoponSession[]> {
+    return callApi<DecoponSession[]>("get", endpoints.decoponSessions.index);
+  },
   store(data: ApiRequestData): Promise<DecoponSession> {
     return callApi<DecoponSession>(
       "post",

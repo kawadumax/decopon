@@ -12,6 +12,7 @@ permissions:
 env:
   PNPM_VERSION: 10.18.2
   NODE_VERSION: 20
+  RUSTUP_TOOLCHAIN: stable
 
 jobs:
   build-windows:

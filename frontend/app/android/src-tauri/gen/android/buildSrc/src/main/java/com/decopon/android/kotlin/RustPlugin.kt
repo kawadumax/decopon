@@ -17,7 +17,10 @@ open class RustPlugin : Plugin<Project> {
     override fun apply(project: Project) = with(project) {
         config = extensions.create("rust", Config::class.java)
 
-        val useFullAbiMatrix = (findProperty("fullAbiMatrix") as? String)?.toBoolean() ?: false
+        // Debug ビルド時はエミュレータ向け x86/x86_64 も必要になるため、
+        // 明示的な指定がない場合は Debug タスクではフル ABI を有効化する。
+        val isDebugInvocation = gradle.startParameter.taskNames.any { it.contains("Debug", ignoreCase = true) }
+        val useFullAbiMatrix = (findProperty("fullAbiMatrix") as? String)?.toBoolean() ?: isDebugInvocation
         val defaultAbiList = if (useFullAbiMatrix) {
             listOf("arm64-v8a", "armeabi-v7a", "x86", "x86_64")
         } else {

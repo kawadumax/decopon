@@ -4,6 +4,7 @@ use tauri::AppHandle;
 
 use crate::{
     ensure_app_data_dir,
+    init_state::AppInitializationState,
     init_marker::{is_first_launch, load_state, reset_state},
 };
 
@@ -51,4 +52,26 @@ pub fn reset_application_data(app: AppHandle) -> Result<(), String> {
 
     reset_state(&data_dir).map_err(|e| e.to_string())?;
     Ok(())
+}
+
+#[tauri::command]
+pub fn get_bootstrap_state(
+    init_state: tauri::State<'_, AppInitializationState>,
+) -> Result<serde_json::Value, String> {
+    let snapshot = init_state.snapshot();
+    let status = if snapshot.failed_reason.is_some() {
+        "failed"
+    } else if snapshot.frontend_ready && snapshot.backend_ready {
+        "ready"
+    } else {
+        "pending"
+    };
+
+    Ok(json!({
+        "status": status,
+        "frontendReady": snapshot.frontend_ready,
+        "backendReady": snapshot.backend_ready,
+        "timedOut": snapshot.timed_out,
+        "reason": snapshot.failed_reason
+    }))
 }

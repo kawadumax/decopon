@@ -105,17 +105,13 @@
       "totalTasks": "総タスク数",
       "completedTasks": "完了タスク",
       "completionRate": "完了率",
-      "lastExecution": "直近の実行",
+      "lastExecution": "直近の完了セッション",
       "noRecord": "記録なし"
     },
     "sections": {
       "completedTasks": {
-        "title": "完了済みタスク",
-        "description": "最新の更新順で完了済みタスクを表示します。"
-      },
-      "timeline": {
-        "title": "タスク実行ログ",
-        "description": "タスクに紐づいた最新のログを確認できます。"
+        "title": "完了セッション",
+        "description": "カレンダーで完了したポモドーロセッションを確認し、日付をクリックすると当日のセッションと完了タスクを表示します。"
       }
     },
     "table": {
@@ -129,9 +125,19 @@
       "noDescription": "説明なし",
       "empty": "完了済みタスクの記録がまだありません。"
     },
-    "timeline": {
-      "taskLabel": "タスクID: {{id}}",
-      "empty": "タスクに紐づくログがまだありません。"
+    "calendar": {
+      "calendarLabel": "ポモドーロ完了カレンダー",
+      "legend": "色が濃いほど完了セッション数が多い日です。",
+      "selectedDate": "{{date}} の完了状況",
+      "noSelection": "日付を選択してください。",
+      "sessionsCount": "{{count}}件のセッション",
+      "tasksCount": "{{count}}件のタスク",
+      "sessionListTitle": "完了セッション",
+      "taskListTitle": "完了タスク",
+      "noSessionsForDay": "この日に完了したセッションはありません。",
+      "emptySessions": "完了したセッションがまだありません。",
+      "emptyTasks": "この日に完了したタスクはありません。",
+      "sessionLabel": "セッションID: {{id}}"
     }
   },
   "auth": {

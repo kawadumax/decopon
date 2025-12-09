@@ -6,35 +6,56 @@ pub mod profiles;
 pub mod tags;
 pub mod tasks;
 
-use crate::{AppState, middleware::auth::auth_middleware};
-use axum::{Router, middleware};
+use axum::{middleware, routing::get, Router};
+use axum::http::StatusCode;
+use decopon_config::AppMode;
 
-fn protected_routes(app_state: AppState) -> Router<AppState> {
-    Router::<AppState>::new()
+use crate::{
+    middleware::auth::{auth_middleware, local_single_user_middleware},
+    AppState,
+};
+
+fn protected_routes(app_state: AppState, app_mode: AppMode) -> Router<AppState> {
+    let base = Router::<AppState>::new()
         .nest("/decopon_sessions", decopon_sessions::routes())
         .nest("/logs", logs::routes())
         .nest("/profiles", profiles::routes())
         .nest("/preferences", preferences::routes())
         .nest("/tags", tags::routes())
-        .nest("/tasks", tasks::routes())
-        .layer(middleware::from_fn_with_state(
+        .nest("/tasks", tasks::routes());
+
+    match app_mode {
+        AppMode::Local => base.layer(middleware::from_fn_with_state(
+            app_state.clone(),
+            local_single_user_middleware,
+        )),
+        AppMode::Web => base.layer(middleware::from_fn_with_state(
             app_state.clone(),
             auth_middleware,
-        ))
+        )),
+    }
 }
 
 #[cfg(feature = "app")]
-pub fn create_app_routes(app_state: AppState) -> Router<AppState> {
-    Router::<AppState>::new()
-        .nest("/auth", auth::app_routes())
-        .merge(protected_routes(app_state))
+fn auth_routes_for_mode(app_mode: AppMode) -> Router<AppState> {
+    match app_mode {
+        AppMode::Local => auth::app_routes(),
+        AppMode::Web => Router::new().route(
+            "/{_rest..}",
+            get(|| async { StatusCode::NOT_IMPLEMENTED }),
+        ),
+    }
 }
 
 #[cfg(feature = "web")]
-pub fn create_web_routes(app_state: AppState) -> Router<AppState> {
+fn auth_routes_for_mode(_app_mode: AppMode) -> Router<AppState> {
+    auth::web_routes()
+}
+
+pub fn create_routes(app_state: AppState, app_mode: AppMode) -> Router<AppState> {
     Router::<AppState>::new()
-        .nest("/auth", auth::web_routes())
-        .merge(protected_routes(app_state))
+        .nest("/auth", auth_routes_for_mode(app_mode))
+        .merge(protected_routes(app_state, app_mode))
 }
 
 #[cfg(all(feature = "app", feature = "web"))]
@@ -42,9 +63,3 @@ compile_error!("`app` and `web` features cannot be enabled simultaneously for ro
 
 #[cfg(not(any(feature = "app", feature = "web")))]
 compile_error!("Either the `app` or `web` feature must be enabled to use routes.");
-
-#[cfg(feature = "app")]
-pub use create_app_routes as create_routes;
-
-#[cfg(all(feature = "web", not(feature = "app")))]
-pub use create_web_routes as create_routes;

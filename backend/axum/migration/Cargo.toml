@@ -20,5 +20,6 @@ features = [
   # e.g.
   "runtime-tokio-rustls",  # `ASYNC_RUNTIME` feature
   "sqlx-sqlite",         # `DATABASE_DRIVER` feature
+  "sqlx-postgres",       # `DATABASE_DRIVER` feature
   "cli",
 ]
