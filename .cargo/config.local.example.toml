@@ -1,0 +1,25 @@
+# Sample local-only Cargo config for faster dev builds.
+# Copy to .cargo/config.local.toml on your machine; do not commit the copy.
+# Requires nightly because codegen-backend is an unstable feature.
+
+[unstable]
+codegen-backend = true
+
+[profile.dev]
+codegen-backend = "cranelift"
+
+# Zerocopy + Cranelift workaround flags (needed only in the dev/nightly setup).
+[build]
+rustflags = ["--cfg", "no_zerocopy_simd_x86_avx12_1_89_0"]
+
+[target.x86_64-linux-android]
+rustflags = ["--cfg", "no_zerocopy_simd_x86_avx12_1_89_0"]
+
+[target.x86_64-pc-windows-msvc]
+rustflags = ["--cfg", "no_zerocopy_simd_x86_avx12_1_89_0"]
+
+[build-override]
+rustflags = ["--cfg", "no_zerocopy_simd_x86_avx12_1_89_0"]
+
+[env]
+RUSTFLAGS = "--cfg no_zerocopy_simd_x86_avx12_1_89_0"
