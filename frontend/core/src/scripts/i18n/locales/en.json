@@ -105,17 +105,13 @@
       "totalTasks": "Total tasks",
       "completedTasks": "Completed tasks",
       "completionRate": "Completion rate",
-      "lastExecution": "Last execution",
+      "lastExecution": "Last completed session",
       "noRecord": "No completions yet"
     },
     "sections": {
       "completedTasks": {
-        "title": "Completed tasks",
-        "description": "Tasks you have completed, ordered by the latest updates."
-      },
-      "timeline": {
-        "title": "Execution timeline",
-        "description": "Latest logs associated with tasks."
+        "title": "Completed sessions",
+        "description": "View completed Pomodoro sessions on the calendar and click a day to see its sessions and completed tasks."
       }
     },
     "table": {
@@ -129,9 +125,19 @@
       "noDescription": "No description",
       "empty": "There are no completed task records yet."
     },
-    "timeline": {
-      "taskLabel": "Task #{{id}}",
-      "empty": "No task execution logs are available yet."
+    "calendar": {
+      "calendarLabel": "Pomodoro completion calendar",
+      "legend": "Darker cells indicate more completed sessions.",
+      "selectedDate": "Summary for {{date}}",
+      "noSelection": "Select a date to view details.",
+      "sessionsCount": "{{count}} sessions",
+      "tasksCount": "{{count}} tasks",
+      "sessionListTitle": "Completed sessions",
+      "taskListTitle": "Completed tasks",
+      "noSessionsForDay": "No completed sessions on this date.",
+      "emptySessions": "No completed sessions yet.",
+      "emptyTasks": "No tasks were completed on this date.",
+      "sessionLabel": "Session #{{id}}"
     }
   },
   "auth": {

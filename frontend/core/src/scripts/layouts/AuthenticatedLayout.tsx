@@ -84,7 +84,7 @@ const Drawer = ({
       <SheetTrigger asChild>
         <DrawerButton open={open} setOpen={setOpen} />
       </SheetTrigger>
-      <SheetContent side={"left"}>
+      <SheetContent side="right">
         <SheetHeader className="sr-only">
           <SheetTitle>ナビゲーションメニュー</SheetTitle>
           <SheetDescription>主要ページへのリンクを表示しています</SheetDescription>

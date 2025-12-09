@@ -1,6 +1,7 @@
 import type {
   MutationOptions,
   QueryObserverOptions,
+  UseQueryOptions,
 } from "@tanstack/react-query";
 import { DecoponSessionService } from "../api/services/DecoponSessionService";
 import { getToday, logger } from "../lib/utils";
@@ -148,8 +149,27 @@ export const abandonDecoponSessionMutationOptions: MutationOptions<
   },
 };
 
+export const decoponSessionsQueryOptions =
+  (): UseQueryOptions<
+    DecoponSession[],
+    Error,
+    DecoponSession[],
+    readonly ["decoponSessions"]
+  > => ({
+    queryKey: ["decoponSessions"] as const,
+    queryFn: async (): Promise<DecoponSession[]> => {
+      try {
+        return await DecoponSessionService.index();
+      } catch (error) {
+        logger("error fetch decopon sessions", error);
+        return [];
+      }
+    },
+    placeholderData: [] as DecoponSession[],
+  });
+
 export const decoponSessionCyclesQueryOptions = {
-  queryKey: ["decoponSession", "cycles"],
+  queryKey: ["decoponSession", "cycles"] as const,
   queryFn: async (): Promise<CycleCount> => {
     const today = getToday();
     return DecoponSessionService.cycles(today);
