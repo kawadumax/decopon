@@ -17,6 +17,10 @@ import {
 } from "@components/ui/sheet";
 import { Toaster } from "@components/ui/sonner";
 import { useDeviceSize } from "@hooks/useDeviceSize";
+import {
+  type MobileSheetSwipeHandlers,
+  useMobileSheetSwipes,
+} from "@hooks/useMobileSheetSwipes";
 import { cn } from "@lib/utils";
 import {
   ActivitySquare,
@@ -46,6 +50,11 @@ type DrawerLinkDefinition = {
   icon: typeof ActivitySquare;
 };
 
+type SheetOpenState = {
+  open: boolean;
+  setOpen: Dispatch<SetStateAction<boolean>>;
+};
+
 const links: DrawerLinkDefinition[] = [
   {
     key: "tasks",
@@ -71,10 +80,14 @@ const links: DrawerLinkDefinition[] = [
 
 const Drawer = ({
   user,
+  drawerState,
+  swipeHandlers,
 }: {
   user: User;
+  drawerState: SheetOpenState;
+  swipeHandlers: MobileSheetSwipeHandlers;
 }) => {
-  const [open, setOpen] = useState(false);
+  const { open, setOpen } = drawerState;
   const { t } = useTranslation();
   const isTauri = useMemo(() => isTauriEnvironment(), []);
   const drawerLinks = useMemo(() => links, []);
@@ -84,7 +97,7 @@ const Drawer = ({
       <SheetTrigger asChild>
         <DrawerButton open={open} setOpen={setOpen} />
       </SheetTrigger>
-      <SheetContent side="right" className="pt-safe pb-safe">
+      <SheetContent side="right" className="pt-safe pb-safe" {...swipeHandlers}>
         <SheetHeader className="sr-only">
           <SheetTitle>ナビゲーションメニュー</SheetTitle>
           <SheetDescription>主要ページへのリンクを表示しています</SheetDescription>
@@ -264,15 +277,31 @@ const BackButton = () => {
   );
 };
 
-const HeaderNavigation = ({ user }: { user: User }) => {
+const HeaderNavigation = ({
+  user,
+  drawerState,
+  timerState,
+  drawerSwipeHandlers,
+  timerSwipeHandlers,
+}: {
+  user: User;
+  drawerState: SheetOpenState;
+  timerState: SheetOpenState;
+  drawerSwipeHandlers: MobileSheetSwipeHandlers;
+  timerSwipeHandlers: MobileSheetSwipeHandlers;
+}) => {
   return (
     <nav className="flex flex-row justify-between border-line border-b bg-surface ps-safe pe-safe pt-safe dark:border-line-subtle dark:bg-surface">
       <BackButton />
-      <Sheet>
+      <Sheet open={timerState.open} onOpenChange={timerState.setOpen}>
         <SheetTrigger>
           <TimerStateWidget />
         </SheetTrigger>
-        <SheetContent side={"top"} className="size-full p-0 pt-safe pb-safe">
+        <SheetContent
+          side={"top"}
+          className="size-full p-0 pt-safe pb-safe"
+          {...timerSwipeHandlers}
+        >
           <SheetHeader className="sr-only">
             <SheetTitle>Timer</SheetTitle>
             <SheetDescription>タイマー用の操作パネルを開きます</SheetDescription>
@@ -280,7 +309,11 @@ const HeaderNavigation = ({ user }: { user: User }) => {
           <Timer />
         </SheetContent>
       </Sheet>
-      <Drawer user={user} />
+      <Drawer
+        user={user}
+        drawerState={drawerState}
+        swipeHandlers={drawerSwipeHandlers}
+      />
     </nav>
   );
 };
@@ -350,6 +383,16 @@ const ResponsiveLayout = ({
   children: React.ReactNode;
 }) => {
   const deviceSize = useDeviceSize();
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isTimerOpen, setIsTimerOpen] = useState(false);
+  const enableMobileLayout = deviceSize === "mobile" || deviceSize === "tablet";
+
+  const { rootHandlers, drawerContentHandlers, timerContentHandlers } =
+    useMobileSheetSwipes({
+      enabled: enableMobileLayout,
+      drawerState: { open: isDrawerOpen, setOpen: setIsDrawerOpen },
+      timerState: { open: isTimerOpen, setOpen: setIsTimerOpen },
+    });
 
   switch (deviceSize) {
     case undefined:
@@ -361,11 +404,17 @@ const ResponsiveLayout = ({
     case "mobile":
     case "tablet":
       return (
-        <>
-          <HeaderNavigation user={user} />
+        <div className="flex h-full flex-col" {...rootHandlers}>
+          <HeaderNavigation
+            user={user}
+            drawerState={{ open: isDrawerOpen, setOpen: setIsDrawerOpen }}
+            timerState={{ open: isTimerOpen, setOpen: setIsTimerOpen }}
+            drawerSwipeHandlers={drawerContentHandlers}
+            timerSwipeHandlers={timerContentHandlers}
+          />
           <main className="grow overflow-auto">{children}</main>
           <FooterNavigation />
-        </>
+        </div>
       );
     case "pc":
       return (
