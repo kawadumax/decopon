@@ -84,7 +84,7 @@ const Drawer = ({
       <SheetTrigger asChild>
         <DrawerButton open={open} setOpen={setOpen} />
       </SheetTrigger>
-      <SheetContent side="right">
+      <SheetContent side="right" className="pt-safe pb-safe">
         <SheetHeader className="sr-only">
           <SheetTitle>ナビゲーションメニュー</SheetTitle>
           <SheetDescription>主要ページへのリンクを表示しています</SheetDescription>
@@ -272,7 +272,7 @@ const HeaderNavigation = ({ user }: { user: User }) => {
         <SheetTrigger>
           <TimerStateWidget />
         </SheetTrigger>
-        <SheetContent side={"top"} className="size-full p-0">
+        <SheetContent side={"top"} className="size-full p-0 pt-safe pb-safe">
           <SheetHeader className="sr-only">
             <SheetTitle>Timer</SheetTitle>
             <SheetDescription>タイマー用の操作パネルを開きます</SheetDescription>
