@@ -241,6 +241,7 @@ jobs:
         with:
           tag_name: v${{ steps.version.outputs.app_version }}
           name: Decopon v${{ steps.version.outputs.app_version }}
+          target_commitish: ${{ github.sha }}
           draft: false
           prerelease: true
           files: |
