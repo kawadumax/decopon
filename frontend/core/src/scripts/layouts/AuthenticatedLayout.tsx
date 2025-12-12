@@ -1,11 +1,13 @@
 import type { Auth, User } from "@/scripts/types";
 import ApplicationLogo from "@components/ApplicationLogo";
 import Dropdown from "@components/Dropdown";
+import { HitSlop } from "@components/HitSlop";
 import NavLink from "@components/NavLink";
 import ResponsiveNavLink from "@components/ResponsiveNavLink";
 import { StackViewProvider, useStackView } from "@components/StackView";
 import { Timer } from "@components/Timer";
 import { TimerStateWidget } from "@components/TimerStateWidget";
+import { TimerSwipeHandle } from "@components/TimerSwipeHandle";
 import { Separator } from "@components/ui/separator";
 import {
   Sheet,
@@ -283,20 +285,27 @@ const HeaderNavigation = ({
   timerState,
   drawerSwipeHandlers,
   timerSwipeHandlers,
+  timerHandleHandlers,
 }: {
   user: User;
   drawerState: SheetOpenState;
   timerState: SheetOpenState;
   drawerSwipeHandlers: MobileSheetSwipeHandlers;
   timerSwipeHandlers: MobileSheetSwipeHandlers;
+  timerHandleHandlers: MobileSheetSwipeHandlers;
 }) => {
   return (
-    <nav className="flex flex-row justify-between border-line border-b bg-surface ps-safe pe-safe pt-safe dark:border-line-subtle dark:bg-surface">
+    <nav className="flex flex-row items-center justify-between border-line border-b bg-surface ps-safe pe-safe pt-safe dark:border-line-subtle dark:bg-surface">
       <BackButton />
       <Sheet open={timerState.open} onOpenChange={timerState.setOpen}>
-        <SheetTrigger>
-          <TimerStateWidget />
-        </SheetTrigger>
+        <div className="flex flex-col items-center gap-1">
+          <TimerSwipeHandle swipeHandlers={timerHandleHandlers} className="pt-1" />
+          <SheetTrigger>
+            <HitSlop hitSlop={{ top: 8, bottom: 8, left: 16, right: 16 }}>
+              <TimerStateWidget />
+            </HitSlop>
+          </SheetTrigger>
+        </div>
         <SheetContent
           side={"top"}
           className="size-full p-0 pt-safe pb-safe"
@@ -387,7 +396,12 @@ const ResponsiveLayout = ({
   const [isTimerOpen, setIsTimerOpen] = useState(false);
   const enableMobileLayout = deviceSize === "mobile" || deviceSize === "tablet";
 
-  const { rootHandlers, drawerContentHandlers, timerContentHandlers } =
+  const {
+    rootHandlers,
+    drawerContentHandlers,
+    timerContentHandlers,
+    timerHandleHandlers,
+  } =
     useMobileSheetSwipes({
       enabled: enableMobileLayout,
       drawerState: { open: isDrawerOpen, setOpen: setIsDrawerOpen },
@@ -411,6 +425,7 @@ const ResponsiveLayout = ({
             timerState={{ open: isTimerOpen, setOpen: setIsTimerOpen }}
             drawerSwipeHandlers={drawerContentHandlers}
             timerSwipeHandlers={timerContentHandlers}
+            timerHandleHandlers={timerHandleHandlers}
           />
           <main className="grow overflow-auto">{children}</main>
           <FooterNavigation />

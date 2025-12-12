@@ -7,6 +7,8 @@ type SwipeableSheetState = {
 };
 
 const EDGE_THRESHOLD = 32;
+const TIMER_SWIPE_START_MIN = 40;
+const TIMER_SWIPE_START_MAX = 140;
 
 const isFromRightEdge = (eventData: SwipeEventData) => {
   if (typeof window === "undefined") return false;
@@ -15,10 +17,10 @@ const isFromRightEdge = (eventData: SwipeEventData) => {
   return window.innerWidth - startX <= EDGE_THRESHOLD;
 };
 
-const isFromTopEdge = (eventData: SwipeEventData) => {
+const isFromTimerSwipeBand = (eventData: SwipeEventData) => {
   const startY = eventData.initial?.[1];
   if (typeof startY !== "number") return false;
-  return startY <= EDGE_THRESHOLD;
+  return startY >= TIMER_SWIPE_START_MIN && startY <= TIMER_SWIPE_START_MAX;
 };
 
 export const useMobileSheetSwipes = ({
@@ -39,7 +41,7 @@ export const useMobileSheetSwipes = ({
     },
     onSwipedDown: (eventData) => {
       if (!enabled || timerState.open) return;
-      if (isFromTopEdge(eventData)) {
+      if (isFromTimerSwipeBand(eventData)) {
         timerState.setOpen(true);
       }
     },
@@ -71,12 +73,28 @@ export const useMobileSheetSwipes = ({
     preventScrollOnSwipe: true,
   });
 
+  const timerHandleHandlers = useSwipeable({
+    onSwipedDown: (eventData) => {
+      if (!enabled || timerState.open) return;
+      if (isFromTimerSwipeBand(eventData)) {
+        timerState.setOpen(true);
+      }
+    },
+    trackTouch: true,
+    trackMouse: false,
+    delta: 24,
+    preventScrollOnSwipe: true,
+  });
+
   return {
     rootHandlers: (enabled ? rootHandlers : {}) as ReturnType<typeof useSwipeable>,
     drawerContentHandlers: (enabled ? drawerContentHandlers : {}) as ReturnType<
       typeof useSwipeable
     >,
     timerContentHandlers: (enabled ? timerContentHandlers : {}) as ReturnType<
+      typeof useSwipeable
+    >,
+    timerHandleHandlers: (enabled ? timerHandleHandlers : {}) as ReturnType<
       typeof useSwipeable
     >,
   };
