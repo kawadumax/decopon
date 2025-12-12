@@ -9,6 +9,8 @@ import {
   ResizablePanelGroup,
 } from "@components/ui/resizable";
 import { useDeviceSize } from "@hooks/useDeviceSize";
+import { useKeyboardInset } from "@hooks/useKeyboardInset";
+import { useMemo, useRef } from "react";
 import { TaskSideView } from "./partials/TaskSideView";
 import { TaskTagList } from "./partials/TaskTagList";
 import { TaskTools } from "./partials/TaskTools";
@@ -36,12 +38,28 @@ const ResizableLayout = ({ children }: { children: React.ReactNode }) => {
 };
 
 const MainPanel = () => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const deviceSize = useDeviceSize();
+  const keyboardInset = useKeyboardInset();
+  const paddingBottom = useMemo(() => {
+    const baseOffset = deviceSize === "pc" ? 24 : 88;
+    const reservedSpace = deviceSize === "pc" ? 96 : 160;
+    const padding = baseOffset + reservedSpace;
+    return `calc(env(safe-area-inset-bottom, 0px) + ${keyboardInset}px + ${padding}px)`;
+  }, [deviceSize, keyboardInset]);
+
   return (
-    <>
-      <TaskTools />
+    <div
+      ref={containerRef}
+      className="relative flex min-h-full flex-col"
+      style={{ paddingBottom }}
+    >
       <TagHeader />
-      <TaskTree />
-    </>
+      <div className="px-4 pb-2">
+        <TaskTree />
+      </div>
+      <TaskTools containerRef={containerRef} />
+    </div>
   );
 };
 
