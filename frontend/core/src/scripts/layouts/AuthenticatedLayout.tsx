@@ -40,7 +40,9 @@ import {
   type ReactNode,
   type SetStateAction,
   forwardRef,
+  useLayoutEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
@@ -294,21 +296,45 @@ const HeaderNavigation = ({
   timerSwipeHandlers: MobileSheetSwipeHandlers;
   timerHandleHandlers: MobileSheetSwipeHandlers;
 }) => {
+  const headerRef = useRef<HTMLElement | null>(null);
+  const [headerHeight, setHeaderHeight] = useState(0);
+
+  useLayoutEffect(() => {
+    const element = headerRef.current;
+    if (!element) return;
+
+    const updateHeaderHeight = () => {
+      const { height } = element.getBoundingClientRect();
+      setHeaderHeight(height);
+    };
+
+    updateHeaderHeight();
+    const observer = new ResizeObserver(updateHeaderHeight);
+    observer.observe(element);
+
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <nav className="flex flex-row items-center justify-between border-line border-b bg-surface ps-safe pe-safe pt-safe dark:border-line-subtle dark:bg-surface">
+    <nav
+      ref={headerRef}
+      className="relative z-40 flex flex-row items-center justify-between border-line border-b bg-surface ps-safe pe-safe pt-safe dark:border-line-subtle dark:bg-surface"
+    >
       <BackButton />
       <Sheet open={timerState.open} onOpenChange={timerState.setOpen}>
         <div className="flex flex-col items-center gap-1">
-          <TimerSwipeHandle swipeHandlers={timerHandleHandlers} className="pt-1" />
           <SheetTrigger>
             <HitSlop hitSlop={{ top: 8, bottom: 8, left: 16, right: 16 }}>
               <TimerStateWidget />
             </HitSlop>
           </SheetTrigger>
+          <TimerSwipeHandle swipeHandlers={timerHandleHandlers} className="pb-1" />
         </div>
         <SheetContent
           side={"top"}
-          className="size-full p-0 pt-safe pb-safe"
+          className="p-0 pb-safe"
+          offsetTop={headerHeight}
+          zIndex={30}
           {...timerSwipeHandlers}
         >
           <SheetHeader className="sr-only">
