@@ -1,29 +1,19 @@
-import type { Theme } from "@tauri-apps/api/window";
 import { ThemeProvider } from "next-themes";
 import { useEffect } from "react";
 import { defaultAppTheme, type AppTheme } from "@/scripts/lib/theme";
 import { isTauriEnvironment } from "@/scripts/lib/isTauriEnvironment";
 import { useAppTheme } from "@/scripts/hooks/useAppTheme";
+import { syncNativeTheme } from "@/scripts/lib/nativeThemeSync";
 
 const ThemeSyncEffect = () => {
-  const { theme } = useAppTheme();
+  const { theme, resolvedTheme } = useAppTheme();
 
   useEffect(() => {
     if (!theme) return;
     if (!isTauriEnvironment()) return;
 
-    const syncTheme = async (nextTheme: AppTheme) => {
-      try {
-        const { setTheme } = await import("@tauri-apps/api/app");
-        const targetTheme: Theme | null = nextTheme === "system" ? null : nextTheme;
-        await setTheme(targetTheme);
-      } catch (error) {
-        console.warn("Failed to sync theme with OS", error);
-      }
-    };
-
-    void syncTheme(theme);
-  }, [theme]);
+    void syncNativeTheme(theme as AppTheme, resolvedTheme);
+  }, [resolvedTheme, theme]);
 
   return null;
 };
