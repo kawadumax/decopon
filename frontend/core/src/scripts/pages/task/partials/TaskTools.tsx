@@ -206,10 +206,14 @@ export const TaskTools = ({ containerRef }: TaskToolsProps) => {
   const { createTask } = useTaskMutations(currentTag?.id);
   const [inputValue, setInputValue] = useState("");
   const [isOpen, setIsOpen] = useState(false);
+  const inlineInputRef = useRef<HTMLInputElement>(null);
   const containerRect = useContainerRect(containerRef);
+  const isMobile = deviceSize === "mobile";
+  const isTabletOrPc = deviceSize === "tablet" || deviceSize === "pc";
 
   const baseBottomOffset = useMemo(() => {
     if (deviceSize === "pc") return 24;
+    if (deviceSize === "tablet") return 24;
     if (keyboardInset > 0) return 12;
     return 88;
   }, [deviceSize, keyboardInset]);
@@ -243,7 +247,7 @@ export const TaskTools = ({ containerRef }: TaskToolsProps) => {
       onSuccess: () => {
         setInputValue("");
         requestAnimationFrame(() => {
-          if (isOpen) {
+          if (isOpen && isMobile) {
             // 連続追加用にフォーカスを維持
             const input = document.querySelector<HTMLInputElement>(
               "[data-task-composer-input=true]",
@@ -253,46 +257,108 @@ export const TaskTools = ({ containerRef }: TaskToolsProps) => {
         });
       },
     });
-  }, [createTask, currentTag, inputValue, isOpen]);
+  }, [createTask, currentTag, inputValue, isOpen, isMobile]);
 
-  const showFloatingButton = deviceSize !== undefined && !isOpen;
+  const showFloatingButton = deviceSize === "mobile" && !isOpen;
+
+  useEffect(() => {
+    if (!isOpen || !isTabletOrPc) return;
+    const id = requestAnimationFrame(() => inlineInputRef.current?.focus());
+    return () => cancelAnimationFrame(id);
+  }, [isOpen, isTabletOrPc]);
 
   return (
     <>
-      <div className="px-4 pb-8 pt-4">
-        <button
-          type="button"
-          onClick={openComposer}
-          className={cn(
-            "inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-fg-muted transition",
-            "hover:bg-surface-muted hover:text-fg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
-            "dark:hover:bg-surface-inverse-muted",
+      {isTabletOrPc && (
+        <div className="px-4 pb-8 pt-4">
+          {!isOpen ? (
+            <button
+              type="button"
+              onClick={openComposer}
+              className={cn(
+                "inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-fg-muted transition",
+                "hover:bg-surface-muted hover:text-fg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+                "dark:hover:bg-surface-inverse-muted",
+              )}
+            >
+              <PlusCircle className="size-5" />
+              <span>{t("task.add")}</span>
+            </button>
+          ) : (
+            <div className="rounded-2xl border border-dashed border-line-subtle bg-surface-elevated/60 p-3 shadow-sm dark:border-line dark:bg-surface">
+              <Input
+                ref={inlineInputRef}
+                value={inputValue}
+                onChange={(event) => setInputValue(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") {
+                    event.preventDefault();
+                    handleSubmit();
+                  }
+                  if (event.key === "Escape") {
+                    event.preventDefault();
+                    closeComposer();
+                  }
+                }}
+                placeholder={t("task.add")}
+                className="bg-transparent"
+                aria-label={t("task.add")}
+              />
+              <div className="mt-2 flex justify-end gap-2">
+                <Button variant="ghost" size="sm" onClick={closeComposer}>
+                  {t("common.cancel")}
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={handleSubmit}
+                  disabled={createTask.isPending || inputValue.trim() === ""}
+                >
+                  {t("common.add")}
+                </Button>
+              </div>
+            </div>
           )}
-        >
-          <PlusCircle className="size-5" />
-          <span>{t("task.add")}</span>
-        </button>
-      </div>
-
-      {showFloatingButton && (
-        <TaskAddFab
-          onOpen={openComposer}
-          containerRect={containerRect}
-          bottomOffset={bottomOffset}
-          deviceSize={deviceSize}
-        />
+        </div>
       )}
 
-      <TaskCreateOverlay
-        isOpen={isOpen}
-        inputValue={inputValue}
-        onChange={setInputValue}
-        onSubmit={handleSubmit}
-        onClose={closeComposer}
-        isPending={createTask.isPending}
-        containerRect={containerRect}
-        bottomOffset={bottomOffset}
-      />
+      {isMobile && (
+        <>
+          <div className="px-4 pb-8 pt-4">
+            <button
+              type="button"
+              onClick={openComposer}
+              className={cn(
+                "inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-fg-muted transition",
+                "hover:bg-surface-muted hover:text-fg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+                "dark:hover:bg-surface-inverse-muted",
+              )}
+            >
+              <PlusCircle className="size-5" />
+              <span>{t("task.add")}</span>
+            </button>
+          </div>
+
+          {showFloatingButton && (
+            <TaskAddFab
+              onOpen={openComposer}
+              containerRect={containerRect}
+              bottomOffset={bottomOffset}
+              deviceSize={deviceSize}
+            />
+          )}
+
+          <TaskCreateOverlay
+            isOpen={isOpen}
+            inputValue={inputValue}
+            onChange={setInputValue}
+            onSubmit={handleSubmit}
+            onClose={closeComposer}
+            isPending={createTask.isPending}
+            containerRect={containerRect}
+            bottomOffset={bottomOffset}
+          />
+        </>
+      )}
     </>
   );
 };

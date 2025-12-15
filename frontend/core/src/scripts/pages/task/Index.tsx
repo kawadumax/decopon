@@ -42,10 +42,14 @@ const MainPanel = () => {
   const deviceSize = useDeviceSize();
   const keyboardInset = useKeyboardInset();
   const paddingBottom = useMemo(() => {
-    const baseOffset = deviceSize === "pc" ? 24 : 88;
-    const reservedSpace = deviceSize === "pc" ? 96 : 160;
-    const padding = baseOffset + reservedSpace;
-    return `calc(env(safe-area-inset-bottom, 0px) + ${keyboardInset}px + ${padding}px)`;
+    if (deviceSize === "mobile") {
+      const baseOffset = 88;
+      const reservedSpace = 160;
+      const padding = baseOffset + reservedSpace;
+      return `calc(env(safe-area-inset-bottom, 0px) + ${keyboardInset}px + ${padding}px)`;
+    }
+    const baseOffset = deviceSize === "pc" ? 32 : 40;
+    return `calc(env(safe-area-inset-bottom, 0px) + ${baseOffset}px)`;
   }, [deviceSize, keyboardInset]);
 
   return (
