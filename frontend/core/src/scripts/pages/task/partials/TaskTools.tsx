@@ -208,7 +208,11 @@ export const TaskTools = ({ containerRef }: TaskToolsProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const containerRect = useContainerRect(containerRef);
 
-  const baseBottomOffset = deviceSize === "pc" ? 24 : 88;
+  const baseBottomOffset = useMemo(() => {
+    if (deviceSize === "pc") return 24;
+    if (keyboardInset > 0) return 12;
+    return 88;
+  }, [deviceSize, keyboardInset]);
   const bottomOffset = useMemo(
     () => `calc(env(safe-area-inset-bottom, 0px) + ${keyboardInset}px + ${baseBottomOffset}px)`,
     [baseBottomOffset, keyboardInset],

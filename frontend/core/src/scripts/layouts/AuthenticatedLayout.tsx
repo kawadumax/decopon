@@ -47,6 +47,7 @@ import {
 } from "react";
 import { useTranslation } from "react-i18next";
 import { isTauriEnvironment } from "@/scripts/lib/isTauriEnvironment";
+import { useKeyboardInset } from "@hooks/useKeyboardInset";
 
 type DrawerLinkDefinition = {
   key: "statistics" | "tasks" | "tags" | "logs";
@@ -356,10 +357,22 @@ const HeaderNavigation = ({
 const FooterNavigation = () => {
   const matchRoute = useMatchRoute();
   const { t } = useTranslation();
+  const keyboardInset = useKeyboardInset();
   const footerLinks = useMemo(() => links, []);
+  const shouldHideFooter = keyboardInset > 0;
 
   return (
-    <nav className="sticky bottom-0 flex flex-row items-stretch justify-between divide-x border-line border-t border-b bg-surface px-safe pb-safe shadow-lg dark:border-line-subtle dark:bg-surface">
+    <nav
+      className={cn(
+        "sticky bottom-0 flex flex-row items-stretch justify-between divide-x border-line border-t border-b bg-surface px-safe pb-safe shadow-lg transition-transform duration-200 dark:border-line-subtle dark:bg-surface",
+      )}
+      style={
+        shouldHideFooter
+          ? { transform: "translateY(100%)", pointerEvents: "none" }
+          : undefined
+      }
+      aria-hidden={shouldHideFooter}
+    >
       {footerLinks.map((link) => {
         const isActive = !!matchRoute({ to: link.href, fuzzy: false });
         const activeClassName = isActive ? "text-primary" : "text-fg";
