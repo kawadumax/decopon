@@ -236,11 +236,25 @@ jobs:
           APP_VERSION=$(tr -d '\r\n' < VERSION)
           echo "app_version=$APP_VERSION" >> "$GITHUB_OUTPUT"
 
+      - name: Resolve release tag (avoid collisions)
+        id: release_tag
+        run: |
+          set -euo pipefail
+          BASE_TAG="v${{ steps.version.outputs.app_version }}"
+          TAG="$BASE_TAG"
+          BUILD=0
+          while git ls-remote --exit-code --tags origin "refs/tags/${TAG}" >/dev/null 2>&1; do
+            BUILD=$((BUILD + 1))
+            TAG="${BASE_TAG}.build${BUILD}"
+          done
+          echo "tag_name=$TAG" >> "$GITHUB_OUTPUT"
+          echo "release_name=Decopon ${TAG}" >> "$GITHUB_OUTPUT"
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ steps.version.outputs.app_version }}
-          name: Decopon v${{ steps.version.outputs.app_version }}
+          tag_name: ${{ steps.release_tag.outputs.tag_name }}
+          name: ${{ steps.release_tag.outputs.release_name }}
           target_commitish: ${{ github.sha }}
           draft: false
           prerelease: true
