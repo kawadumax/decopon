@@ -1,12 +1,13 @@
 package com.decopon.android
 
 import android.app.Activity
+import android.content.res.Configuration
 import android.graphics.Color
 import android.util.Log
 import android.webkit.JavascriptInterface
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_SHOW_BARS_BY_SWIPE
+import androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
 
 class SystemUiBridge(private val activity: Activity) {
   @JavascriptInterface
@@ -25,19 +26,28 @@ class SystemUiBridge(private val activity: Activity) {
       else -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
     }
 
+    val isDarkMode = when (normalized) {
+      "dark" -> true
+      "light" -> false
+      else -> {
+        val nightMode = activity.resources.configuration.uiMode and
+          Configuration.UI_MODE_NIGHT_MASK
+        nightMode == Configuration.UI_MODE_NIGHT_YES
+      }
+    }
+
+    @Suppress("DEPRECATION") // setStatusBarColor/setNavigationBarColor are deprecated on API 34+ but required for explicit bar colors.
     activity.runOnUiThread {
-      val window = activity.window ?: return@runOnUiThread
-      val controller =
-        WindowCompat.getInsetsController(window, window.decorView) ?: return@runOnUiThread
+      val window = activity.window
+      val controller = WindowCompat.getInsetsController(window, window.decorView)
 
-      val isLightBars = normalized != "dark"
-      controller.isAppearanceLightStatusBars = isLightBars
-      controller.isAppearanceLightNavigationBars = isLightBars
-      controller.systemBarsBehavior = BEHAVIOR_SHOW_BARS_BY_SWIPE
+      controller.isAppearanceLightStatusBars = !isDarkMode
+      controller.isAppearanceLightNavigationBars = !isDarkMode
+      controller.systemBarsBehavior = BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
 
-      val statusBarColor = if (normalized == "dark") "#0f172a" else "#f8fafc"
-      window.statusBarColor = Color.parseColor(statusBarColor)
-      window.navigationBarColor = Color.parseColor(statusBarColor)
+      val systemBarColor = if (isDarkMode) "#0f172a" else "#f8fafc"
+      window.statusBarColor = Color.parseColor(systemBarColor)
+      window.navigationBarColor = Color.parseColor(systemBarColor)
     }
   }
 }
