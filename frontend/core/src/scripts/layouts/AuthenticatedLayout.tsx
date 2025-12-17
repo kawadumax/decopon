@@ -1,3 +1,4 @@
+import { isTauriEnvironment } from "@/scripts/lib/isTauriEnvironment";
 import type { Auth, User } from "@/scripts/types";
 import ApplicationLogo from "@components/ApplicationLogo";
 import Dropdown from "@components/Dropdown";
@@ -19,6 +20,7 @@ import {
 } from "@components/ui/sheet";
 import { Toaster } from "@components/ui/sonner";
 import { useDeviceSize } from "@hooks/useDeviceSize";
+import { useKeyboardState } from "@hooks/useKeyboardInset";
 import {
   type MobileSheetSwipeHandlers,
   useMobileSheetSwipes,
@@ -46,8 +48,6 @@ import {
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
-import { isTauriEnvironment } from "@/scripts/lib/isTauriEnvironment";
-import { useKeyboardInset } from "@hooks/useKeyboardInset";
 
 type DrawerLinkDefinition = {
   key: "statistics" | "tasks" | "tags" | "logs";
@@ -105,7 +105,9 @@ const Drawer = ({
       <SheetContent side="right" className="pt-safe pb-safe" {...swipeHandlers}>
         <SheetHeader className="sr-only">
           <SheetTitle>ナビゲーションメニュー</SheetTitle>
-          <SheetDescription>主要ページへのリンクを表示しています</SheetDescription>
+          <SheetDescription>
+            主要ページへのリンクを表示しています
+          </SheetDescription>
         </SheetHeader>
         {!isTauri && (
           <>
@@ -329,7 +331,10 @@ const HeaderNavigation = ({
               <TimerStateWidget />
             </HitSlop>
           </SheetTrigger>
-          <TimerSwipeHandle swipeHandlers={timerHandleHandlers} className="pb-1" />
+          <TimerSwipeHandle
+            swipeHandlers={timerHandleHandlers}
+            className="pb-1"
+          />
         </div>
         <SheetContent
           side={"top"}
@@ -340,7 +345,9 @@ const HeaderNavigation = ({
         >
           <SheetHeader className="sr-only">
             <SheetTitle>Timer</SheetTitle>
-            <SheetDescription>タイマー用の操作パネルを開きます</SheetDescription>
+            <SheetDescription>
+              タイマー用の操作パネルを開きます
+            </SheetDescription>
           </SheetHeader>
           <Timer />
         </SheetContent>
@@ -357,9 +364,9 @@ const HeaderNavigation = ({
 const FooterNavigation = () => {
   const matchRoute = useMatchRoute();
   const { t } = useTranslation();
-  const keyboardInset = useKeyboardInset();
+  const { isOpen: isKeyboardOpen } = useKeyboardState();
   const footerLinks = useMemo(() => links, []);
-  const shouldHideFooter = keyboardInset > 0;
+  const shouldHideFooter = isKeyboardOpen;
 
   return (
     <nav
@@ -440,12 +447,11 @@ const ResponsiveLayout = ({
     drawerContentHandlers,
     timerContentHandlers,
     timerHandleHandlers,
-  } =
-    useMobileSheetSwipes({
-      enabled: enableMobileLayout,
-      drawerState: { open: isDrawerOpen, setOpen: setIsDrawerOpen },
-      timerState: { open: isTimerOpen, setOpen: setIsTimerOpen },
-    });
+  } = useMobileSheetSwipes({
+    enabled: enableMobileLayout,
+    drawerState: { open: isDrawerOpen, setOpen: setIsDrawerOpen },
+    timerState: { open: isTimerOpen, setOpen: setIsTimerOpen },
+  });
 
   switch (deviceSize) {
     case undefined:

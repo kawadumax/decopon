@@ -1,7 +1,12 @@
+import { cn } from "@/scripts/lib/utils";
+import { useTaskMutations } from "@/scripts/queries";
+import type { CreateTaskVariables } from "@/scripts/queries";
+import { useTagStore } from "@/scripts/store/tag";
 import { Button } from "@components/ui/button";
 import { Input } from "@components/ui/input";
 import { useDeviceSize } from "@hooks/useDeviceSize";
-import type { DeviceSize } from "@hooks/useDeviceSize";
+import { useKeyboardState } from "@hooks/useKeyboardInset";
+import { PlusCircle, X } from "@mynaui/icons-react";
 import type { CSSProperties, RefObject } from "react";
 import {
   useCallback,
@@ -12,12 +17,6 @@ import {
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
-import { Plus, PlusCircle, X } from "@mynaui/icons-react";
-import { cn } from "@/scripts/lib/utils";
-import { useTaskMutations } from "@/scripts/queries";
-import type { CreateTaskVariables } from "@/scripts/queries";
-import { useTagStore } from "@/scripts/store/tag";
-import { useKeyboardInset } from "@hooks/useKeyboardInset";
 
 type TaskToolsProps = {
   containerRef: RefObject<HTMLElement>;
@@ -140,7 +139,10 @@ const TaskCreateOverlay = ({
           <Button variant="ghost" size="icon" onClick={onClose}>
             <X />
           </Button>
-          <Button onClick={onSubmit} disabled={isPending || inputValue.trim() === ""}>
+          <Button
+            onClick={onSubmit}
+            disabled={isPending || inputValue.trim() === ""}
+          >
             {t("common.add")}
           </Button>
         </div>
@@ -149,59 +151,10 @@ const TaskCreateOverlay = ({
   );
 };
 
-const TaskAddFab = ({
-  onOpen,
-  containerRect,
-  bottomOffset,
-  deviceSize,
-}: {
-  onOpen: () => void;
-  containerRect: DOMRect | null;
-  bottomOffset: string;
-  deviceSize: DeviceSize;
-}) => {
-  const { t } = useTranslation();
-  const layoutStyle = useMemo(() => {
-    const style: CSSProperties = { bottom: bottomOffset };
-    if (containerRect) {
-      style.left = containerRect.left;
-      style.width = containerRect.width;
-    }
-    return style;
-  }, [bottomOffset, containerRect]);
-  const layoutClassName = cn(
-    "fixed bottom-0 pointer-events-none transition-[bottom] duration-200",
-    "z-40",
-    containerRect ? null : "left-4 right-4",
-  );
-
-  const label = t("task.add");
-  const isCompact = deviceSize === "mobile";
-
-  return (
-    <div style={layoutStyle} className={layoutClassName}>
-      <div className="pointer-events-auto mx-auto flex max-w-3xl justify-end px-4">
-        <Button
-          onClick={onOpen}
-          size={isCompact ? "icon" : "lg"}
-          className={cn(
-            "rounded-full shadow-lg",
-            isCompact ? "h-12 w-12 p-0" : "gap-2 px-4",
-          )}
-          aria-label={label}
-        >
-          <Plus />
-          {!isCompact && <span className="whitespace-nowrap text-sm">{label}</span>}
-        </Button>
-      </div>
-    </div>
-  );
-};
-
 export const TaskTools = ({ containerRef }: TaskToolsProps) => {
   const { t } = useTranslation();
   const deviceSize = useDeviceSize();
-  const keyboardInset = useKeyboardInset();
+  const { inset: keyboardInset, isOpen: isKeyboardOpen } = useKeyboardState();
   const currentTag = useTagStore((s) => s.currentTag);
   const { createTask } = useTaskMutations(currentTag?.id);
   const [inputValue, setInputValue] = useState("");
@@ -214,11 +167,12 @@ export const TaskTools = ({ containerRef }: TaskToolsProps) => {
   const baseBottomOffset = useMemo(() => {
     if (deviceSize === "pc") return 24;
     if (deviceSize === "tablet") return 24;
-    if (keyboardInset > 0) return 12;
+    if (isKeyboardOpen) return 12;
     return 88;
-  }, [deviceSize, keyboardInset]);
+  }, [deviceSize, isKeyboardOpen]);
   const bottomOffset = useMemo(
-    () => `calc(env(safe-area-inset-bottom, 0px) + ${keyboardInset}px + ${baseBottomOffset}px)`,
+    () =>
+      `calc(env(safe-area-inset-bottom, 0px) + ${keyboardInset}px + ${baseBottomOffset}px)`,
     [baseBottomOffset, keyboardInset],
   );
 
@@ -258,8 +212,6 @@ export const TaskTools = ({ containerRef }: TaskToolsProps) => {
       },
     });
   }, [createTask, currentTag, inputValue, isOpen, isMobile]);
-
-  const showFloatingButton = deviceSize === "mobile" && !isOpen;
 
   useEffect(() => {
     if (!isOpen || !isTabletOrPc) return;
@@ -337,15 +289,6 @@ export const TaskTools = ({ containerRef }: TaskToolsProps) => {
               <span>{t("task.add")}</span>
             </button>
           </div>
-
-          {showFloatingButton && (
-            <TaskAddFab
-              onOpen={openComposer}
-              containerRect={containerRect}
-              bottomOffset={bottomOffset}
-              deviceSize={deviceSize}
-            />
-          )}
 
           <TaskCreateOverlay
             isOpen={isOpen}
