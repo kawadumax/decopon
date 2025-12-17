@@ -167,7 +167,7 @@ export const TaskTools = ({ containerRef }: TaskToolsProps) => {
   const baseBottomOffset = useMemo(() => {
     if (deviceSize === "pc") return 24;
     if (deviceSize === "tablet") return 24;
-    if (isKeyboardOpen) return 12;
+    if (isKeyboardOpen) return 8;
     return 88;
   }, [deviceSize, isKeyboardOpen]);
   const bottomOffset = useMemo(

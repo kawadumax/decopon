@@ -1,5 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 
+declare global {
+  interface Window {
+    __decoponImeInsetPx?: number;
+  }
+}
+
 /**
  * `visualViewport` の高さ変化から、ソフトウェアキーボードに関連する状態を推定する。
  *
@@ -19,6 +25,33 @@ export const useKeyboardState = (): KeyboardState => {
     isOpen: false,
   });
   const baselineHeightRef = useRef<number>(0);
+  const hasNativeImeInsetRef = useRef(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const applyNativeInset = (rawInset: unknown) => {
+      if (typeof rawInset !== "number" || Number.isNaN(rawInset)) return;
+      const inset = Math.max(0, Math.floor(rawInset));
+      hasNativeImeInsetRef.current = true;
+      setState((previous) => {
+        const isOpen = inset >= 32;
+        if (previous.inset === inset && previous.isOpen === isOpen) {
+          return previous;
+        }
+        return { inset, isOpen };
+      });
+    };
+
+    applyNativeInset(window.__decoponImeInsetPx);
+
+    const handler = (event: Event) => {
+      const custom = event as CustomEvent<{ inset?: unknown }>;
+      applyNativeInset(custom.detail?.inset);
+    };
+
+    window.addEventListener("decopon:ime-inset", handler);
+    return () => window.removeEventListener("decopon:ime-inset", handler);
+  }, []);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -32,6 +65,7 @@ export const useKeyboardState = (): KeyboardState => {
     );
 
     const updateState = () => {
+      if (hasNativeImeInsetRef.current) return;
       const visualHeight = viewport
         ? viewport.height + viewport.offsetTop
         : window.innerHeight;
