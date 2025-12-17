@@ -1,4 +1,5 @@
 import { LogInput } from "@/scripts/components/LogInput";
+import { fetchLogsQueryOptions } from "@/scripts/queries";
 import type { Log } from "@/scripts/types";
 import { Loading } from "@components/Loading";
 import { LogItem } from "@components/LogItem";
@@ -8,14 +9,14 @@ import {
   ResizablePanelGroup,
 } from "@components/ui/resizable";
 import { useDeviceSize } from "@hooks/useDeviceSize";
+import { useKeyboardState } from "@hooks/useKeyboardInset";
+import { useLogFilterStore } from "@store/log";
+import { useLogList } from "@store/logRepository";
 import { useQuery } from "@tanstack/react-query";
-import { fetchLogsQueryOptions } from "@/scripts/queries";
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import type React from "react";
 import { LogTagList } from "./partials/LogTagList";
 import { LogTaskFilter } from "./partials/LogTaskFilter";
-import { useLogFilterStore } from "@store/log";
-import { useLogList } from "@store/logRepository";
 
 const LogList = ({
   logs,
@@ -25,7 +26,7 @@ const LogList = ({
     const element = logContainerRef.current;
     if (!element) return;
     element.scrollTop = element.scrollHeight;
-  }, [logContainerRef, logs.length, logs[logs.length - 1]?.id]);
+  }, [logContainerRef]);
 
   return (
     <ul
@@ -65,7 +66,7 @@ const TwoPaneLayout = ({
     <ResizableLayout>
       <ResizablePanel
         defaultSize={20}
-        className="bg-surface-muted dark:bg-surface-muted border-r border-line dark:border-line-subtle"
+        className="border-line border-r bg-surface-muted dark:border-line-subtle dark:bg-surface-muted"
       >
         {leftPanel}
       </ResizablePanel>
@@ -128,6 +129,22 @@ const MobileLayout = ({
   logs: Log[];
   logContainerRef: React.RefObject<HTMLUListElement>;
 }) => {
+  const { inset: keyboardInset, isOpen: isKeyboardOpen } = useKeyboardState();
+  const logListPaddingBottom = useMemo(
+    () =>
+      isKeyboardOpen
+        ? `${keyboardInset}px`
+        : `calc(env(safe-area-inset-bottom, 0px) + ${keyboardInset}px + 16px)`,
+    [isKeyboardOpen, keyboardInset],
+  );
+  const logInputPaddingBottom = useMemo(
+    () =>
+      isKeyboardOpen
+        ? `${keyboardInset}px`
+        : `calc(env(safe-area-inset-bottom, 0px) + ${keyboardInset}px + 16px)`,
+    [isKeyboardOpen, keyboardInset],
+  );
+
   return (
     <div className="flex min-h-full flex-col bg-surface dark:bg-surface">
       <div className="shadow-xs dark:bg-surface">
@@ -136,12 +153,18 @@ const MobileLayout = ({
 
       <div className="flex min-h-0 flex-1 flex-col gap-4 px-4 py-4">
         <LogTaskFilter />
-        <div className="flex min-h-0 flex-1">
+        <div
+          className="flex min-h-0 flex-1"
+          style={{ paddingBottom: logListPaddingBottom }}
+        >
           <LogList logs={logs} logContainerRef={logContainerRef} />
         </div>
       </div>
 
-      <div className="sticky bottom-0 border-line border-t bg-surface px-4 pb-4 pt-2 dark:border-line-subtle dark:bg-surface">
+      <div
+        className="sticky bottom-0 border-line border-t bg-surface px-4 pt-2 dark:border-line-subtle dark:bg-surface"
+        style={{ paddingBottom: logInputPaddingBottom }}
+      >
         <LogInput task={undefined} />
       </div>
     </div>

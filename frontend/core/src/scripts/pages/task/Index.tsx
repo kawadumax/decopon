@@ -9,7 +9,7 @@ import {
   ResizablePanelGroup,
 } from "@components/ui/resizable";
 import { useDeviceSize } from "@hooks/useDeviceSize";
-import { useKeyboardInset } from "@hooks/useKeyboardInset";
+import { useKeyboardState } from "@hooks/useKeyboardInset";
 import { useMemo, useRef } from "react";
 import { TaskSideView } from "./partials/TaskSideView";
 import { TaskTagList } from "./partials/TaskTagList";
@@ -40,9 +40,13 @@ const ResizableLayout = ({ children }: { children: React.ReactNode }) => {
 const MainPanel = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const deviceSize = useDeviceSize();
-  const keyboardInset = useKeyboardInset();
+  const { inset: keyboardInset, isOpen: isKeyboardOpen } = useKeyboardState();
   const paddingBottom = useMemo(() => {
     if (deviceSize === "mobile") {
+      if (isKeyboardOpen) {
+        // IME 可視時は viewport が縮むため、safe-area を足さずに inset だけを適用
+        return `${keyboardInset}px`;
+      }
       const baseOffset = 88;
       const reservedSpace = 160;
       const padding = baseOffset + reservedSpace;
@@ -50,7 +54,7 @@ const MainPanel = () => {
     }
     const baseOffset = deviceSize === "pc" ? 32 : 40;
     return `calc(env(safe-area-inset-bottom, 0px) + ${baseOffset}px)`;
-  }, [deviceSize, keyboardInset]);
+  }, [deviceSize, isKeyboardOpen, keyboardInset]);
 
   return (
     <div
@@ -70,7 +74,10 @@ const MainPanel = () => {
 const PCLayout = () => {
   return (
     <ResizableLayout>
-      <ResizablePanel defaultSize={17.2} className="bg-surface-muted dark:bg-surface-muted">
+      <ResizablePanel
+        defaultSize={17.2}
+        className="bg-surface-muted dark:bg-surface-muted"
+      >
         <ResizablePanelGroup
           direction="vertical"
           className="divide-y divide-line dark:divide-line-subtle"

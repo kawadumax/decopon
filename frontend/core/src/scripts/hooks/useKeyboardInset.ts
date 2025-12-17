@@ -2,7 +2,10 @@ import { useEffect, useRef, useState } from "react";
 
 declare global {
   interface Window {
-    __decoponImeInsetPx?: number;
+    __decoponImeState?: {
+      inset?: number;
+      isVisible?: boolean;
+    };
   }
 }
 
@@ -26,15 +29,51 @@ export const useKeyboardState = (): KeyboardState => {
   });
   const baselineHeightRef = useRef<number>(0);
   const hasNativeImeInsetRef = useRef(false);
+  const layoutBaselineHeightRef = useRef<number>(0);
+
+  useEffect(() => {
+    // Android で adjustResize を有効にしている場合、IME の高さ分だけ layout viewport が縮み、その分の inset を JS 側で二重に足す必要はない。
+    // ここでは縮み量(layoutLoss)を計測するためのベースラインだけキャプチャしておく。
+    layoutBaselineHeightRef.current = Math.max(
+      layoutBaselineHeightRef.current,
+      window.innerHeight,
+    );
+  }, []);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const applyNativeInset = (rawInset: unknown) => {
-      if (typeof rawInset !== "number" || Number.isNaN(rawInset)) return;
-      const inset = Math.max(0, Math.floor(rawInset));
+    const applyNativeInset = (payload: unknown) => {
+      const detail =
+        typeof payload === "object" && payload !== null
+          ? (payload as { inset?: unknown; isVisible?: unknown })
+          : { inset: payload as unknown };
+      const rawInsetValue = detail.inset;
+      if (typeof rawInsetValue !== "number" || Number.isNaN(rawInsetValue))
+        return;
+      const rawInsetPx = Math.max(0, Math.floor(rawInsetValue));
+      const reportedVisible =
+        typeof detail.isVisible === "boolean" ? detail.isVisible : undefined;
       hasNativeImeInsetRef.current = true;
+
+      // `adjustResize` 等で layout viewport 自体が縮む場合、固定要素に rawInset をそのまま加算すると二重に押し上がる。
+      // そのため「layout がどれだけ縮んだか」を推定し、固定要素用の `inset` は差し引いた値にする。
+      const THRESHOLD_PX = 32;
+      if (layoutBaselineHeightRef.current === 0 || rawInsetPx < THRESHOLD_PX) {
+        layoutBaselineHeightRef.current = window.innerHeight;
+      }
+      const layoutLoss = Math.max(
+        0,
+        layoutBaselineHeightRef.current - window.innerHeight,
+      );
+      const MAX_INSET = Math.max(0, Math.floor(window.innerHeight * 0.6));
+      const inset =
+        layoutLoss >= THRESHOLD_PX ? 0 : Math.min(rawInsetPx, MAX_INSET);
+      const isOpen =
+        reportedVisible !== undefined
+          ? reportedVisible
+          : Math.max(rawInsetPx, layoutLoss) >= THRESHOLD_PX;
+
       setState((previous) => {
-        const isOpen = inset >= 32;
         if (previous.inset === inset && previous.isOpen === isOpen) {
           return previous;
         }
@@ -42,11 +81,11 @@ export const useKeyboardState = (): KeyboardState => {
       });
     };
 
-    applyNativeInset(window.__decoponImeInsetPx);
+    applyNativeInset(window.__decoponImeState);
 
     const handler = (event: Event) => {
       const custom = event as CustomEvent<{ inset?: unknown }>;
-      applyNativeInset(custom.detail?.inset);
+      applyNativeInset(custom.detail);
     };
 
     window.addEventListener("decopon:ime-inset", handler);

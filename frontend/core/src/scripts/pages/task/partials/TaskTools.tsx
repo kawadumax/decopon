@@ -96,7 +96,7 @@ const TaskCreateOverlay = ({
     return style;
   }, [bottomOffset, containerRect]);
   const layoutClassName = cn(
-    "fixed bottom-0 pointer-events-none transition-[bottom] duration-200",
+    "fixed bottom-0 pointer-events-none",
     "z-50",
     containerRect ? null : "left-4 right-4",
   );
@@ -167,14 +167,15 @@ export const TaskTools = ({ containerRef }: TaskToolsProps) => {
   const baseBottomOffset = useMemo(() => {
     if (deviceSize === "pc") return 24;
     if (deviceSize === "tablet") return 24;
-    if (isKeyboardOpen) return 8;
+    if (isKeyboardOpen) return 0;
     return 88;
   }, [deviceSize, isKeyboardOpen]);
-  const bottomOffset = useMemo(
-    () =>
-      `calc(env(safe-area-inset-bottom, 0px) + ${keyboardInset}px + ${baseBottomOffset}px)`,
-    [baseBottomOffset, keyboardInset],
-  );
+  const bottomOffset = useMemo(() => {
+    if (isKeyboardOpen) {
+      return `${keyboardInset}px`;
+    }
+    return `calc(env(safe-area-inset-bottom, 0px) + ${keyboardInset}px + ${baseBottomOffset}px)`;
+  }, [baseBottomOffset, isKeyboardOpen, keyboardInset]);
 
   const openComposer = useCallback(() => {
     setIsOpen(true);
@@ -222,14 +223,14 @@ export const TaskTools = ({ containerRef }: TaskToolsProps) => {
   return (
     <>
       {isTabletOrPc && (
-        <div className="px-4 pb-8 pt-4">
+        <div className="px-4 pt-4 pb-8">
           {!isOpen ? (
             <button
               type="button"
               onClick={openComposer}
               className={cn(
-                "inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-fg-muted transition",
-                "hover:bg-surface-muted hover:text-fg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+                "inline-flex items-center gap-2 rounded-lg px-3 py-2 font-medium text-fg-muted text-sm transition",
+                "hover:bg-surface-muted hover:text-fg focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2",
                 "dark:hover:bg-surface-inverse-muted",
               )}
             >
@@ -237,7 +238,7 @@ export const TaskTools = ({ containerRef }: TaskToolsProps) => {
               <span>{t("task.add")}</span>
             </button>
           ) : (
-            <div className="rounded-2xl border border-dashed border-line-subtle bg-surface-elevated/60 p-3 shadow-sm dark:border-line dark:bg-surface">
+            <div className="rounded-2xl border border-line-subtle border-dashed bg-surface-elevated/60 p-3 shadow-sm dark:border-line dark:bg-surface">
               <Input
                 ref={inlineInputRef}
                 value={inputValue}
@@ -275,13 +276,13 @@ export const TaskTools = ({ containerRef }: TaskToolsProps) => {
 
       {isMobile && (
         <>
-          <div className="px-4 pb-8 pt-4">
+          <div className="px-4 pt-4 pb-8">
             <button
               type="button"
               onClick={openComposer}
               className={cn(
-                "inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-fg-muted transition",
-                "hover:bg-surface-muted hover:text-fg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+                "inline-flex items-center gap-2 rounded-lg px-3 py-2 font-medium text-fg-muted text-sm transition",
+                "hover:bg-surface-muted hover:text-fg focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2",
                 "dark:hover:bg-surface-inverse-muted",
               )}
             >
