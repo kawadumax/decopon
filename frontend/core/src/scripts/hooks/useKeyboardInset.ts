@@ -23,22 +23,23 @@ export const useKeyboardState = (): KeyboardState => {
   useEffect(() => {
     if (typeof window === "undefined") return;
     const viewport = window.visualViewport;
-    if (!viewport) return;
 
     const THRESHOLD_PX = 32;
     baselineHeightRef.current = Math.max(
       baselineHeightRef.current,
       window.innerHeight,
-      viewport.height + viewport.offsetTop,
+      viewport ? viewport.height + viewport.offsetTop : 0,
     );
 
     const updateState = () => {
+      const visualHeight = viewport
+        ? viewport.height + viewport.offsetTop
+        : window.innerHeight;
       const baselineHeight = Math.max(
         baselineHeightRef.current,
         window.innerHeight,
-        viewport.height + viewport.offsetTop,
+        visualHeight,
       );
-      const visualHeight = viewport.height + viewport.offsetTop;
 
       const layoutLoss = baselineHeight - window.innerHeight;
       const visualLoss = baselineHeight - visualHeight;
@@ -64,14 +65,14 @@ export const useKeyboardState = (): KeyboardState => {
     };
 
     updateState();
-    viewport.addEventListener("resize", updateState);
-    viewport.addEventListener("scroll", updateState);
     window.addEventListener("resize", updateState);
+    viewport?.addEventListener("resize", updateState);
+    viewport?.addEventListener("scroll", updateState);
 
     return () => {
-      viewport.removeEventListener("resize", updateState);
-      viewport.removeEventListener("scroll", updateState);
       window.removeEventListener("resize", updateState);
+      viewport?.removeEventListener("resize", updateState);
+      viewport?.removeEventListener("scroll", updateState);
     };
   }, []);
 
