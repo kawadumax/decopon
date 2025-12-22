@@ -7,20 +7,14 @@ import { Input } from "@components/ui/input";
 import { useDeviceSize } from "@hooks/useDeviceSize";
 import { useKeyboardState } from "@hooks/useKeyboardInset";
 import { PlusCircle, X } from "@mynaui/icons-react";
-import type { CSSProperties, RefObject } from "react";
 import {
   useCallback,
   useEffect,
-  useLayoutEffect,
-  useMemo,
   useRef,
   useState,
 } from "react";
+import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
-
-type TaskToolsProps = {
-  containerRef: RefObject<HTMLElement>;
-};
 
 const isEditableElement = (target: HTMLElement | null) => {
   if (!target) return false;
@@ -31,25 +25,6 @@ const isEditableElement = (target: HTMLElement | null) => {
     target.isContentEditable ||
     target.getAttribute("role") === "textbox"
   );
-};
-
-const useContainerRect = (containerRef: RefObject<HTMLElement>) => {
-  const [rect, setRect] = useState<DOMRect | null>(null);
-
-  const updateRect = useCallback(() => {
-    const container = containerRef.current;
-    if (!container) return;
-    const nextRect = container.getBoundingClientRect();
-    setRect(nextRect);
-  }, [containerRef]);
-
-  useLayoutEffect(() => {
-    updateRect();
-    window.addEventListener("resize", updateRect);
-    return () => window.removeEventListener("resize", updateRect);
-  }, [updateRect]);
-
-  return rect;
 };
 
 const useKeyboardShortcut = (onOpen: () => void) => {
@@ -68,38 +43,35 @@ const useKeyboardShortcut = (onOpen: () => void) => {
 
 const TaskCreateOverlay = ({
   isOpen,
+  isImeOpen,
   inputValue,
   onChange,
   onSubmit,
   onClose,
   isPending,
-  containerRect,
   bottomOffset,
 }: {
   isOpen: boolean;
+  isImeOpen: boolean;
   inputValue: string;
   onChange: (value: string) => void;
   onSubmit: () => void;
   onClose: () => void;
   isPending: boolean;
-  containerRect: DOMRect | null;
-  bottomOffset: string;
+  bottomOffset: number;
 }) => {
   const { t } = useTranslation();
   const inputRef = useRef<HTMLInputElement>(null);
-  const layoutStyle = useMemo(() => {
-    const style: CSSProperties = { bottom: bottomOffset };
-    if (containerRect) {
-      style.left = containerRect.left;
-      style.width = containerRect.width;
-    }
-    return style;
-  }, [bottomOffset, containerRect]);
-  const layoutClassName = cn(
-    "fixed bottom-0 pointer-events-none",
-    "z-50",
-    containerRect ? null : "left-4 right-4",
-  );
+  const safeBottomOffset = Math.max(0, Math.floor(bottomOffset));
+  const safeAreaVar =
+    "var(--decopon-safe-area-bottom, env(safe-area-inset-bottom))";
+  const bottomStyle = isImeOpen
+    ? `${safeBottomOffset}px`
+    : safeBottomOffset === 0
+      ? safeAreaVar
+      : `${safeBottomOffset}px`;
+  const portalTarget =
+    typeof document === "undefined" ? null : document.body;
 
   useEffect(() => {
     if (!isOpen) return;
@@ -122,10 +94,15 @@ const TaskCreateOverlay = ({
 
   if (!isOpen) return null;
 
-  return (
-    <div style={layoutStyle} className={layoutClassName}>
-      <div className="pointer-events-auto mx-auto max-w-2xl px-4">
-        <div className="flex items-center gap-2 rounded-2xl border border-line bg-surface-elevated px-3 py-2 shadow-lg dark:border-line-subtle dark:bg-surface">
+  if (!portalTarget) return null;
+
+  return createPortal(
+    <div
+      className="fixed inset-x-0 bottom-0 z-50 pointer-events-none"
+      style={{ bottom: bottomStyle }}
+    >
+      <div className="pointer-events-auto w-full">
+        <div className="flex items-center gap-2 rounded-t-2xl rounded-b-none border border-line bg-surface-elevated px-3 py-2 shadow-lg dark:border-line-subtle dark:bg-surface">
           <Input
             ref={inputRef}
             data-task-composer-input="true"
@@ -147,35 +124,35 @@ const TaskCreateOverlay = ({
           </Button>
         </div>
       </div>
-    </div>
+    </div>,
+    portalTarget,
   );
 };
 
-export const TaskTools = ({ containerRef }: TaskToolsProps) => {
+export const TaskTools = () => {
   const { t } = useTranslation();
   const deviceSize = useDeviceSize();
-  const { inset: keyboardInset, isOpen: isKeyboardOpen } = useKeyboardState();
   const currentTag = useTagStore((s) => s.currentTag);
   const { createTask } = useTaskMutations(currentTag?.id);
   const [inputValue, setInputValue] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const inlineInputRef = useRef<HTMLInputElement>(null);
-  const containerRect = useContainerRect(containerRef);
+  const keyboardState = useKeyboardState();
+  const [visualViewportGap, setVisualViewportGap] = useState(0);
+  const taskOverlayLogRafRef = useRef(0);
+  const taskOverlayLogPendingRef = useRef<Record<string, unknown> | null>(null);
   const isMobile = deviceSize === "mobile";
   const isTabletOrPc = deviceSize === "tablet" || deviceSize === "pc";
-
-  const baseBottomOffset = useMemo(() => {
-    if (deviceSize === "pc") return 24;
-    if (deviceSize === "tablet") return 24;
-    if (isKeyboardOpen) return 0;
-    return 88;
-  }, [deviceSize, isKeyboardOpen]);
-  const bottomOffset = useMemo(() => {
-    if (isKeyboardOpen) {
-      return `${keyboardInset}px`;
-    }
-    return `calc(env(safe-area-inset-bottom, 0px) + ${keyboardInset}px + ${baseBottomOffset}px)`;
-  }, [baseBottomOffset, isKeyboardOpen, keyboardInset]);
+  const keyboardInset = isMobile && keyboardState.isOpen
+    ? keyboardState.inset
+    : 0;
+  const rawInset = isMobile && keyboardState.isOpen
+    ? keyboardState.rawInset
+    : 0;
+  const layoutLoss = keyboardState.layoutLoss;
+  const THRESHOLD_PX = 32;
+  const effectiveKeyboardInset =
+    rawInset > 0 && layoutLoss < THRESHOLD_PX ? rawInset : keyboardInset;
 
   const openComposer = useCallback(() => {
     setIsOpen(true);
@@ -187,6 +164,75 @@ export const TaskTools = ({ containerRef }: TaskToolsProps) => {
   }, []);
 
   useKeyboardShortcut(openComposer);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const viewport = window.visualViewport;
+    const updateGap = () => {
+      const visualHeight = viewport ? viewport.height : window.innerHeight;
+      const gap = Math.max(0, window.innerHeight - visualHeight);
+      setVisualViewportGap((previous) => (previous === gap ? previous : gap));
+    };
+    updateGap();
+    window.addEventListener("resize", updateGap);
+    viewport?.addEventListener("resize", updateGap);
+    viewport?.addEventListener("scroll", updateGap);
+    return () => {
+      window.removeEventListener("resize", updateGap);
+      viewport?.removeEventListener("resize", updateGap);
+      viewport?.removeEventListener("scroll", updateGap);
+    };
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (taskOverlayLogRafRef.current) {
+        cancelAnimationFrame(taskOverlayLogRafRef.current);
+        taskOverlayLogRafRef.current = 0;
+      }
+      taskOverlayLogPendingRef.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isOpen || typeof window === "undefined") return;
+    const shouldLog = (() => {
+      if (window.__decoponImeDebug === true) return true;
+      try {
+        return window.localStorage.getItem("decopon:ime-debug") === "1";
+      } catch {
+        return false;
+      }
+    })();
+    if (!shouldLog) return;
+    const viewport = window.visualViewport;
+    taskOverlayLogPendingRef.current = {
+      keyboardInset,
+      rawInset,
+      effectiveKeyboardInset,
+      layoutLoss,
+      visualLoss: keyboardState.visualLoss,
+      visualViewportGap,
+      visualViewportHeight: viewport?.height ?? null,
+      visualViewportOffsetTop: viewport?.offsetTop ?? null,
+      innerHeight: window.innerHeight,
+      isImeOpen: keyboardState.isOpen,
+    };
+    if (taskOverlayLogRafRef.current) return;
+    taskOverlayLogRafRef.current = window.requestAnimationFrame(() => {
+      if (taskOverlayLogPendingRef.current) {
+        console.info("[ime-debug] task-overlay", taskOverlayLogPendingRef.current);
+      }
+      taskOverlayLogPendingRef.current = null;
+      taskOverlayLogRafRef.current = 0;
+    });
+  }, [
+    effectiveKeyboardInset,
+    isOpen,
+    keyboardInset,
+    keyboardState.isOpen,
+    visualViewportGap,
+  ]);
 
   const handleSubmit = useCallback(() => {
     const trimmed = inputValue.trim();
@@ -293,13 +339,13 @@ export const TaskTools = ({ containerRef }: TaskToolsProps) => {
 
           <TaskCreateOverlay
             isOpen={isOpen}
+            isImeOpen={keyboardState.isOpen}
             inputValue={inputValue}
             onChange={setInputValue}
             onSubmit={handleSubmit}
             onClose={closeComposer}
             isPending={createTask.isPending}
-            containerRect={containerRect}
-            bottomOffset={bottomOffset}
+            bottomOffset={effectiveKeyboardInset}
           />
         </>
       )}

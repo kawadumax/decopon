@@ -20,7 +20,7 @@ import {
 } from "@components/ui/sheet";
 import { Toaster } from "@components/ui/sonner";
 import { useDeviceSize } from "@hooks/useDeviceSize";
-import { useKeyboardState } from "@hooks/useKeyboardInset";
+import { type KeyboardState, useKeyboardState } from "@hooks/useKeyboardInset";
 import {
   type MobileSheetSwipeHandlers,
   useMobileSheetSwipes,
@@ -102,7 +102,15 @@ const Drawer = ({
       <SheetTrigger asChild>
         <DrawerButton open={open} setOpen={setOpen} />
       </SheetTrigger>
-      <SheetContent side="right" className="pt-safe pb-safe" {...swipeHandlers}>
+      <SheetContent
+        side="right"
+        className="pb-4"
+        style={{
+          paddingTop:
+            "calc(1rem + var(--decopon-safe-area-top, env(safe-area-inset-top)))",
+        }}
+        {...swipeHandlers}
+      >
         <SheetHeader className="sr-only">
           <SheetTitle>ナビゲーションメニュー</SheetTitle>
           <SheetDescription>
@@ -291,6 +299,7 @@ const HeaderNavigation = ({
   drawerSwipeHandlers,
   timerSwipeHandlers,
   timerHandleHandlers,
+  keyboardState,
 }: {
   user: User;
   drawerState: SheetOpenState;
@@ -298,6 +307,7 @@ const HeaderNavigation = ({
   drawerSwipeHandlers: MobileSheetSwipeHandlers;
   timerSwipeHandlers: MobileSheetSwipeHandlers;
   timerHandleHandlers: MobileSheetSwipeHandlers;
+  keyboardState: KeyboardState;
 }) => {
   const headerRef = useRef<HTMLElement | null>(null);
   const [headerHeight, setHeaderHeight] = useState(0);
@@ -309,6 +319,10 @@ const HeaderNavigation = ({
     const updateHeaderHeight = () => {
       const { height } = element.getBoundingClientRect();
       setHeaderHeight(height);
+      document.documentElement.style.setProperty(
+        "--decopon-header-height",
+        `${height}px`,
+      );
     };
 
     updateHeaderHeight();
@@ -316,12 +330,107 @@ const HeaderNavigation = ({
     observer.observe(element);
 
     return () => observer.disconnect();
-  }, []);
+  }, [keyboardState.isOpen]);
+
+  useLayoutEffect(() => {
+    if (typeof window === "undefined") return;
+    let rafId = 0;
+    let pending: ReturnType<typeof getHeaderMetrics> | null = null;
+    const shouldLog = () => {
+      if (window.__decoponImeDebug === true) return true;
+      try {
+        return window.localStorage.getItem("decopon:ime-debug") === "1";
+      } catch {
+        return false;
+      }
+    };
+    const getHeaderMetrics = (eventType: string) => {
+      const rect = headerRef.current?.getBoundingClientRect();
+      const viewport = window.visualViewport;
+      const main = document.querySelector("main");
+      const mainScrollTop =
+        main && "scrollTop" in main ? (main as HTMLElement).scrollTop : null;
+      const mainScrollHeight =
+        main && "scrollHeight" in main
+          ? (main as HTMLElement).scrollHeight
+          : null;
+      const mainClientHeight =
+        main && "clientHeight" in main
+          ? (main as HTMLElement).clientHeight
+          : null;
+      const visualViewportGap = viewport
+        ? Math.max(0, window.innerHeight - viewport.height)
+        : null;
+      const visualOffsetApplied = (() => {
+        if (!viewport) return 0;
+        const offsetTop = viewport.offsetTop ?? 0;
+        return Math.round(offsetTop);
+      })();
+      return {
+        eventType,
+        headerTop: rect?.top ?? null,
+        headerBottom: rect?.bottom ?? null,
+        headerHeight: rect?.height ?? null,
+        scrollY: window.scrollY,
+        documentScrollTop: document.documentElement.scrollTop,
+        mainScrollTop,
+        mainScrollHeight,
+        mainClientHeight,
+        visualViewportHeight: viewport?.height ?? null,
+        visualViewportOffsetTop: viewport?.offsetTop ?? null,
+        visualViewportGap,
+        visualViewportAppliedOffset: visualOffsetApplied,
+        isImeOpen: keyboardState.isOpen,
+        layoutLoss: keyboardState.layoutLoss,
+        visualLoss: keyboardState.visualLoss,
+        visualViewportScale: viewport?.scale ?? null,
+        visualViewportPageTop:
+          typeof viewport?.pageTop === "number" ? viewport.pageTop : null,
+      };
+    };
+    const logState = (eventType: string) => {
+      if (!shouldLog()) return;
+      pending = getHeaderMetrics(eventType);
+      if (rafId) return;
+      rafId = requestAnimationFrame(() => {
+        if (pending) {
+          console.info("[ime-debug] header-metrics", pending);
+        }
+        pending = null;
+        rafId = 0;
+      });
+    };
+    const onWindowScroll = () => logState("window-scroll");
+    const onWindowResize = () => logState("window-resize");
+    const onViewportScroll = () => logState("visual-scroll");
+    const onViewportResize = () => logState("visual-resize");
+    const onMainScroll = () => logState("main-scroll");
+    const main = document.querySelector("main");
+
+    window.addEventListener("scroll", onWindowScroll, { passive: true });
+    window.addEventListener("resize", onWindowResize);
+    window.visualViewport?.addEventListener("resize", onViewportResize);
+    window.visualViewport?.addEventListener("scroll", onViewportScroll);
+    main?.addEventListener("scroll", onMainScroll, { passive: true });
+    logState("init");
+    return () => {
+      window.removeEventListener("scroll", onWindowScroll);
+      window.removeEventListener("resize", onWindowResize);
+      window.visualViewport?.removeEventListener("resize", onViewportResize);
+      window.visualViewport?.removeEventListener("scroll", onViewportScroll);
+      main?.removeEventListener("scroll", onMainScroll);
+      if (rafId) cancelAnimationFrame(rafId);
+    };
+  }, [keyboardState.isOpen, keyboardState.layoutLoss, keyboardState.visualLoss]);
 
   return (
     <nav
       ref={headerRef}
-      className="relative z-40 flex flex-row items-center justify-between border-line border-b bg-surface ps-safe pe-safe pt-safe dark:border-line-subtle dark:bg-surface"
+      style={{
+        paddingTop:
+          "var(--decopon-safe-area-top, env(safe-area-inset-top))",
+      }}
+      className="fixed inset-x-0 top-0 z-40 flex w-full shrink-0 flex-row items-center justify-between border-line border-b bg-surface dark:border-line-subtle dark:bg-surface"
     >
       <BackButton />
       <Sheet open={timerState.open} onOpenChange={timerState.setOpen}>
@@ -338,9 +447,10 @@ const HeaderNavigation = ({
         </div>
         <SheetContent
           side={"top"}
-          className="p-0 pb-safe"
+          className="p-0 pb-4"
           offsetTop={headerHeight}
           zIndex={30}
+          closeSafeArea={false}
           {...timerSwipeHandlers}
         >
           <SheetHeader className="sr-only">
@@ -361,24 +471,20 @@ const HeaderNavigation = ({
   );
 };
 
-const FooterNavigation = () => {
+const FooterNavigation = ({ isHidden }: { isHidden: boolean }) => {
   const matchRoute = useMatchRoute();
   const { t } = useTranslation();
-  const { isOpen: isKeyboardOpen } = useKeyboardState();
   const footerLinks = useMemo(() => links, []);
-  const shouldHideFooter = isKeyboardOpen;
+  const footerSafeAreaBottom =
+    "var(--decopon-safe-area-bottom, env(safe-area-inset-bottom))";
+
+  if (isHidden) return null;
 
   return (
     <nav
       className={cn(
-        "sticky bottom-0 flex flex-row items-stretch justify-between divide-x border-line border-t border-b bg-surface px-safe pb-safe shadow-lg transition-transform duration-200 dark:border-line-subtle dark:bg-surface",
+        "sticky bottom-0 flex flex-row items-stretch justify-between divide-x border-line border-t border-b bg-surface shadow-lg dark:border-line-subtle dark:bg-surface",
       )}
-      style={
-        shouldHideFooter
-          ? { transform: "translateY(100%)", pointerEvents: "none" }
-          : undefined
-      }
-      aria-hidden={shouldHideFooter}
     >
       {footerLinks.map((link) => {
         const isActive = !!matchRoute({ to: link.href, fuzzy: false });
@@ -388,6 +494,7 @@ const FooterNavigation = () => {
             key={link.href}
             to={link.href}
             className="flex flex-1 flex-col items-center"
+            style={{ paddingBottom: footerSafeAreaBottom }}
           >
             <span
               className={cn([
@@ -421,7 +528,10 @@ export default function Authenticated({
   setBreakTime(user?.break_time || 5);
 
   return (
-    <div className="flex h-screen flex-col bg-surface-muted dark:bg-surface-muted">
+    <div
+      className="flex h-screen flex-col bg-surface-muted dark:bg-surface-muted"
+      style={{ height: "100dvh" }}
+    >
       <StackViewProvider>
         <ResponsiveLayout user={user}>{children}</ResponsiveLayout>
       </StackViewProvider>
@@ -441,6 +551,8 @@ const ResponsiveLayout = ({
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isTimerOpen, setIsTimerOpen] = useState(false);
   const enableMobileLayout = deviceSize === "mobile" || deviceSize === "tablet";
+  const keyboardState = useKeyboardState();
+  const shouldHideFooter = enableMobileLayout && keyboardState.isOpen;
 
   const {
     rootHandlers,
@@ -471,16 +583,22 @@ const ResponsiveLayout = ({
             drawerSwipeHandlers={drawerContentHandlers}
             timerSwipeHandlers={timerContentHandlers}
             timerHandleHandlers={timerHandleHandlers}
+            keyboardState={keyboardState}
           />
-          <main className="grow overflow-auto">{children}</main>
-          <FooterNavigation />
+          <main
+            className="grow min-h-0 overflow-auto"
+            style={{ paddingTop: "var(--decopon-header-height, 0px)" }}
+          >
+            {children}
+          </main>
+          <FooterNavigation isHidden={shouldHideFooter} />
         </div>
       );
     case "pc":
       return (
         <>
           <HeaderNavigationPC user={user} />
-          <main className="grow overflow-auto">{children}</main>
+          <main className="grow min-h-0 overflow-auto">{children}</main>
         </>
       );
   }

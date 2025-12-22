@@ -9,8 +9,6 @@ import {
   ResizablePanelGroup,
 } from "@components/ui/resizable";
 import { useDeviceSize } from "@hooks/useDeviceSize";
-import { useKeyboardState } from "@hooks/useKeyboardInset";
-import { useMemo, useRef } from "react";
 import { TaskSideView } from "./partials/TaskSideView";
 import { TaskTagList } from "./partials/TaskTagList";
 import { TaskTools } from "./partials/TaskTools";
@@ -38,35 +36,15 @@ const ResizableLayout = ({ children }: { children: React.ReactNode }) => {
 };
 
 const MainPanel = () => {
-  const containerRef = useRef<HTMLDivElement>(null);
   const deviceSize = useDeviceSize();
-  const { inset: keyboardInset, isOpen: isKeyboardOpen } = useKeyboardState();
-  const paddingBottom = useMemo(() => {
-    if (deviceSize === "mobile") {
-      if (isKeyboardOpen) {
-        // IME 可視時は viewport が縮むため、safe-area を足さずに inset だけを適用
-        return `${keyboardInset}px`;
-      }
-      const baseOffset = 88;
-      const reservedSpace = 160;
-      const padding = baseOffset + reservedSpace;
-      return `calc(env(safe-area-inset-bottom, 0px) + ${keyboardInset}px + ${padding}px)`;
-    }
-    const baseOffset = deviceSize === "pc" ? 32 : 40;
-    return `calc(env(safe-area-inset-bottom, 0px) + ${baseOffset}px)`;
-  }, [deviceSize, isKeyboardOpen, keyboardInset]);
 
   return (
-    <div
-      ref={containerRef}
-      className="relative flex min-h-full flex-col"
-      style={{ paddingBottom }}
-    >
+    <div className="relative flex min-h-full flex-col pb-40 md:pb-32 lg:pb-28">
       <TagHeader />
       <div className="px-4 pb-2">
         <TaskTree />
       </div>
-      <TaskTools containerRef={containerRef} />
+      <TaskTools />
     </div>
   );
 };

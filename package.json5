@@ -27,6 +27,8 @@
     'windows:dev': 'pnpm -F @decopon/app-windows tauri dev',
     'android:build': 'pnpm -F core build && pnpm -F @decopon/app-android tauri android build --target aarch64',
     'android:debug:install:wifi': 'node scripts/android-wifi-install.mjs',
+    'android:debug:install:wifi:latest': 'node scripts/android-wifi-install-latest.mjs',
+    'android:debug:install:usb': 'node scripts/android-usb-install.mjs',
     'android:adb:connect:wifi': 'node scripts/android-adb-wifi-connect.mjs',
     'preandroid:build': 'pnpm version:sync',
     'android:dev': 'pnpm -F @decopon/app-android tauri android dev',

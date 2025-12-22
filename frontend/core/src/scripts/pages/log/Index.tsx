@@ -9,11 +9,10 @@ import {
   ResizablePanelGroup,
 } from "@components/ui/resizable";
 import { useDeviceSize } from "@hooks/useDeviceSize";
-import { useKeyboardState } from "@hooks/useKeyboardInset";
 import { useLogFilterStore } from "@store/log";
 import { useLogList } from "@store/logRepository";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useRef } from "react";
 import type React from "react";
 import { LogTagList } from "./partials/LogTagList";
 import { LogTaskFilter } from "./partials/LogTaskFilter";
@@ -129,22 +128,6 @@ const MobileLayout = ({
   logs: Log[];
   logContainerRef: React.RefObject<HTMLUListElement>;
 }) => {
-  const { inset: keyboardInset, isOpen: isKeyboardOpen } = useKeyboardState();
-  const logListPaddingBottom = useMemo(
-    () =>
-      isKeyboardOpen
-        ? `${keyboardInset}px`
-        : `calc(env(safe-area-inset-bottom, 0px) + ${keyboardInset}px + 16px)`,
-    [isKeyboardOpen, keyboardInset],
-  );
-  const logInputPaddingBottom = useMemo(
-    () =>
-      isKeyboardOpen
-        ? `${keyboardInset}px`
-        : `calc(env(safe-area-inset-bottom, 0px) + ${keyboardInset}px + 16px)`,
-    [isKeyboardOpen, keyboardInset],
-  );
-
   return (
     <div className="flex min-h-full flex-col bg-surface dark:bg-surface">
       <div className="shadow-xs dark:bg-surface">
@@ -153,18 +136,12 @@ const MobileLayout = ({
 
       <div className="flex min-h-0 flex-1 flex-col gap-4 px-4 py-4">
         <LogTaskFilter />
-        <div
-          className="flex min-h-0 flex-1"
-          style={{ paddingBottom: logListPaddingBottom }}
-        >
+        <div className="flex min-h-0 flex-1 pb-16">
           <LogList logs={logs} logContainerRef={logContainerRef} />
         </div>
       </div>
 
-      <div
-        className="sticky bottom-0 border-line border-t bg-surface px-4 pt-2 dark:border-line-subtle dark:bg-surface"
-        style={{ paddingBottom: logInputPaddingBottom }}
-      >
+      <div className="sticky bottom-0 border-line border-t bg-surface px-4 pb-4 pt-2 dark:border-line-subtle dark:bg-surface">
         <LogInput task={undefined} />
       </div>
     </div>

@@ -39,6 +39,11 @@ val projectLogger = logger
 android {
     compileSdk = 36
     namespace = "com.decopon.android"
+    sourceSets {
+        getByName("main") {
+            java.srcDir("../../../android/app/src/main/java")
+        }
+    }
     defaultConfig {
         manifestPlaceholders["usesCleartextTraffic"] = "false"
         applicationId = "com.decopon.android"
