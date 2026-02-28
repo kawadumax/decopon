@@ -54,7 +54,7 @@ jobs:
         run: pnpm core:gen-routes
 
       - name: Build Windows Tauri bundle
-        run: pnpm windows:build
+        run: pnpm build:windows
 
       - name: Rename Windows installers
         shell: pwsh
@@ -162,7 +162,7 @@ jobs:
           } >> "$GITHUB_ENV"
 
       - name: Build Android Tauri bundle
-        run: pnpm android:build
+        run: pnpm build:android
         env:
           # ARM64 専用ビルドに限定
           TAURI_ANDROID_TARGETS: aarch64
