@@ -98,6 +98,32 @@ Decopon addresses common ADHD productivity struggles through three core mechanis
 
 I hope this tool helps make task management easier and more engaging for you. 🚀
 
+## Development & Setup
+
+Decopon can be developed in two main configuration modes:
+
+### 1. Tauri App (Desktop / Android) + SQLite (Recommended for mobile/local)
+This mode runs the Rust backend within the Tauri application and uses a local SQLite database, removing the need for external database services.
+
+**Setup Instructions:**
+1. Copy the environment templates:
+   - For Windows: `cp .env.windows.example .env.windows`
+   - For Android: `cp .env.android.example .env.android`
+     - *Important*: The `.env.android` file is mandatory for mobile builds. Without it, Vite falls back to the default `.env` and enforces an HTTP transport (`localhost:3000`), which causes network errors in the Android emulator.
+2. Ensure you have the [Tauri setup requirements](https://tauri.app/v1/guides/getting-started/prerequisites) installed (Rust, Node.js, Android Studio with NDK).
+3. Start the dev server:
+   - Windows: `pnpm dev:windows`
+   - Android: `pnpm dev:android`
+
+### 2. Web App + PostgreSQL (For cloud/multi-user deployment)
+This mode runs a standalone Axum web server backed by PostgreSQL, suitable for web browsers.
+
+**Setup Instructions:**
+1. Ensure PostgreSQL is running.
+2. Copy the web environment template: `cp .env.web.example .env.web`
+3. Initialize the database schema: `pnpm db:migrate`
+4. Start the fullstack web development environment: `pnpm dev:web`
+
 ## Roadmap
 
 - Mobile (Pertially done by responsive web and tauri)
