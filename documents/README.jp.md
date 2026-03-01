@@ -104,6 +104,32 @@ Decoponは、3つの核となるメカニズムを通じて、ADHDの一般的�
 
 このツールがタスク管理をより簡単で魅力的にしてくれることを願っています。🚀
 
+## 開発とセットアップ
+
+Decopon は主に2つの構成モードで開発できます。
+
+### 1. Tauri アプリ (デスクトップ / Android) + SQLite (モバイルやローカル開発で推奨)
+このモードは、Rust バックエンドを Tauri アプリケーション内に組み込み、ローカルの SQLite データベースを使用するため、外部データベースサービスを用意する必要がありません。
+
+**セットアップ手順:**
+1. 環境変数のテンプレートをコピーします:
+   - Windows用: `cp .env.windows.example .env.windows`
+   - Android用: `cp .env.android.example .env.android`
+     - *重要*: `.env.android` ファイルはモバイルビルド時に必須です。これがないと Vite がデフォルトの `.env` にフォールバックし、HTTP 通信（`localhost:3000`）を強制するため、Android エミュレータでネットワークエラーが発生します。
+2. [Tauri のセットアップ要件](https://tauri.app/v1/guides/getting-started/prerequisites)（Rust、Node.js、Android Studio と NDK）がインストールされていることを確認してください。
+3. 開発サーバーを起動します:
+   - Windows: `pnpm dev:windows`
+   - Android: `pnpm dev:android`
+
+### 2. Web アプリ + PostgreSQL (クラウド・マルチユーザー展開用)
+このモードでは、Webブラウザに適した PostgreSQL をバックエンドに持つ独立した Axum Webサーバーとして稼働します。
+
+**セットアップ手順:**
+1. PostgreSQL が実行されていることを確認します。
+2. Web 用の環境変数テンプレートをコピーします: `cp .env.web.example .env.web`
+3. データベーススキーマを初期化します: `pnpm db:migrate`
+4. フルスタックWeb開発環境を起動します: `pnpm dev:web`
+
 ## ロードマップ
 
 - モバイル対応（レスポンシブウェブとTauriにより一部完了）

@@ -1,6 +1,5 @@
 @import "@decopon/design-tokens/tokens.css";
 @import "tailwindcss";
-@import "tailwindcss-safe-area";
 @import "tw-animate-css";
 @plugin '@tailwindcss/forms';
 
@@ -31,6 +30,13 @@
 
   body {
     @apply bg-background text-foreground;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+    overflow: hidden;
   }
 
   @font-face {

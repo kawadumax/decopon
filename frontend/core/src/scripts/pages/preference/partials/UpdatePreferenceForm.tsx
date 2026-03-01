@@ -6,10 +6,10 @@ import {
   ensureNativeNotificationPermission,
   hasNativeNotificationAdapter,
 } from "@/scripts/lib/nativeNotification";
+import { appThemes, defaultAppTheme, type AppTheme } from "@/scripts/lib/theme";
 import type { Auth, Locale } from "@/scripts/types";
 
 const locales = { ENGLISH: "en", JAPANESE: "ja" } as const;
-const themes = { light: "light", dark: "dark", system: "system" } as const;
 import InputLabel from "@components/InputLabel";
 import PrimaryButton from "@components/PrimaryButton";
 import TextInput from "@components/TextInput";
@@ -24,9 +24,9 @@ import {
 import { Transition } from "@headlessui/react";
 import { useForm } from "@tanstack/react-form";
 import { useQueryClient } from "@tanstack/react-query";
-import { useTheme } from "next-themes";
 import { useTranslation } from "react-i18next";
 import { useNativeNotificationSettingsStore } from "@store/nativeNotification";
+import { useAppTheme } from "@/scripts/hooks/useAppTheme";
 
 export default function UpdatePreferenceForm({
   className = "",
@@ -37,8 +37,10 @@ export default function UpdatePreferenceForm({
   const queryClient = useQueryClient();
   const auth = queryClient.getQueryData(["auth"]) as Auth;
   const user = auth.user;
-  const { theme, setTheme } = useTheme();
-  const [selectedTheme, setSelectedTheme] = useState(theme ?? themes.light);
+  const { theme, setTheme } = useAppTheme();
+  const [selectedTheme, setSelectedTheme] = useState<AppTheme>(
+    theme ?? defaultAppTheme,
+  );
   const notificationEnabled = useNativeNotificationSettingsStore(
     (state) => state.enabled,
   );
@@ -47,7 +49,7 @@ export default function UpdatePreferenceForm({
   );
 
   useEffect(() => {
-    setSelectedTheme(theme ?? themes.light);
+    setSelectedTheme(theme ?? defaultAppTheme);
   }, [theme]);
 
   const handleNotificationToggle = async (checked: boolean) => {
@@ -213,8 +215,9 @@ export default function UpdatePreferenceForm({
           <Select
             value={selectedTheme}
             onValueChange={(value) => {
-              setSelectedTheme(value as (typeof themes)[keyof typeof themes]);
-              setTheme(value);
+              const nextTheme = value as AppTheme;
+              setSelectedTheme(nextTheme);
+              setTheme(nextTheme);
             }}
           >
             <SelectTrigger id="theme">
@@ -223,15 +226,11 @@ export default function UpdatePreferenceForm({
               />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value={themes.light}>
-                {t("preference.updatePreference.themeOptions.light")}
-              </SelectItem>
-              <SelectItem value={themes.dark}>
-                {t("preference.updatePreference.themeOptions.dark")}
-              </SelectItem>
-              <SelectItem value={themes.system}>
-                {t("preference.updatePreference.themeOptions.system")}
-              </SelectItem>
+              {appThemes.map((themeKey) => (
+                <SelectItem key={themeKey} value={themeKey}>
+                  {t(`preference.updatePreference.themeOptions.${themeKey}`)}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>

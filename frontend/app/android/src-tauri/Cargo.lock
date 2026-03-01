@@ -1255,6 +1255,7 @@ dependencies = [
  "axum-macros",
  "axum-password-worker",
  "chrono",
+ "decopon-config",
  "decopon-runtime",
  "decopon-services",
  "dotenvy",
@@ -1278,6 +1279,7 @@ name = "decopon-config"
 version = "0.1.0"
 dependencies = [
  "thiserror 2.0.17",
+ "url",
 ]
 
 [[package]]

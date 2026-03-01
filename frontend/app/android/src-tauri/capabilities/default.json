@@ -4,7 +4,12 @@
   "description": "Capability for the main window during development",
   "windows": ["main"],
   "webviews": ["main", "*"],
-  "permissions": ["core:default", "opener:default", "notification:default"],
+  "permissions": [
+    "core:default",
+    "core:app:allow-set-app-theme",
+    "opener:default",
+    "notification:default"
+  ],
   "remote": {
     "urls": [
       "http://localhost:1420/*",

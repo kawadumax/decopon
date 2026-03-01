@@ -36,19 +36,26 @@ const ResizableLayout = ({ children }: { children: React.ReactNode }) => {
 };
 
 const MainPanel = () => {
+  const deviceSize = useDeviceSize();
+
   return (
-    <>
-      <TaskTools />
+    <div className="relative flex min-h-full flex-col pb-40 md:pb-32 lg:pb-28">
       <TagHeader />
-      <TaskTree />
-    </>
+      <div className="px-4 pb-2">
+        <TaskTree />
+      </div>
+      <TaskTools />
+    </div>
   );
 };
 
 const PCLayout = () => {
   return (
     <ResizableLayout>
-      <ResizablePanel defaultSize={17.2} className="bg-surface-muted dark:bg-surface-muted">
+      <ResizablePanel
+        defaultSize={17.2}
+        className="bg-surface-muted dark:bg-surface-muted"
+      >
         <ResizablePanelGroup
           direction="vertical"
           className="divide-y divide-line dark:divide-line-subtle"

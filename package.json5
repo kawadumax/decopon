@@ -6,31 +6,41 @@
     preinstall: 'npx only-allow pnpm',
     build: 'pnpm -F core build && tsc -b tsconfig.build.json',
     'clean:build-artifacts': 'pnpm -r run clean:build-artifacts',
-    'fullstack:dev': 'concurrently -c "#93c5fd,#c4b5fd,#fb7185,#fdba74" "pnpm axum:dev:web" "pnpm web:dev" --names=axum,web',
-    'fullstack:preview': 'concurrently -c "#93c5fd,#c4b5fd,#fb7185,#fdba74" "pnpm axum:dev:web" "pnpm web:preview" --names=axum,web',
-    'axum:dev': 'cd backend/axum && cargo run --bin app',
-    'axum:dev:app': 'cd backend/axum && cargo run --bin app',
-    'axum:dev:web': 'cd backend/axum && cargo run --bin web --no-default-features --features web',
-    'axum:build': 'cd backend/axum && cargo build --bin app',
-    'axum:build:app': 'cd backend/axum && cargo build --bin app',
-    'axum:build:web': 'cd backend/axum && cargo build --bin web --no-default-features --features web',
-    'axum:fresh': 'cd backend/axum && cargo run -p migration -- fresh',
-    'axum:gen:entity': 'cd backend/axum && sea-orm-cli generate entity -o src/entities',
-    'web:build': 'pnpm -F web build',
-    'web:dev': 'pnpm -F web dev',
-    'web:preview': 'pnpm -F web preview',
+
+    // --- App (SQLite + Tauri) Development ---
+    'dev:windows': 'pnpm -F @decopon/app-windows tauri dev',
+    'dev:android': 'pnpm -F @decopon/app-android tauri android dev',
+
+    // --- App (SQLite + Tauri) Build ---
+    'build:windows': 'pnpm -F core build && pnpm -F @decopon/app-windows tauri build',
+    'build:android': 'pnpm -F core build && pnpm -F @decopon/app-android tauri android build --target aarch64',
+
+    // --- Web (PostgreSQL) Development ---
+    'dev:web': 'concurrently -c "#93c5fd,#c4b5fd" "cd backend/axum && cargo run --bin web --no-default-features --features web" "pnpm -F web dev" --names=axum,web',
+    'preview:web': 'concurrently -c "#93c5fd,#c4b5fd" "cd backend/axum && cargo run --bin web --no-default-features --features web" "pnpm -F web preview" --names=axum,web',
+    'build:web': 'pnpm -F web build',
+
+    // --- Database Utilities ---
+    'db:migrate': 'cd backend/axum && cargo run -p migration -- fresh',
+    'db:generate': 'cd backend/axum && sea-orm-cli generate entity -o src/entities',
+
+    // --- Miscellaneous & Utils ---
     'core:gen-routes': 'pnpm -F core gen-routes',
     'core:storybook': 'pnpm -F core storybook',
     'lint:i18n': 'node scripts/check-i18n-keys.mjs',
     'measure:colors': 'node scripts/measure-colors.mjs',
-    'windows:build': 'pnpm -F core build && pnpm -F @decopon/app-windows tauri build',
-    'windows:dev': 'pnpm -F @decopon/app-windows tauri dev',
-    'android:build': 'pnpm -F core build && pnpm -F @decopon/app-android tauri android build --target aarch64',
-    'preandroid:build': 'pnpm version:sync',
-    'android:dev': 'pnpm -F @decopon/app-android tauri android dev',
-    'android:halt': 'node scripts/android-halt.mjs',
     'sites:build': 'pnpm -F @decopon/sites build',
+
+    // --- Android Specific Debugging ---
+    'android:debug:install:wifi': 'node scripts/android-wifi-install.mjs',
+    'android:debug:install:wifi:latest': 'node scripts/android-wifi-install-latest.mjs',
+    'android:debug:install:usb': 'node scripts/android-usb-install.mjs',
+    'android:adb:connect:wifi': 'node scripts/android-adb-wifi-connect.mjs',
+    'android:halt': 'node scripts/android-halt.mjs',
+
+    // --- Versioning hooks ---
     'version:sync': 'node ./scripts/sync-version.mjs',
+    'preandroid:build': 'pnpm version:sync',
     'prewindows:build': 'pnpm version:sync'
   },
   packageManager: 'pnpm@10.18.2',
