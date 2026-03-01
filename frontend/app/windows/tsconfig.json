@@ -6,6 +6,7 @@
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "composite": true,
     "tsBuildInfoFile": "./tsconfig.tsbuildinfo",
+    "rootDir": "..",
     "outDir": "dist",
 
     /* Bundler mode */

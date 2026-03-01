@@ -1,6 +1,7 @@
 import { StrictMode } from "react";
 import ReactDOM from "react-dom/client";
 import { App } from "./App";
+
 export const bootstrap = () => {
   const rootElement = document.getElementById("root");
 
@@ -14,4 +15,3 @@ export const bootstrap = () => {
     </StrictMode>,
   );
 };
-

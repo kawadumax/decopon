@@ -1,11 +1,14 @@
+import { isTauriEnvironment } from "@/scripts/lib/isTauriEnvironment";
 import type { Auth, User } from "@/scripts/types";
 import ApplicationLogo from "@components/ApplicationLogo";
 import Dropdown from "@components/Dropdown";
+import { HitSlop } from "@components/HitSlop";
 import NavLink from "@components/NavLink";
 import ResponsiveNavLink from "@components/ResponsiveNavLink";
 import { StackViewProvider, useStackView } from "@components/StackView";
 import { Timer } from "@components/Timer";
 import { TimerStateWidget } from "@components/TimerStateWidget";
+import { TimerSwipeHandle } from "@components/TimerSwipeHandle";
 import { Separator } from "@components/ui/separator";
 import {
   Sheet,
@@ -17,6 +20,11 @@ import {
 } from "@components/ui/sheet";
 import { Toaster } from "@components/ui/sonner";
 import { useDeviceSize } from "@hooks/useDeviceSize";
+import { type KeyboardState, useKeyboardState } from "@hooks/useKeyboardInset";
+import {
+  type MobileSheetSwipeHandlers,
+  useMobileSheetSwipes,
+} from "@hooks/useMobileSheetSwipes";
 import { cn } from "@lib/utils";
 import {
   ActivitySquare,
@@ -34,16 +42,22 @@ import {
   type ReactNode,
   type SetStateAction,
   forwardRef,
+  useLayoutEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
-import { isTauriEnvironment } from "@/scripts/lib/isTauriEnvironment";
 
 type DrawerLinkDefinition = {
   key: "statistics" | "tasks" | "tags" | "logs";
   href: "/auth/statistics" | "/auth/tasks" | "/auth/tags" | "/auth/logs";
   icon: typeof ActivitySquare;
+};
+
+type SheetOpenState = {
+  open: boolean;
+  setOpen: Dispatch<SetStateAction<boolean>>;
 };
 
 const links: DrawerLinkDefinition[] = [
@@ -71,10 +85,14 @@ const links: DrawerLinkDefinition[] = [
 
 const Drawer = ({
   user,
+  drawerState,
+  swipeHandlers,
 }: {
   user: User;
+  drawerState: SheetOpenState;
+  swipeHandlers: MobileSheetSwipeHandlers;
 }) => {
-  const [open, setOpen] = useState(false);
+  const { open, setOpen } = drawerState;
   const { t } = useTranslation();
   const isTauri = useMemo(() => isTauriEnvironment(), []);
   const drawerLinks = useMemo(() => links, []);
@@ -84,10 +102,20 @@ const Drawer = ({
       <SheetTrigger asChild>
         <DrawerButton open={open} setOpen={setOpen} />
       </SheetTrigger>
-      <SheetContent side="right">
+      <SheetContent
+        side="right"
+        className="pb-4"
+        style={{
+          paddingTop:
+            "calc(1rem + var(--decopon-safe-area-top, env(safe-area-inset-top)))",
+        }}
+        {...swipeHandlers}
+      >
         <SheetHeader className="sr-only">
           <SheetTitle>ナビゲーションメニュー</SheetTitle>
-          <SheetDescription>主要ページへのリンクを表示しています</SheetDescription>
+          <SheetDescription>
+            主要ページへのリンクを表示しています
+          </SheetDescription>
         </SheetHeader>
         {!isTauri && (
           <>
@@ -264,34 +292,200 @@ const BackButton = () => {
   );
 };
 
-const HeaderNavigation = ({ user }: { user: User }) => {
+const HeaderNavigation = ({
+  user,
+  drawerState,
+  timerState,
+  drawerSwipeHandlers,
+  timerSwipeHandlers,
+  timerHandleHandlers,
+  keyboardState,
+}: {
+  user: User;
+  drawerState: SheetOpenState;
+  timerState: SheetOpenState;
+  drawerSwipeHandlers: MobileSheetSwipeHandlers;
+  timerSwipeHandlers: MobileSheetSwipeHandlers;
+  timerHandleHandlers: MobileSheetSwipeHandlers;
+  keyboardState: KeyboardState;
+}) => {
+  const headerRef = useRef<HTMLElement | null>(null);
+  const [headerHeight, setHeaderHeight] = useState(0);
+
+  useLayoutEffect(() => {
+    const element = headerRef.current;
+    if (!element) return;
+
+    const updateHeaderHeight = () => {
+      const { height } = element.getBoundingClientRect();
+      setHeaderHeight(height);
+      document.documentElement.style.setProperty(
+        "--decopon-header-height",
+        `${height}px`,
+      );
+    };
+
+    updateHeaderHeight();
+    const observer = new ResizeObserver(updateHeaderHeight);
+    observer.observe(element);
+
+    return () => observer.disconnect();
+  }, [keyboardState.isOpen]);
+
+  useLayoutEffect(() => {
+    if (typeof window === "undefined") return;
+    let rafId = 0;
+    let pending: ReturnType<typeof getHeaderMetrics> | null = null;
+    const shouldLog = () => {
+      if (window.__decoponImeDebug === true) return true;
+      try {
+        return window.localStorage.getItem("decopon:ime-debug") === "1";
+      } catch {
+        return false;
+      }
+    };
+    const getHeaderMetrics = (eventType: string) => {
+      const rect = headerRef.current?.getBoundingClientRect();
+      const viewport = window.visualViewport;
+      const main = document.querySelector("main");
+      const mainScrollTop =
+        main && "scrollTop" in main ? (main as HTMLElement).scrollTop : null;
+      const mainScrollHeight =
+        main && "scrollHeight" in main
+          ? (main as HTMLElement).scrollHeight
+          : null;
+      const mainClientHeight =
+        main && "clientHeight" in main
+          ? (main as HTMLElement).clientHeight
+          : null;
+      const visualViewportGap = viewport
+        ? Math.max(0, window.innerHeight - viewport.height)
+        : null;
+      const visualOffsetApplied = (() => {
+        if (!viewport) return 0;
+        const offsetTop = viewport.offsetTop ?? 0;
+        return Math.round(offsetTop);
+      })();
+      return {
+        eventType,
+        headerTop: rect?.top ?? null,
+        headerBottom: rect?.bottom ?? null,
+        headerHeight: rect?.height ?? null,
+        scrollY: window.scrollY,
+        documentScrollTop: document.documentElement.scrollTop,
+        mainScrollTop,
+        mainScrollHeight,
+        mainClientHeight,
+        visualViewportHeight: viewport?.height ?? null,
+        visualViewportOffsetTop: viewport?.offsetTop ?? null,
+        visualViewportGap,
+        visualViewportAppliedOffset: visualOffsetApplied,
+        isImeOpen: keyboardState.isOpen,
+        layoutLoss: keyboardState.layoutLoss,
+        visualLoss: keyboardState.visualLoss,
+        visualViewportScale: viewport?.scale ?? null,
+        visualViewportPageTop:
+          typeof viewport?.pageTop === "number" ? viewport.pageTop : null,
+      };
+    };
+    const logState = (eventType: string) => {
+      if (!shouldLog()) return;
+      pending = getHeaderMetrics(eventType);
+      if (rafId) return;
+      rafId = requestAnimationFrame(() => {
+        if (pending) {
+          console.info("[ime-debug] header-metrics", pending);
+        }
+        pending = null;
+        rafId = 0;
+      });
+    };
+    const onWindowScroll = () => logState("window-scroll");
+    const onWindowResize = () => logState("window-resize");
+    const onViewportScroll = () => logState("visual-scroll");
+    const onViewportResize = () => logState("visual-resize");
+    const onMainScroll = () => logState("main-scroll");
+    const main = document.querySelector("main");
+
+    window.addEventListener("scroll", onWindowScroll, { passive: true });
+    window.addEventListener("resize", onWindowResize);
+    window.visualViewport?.addEventListener("resize", onViewportResize);
+    window.visualViewport?.addEventListener("scroll", onViewportScroll);
+    main?.addEventListener("scroll", onMainScroll, { passive: true });
+    logState("init");
+    return () => {
+      window.removeEventListener("scroll", onWindowScroll);
+      window.removeEventListener("resize", onWindowResize);
+      window.visualViewport?.removeEventListener("resize", onViewportResize);
+      window.visualViewport?.removeEventListener("scroll", onViewportScroll);
+      main?.removeEventListener("scroll", onMainScroll);
+      if (rafId) cancelAnimationFrame(rafId);
+    };
+  }, [keyboardState.isOpen, keyboardState.layoutLoss, keyboardState.visualLoss]);
+
   return (
-    <nav className="flex flex-row justify-between border-line border-b bg-surface ps-safe pe-safe pt-safe dark:border-line-subtle dark:bg-surface">
+    <nav
+      ref={headerRef}
+      style={{
+        paddingTop:
+          "var(--decopon-safe-area-top, env(safe-area-inset-top))",
+      }}
+      className="fixed inset-x-0 top-0 z-40 flex w-full shrink-0 flex-row items-center justify-between border-line border-b bg-surface dark:border-line-subtle dark:bg-surface"
+    >
       <BackButton />
-      <Sheet>
-        <SheetTrigger>
-          <TimerStateWidget />
-        </SheetTrigger>
-        <SheetContent side={"top"} className="size-full p-0">
+      <Sheet open={timerState.open} onOpenChange={timerState.setOpen}>
+        <div className="flex flex-col items-center gap-1">
+          <SheetTrigger>
+            <HitSlop hitSlop={{ top: 8, bottom: 8, left: 16, right: 16 }}>
+              <TimerStateWidget />
+            </HitSlop>
+          </SheetTrigger>
+          <TimerSwipeHandle
+            swipeHandlers={timerHandleHandlers}
+            className="pb-1"
+          />
+        </div>
+        <SheetContent
+          side={"top"}
+          className="p-0 pb-4"
+          offsetTop={headerHeight}
+          zIndex={30}
+          closeSafeArea={false}
+          {...timerSwipeHandlers}
+        >
           <SheetHeader className="sr-only">
             <SheetTitle>Timer</SheetTitle>
-            <SheetDescription>タイマー用の操作パネルを開きます</SheetDescription>
+            <SheetDescription>
+              タイマー用の操作パネルを開きます
+            </SheetDescription>
           </SheetHeader>
           <Timer />
         </SheetContent>
       </Sheet>
-      <Drawer user={user} />
+      <Drawer
+        user={user}
+        drawerState={drawerState}
+        swipeHandlers={drawerSwipeHandlers}
+      />
     </nav>
   );
 };
 
-const FooterNavigation = () => {
+const FooterNavigation = ({ isHidden }: { isHidden: boolean }) => {
   const matchRoute = useMatchRoute();
   const { t } = useTranslation();
   const footerLinks = useMemo(() => links, []);
+  const footerSafeAreaBottom =
+    "var(--decopon-safe-area-bottom, env(safe-area-inset-bottom))";
+
+  if (isHidden) return null;
 
   return (
-    <nav className="sticky bottom-0 flex flex-row items-stretch justify-between divide-x border-line border-t border-b bg-surface px-safe pb-safe shadow-lg dark:border-line-subtle dark:bg-surface">
+    <nav
+      className={cn(
+        "sticky bottom-0 flex flex-row items-stretch justify-between divide-x border-line border-t border-b bg-surface shadow-lg dark:border-line-subtle dark:bg-surface",
+      )}
+    >
       {footerLinks.map((link) => {
         const isActive = !!matchRoute({ to: link.href, fuzzy: false });
         const activeClassName = isActive ? "text-primary" : "text-fg";
@@ -300,6 +494,7 @@ const FooterNavigation = () => {
             key={link.href}
             to={link.href}
             className="flex flex-1 flex-col items-center"
+            style={{ paddingBottom: footerSafeAreaBottom }}
           >
             <span
               className={cn([
@@ -333,7 +528,10 @@ export default function Authenticated({
   setBreakTime(user?.break_time || 5);
 
   return (
-    <div className="flex h-screen flex-col bg-surface-muted dark:bg-surface-muted">
+    <div
+      className="flex h-screen flex-col bg-surface-muted dark:bg-surface-muted"
+      style={{ height: "100dvh" }}
+    >
       <StackViewProvider>
         <ResponsiveLayout user={user}>{children}</ResponsiveLayout>
       </StackViewProvider>
@@ -350,6 +548,22 @@ const ResponsiveLayout = ({
   children: React.ReactNode;
 }) => {
   const deviceSize = useDeviceSize();
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isTimerOpen, setIsTimerOpen] = useState(false);
+  const enableMobileLayout = deviceSize === "mobile" || deviceSize === "tablet";
+  const keyboardState = useKeyboardState();
+  const shouldHideFooter = enableMobileLayout && keyboardState.isOpen;
+
+  const {
+    rootHandlers,
+    drawerContentHandlers,
+    timerContentHandlers,
+    timerHandleHandlers,
+  } = useMobileSheetSwipes({
+    enabled: enableMobileLayout,
+    drawerState: { open: isDrawerOpen, setOpen: setIsDrawerOpen },
+    timerState: { open: isTimerOpen, setOpen: setIsTimerOpen },
+  });
 
   switch (deviceSize) {
     case undefined:
@@ -361,17 +575,30 @@ const ResponsiveLayout = ({
     case "mobile":
     case "tablet":
       return (
-        <>
-          <HeaderNavigation user={user} />
-          <main className="grow overflow-auto">{children}</main>
-          <FooterNavigation />
-        </>
+        <div className="flex h-full flex-col" {...rootHandlers}>
+          <HeaderNavigation
+            user={user}
+            drawerState={{ open: isDrawerOpen, setOpen: setIsDrawerOpen }}
+            timerState={{ open: isTimerOpen, setOpen: setIsTimerOpen }}
+            drawerSwipeHandlers={drawerContentHandlers}
+            timerSwipeHandlers={timerContentHandlers}
+            timerHandleHandlers={timerHandleHandlers}
+            keyboardState={keyboardState}
+          />
+          <main
+            className="grow min-h-0 overflow-auto"
+            style={{ paddingTop: "var(--decopon-header-height, 0px)" }}
+          >
+            {children}
+          </main>
+          <FooterNavigation isHidden={shouldHideFooter} />
+        </div>
       );
     case "pc":
       return (
         <>
           <HeaderNavigationPC user={user} />
-          <main className="grow overflow-auto">{children}</main>
+          <main className="grow min-h-0 overflow-auto">{children}</main>
         </>
       );
   }
